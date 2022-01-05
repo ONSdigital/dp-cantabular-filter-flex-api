@@ -2,6 +2,8 @@ module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
 go 1.17
 
+replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.24+incompatible
+
 require (
 	github.com/ONSdigital/dp-component-test v0.6.3
 	github.com/ONSdigital/dp-healthcheck v1.2.2
