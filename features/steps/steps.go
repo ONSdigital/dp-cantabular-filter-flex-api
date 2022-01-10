@@ -9,12 +9,11 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 }
 
 func (c *Component) iShouldReceiveAHelloworldResponse() error {
-	/*
-	   TODO - fix this for real endpoints
-	   responseBody := c.apiFeature.HttpResponse.Body
-	   	body, _ := ioutil.ReadAll(responseBody)
+	/*  TODO - implement correct tests once service is ready
+	responseBody := c.apiFeature.HttpResponse.Body
+	body, _ := ioutil.ReadAll(responseBody)
 
-	   	assert.Equal(c, `{"message":"Hello, World!"}`, strings.TrimSpace(string(body)))
+	assert.Equal(c, `{"message":"Hello, World!"}`, strings.TrimSpace(string(body)))
 	*/
 	return c.StepError()
 
