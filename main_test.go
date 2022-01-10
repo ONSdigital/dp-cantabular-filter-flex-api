@@ -2,14 +2,20 @@ package main
 
 import (
 	"flag"
+	"io"
+	"log"
 	"os"
 	"testing"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/steps"
 	componenttest "github.com/ONSdigital/dp-component-test"
+	dplogs "github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )
+
+const componentLogFile = "component-output.txt"
 
 var componentFlag = flag.Bool("component", false, "perform component tests")
 
@@ -17,18 +23,21 @@ type ComponentTest struct {
 	MongoFeature *componenttest.MongoFeature
 }
 
+func init() {
+	dplogs.Namespace = "dp-cantabular-filter-flex-api"
+}
+
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
-	component, err := steps.NewComponent()
-	if err != nil {
-		panic(err)
-	}
+	component := steps.NewComponent()
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
-		component.Reset()
+		if err := component.Reset(); err != nil {
+			log.Panicf("unable to initialise scenario: %s", err)
+		}
 	})
 
 	ctx.AfterScenario(func(*godog.Scenario, error) {
-		_ = component.Close()
+		component.Close()
 	})
 
 	component.RegisterSteps(ctx)
@@ -42,8 +51,27 @@ func TestComponent(t *testing.T) {
 	if *componentFlag {
 		status := 0
 
+		cfg, err := config.Get()
+		if err != nil {
+			t.Fatalf("failed to get service config: %s", err)
+		}
+
+		var output io.Writer = os.Stdout
+
+		if cfg.ComponentTestUseLogFile {
+			logfile, err := os.Create(componentLogFile)
+			if err != nil {
+				t.Fatalf("could not create logs file: %s", err)
+			}
+
+			defer logfile.Close()
+			output = logfile
+
+			dplogs.SetDestination(logfile, nil)
+		}
+
 		var opts = godog.Options{
-			Output: colors.Colored(os.Stdout),
+			Output: colors.Colored(output),
 			Format: "pretty",
 			Paths:  flag.Args(),
 		}

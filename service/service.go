@@ -2,93 +2,106 @@ package service
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 )
 
-// Service contains all the configs, server and clients to run the API
+// Service contains all the configs, server and clients to run the event handler service
 type Service struct {
-	Config      *config.Config
+	Cfg         *config.Config
 	Server      HTTPServer
-	Router      *mux.Router
-	Api         *api.API
-	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
+	Producer    kafka.IProducer
+	Api         *api.API
 }
 
-// Run the service
-func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceList, buildTime, gitCommit, version string, svcErrors chan error) (*Service, error) {
+func New() *Service {
+	return &Service{}
+}
 
-	log.Info(ctx, "running service")
+// Init initialises the service and it's dependencies
+func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, gitCommit, version string) error {
+	var err error
 
-	log.Info(ctx, "using service configuration", log.Data{"config": cfg})
+	if cfg == nil {
+		return errors.New("nil config passed to service init")
+	}
 
-	// Get HTTP Server and ... // TODO: Add any middleware that your service requires
+	svc.Cfg = cfg
+
+	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
+		return fmt.Errorf("failed to create kafka producer: %w", err)
+	}
+
+	// Get HealthCheck
+	if svc.HealthCheck, err = GetHealthCheck(cfg, buildTime, gitCommit, version); err != nil {
+		return fmt.Errorf("could not instantiate healthcheck: %w", err)
+	}
+
+	if err := svc.registerCheckers(); err != nil {
+		return fmt.Errorf("error initialising checkers: %w", err)
+	}
+
 	r := mux.NewRouter()
-
-	s := serviceList.GetHTTPServer(cfg.BindAddr, r)
+	r.StrictSlash(true).Path("/health").HandlerFunc(svc.HealthCheck.Handler)
+	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
 	a := api.Setup(ctx, r)
 
-	hc, err := serviceList.GetHealthCheck(cfg, buildTime, gitCommit, version)
+	svc.Api = a
 
-	if err != nil {
-		log.Fatal(ctx, "could not instantiate healthcheck", err)
-		return nil, err
-	}
+	return nil
+}
 
-	if err := registerCheckers(ctx, hc); err != nil {
-		return nil, errors.Wrap(err, "unable to register checkers")
-	}
+// Start the service
+func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
+	log.Info(ctx, "starting service")
 
-	r.StrictSlash(true).Path("/health").HandlerFunc(hc.Handler)
-	hc.Start(ctx)
+	// Always start healthcheck.
+	// If start/stop on health updates is enabled,
+	// the consumer will start consuming on the first healthy update
+	svc.HealthCheck.Start(ctx)
 
 	// Run the http server in a new go-routine
 	go func() {
-		if err := s.ListenAndServe(); err != nil {
-			svcErrors <- errors.Wrap(err, "failure in http listen and serve")
+		if err := svc.Server.ListenAndServe(); err != nil {
+			svcErrors <- fmt.Errorf("failure in http listen and serve: %w", err)
 		}
 	}()
-
-	return &Service{
-		Config:      cfg,
-		Router:      r,
-		Api:         a,
-		HealthCheck: hc,
-		ServiceList: serviceList,
-		Server:      s,
-	}, nil
 }
 
 // Close gracefully shuts the service down in the required order, with timeout
 func (svc *Service) Close(ctx context.Context) error {
-	timeout := svc.Config.GracefulShutdownTimeout
+	timeout := svc.Cfg.GracefulShutdownTimeout
 	log.Info(ctx, "commencing graceful shutdown", log.Data{"graceful_shutdown_timeout": timeout})
 	ctx, cancel := context.WithTimeout(ctx, timeout)
-
-	// track shutown gracefully closes up
-	var hasShutdownError bool
+	hasShutdownError := false
 
 	go func() {
 		defer cancel()
 
 		// stop healthcheck, as it depends on everything else
-		if svc.ServiceList.HealthCheck {
+		if svc.HealthCheck != nil {
 			svc.HealthCheck.Stop()
+			log.Info(ctx, "stopped health checker")
 		}
 
 		// stop any incoming requests before closing any outbound connections
-		if err := svc.Server.Shutdown(ctx); err != nil {
-			log.Error(ctx, "failed to shutdown http server", err)
-			hasShutdownError = true
+		if svc.Server != nil {
+			if err := svc.Server.Shutdown(ctx); err != nil {
+				log.Error(ctx, "failed to shutdown http server", err)
+				hasShutdownError = true
+			}
+			log.Info(ctx, "stopped http server")
 		}
 
 		// TODO: Close other dependencies, in the expected order
@@ -99,23 +112,23 @@ func (svc *Service) Close(ctx context.Context) error {
 
 	// timeout expired
 	if ctx.Err() == context.DeadlineExceeded {
-		log.Error(ctx, "shutdown timed out", ctx.Err())
-		return ctx.Err()
+		return fmt.Errorf("shutdown timed out: %w", ctx.Err())
 	}
 
 	// other error
 	if hasShutdownError {
-		err := errors.New("failed to shutdown gracefully")
-		log.Error(ctx, "failed to shutdown gracefully ", err)
-		return err
+		return fmt.Errorf("failed to shutdown gracefully")
 	}
 
 	log.Info(ctx, "graceful shutdown was successful")
 	return nil
 }
 
-func registerCheckers(ctx context.Context,
-	hc HealthChecker) (err error) {
+// registerCheckers adds the checkers for the service clients to the health check object.
+func (svc *Service) registerCheckers() error {
+	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
+		return fmt.Errorf("error adding check for Kafka producer: %w", err)
+	}
 
 	// TODO: add other health checks here, as per dp-upload-service
 

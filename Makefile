@@ -11,11 +11,7 @@ all: audit test build
 
 .PHONY: audit
 audit:
-	go list -json -m all | nancy sleuth
-
-.PHONY: lint
-lint:
-	exit
+	go list -m all | nancy sleuth
 
 .PHONY: build
 build:
@@ -25,6 +21,10 @@ build:
 debug:
 	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-cantabular-filter-flex-api
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-cantabular-filter-flex-api
+
+.PHONY: debug-run
+debug-run:
+	HUMAN_LOG=1 DEBUG=1 go run -tags 'debug' $(LDFLAGS) main.go
 
 .PHONY: test
 test:
@@ -36,4 +36,9 @@ convey:
 
 .PHONY: test-component
 test-component:
-	go test -cover -coverpkg=github.com/ONSdigital/dp-cantabular-filter-flex-api/... -component
+	cd features/compose; docker-compose up --abort-on-container-exit
+	echo "please ignore error codes 0, like so: ERRO[xxxx] 0, as error code 0 means that there was no error"
+
+.PHONY: lint
+lint:
+	exit
