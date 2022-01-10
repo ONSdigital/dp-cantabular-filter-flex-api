@@ -2,20 +2,20 @@ package service_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	kafka "github.com/ONSdigital/dp-kafka/v3"
+	"github.com/ONSdigital/dp-kafka/v3/kafkatest"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	serviceMock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 
-	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -24,176 +24,150 @@ var (
 	testBuildTime = "BuildTime"
 	testGitCommit = "GitCommit"
 	testVersion   = "Version"
-	errServer     = errors.New("HTTP Server error")
+	testChecks    = map[string]*healthcheck.Check{ // TODO - adjust when app is more fully implemented
+		"Cantabular client": {},
+	}
 )
 
 var (
-	errHealthcheck = errors.New("healthCheck error")
+	errHealthcheck = fmt.Errorf("healthCheck error")
+	errServer      = fmt.Errorf("HTTP Server error")
+	errAddCheck    = fmt.Errorf("healthcheck add check error")
 )
 
-var funcDoGetHealthcheckErr = func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
-	return nil, errHealthcheck
-}
-
-var funcDoGetHTTPServerNil = func(bindAddr string, router http.Handler) service.HTTPServer {
-	return nil
-}
-
-func TestRun(t *testing.T) {
-
+func TestInit(t *testing.T) {
 	Convey("Having a set of mocked dependencies", t, func() {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
+		producerMock := &kafkatest.IProducerMock{}
+		service.GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
+			return producerMock, nil
+		}
+
+		subscribedTo := []*healthcheck.Check{}
 		hcMock := &serviceMock.HealthCheckerMock{
-			AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
-			StartFunc:    func(ctx context.Context) {},
-		}
-
-		serverWg := &sync.WaitGroup{}
-		serverMock := &serviceMock.HTTPServerMock{
-			ListenAndServeFunc: func() error {
-				serverWg.Done()
-				return nil
+			AddAndGetCheckFunc: func(name string, checker healthcheck.Checker) (*healthcheck.Check, error) {
+				return testChecks[name], nil
+			},
+			SubscribeFunc: func(s healthcheck.Subscriber, checks ...*healthcheck.Check) {
+				subscribedTo = append(subscribedTo, checks...)
 			},
 		}
-
-		failingServerMock := &serviceMock.HTTPServerMock{
-			ListenAndServeFunc: func() error {
-				serverWg.Done()
-				return errServer
-			},
-		}
-
-		funcDoGetHealthcheckOk := func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
+		service.GetHealthCheck = func(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
 			return hcMock, nil
 		}
 
-		funcDoGetHTTPServer := func(bindAddr string, router http.Handler) service.HTTPServer {
+		serverMock := &serviceMock.HTTPServerMock{}
+		service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
 			return serverMock
 		}
 
-		funcDoGetFailingHTTPSerer := func(bindAddr string, router http.Handler) service.HTTPServer {
-			return failingServerMock
-		}
+		svc := &service.Service{}
 
 		Convey("Given that initialising healthcheck returns an error", func() {
-
-			// setup (run before each `Convey` at this scope / indentation):
-			initMock := &serviceMock.InitialiserMock{
-				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
-				DoGetHealthCheckFunc: funcDoGetHealthcheckErr,
+			service.GetHealthCheck = func(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
+				return nil, errHealthcheck
 			}
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
-			_, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
 
-			Convey("Then service Run fails with the same error and the flag is not set", func() {
-				So(err, ShouldResemble, errHealthcheck)
-				So(svcList.HealthCheck, ShouldBeFalse)
+			Convey("Then service Init fails with the same error and no further initialisations are attempted", func() {
+				err := svc.Init(ctx, cfg, testBuildTime, testGitCommit, testVersion)
+				So(errors.Unwrap(err), ShouldResemble, errHealthcheck)
+				So(svc.Cfg, ShouldResemble, cfg)
+
+				Convey("And no checkers are registered ", func() {
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 0)
+				})
 			})
+		})
 
-			Reset(func() {
-				// This reset is run after each `Convey` at the same scope (indentation)
+		Convey("Given that Checkers cannot be registered", func() {
+			hcMock.AddAndGetCheckFunc = func(name string, checker healthcheck.Checker) (*healthcheck.Check, error) { return nil, errAddCheck }
+
+			Convey("Then service Init fails with the expected error", func() {
+				err := svc.Init(ctx, cfg, testBuildTime, testGitCommit, testVersion)
+				So(err, ShouldNotBeNil)
+				So(errors.Is(err, errAddCheck), ShouldBeTrue)
+				So(svc.Cfg, ShouldResemble, cfg)
+
+				Convey("And other checkers don't try to register", func() {
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 1)
+				})
 			})
 		})
 
 		Convey("Given that all dependencies are successfully initialised", func() {
 
-			// setup (run before each `Convey` at this scope / indentation):
-			initMock := &serviceMock.InitialiserMock{
-				DoGetHTTPServerFunc:  funcDoGetHTTPServer,
-				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
-			}
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
-			serverWg.Add(1)
-			_, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
-
-			Convey("Then service Run succeeds and all the flags are set", func() {
+			Convey("Then service Init succeeds, all dependencies are initialised", func() {
+				err := svc.Init(ctx, cfg, testBuildTime, testGitCommit, testVersion)
 				So(err, ShouldBeNil)
-				So(svcList.HealthCheck, ShouldBeTrue)
-			})
+				So(svc.Cfg, ShouldResemble, cfg)
+				So(svc.Server, ShouldEqual, serverMock)
+				So(svc.HealthCheck, ShouldResemble, hcMock)
+				So(svc.Producer, ShouldResemble, producerMock)
 
-			Convey("The checkers are registered and the healthcheck and http server started", func() {
-				So(len(hcMock.AddCheckCalls()), ShouldEqual, 0)
-				So(len(initMock.DoGetHTTPServerCalls()), ShouldEqual, 1)
-				So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, "localhost:27100")
+				Convey("Then all checks are registered", func() {
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 1)
+					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Kafka producer")
+				})
+			})
+		})
+	})
+}
+
+func TestStart(t *testing.T) {
+	Convey("Having a correctly initialised Service with mocked dependencies", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		hcMock := &serviceMock.HealthCheckerMock{
+			StartFunc: func(ctx context.Context) {},
+		}
+
+		serverWg := &sync.WaitGroup{}
+		serverMock := &serviceMock.HTTPServerMock{}
+
+		svc := &service.Service{
+			Cfg:         cfg,
+			Server:      serverMock,
+			HealthCheck: hcMock,
+		}
+
+		Convey("When a service with a successful HTTP server is started", func() {
+			serverMock.ListenAndServeFunc = func() error {
+				serverWg.Done()
+				return nil
+			}
+			serverWg.Add(1)
+			svc.Start(ctx, make(chan error, 1))
+
+			Convey("Then healthcheck is started and HTTP server starts listening", func() {
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
-				//!!! a call needed to stop the server, maybe ?
 				serverWg.Wait() // Wait for HTTP server go-routine to finish
 				So(len(serverMock.ListenAndServeCalls()), ShouldEqual, 1)
 			})
-
-			Reset(func() {
-				// This reset is run after each `Convey` at the same scope (indentation)
-			})
 		})
 
-		// ADD CODE: put this code in, if you have Checkers to register
-		/*Convey("Given that Checkers cannot be registered", func() {
-
-			// setup (run before each `Convey` at this scope / indentation):
-			errAddheckFail := errors.New("Error(s) registering checkers for healthcheck")
-			hcMockAddFail := &serviceMock.HealthCheckerMock{
-				AddCheckFunc: func(name string, checker healthcheck.Checker) error { return errAddheckFail },
-				StartFunc:    func(ctx context.Context) {},
+		Convey("When a service with a failing HTTP server is started", func() {
+			serverMock.ListenAndServeFunc = func() error {
+				serverWg.Done()
+				return errServer
 			}
-
-			initMock := &serviceMock.InitialiserMock{
-				DoGetHTTPServerFunc: funcDoGetHTTPServerNil,
-				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
-					return hcMockAddFail, nil
-				},
-				// ADD CODE: add the checkers that you want to register here
-			}
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
-			_, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
-
-			Convey("Then service Run fails, but all checks try to register", func() {
-				So(err, ShouldBeNil)
-				So(err.Error(), ShouldResemble, fmt.Sprintf("unable to register checkers: %s", errAddheckFail.Error()))
-				So(svcList.HealthCheck, ShouldBeTrue)
-				// ADD CODE: add code to confirm checkers exist
-				So(len(hcMockAddFail.AddCheckCalls()), ShouldEqual, 0) // ADD CODE: change the '0' to the number of checkers you have registered
-			})
-			Reset(func() {
-				// This reset is run after each `Convey` at the same scope (indentation)
-			})
-		})*/
-
-		Convey("Given that all dependencies are successfully initialised but the http server fails", func() {
-
-			// setup (run before each `Convey` at this scope / indentation):
-			initMock := &serviceMock.InitialiserMock{
-				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
-				DoGetHTTPServerFunc:  funcDoGetFailingHTTPSerer,
-			}
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
+			errChan := make(chan error, 1)
 			serverWg.Add(1)
-			_, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
-			So(err, ShouldBeNil)
+			svc.Start(ctx, errChan)
 
-			Convey("Then the error is returned in the error channel", func() {
-				sErr := <-svcErrors
-				So(sErr.Error(), ShouldResemble, fmt.Sprintf("failure in http listen and serve: %s", errServer.Error()))
-				So(len(failingServerMock.ListenAndServeCalls()), ShouldEqual, 1)
-			})
-
-			Reset(func() {
-				// This reset is run after each `Convey` at the same scope (indentation)
+			Convey("Then HTTP server errors are reported to the provided errors channel", func() {
+				rxErr := <-errChan
+				So(rxErr.Error(), ShouldResemble, fmt.Sprintf("failure in http listen and serve: %s", errServer.Error()))
 			})
 		})
 	})
 }
 
 func TestClose(t *testing.T) {
-
 	Convey("Having a correctly initialised service", t, func() {
-
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
@@ -201,93 +175,70 @@ func TestClose(t *testing.T) {
 
 		// healthcheck Stop does not depend on any other service being closed/stopped
 		hcMock := &serviceMock.HealthCheckerMock{
-			AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
-			StartFunc:    func(ctx context.Context) {},
-			StopFunc:     func() { hcStopped = true },
+			StopFunc: func() { hcStopped = true },
 		}
 
 		// server Shutdown will fail if healthcheck is not stopped
-		serverMock := &mock.HTTPServerMock{
-			ListenAndServeFunc: func() error { return nil },
+		serverMock := &serviceMock.HTTPServerMock{
 			ShutdownFunc: func(ctx context.Context) error {
 				if !hcStopped {
-					return errors.New("Server stopped before healthcheck")
+					return fmt.Errorf("server stopped before healthcheck")
 				}
 				return nil
 			},
 		}
 
+		svc := &service.Service{
+			Cfg:         cfg,
+			Server:      serverMock,
+			HealthCheck: hcMock,
+		}
+
 		Convey("Closing the service results in all the dependencies being closed in the expected order", func() {
-
-			initMock := &mock.InitialiserMock{
-				DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer { return serverMock },
-				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
-					return hcMock, nil
-				},
-			}
-
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
-			svc, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
+			err := svc.Close(context.Background())
 			So(err, ShouldBeNil)
-
-			err = svc.Close(context.Background())
-			So(err, ShouldBeNil)
-			So(len(hcMock.StopCalls()), ShouldEqual, 1)
-			So(len(serverMock.ShutdownCalls()), ShouldEqual, 1)
+			So(hcMock.StopCalls(), ShouldHaveLength, 1)
+			So(serverMock.ShutdownCalls(), ShouldHaveLength, 1)
 		})
 
 		Convey("If services fail to stop, the Close operation tries to close all dependencies and returns an error", func() {
-
-			failingserverMock := &mock.HTTPServerMock{
-				ListenAndServeFunc: func() error { return nil },
-				ShutdownFunc: func(ctx context.Context) error {
-					return errors.New("Failed to stop http server")
-				},
-			}
-
-			initMock := &mock.InitialiserMock{
-				DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer { return failingserverMock },
-				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
-					return hcMock, nil
-				},
-			}
-
-			svcErrors := make(chan error, 1)
-			svcList := service.NewServiceList(initMock)
-			svc, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
-			So(err, ShouldBeNil)
-
-			err = svc.Close(context.Background())
-			//So(err, ShouldNotBeNil)
-			So(len(hcMock.StopCalls()), ShouldEqual, 1)
-			So(len(failingserverMock.ShutdownCalls()), ShouldEqual, 1)
-		})
-
-		Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {
-			cfg.GracefulShutdownTimeout = 1 * time.Millisecond
-			timeoutServerMock := &mock.HTTPServerMock{
-				ListenAndServeFunc: func() error { return nil },
-				ShutdownFunc: func(ctx context.Context) error {
-					time.Sleep(2 * time.Millisecond)
-					return nil
-				},
-			}
-
-			svcList := service.NewServiceList(nil)
-			svcList.HealthCheck = true
-			svc := service.Service{
-				Config:      cfg,
-				ServiceList: svcList,
-				Server:      timeoutServerMock,
-				HealthCheck: hcMock,
+			serverMock.ShutdownFunc = func(ctx context.Context) error {
+				return errServer
 			}
 
 			err = svc.Close(context.Background())
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldResemble, "context deadline exceeded")
-			So(len(hcMock.StopCalls()), ShouldEqual, 1)
-			So(len(timeoutServerMock.ShutdownCalls()), ShouldEqual, 1)
+			So(hcMock.StopCalls(), ShouldHaveLength, 1)
+			So(serverMock.ShutdownCalls(), ShouldHaveLength, 1)
 		})
+		/*
+		   TODO - figure out if this has been added to the boilerplate code or been removed from the csv exporter,
+		   such that, do we need to make this work here
+
+		   		Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {
+		   			cfg.GracefulShutdownTimeout = 1 * time.Millisecond
+		   			timeoutServerMock := &mock.HTTPServerMock{
+		   				ListenAndServeFunc: func() error { return nil },
+		   				ShutdownFunc: func(ctx context.Context) error {
+		   					time.Sleep(2 * time.Millisecond)
+		   					return nil
+		   				},
+		   			}
+
+		   			svcList := service.NewServiceList(nil)
+		   			svcList.HealthCheck = true
+		   			svc := service.Service{
+		   				Config:      cfg,
+		   				ServiceList: svcList,
+		   				Server:      timeoutServerMock,
+		   				HealthCheck: hcMock,
+		   			}
+
+		   			err = svc.Close(context.Background())
+		   			So(err, ShouldNotBeNil)
+		   			So(err.Error(), ShouldResemble, "context deadline exceeded")
+		   			So(len(hcMock.StopCalls()), ShouldEqual, 1)
+		   			So(len(timeoutServerMock.ShutdownCalls()), ShouldEqual, 1)
+		   		})*/
 	})
 }

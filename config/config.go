@@ -15,8 +15,8 @@ type Config struct {
 	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
-	ComponentTestUseLogFile      bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
-	KafkaConfig                  KafkaConfig
+	ComponentTestUseLogFile    bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
+	KafkaConfig                KafkaConfig
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -48,11 +48,11 @@ func Get() (*Config, error) {
 	}
 
 	cfg = &Config{
-		BindAddr:                   "localhost:27100",
+		BindAddr:                   ":27100",
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		ComponentTestUseLogFile:      false,
+		ComponentTestUseLogFile:    false,
 		KafkaConfig: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,
