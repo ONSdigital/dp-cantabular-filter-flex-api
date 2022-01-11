@@ -3,6 +3,7 @@ package steps
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -39,20 +40,21 @@ type Component struct {
 	waitEventTimeout time.Duration
 	testETag         string
 	ctx              context.Context
-	apiFeature       *componenttest.APIFeature
+	HTTPServer       *http.Server
 }
 
 func NewComponent() *Component {
 	return &Component{
-		errorChan: make(chan error),
-		wg:        &sync.WaitGroup{},
-		testETag:  "13c7791bafdbaaf5e6660754feb1a58cd6aaa892",
-		ctx:       context.Background(),
+		errorChan:  make(chan error),
+		wg:         &sync.WaitGroup{},
+		testETag:   "13c7791bafdbaaf5e6660754feb1a58cd6aaa892",
+		ctx:        context.Background(),
+		HTTPServer: &http.Server{},
 	}
 }
 
 // initService initialises the server, the mocks and waits for the dependencies to be ready
-func (c *Component) initService(ctx context.Context) error {
+func (c *Component) InitService() (http.Handler, error) {
 	// register interrupt signals
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
@@ -60,43 +62,47 @@ func (c *Component) initService(ctx context.Context) error {
 	// Read config
 	cfg, err := config.Get()
 	if err != nil {
-		return fmt.Errorf("failed to get config: %w", err)
+		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
 
-	log.Info(ctx, "config used by component tests", log.Data{"cfg": cfg})
-
-	// producer for triggering test events
-	if c.producer, err = kafka.NewProducer(
-		ctx,
-		&kafka.ProducerConfig{
-			BrokerAddrs:       cfg.KafkaConfig.Addr,
-			Topic:             cfg.KafkaConfig.ExportStartTopic,
-			MinBrokersHealthy: &cfg.KafkaConfig.ProducerMinBrokersHealthy,
-			KafkaVersion:      &cfg.KafkaConfig.Version,
-			MaxMessageBytes:   &cfg.KafkaConfig.MaxBytes,
-		},
-	); err != nil {
-		return fmt.Errorf("error creating kafka producer: %w", err)
-	}
+	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": cfg})
 
 	// Create service and initialise it
 	c.svc = service.New()
-	if err = c.svc.Init(ctx, cfg, BuildTime, GitCommit, Version); err != nil {
-		return fmt.Errorf("unexpected service Init error in NewComponent: %w", err)
+	if err = c.svc.Init(c.ctx, cfg, BuildTime, GitCommit, Version); err != nil {
+		return nil, fmt.Errorf("unexpected service Init error in NewComponent: %w", err)
 	}
 
 	c.cfg = cfg
 
+	return c.HTTPServer.Handler, nil
+}
+
+func (c *Component) InitProducer() error {
+	// producer for triggering test events
+	var err error
+	if c.producer, err = kafka.NewProducer(
+		c.ctx,
+		&kafka.ProducerConfig{
+			BrokerAddrs:       c.cfg.KafkaConfig.Addr,
+			Topic:             c.cfg.KafkaConfig.ExportStartTopic,
+			MinBrokersHealthy: &c.cfg.KafkaConfig.ProducerMinBrokersHealthy,
+			KafkaVersion:      &c.cfg.KafkaConfig.Version,
+			MaxMessageBytes:   &c.cfg.KafkaConfig.MaxBytes,
+		},
+	); err != nil {
+		return fmt.Errorf("error creating kafka producer: %w", err)
+	}
 	// wait for producer to be initialised
 	<-c.producer.Channels().Initialised
-	log.Info(ctx, "component-test kafka producer initialised")
+	log.Info(c.ctx, "component-test kafka producer initialised")
 
 	return nil
 }
 
 // startService starts the service under test and blocks until an error or an os interrupt is received.
 // Then it closes the service (graceful shutdown)
-func (c *Component) startService(ctx context.Context) {
+func (c *Component) StartService(ctx context.Context) {
 	defer c.wg.Done()
 	c.svc.Start(ctx, c.errorChan)
 
@@ -122,8 +128,10 @@ func (c *Component) Close() {
 	c.wg.Wait()
 
 	// close producer
-	if err := c.producer.Close(c.ctx); err != nil {
-		log.Error(c.ctx, "error closing kafka producer", err)
+	if c.producer != nil {
+		if err := c.producer.Close(c.ctx); err != nil {
+			log.Error(c.ctx, "error closing kafka producer", err)
+		}
 	}
 }
 
@@ -131,9 +139,15 @@ func (c *Component) Close() {
 // Note that the service under test should not be started yet
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
-	if err := c.initService(c.ctx); err != nil {
+	if _, err := c.InitService(); err != nil {
 		return fmt.Errorf("failed to initialise service: %w", err)
 	}
+
+	// if err := c.InitProducer(); err != nil {
+	// 	return fmt.Errorf("failed to initialise producer: %w", err)
+	// }
+
+	c.StartService(c.ctx)
 
 	return nil
 }

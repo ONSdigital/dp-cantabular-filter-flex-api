@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io"
 	"log"
@@ -29,8 +30,14 @@ func init() {
 
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	component := steps.NewComponent()
+	component.InitService()
+	// component.InitProducer()
+	component.StartService(context.Background())
+
+	apiFeature := componenttest.NewAPIFeature(component.InitService)
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
+		apiFeature.Reset()
 		if err := component.Reset(); err != nil {
 			log.Panicf("unable to initialise scenario: %s", err)
 		}
@@ -40,7 +47,9 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 		component.Close()
 	})
 
+	apiFeature.RegisterSteps(ctx)
 	component.RegisterSteps(ctx)
+
 }
 
 func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
