@@ -14,20 +14,12 @@ services:
             - ../../:/dp-cantabular-filter-flex-api
         depends_on:
             - kafka
-            - minio
-            - vault
         ports:
-            - 26300:26300
+            - 27100:27100
         environment:
-            BIND_ADDR:                          ":26300"
+            BIND_ADDR:                          ":27100"
             SERVICE_AUTH_TOKEN:                 "testToken"
             COMPONENT_TEST_USE_LOG_FILE:        "${COMPONENT_TEST_USE_LOG_FILE-false}"
-            LOCAL_OBJECT_STORE:                 "http://minio:9000"
-            MINIO_ACCESS_KEY:                   "minio-access-key"
-            MINIO_SECRET_KEY:                   "minio-secret-key"
-            CANTABULAR_HEALTHCHECK_ENABLED:     "true"
-            ENCRYPTION_DISABLED:                "true"
-            STOP_CONSUMING_ON_UNHEALTHY:        "true"
             KAFKA_ADDR:                         "kafka:9092"
             KAFKA_CONSUMER_MIN_BROKERS_HEALTHY: 1
             KAFKA_PRODUCER_MIN_BROKERS_HEALTHY: 1

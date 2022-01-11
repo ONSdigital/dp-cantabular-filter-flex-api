@@ -67,8 +67,6 @@ func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
 	log.Info(ctx, "starting service")
 
 	// Always start healthcheck.
-	// If start/stop on health updates is enabled,
-	// the consumer will start consuming on the first healthy update
 	svc.HealthCheck.Start(ctx)
 
 	// Run the http server in a new go-routine
