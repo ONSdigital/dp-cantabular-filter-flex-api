@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"io"
 	"log"
@@ -31,8 +30,6 @@ func init() {
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	component := steps.NewComponent()
 	component.InitService()
-	// component.InitProducer()
-	component.StartService(context.Background())
 
 	apiFeature := componenttest.NewAPIFeature(component.InitService)
 

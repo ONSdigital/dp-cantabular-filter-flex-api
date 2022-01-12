@@ -31,23 +31,20 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	producer         kafka.IProducer
-	errorChan        chan error
-	svc              *service.Service
-	cfg              *config.Config
-	wg               *sync.WaitGroup
-	signals          chan os.Signal
-	waitEventTimeout time.Duration
-	testETag         string
-	ctx              context.Context
-	HTTPServer       *http.Server
+	producer   kafka.IProducer
+	errorChan  chan error
+	svc        *service.Service
+	cfg        *config.Config
+	wg         *sync.WaitGroup
+	signals    chan os.Signal
+	ctx        context.Context
+	HTTPServer *http.Server
 }
 
 func NewComponent() *Component {
 	return &Component{
 		errorChan:  make(chan error),
 		wg:         &sync.WaitGroup{},
-		testETag:   "13c7791bafdbaaf5e6660754feb1a58cd6aaa892",
 		ctx:        context.Background(),
 		HTTPServer: &http.Server{},
 	}
@@ -60,27 +57,14 @@ func (c *Component) InitService() (http.Handler, error) {
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
 	// Read config
-	cfg, err := config.Get()
+	var err error
+	c.cfg, err = config.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
+	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
 
-	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": cfg})
-
-	// Create service and initialise it
-	c.svc = service.New()
-	if err = c.svc.Init(c.ctx, cfg, BuildTime, GitCommit, Version); err != nil {
-		return nil, fmt.Errorf("unexpected service Init error in NewComponent: %w", err)
-	}
-
-	c.cfg = cfg
-
-	return c.HTTPServer.Handler, nil
-}
-
-func (c *Component) InitProducer() error {
 	// producer for triggering test events
-	var err error
 	if c.producer, err = kafka.NewProducer(
 		c.ctx,
 		&kafka.ProducerConfig{
@@ -91,18 +75,33 @@ func (c *Component) InitProducer() error {
 			MaxMessageBytes:   &c.cfg.KafkaConfig.MaxBytes,
 		},
 	); err != nil {
-		return fmt.Errorf("error creating kafka producer: %w", err)
+		return nil, fmt.Errorf("error creating kafka producer: %w", err)
 	}
+
+	// Create service and initialise it
+	c.svc = service.New()
+	if err = c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
+		return nil, fmt.Errorf("unexpected service Init error in NewComponent: %w", err)
+	}
+
 	// wait for producer to be initialised
 	<-c.producer.Channels().Initialised
 	log.Info(c.ctx, "component-test kafka producer initialised")
 
-	return nil
+	return c.HTTPServer.Handler, nil
+}
+
+func (c *Component) setInitialiserMock() {
+	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
+		c.HTTPServer.Addr = bindAddr
+		c.HTTPServer.Handler = router
+		return c.HTTPServer
+	}
 }
 
 // startService starts the service under test and blocks until an error or an os interrupt is received.
 // Then it closes the service (graceful shutdown)
-func (c *Component) StartService(ctx context.Context) {
+func (c *Component) startService(ctx context.Context) {
 	defer c.wg.Done()
 	c.svc.Start(ctx, c.errorChan)
 
@@ -125,13 +124,12 @@ func (c *Component) Close() {
 	c.signals <- os.Interrupt
 
 	// wait for graceful shutdown to finish (or timeout)
-	c.wg.Wait()
+	// TODO we should fix the timeout issue and then uncomment the following line.
+	// c.wg.Wait()
 
 	// close producer
-	if c.producer != nil {
-		if err := c.producer.Close(c.ctx); err != nil {
-			log.Error(c.ctx, "error closing kafka producer", err)
-		}
+	if err := c.producer.Close(c.ctx); err != nil {
+		log.Error(c.ctx, "error closing kafka producer", err)
 	}
 }
 
@@ -143,11 +141,7 @@ func (c *Component) Reset() error {
 		return fmt.Errorf("failed to initialise service: %w", err)
 	}
 
-	// if err := c.InitProducer(); err != nil {
-	// 	return fmt.Errorf("failed to initialise producer: %w", err)
-	// }
-
-	c.StartService(c.ctx)
+	c.setInitialiserMock()
 
 	return nil
 }

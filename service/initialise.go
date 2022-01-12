@@ -19,20 +19,6 @@ var GetHTTPServer = func(bindAddr string, router http.Handler) HTTPServer {
 	return s
 }
 
-// ExternalServiceList holds the initialiser and initialisation state of external services.
-type ExternalServiceList struct {
-	HealthCheck bool
-	Init        Initialiser
-}
-
-// NewServiceList creates a new service list with the provided initialiser
-func NewServiceList(initialiser Initialiser) *ExternalServiceList {
-	return &ExternalServiceList{
-		HealthCheck: false,
-		Init:        initialiser,
-	}
-}
-
 // GetKafkaProducer creates a Kafka producer
 var GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
 	pConfig := &kafka.ProducerConfig{

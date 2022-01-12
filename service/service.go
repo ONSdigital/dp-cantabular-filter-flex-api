@@ -55,9 +55,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
-	a := api.Setup(ctx, r)
-
-	svc.Api = a
+	svc.Api = api.Setup(ctx, r)
 
 	return nil
 }
@@ -89,12 +87,14 @@ func (svc *Service) Close(ctx context.Context) error {
 
 		// stop healthcheck, as it depends on everything else
 		if svc.HealthCheck != nil {
+			log.Info(ctx, "stopping health checker")
 			svc.HealthCheck.Stop()
 			log.Info(ctx, "stopped health checker")
 		}
 
 		// stop any incoming requests before closing any outbound connections
 		if svc.Server != nil {
+			log.Info(ctx, "stopping http server")
 			if err := svc.Server.Shutdown(ctx); err != nil {
 				log.Error(ctx, "failed to shutdown http server", err)
 				hasShutdownError = true

@@ -25,7 +25,7 @@ func HelloHandler(ctx context.Context) http.HandlerFunc {
 			Message: helloMessage,
 		}
 
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("Content-Type", "application/json")
 		jsonResponse, err := json.Marshal(response)
 		if err != nil {
 			log.Error(ctx, "marshalling response failed", err)
