@@ -24,7 +24,7 @@ debug:
 
 .PHONY: debug-run
 debug-run:
-	HUMAN_LOG=1 DEBUG=1 go run -tags 'debug' $(LDFLAGS) main.go
+	HUMAN_LOG=1 DEBUG=1 go run -race -tags 'debug' $(LDFLAGS) main.go
 
 .PHONY: test
 test:
