@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/responder"
+	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
@@ -19,21 +21,33 @@ var GetHTTPServer = func(bindAddr string, router http.Handler) HTTPServer {
 	return s
 }
 
+// GetResponder gets a http request responder
+var GetResponder = func() Responder {
+	return responder.New()
+}
+
+var GetMongoDB = func(ctx context.Context, cfg *config.Config) (Datastore, error) {
+	return mongo.NewClient(ctx, mongo.Config{
+		MongoDriverConfig: cfg.Mongo,
+		FilterFlexAPIURL:  cfg.BindAddr,
+	})
+}
+
 // GetKafkaProducer creates a Kafka producer
 var GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
 	pConfig := &kafka.ProducerConfig{
-		BrokerAddrs:       cfg.KafkaConfig.Addr,
-		Topic:             cfg.KafkaConfig.CsvCreatedTopic,
-		MinBrokersHealthy: &cfg.KafkaConfig.ProducerMinBrokersHealthy,
-		KafkaVersion:      &cfg.KafkaConfig.Version,
-		MaxMessageBytes:   &cfg.KafkaConfig.MaxBytes,
+		BrokerAddrs:       cfg.Kafka.Addr,
+		Topic:             cfg.Kafka.CsvCreatedTopic,
+		MinBrokersHealthy: &cfg.Kafka.ProducerMinBrokersHealthy,
+		KafkaVersion:      &cfg.Kafka.Version,
+		MaxMessageBytes:   &cfg.Kafka.MaxBytes,
 	}
-	if cfg.KafkaConfig.SecProtocol == config.KafkaTLSProtocolFlag {
+	if cfg.Kafka.SecProtocol == config.KafkaTLSProtocolFlag {
 		pConfig.SecurityConfig = kafka.GetSecurityConfig(
-			cfg.KafkaConfig.SecCACerts,
-			cfg.KafkaConfig.SecClientCert,
-			cfg.KafkaConfig.SecClientKey,
-			cfg.KafkaConfig.SecSkipVerify,
+			cfg.Kafka.SecCACerts,
+			cfg.Kafka.SecClientCert,
+			cfg.Kafka.SecClientKey,
+			cfg.Kafka.SecSkipVerify,
 		)
 	}
 	return kafka.NewProducer(ctx, pConfig)

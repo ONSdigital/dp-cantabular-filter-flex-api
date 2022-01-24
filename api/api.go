@@ -3,21 +3,29 @@ package api
 import (
 	"context"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+
 	"github.com/gorilla/mux"
 )
 
-//API provides a struct to wrap the api around
+// API provides a struct to wrap the api around
 type API struct {
-	Router *mux.Router
+	Router    *mux.Router
+	store     datastore
+	respond   responder
+	cfg       *config.Config
 }
 
-//Setup function sets up the api and returns an api
-func Setup(ctx context.Context, r *mux.Router) *API {
+// New creates and initialises a new API
+func New(ctx context.Context, cfg *config.Config, r *mux.Router, rsp responder, d datastore) *API {
 	api := &API{
-		Router: r,
+		Router:  r,
+		respond: rsp,
+		store:   d,
+		cfg:     cfg,
 	}
 
-	// TODO: remove hello world example handler route
-	r.HandleFunc("/hello", HelloHandler(ctx)).Methods("GET")
+	r.HandleFunc("/filters", api.createFilter).Methods("POST")
+
 	return api
 }

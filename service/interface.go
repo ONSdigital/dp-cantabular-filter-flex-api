@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
@@ -31,4 +33,17 @@ type HealthChecker interface {
 	Stop()
 	AddAndGetCheck(name string, checker healthcheck.Checker) (check *healthcheck.Check, err error)
 	Subscribe(s healthcheck.Subscriber, checks ...*healthcheck.Check)
+}
+
+// Responder handles responding to http requests
+type Responder interface{
+	JSON(context.Context,http.ResponseWriter, int, interface{})
+	Error(context.Context, http.ResponseWriter, error)
+	StatusCode(http.ResponseWriter, int)
+	Bytes(context.Context, http.ResponseWriter, int, []byte)
+}
+
+// Datastore is the interface for interacting with the storage backend
+type Datastore interface{
+	CreateFilter(context.Context, *model.Filter) error
 }

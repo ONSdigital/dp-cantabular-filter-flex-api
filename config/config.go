@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 )
 
 // KafkaTLSProtocolFlag informs service to use TLS protocol for kafka
@@ -16,7 +17,9 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	ComponentTestUseLogFile    bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
-	KafkaConfig                KafkaConfig
+	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"` 
+	Kafka                      KafkaConfig
+	Mongo                      mongo.MongoDriverConfig
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -38,6 +41,7 @@ type KafkaConfig struct {
 	CsvCreatedTopic           string   `envconfig:"KAFKA_TOPIC_CSV_CREATED"`
 }
 
+
 var cfg *Config
 
 // Get returns the default config with any modifications through environment
@@ -53,7 +57,8 @@ func Get() (*Config, error) {
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		ComponentTestUseLogFile:    false,
-		KafkaConfig: KafkaConfig{
+		DatasetAPIURL:              "localhost:8082",
+		Kafka: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,
 			ProducerMinBrokersHealthy: 2,
@@ -69,6 +74,24 @@ func Get() (*Config, error) {
 			ExportStartGroup:          "dp-cantabular-csv-exporter",
 			ExportStartTopic:          "cantabular-export-start",
 			CsvCreatedTopic:           "cantabular-csv-created",
+		},
+		Mongo: mongo.MongoDriverConfig{
+			ClusterEndpoint:               "localhost:27017",
+			Username:                      "",
+			Password:                      "",
+			Database:                      "flexibleFilters",
+			Collections:                   map[string]string{
+				"Filters":        "filters",
+				"FilterOutputs":  "filterOutputs",
+			},
+			ReplicaSet:                    "",
+			IsStrongReadConcernEnabled:    false,
+			IsWriteConcernMajorityEnabled: true,
+			ConnectTimeout:                5 * time.Second,
+			QueryTimeout:                  15 * time.Second,
+			TLSConnectionConfig: mongo.TLSConnectionConfig{
+				IsSSL: false,
+			},
 		},
 	}
 

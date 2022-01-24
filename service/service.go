@@ -19,6 +19,8 @@ type Service struct {
 	HealthCheck HealthChecker
 	Producer    kafka.IProducer
 	Api         *api.API
+	responder   Responder
+	store       Datastore
 }
 
 func New() *Service {
@@ -48,14 +50,18 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
+	svc.responder = GetResponder()
+	if svc.store, err = GetMongoDB(ctx, cfg); err != nil{
+		return fmt.Errorf("failed to initialise mongodb store: %w", err)
+	}
+
 	r := mux.NewRouter()
 	r.StrictSlash(true).Path("/health").HandlerFunc(svc.HealthCheck.Handler)
-	svc.Server = GetHTTPServer(cfg.BindAddr, r)
-
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
-	svc.Api = api.Setup(ctx, r)
+	svc.Api = api.New(ctx, cfg, r, svc.responder, svc.store)
+	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
 }
