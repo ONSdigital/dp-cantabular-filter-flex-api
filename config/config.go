@@ -20,6 +20,8 @@ type Config struct {
 	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"` 
 	Kafka                      KafkaConfig
 	Mongo                      mongo.MongoDriverConfig
+	FiltersCollection          string   `envconfig:"FILTERS_COLLECTION"`
+	FilterOutputsCollection    string   `envconfig:"FILTER_OUTPUTS_COLLECTION"`
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -58,6 +60,8 @@ func Get() (*Config, error) {
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		ComponentTestUseLogFile:    false,
 		DatasetAPIURL:              "localhost:8082",
+		FiltersCollection:         "censusFilters",
+		FilterOutputsCollection:   "censusFilterOutputs",
 		Kafka: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,
@@ -79,10 +83,10 @@ func Get() (*Config, error) {
 			ClusterEndpoint:               "localhost:27017",
 			Username:                      "",
 			Password:                      "",
-			Database:                      "flexibleFilters",
+			Database:                      "filters",
 			Collections:                   map[string]string{
-				"Filters":        "filters",
-				"FilterOutputs":  "filterOutputs",
+				"censusFilters":        "censusFilters",
+				"censusFilterOutputs":  "censuFilterOutputs",
 			},
 			ReplicaSet:                    "",
 			IsStrongReadConcernEnabled:    false,

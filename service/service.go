@@ -38,17 +38,13 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.Cfg = cfg
 
-//	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
-//		return fmt.Errorf("failed to create kafka producer: %w", err)
-//	}
+	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
+		return fmt.Errorf("failed to create kafka producer: %w", err)
+	}
 
 	// Get HealthCheck
 	if svc.HealthCheck, err = GetHealthCheck(cfg, buildTime, gitCommit, version); err != nil {
 		return fmt.Errorf("could not instantiate healthcheck: %w", err)
-	}
-
-	if err := svc.registerCheckers(); err != nil {
-		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
 	svc.generator = GetGenerator()
@@ -56,6 +52,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	if svc.store, err = GetMongoDB(ctx, cfg, svc.generator); err != nil{
 		return fmt.Errorf("failed to initialise mongodb store: %w", err)
+	}
+
+	if err := svc.registerCheckers(); err != nil {
+		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
 	r := mux.NewRouter()
@@ -73,8 +73,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
 	log.Info(ctx, "starting service")
 
-	// Always start healthcheck.
 	svc.HealthCheck.Start(ctx)
+	svc.Producer.LogErrors(ctx)
 
 	// Run the http server in a new go-routine
 	go func() {
@@ -111,6 +111,15 @@ func (svc *Service) Close(ctx context.Context) error {
 			log.Info(ctx, "stopped http server")
 		}
 
+		// If kafka producer exists, close it.
+		if svc.Producer != nil {
+			if err := svc.Producer.Close(ctx); err != nil {
+				log.Error(ctx, "error closing kafka producer", err)
+				hasShutdownError = true
+			}
+			log.Info(ctx, "closed kafka producer")
+		}
+
 		// TODO: Close other dependencies, in the expected order
 	}()
 
@@ -133,9 +142,13 @@ func (svc *Service) Close(ctx context.Context) error {
 
 // registerCheckers adds the checkers for the service clients to the health check object.
 func (svc *Service) registerCheckers() error {
-//	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
-//		return fmt.Errorf("error adding check for Kafka producer: %w", err)
-//	}
+	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
+		return fmt.Errorf("error adding check for Kafka producer: %w", err)
+	}
+
+	if _, err := svc.HealthCheck.AddAndGetCheck("Datastore", svc.store.Checker); err != nil {
+		return fmt.Errorf("error adding check for datastore: %w", err)
+	}
 
 	// TODO: add other health checks here, as per dp-upload-service
 

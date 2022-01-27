@@ -50,6 +50,7 @@ type Responder interface{
 // Datastore is the interface for interacting with the storage backend
 type Datastore interface{
 	CreateFilter(context.Context, *model.Filter) error
+	Checker(context.Context, *healthcheck.CheckState) error
 }
 
 // Generator is the interface for generating dynamic tokens and timestamps
