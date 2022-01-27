@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"time"
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -12,7 +11,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 	ctx := r.Context()
 	var req createFilterRequest
 
-	if err := api.UnmarshalRequestBody(r.Body, &req); err != nil{
+	if err := api.ParseRequest(r.Body, &req); err != nil{
 		api.respond.Error(ctx, w, err)
 		return
 	}
@@ -32,11 +31,17 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 			},
 		},
 		Dimensions:      req.Dimensions,
-		UniqueTimestamp: time.Now(),
-		LastUpdated:     time.Now(),
-		InstanceID:      req.InstanceID,
-		Published:       true,
-		DisclosureControl: nil, // Not sure what to populate from here
+		UniqueTimestamp: api.generate.Timestamp(),
+		LastUpdated:     api.generate.Timestamp(),
+		InstanceID:      *req.InstanceID,
+		Dataset: model.Dataset{
+			ID:      req.DatasetID,
+			Edition: req.Edition,
+			Version: req.Version,
+		},
+		Published:         true, // TODO: Not sure what to
+		Events:            nil,  // populate for these
+		DisclosureControl: nil,  // fields yet
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil{

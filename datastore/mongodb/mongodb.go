@@ -6,26 +6,26 @@ import (
 
 	lock "github.com/ONSdigital/dp-mongodb/v3/dplock"
 	"github.com/ONSdigital/dp-mongodb/v3/health"
+
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
-const (
-	filtersCollection = "filters"
-)
-
 // Client is the client responsible for querying mongodb 
 type Client struct{
-	conn   *mongo.MongoConnection
-	health *health.CheckMongoClient
-	lock   *lock.Lock
-	cfg    Config
+	conn        *mongo.MongoConnection
+	health      *health.CheckMongoClient
+	lock        *lock.Lock
+	cfg         Config
+	collections *Collections
+	generate    generator
 }
 
 // NewClient returns a new mongodb Client
-func NewClient(ctx context.Context, cfg Config) (*Client, error){
+func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error){
 	c := Client{
-		cfg: cfg,
+		cfg:      cfg,
+		generate: g,
 	}
 	var err error
 
@@ -35,15 +35,22 @@ func NewClient(ctx context.Context, cfg Config) (*Client, error){
 
 	collectionBuilder := map[health.Database][]health.Collection{
 		health.Database(cfg.Database): {
-			filtersCollection,
+			health.Collection(cfg.FiltersCollection),
+			health.Collection(cfg.FilterOutputsCollection),
 		},
 	}
 
 	c.health = health.NewClientWithCollections(c.conn, collectionBuilder)
 
-	c.lock = lock.New(ctx, c.conn, filtersCollection)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create lock client: %w", err)
+	c.collections = &Collections{
+		filters: &Collection{
+			name:       cfg.FiltersCollection,
+			lockClient: lock.New(ctx, c.conn, cfg.FiltersCollection),
+		},
+		filterOutputs: &Collection{
+			name:       cfg.FilterOutputsCollection,
+			lockClient: lock.New(ctx, c.conn, cfg.FilterOutputsCollection),
+		},
 	}
 
 	return &c, nil

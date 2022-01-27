@@ -21,6 +21,7 @@ type Service struct {
 	Api         *api.API
 	responder   Responder
 	store       Datastore
+	generator   Generator
 }
 
 func New() *Service {
@@ -37,9 +38,9 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.Cfg = cfg
 
-	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
-		return fmt.Errorf("failed to create kafka producer: %w", err)
-	}
+//	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
+//		return fmt.Errorf("failed to create kafka producer: %w", err)
+//	}
 
 	// Get HealthCheck
 	if svc.HealthCheck, err = GetHealthCheck(cfg, buildTime, gitCommit, version); err != nil {
@@ -50,8 +51,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
+	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
-	if svc.store, err = GetMongoDB(ctx, cfg); err != nil{
+
+	if svc.store, err = GetMongoDB(ctx, cfg, svc.generator); err != nil{
 		return fmt.Errorf("failed to initialise mongodb store: %w", err)
 	}
 
@@ -60,7 +63,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
-	svc.Api = api.New(ctx, cfg, r, svc.responder, svc.store)
+	svc.Api = api.New(ctx, cfg, r, svc.responder, svc.generator, svc.store)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
@@ -130,9 +133,9 @@ func (svc *Service) Close(ctx context.Context) error {
 
 // registerCheckers adds the checkers for the service clients to the health check object.
 func (svc *Service) registerCheckers() error {
-	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
-		return fmt.Errorf("error adding check for Kafka producer: %w", err)
-	}
+//	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
+//		return fmt.Errorf("error adding check for Kafka producer: %w", err)
+//	}
 
 	// TODO: add other health checks here, as per dp-upload-service
 

@@ -3,11 +3,15 @@ package service
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+
+	"github.com/google/uuid"
+
 )
 
 //go:generate moq -out mock/initialiser.go -pkg mock . Initialiser
@@ -46,4 +50,11 @@ type Responder interface{
 // Datastore is the interface for interacting with the storage backend
 type Datastore interface{
 	CreateFilter(context.Context, *model.Filter) error
+}
+
+// Generator is the interface for generating dynamic tokens and timestamps
+type Generator interface{
+	PSK() ([]byte, error)
+	UUID() (uuid.UUID, error)
+	Timestamp() time.Time
 }

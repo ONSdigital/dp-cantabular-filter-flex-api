@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+	"errors"
 
 	"github.com/google/uuid"
 )
@@ -29,8 +30,8 @@ type Links struct{
 }
 
 type Link struct{
-	HREF string    `bson:"href" json:"href"`
-	ID   uuid.UUID `bson:"id"   json:"id"`
+	HREF string     `bson:"href"           json:"href"`
+	ID   *uuid.UUID `bson:"id,omitempty"   json:"id,omitempty"`
 }
 
 type FilterOutput struct{
@@ -54,10 +55,17 @@ type Event struct{
 }
 
 type Dimension struct{
-	Name         string `bson:"name"          json:"name"`
-	Options      string `bson:"options"       json:"options"`
-	DimensionURL string `bson:"dimension_url" json:"dimension_url"`
-	IsAreaType   bool   `bson:"is_area_type"  json:"is_area_type"`
+	Name         string   `bson:"name"          json:"name"`
+	Options      []string `bson:"options"       json:"options"`
+	DimensionURL string   `bson:"dimension_url" json:"dimension_url"`
+	IsAreaType   bool     `bson:"is_area_type"  json:"is_area_type"`
+}
+
+func (d Dimension) Valid() error {
+	if len(d.Name) == 0 || len(d.DimensionURL) == 0{
+		return errors.New("missing field: [name | dimension_url]")
+	}
+	return nil
 }
 
 type Dataset struct {

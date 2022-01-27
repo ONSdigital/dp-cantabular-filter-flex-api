@@ -29,9 +29,9 @@ func init() {
 
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	component := steps.NewComponent()
-	component.InitService()
+	component.Init()
 
-	apiFeature := componenttest.NewAPIFeature(component.InitService)
+	apiFeature := componenttest.NewAPIFeature(component.Init)
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
 		apiFeature.Reset()

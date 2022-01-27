@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/responder"
 	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 
@@ -26,10 +27,12 @@ var GetResponder = func() Responder {
 	return responder.New()
 }
 
-var GetMongoDB = func(ctx context.Context, cfg *config.Config) (Datastore, error) {
-	return mongo.NewClient(ctx, mongo.Config{
+var GetMongoDB = func(ctx context.Context, cfg *config.Config, g Generator) (Datastore, error) {
+	return mongo.NewClient(ctx, g, mongo.Config{
 		MongoDriverConfig: cfg.Mongo,
 		FilterFlexAPIURL:  cfg.BindAddr,
+		FiltersCollection: "filters",
+		FilterOutputsCollection: "filterOutputs",
 	})
 }
 
@@ -66,4 +69,8 @@ var GetHealthCheck = func(cfg *config.Config, buildTime, gitCommit, version stri
 		cfg.HealthCheckInterval,
 	)
 	return &hc, nil
+}
+
+var GetGenerator = func() Generator {
+	return generator.New()
 }

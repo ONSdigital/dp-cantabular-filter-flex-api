@@ -12,6 +12,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -50,8 +51,8 @@ func NewComponent() *Component {
 	}
 }
 
-// initService initialises the server, the mocks and waits for the dependencies to be ready
-func (c *Component) InitService() (http.Handler, error) {
+// Init initialises the server, the mocks and waits for the dependencies to be ready
+func (c *Component) Init() (http.Handler, error) {
 	// register interrupt signals
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
@@ -63,30 +64,30 @@ func (c *Component) InitService() (http.Handler, error) {
 		return nil, fmt.Errorf("failed to get config: %w", err)
 	}
 	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
-
+/*
 	// producer for triggering test events
 	if c.producer, err = kafka.NewProducer(
 		c.ctx,
 		&kafka.ProducerConfig{
-			BrokerAddrs:       c.cfg.KafkaConfig.Addr,
-			Topic:             c.cfg.KafkaConfig.ExportStartTopic,
-			MinBrokersHealthy: &c.cfg.KafkaConfig.ProducerMinBrokersHealthy,
-			KafkaVersion:      &c.cfg.KafkaConfig.Version,
-			MaxMessageBytes:   &c.cfg.KafkaConfig.MaxBytes,
+			BrokerAddrs:       c.cfg.Kafka.Addr,
+			Topic:             c.cfg.Kafka.ExportStartTopic,
+			MinBrokersHealthy: &c.cfg.Kafka.ProducerMinBrokersHealthy,
+			KafkaVersion:      &c.cfg.Kafka.Version,
+			MaxMessageBytes:   &c.cfg.Kafka.MaxBytes,
 		},
 	); err != nil {
-		return nil, fmt.Errorf("error creating kafka producer: %w", err)
+		return fmt.Errorf("error creating kafka producer: %w", err)
 	}
-
+*/
 	// Create service and initialise it
 	c.svc = service.New()
 	if err = c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
-		return nil, fmt.Errorf("unexpected service Init error in NewComponent: %w", err)
+		return nil, fmt.Errorf("failed to initialise service: %w", err)
 	}
 
 	// wait for producer to be initialised
-	<-c.producer.Channels().Initialised
-	log.Info(c.ctx, "component-test kafka producer initialised")
+	//<-c.producer.Channels().Initialised
+	//log.Info(c.ctx, "component-test kafka producer initialised")
 
 	return c.HTTPServer.Handler, nil
 }
@@ -96,6 +97,10 @@ func (c *Component) setInitialiserMock() {
 		c.HTTPServer.Addr = bindAddr
 		c.HTTPServer.Handler = router
 		return c.HTTPServer
+	}
+
+	service.GetGenerator = func() service.Generator{
+		return &mock.Generator{}
 	}
 }
 
@@ -114,7 +119,7 @@ func (c *Component) startService(ctx context.Context) {
 		log.Info(ctx, "os signal received", log.Data{"signal": sig})
 	}
 	if err := c.svc.Close(ctx); err != nil {
-		panic(fmt.Errorf("unexpected error during service graceful shutdown: %w", err))
+		panic(fmt.Errorf("failed to shutdiwn gracefully: %w", err))
 	}
 }
 
@@ -125,20 +130,20 @@ func (c *Component) Close() {
 
 	// wait for graceful shutdown to finish (or timeout)
 	// TODO we should fix the timeout issue and then uncomment the following line.
-	// c.wg.Wait()
+	//c.wg.Wait()
 
 	// close producer
-	if err := c.producer.Close(c.ctx); err != nil {
-		log.Error(c.ctx, "error closing kafka producer", err)
-	}
+	//if err := c.producer.Close(c.ctx); err != nil {
+	//	log.Error(c.ctx, "error closing kafka producer", err)
+	//}
 }
 
 // Reset re-initialises the service under test and the api mocks.
 // Note that the service under test should not be started yet
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
-	if _, err := c.InitService(); err != nil {
-		return fmt.Errorf("failed to initialise service: %w", err)
+	if _, err := c.Init(); err != nil {
+		return fmt.Errorf("failed to initialise component: %w", err)
 	}
 
 	c.setInitialiserMock()

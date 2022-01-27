@@ -9,10 +9,12 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-// UnmarshalRequestBody attemts to read and unmarshal a request body into a 
+// ParseRequest attemts to read unmarshal a request body into a 
 // request object, returning an appropriate error on failure.
-// 'req' must be a pointer to a struct
-func (api *API) UnmarshalRequestBody(body io.Reader, req interface{}) error {
+// 'req' must be a pointer to a struct.
+// ParseRequest will also attempt to call the request's Valid()
+// function if it has one and will throw an error if it fails
+func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 	b, err := io.ReadAll(body)
 	if err != nil{
 		return Error{
@@ -32,5 +34,18 @@ func (api *API) UnmarshalRequestBody(body io.Reader, req interface{}) error {
 		}
 	}
 
-	return err
+	if v, ok := req.(validator); ok {
+		if err := v.Valid(); err != nil{
+			return Error{
+				statusCode: http.StatusBadRequest,
+				err:        fmt.Errorf("request body invalid: %w", err),
+				logData:    log.Data{
+					"body":    string(b),
+					"request": fmt.Sprintf("%+v", req),
+				},
+			}
+		}
+	}
+
+	return nil
 }
