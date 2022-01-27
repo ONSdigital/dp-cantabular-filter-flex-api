@@ -22,6 +22,9 @@ type Config struct {
 	Mongo                      mongo.MongoDriverConfig
 	FiltersCollection          string   `envconfig:"FILTERS_COLLECTION"`
 	FilterOutputsCollection    string   `envconfig:"FILTER_OUTPUTS_COLLECTION"`
+	EnablePrivateEndpoints     bool     `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
+	EnablePermissionsAuth      bool     `envconfig:"ENABLE_PERMISSIONS_AUTH"`
+	ZebedeeURL                 string   `envconfig:"ZEBEDEE_URL"`
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -62,6 +65,9 @@ func Get() (*Config, error) {
 		DatasetAPIURL:              "localhost:8082",
 		FiltersCollection:         "censusFilters",
 		FilterOutputsCollection:   "censusFilterOutputs",
+		EnablePrivateEndpoints:    false,
+		EnablePermissionsAuth:      true,
+		ZebedeeURL:                 "http://localhost:8082",
 		Kafka: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,

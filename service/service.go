@@ -10,18 +10,20 @@ import (
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
+	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 )
 
 // Service contains all the configs, server and clients to run the event handler service
 type Service struct {
-	Cfg         *config.Config
-	Server      HTTPServer
-	HealthCheck HealthChecker
-	Producer    kafka.IProducer
-	Api         *api.API
-	responder   Responder
-	store       Datastore
-	generator   Generator
+	Cfg            *config.Config
+	Server         HTTPServer
+	HealthCheck    HealthChecker
+	Producer       kafka.IProducer
+	Api            *api.API
+	responder      Responder
+	store          Datastore
+	generator      Generator
+	identityClient *identity.Client 
 }
 
 func New() *Service {
@@ -41,6 +43,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
 		return fmt.Errorf("failed to create kafka producer: %w", err)
 	}
+
+	svc.identityClient = identity.New(cfg.ZebedeeURL)
 
 	// Get HealthCheck
 	if svc.HealthCheck, err = GetHealthCheck(cfg, buildTime, gitCommit, version); err != nil {
@@ -63,7 +67,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
-	svc.Api = api.New(ctx, cfg, r, svc.responder, svc.generator, svc.store)
+	svc.Api = api.New(ctx, cfg, r, svc.identityClient, svc.responder, svc.generator, svc.store)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
