@@ -2,6 +2,8 @@ package responder
 
 import (
 	"errors"
+	"strconv"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -70,6 +72,10 @@ func unwrapLogData(err error) log.Data {
 		err = errors.Unwrap(err)
 	}
 
+	if len(data) == 0{
+		return nil
+	}
+
 	// flatten []log.Data into single log.Data with slice
 	// entries for duplicate keyed entries, but not for duplicate
 	// key-value pairs
@@ -106,4 +112,32 @@ func errorMessage(err error) string {
 	}
 
 	return err.Error()
+}
+
+// stackTrace recursively unwraps the error looking for the deepest
+// level at which the error was wrapped with a stack trace from
+// github.com/pkg/errors (or conforms to the StackTracer interface)
+// and returns the slice of stack frames. These can are of type
+// log.go/EventStackTrace so can be used directly with log.Go's
+// available API to preserve the correct error logging format
+func stackTrace(err error) []log.EventStackTrace{
+	var serr stacktracer
+	var resp []log.EventStackTrace
+
+	for errors.Unwrap(err) != nil && errors.As(err, &serr) {
+		st := serr.StackTrace()
+		resp = make([]log.EventStackTrace, 0)
+		for _, f := range st{
+			line, _ := strconv.Atoi(fmt.Sprintf("%d",  f))
+			resp = append(resp, log.EventStackTrace{
+				File:     fmt.Sprintf("%+s", f),
+				Function: fmt.Sprintf("%n",  f),
+				Line:     line,
+			})
+		}
+
+		err = errors.Unwrap(err)
+	}
+
+	return resp
 }

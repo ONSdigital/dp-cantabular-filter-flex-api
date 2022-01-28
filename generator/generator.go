@@ -4,6 +4,8 @@ import (
 	"time"
 	"crypto/rand"
 	"github.com/google/uuid"
+
+	"github.com/pkg/errors"
 )
 
 // Generator is responsible for randomly generating new strings and tokens
@@ -19,7 +21,7 @@ func New() *Generator {
 func (g *Generator) PSK() ([]byte, error) {
 	key := make([]byte, 16)
 	if _, err := rand.Read(key); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	return key, nil
@@ -27,7 +29,8 @@ func (g *Generator) PSK() ([]byte, error) {
 
 // UUID generates a new V4 UUID
 func (g *Generator) UUID() (uuid.UUID, error) {
-	return uuid.NewRandom()
+	id, err := uuid.NewRandom()
+	return id, errors.WithStack(err)
 }
 
 // Timestamp generates a timestamp of the current time

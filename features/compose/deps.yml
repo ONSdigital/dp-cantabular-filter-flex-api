@@ -1,13 +1,13 @@
 version: '3.3'
 services:
-#  zookeeper:
-#    image: 'bitnami/zookeeper:latest'
-#    hostname: zookeeper
-#    restart: unless-stopped
-#    ports:
-#      - "2181:2181"
-#    environment:
-#      ALLOW_ANONYMOUS_LOGIN: "yes"
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    hostname: zookeeper
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
 #  kafka:
 #    image: 'bitnami/kafka:latest'
 #    hostname: kafka
@@ -23,10 +23,3 @@ services:
 #      ALLOW_PLAINTEXT_LISTENER: "yes"
 #      KAFKA_CFG_LOG_RETENTION_MS: "1500"
 #      KAFKA_CFG_LOG_RETENTION_CHECK_INTERVAL_MS: "500"
-  mongodb:
-    image: mongo:3.6
-    ports:
-      - 27017:27017
-    volumes:
-      # Load init script to ensure dbs and collections are created
-      - ./features/compose/mongodb/entrypoint-initdb.d/init.js:/docker-entrypoint-initdb.d/init.js:ro

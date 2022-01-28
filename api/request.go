@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/pkg/errors"
 )
 
 // ParseRequest attemts to read unmarshal a request body into a 
@@ -18,7 +19,7 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 	b, err := io.ReadAll(body)
 	if err != nil{
 		return Error{
-			err:     fmt.Errorf("failed to read request body: %w", err),
+			err:     errors.Wrap(err, "failed to read request body"),
 			message: "failed to read request body",
 		}
 	}
@@ -38,7 +39,7 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 		if err := v.Valid(); err != nil{
 			return Error{
 				statusCode: http.StatusBadRequest,
-				err:        fmt.Errorf("request body invalid: %w", err),
+				err:        fmt.Errorf("invalid request: %w", err),
 				logData:    log.Data{
 					"body":    string(b),
 					"request": fmt.Sprintf("%+v", req),

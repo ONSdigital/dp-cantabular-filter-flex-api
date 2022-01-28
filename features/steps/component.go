@@ -13,6 +13,8 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
+
+	"github.com/ONSdigital/dp-component-test/utils"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -40,30 +42,34 @@ type Component struct {
 	signals    chan os.Signal
 	ctx        context.Context
 	HTTPServer *http.Server
+	store      service.Datastore
 }
 
-func NewComponent() *Component {
+func NewComponent(zebedeeURL, mongoAddr string) (*Component, error) {
+	cfg, err := config.Get()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get config: %w", err)
+	}
+
+	cfg.ZebedeeURL = zebedeeURL
+	cfg.Mongo.ClusterEndpoint = mongoAddr
+
 	return &Component{
 		errorChan:  make(chan error),
 		wg:         &sync.WaitGroup{},
 		ctx:        context.Background(),
 		HTTPServer: &http.Server{},
-	}
+		cfg:        cfg,
+	}, nil
 }
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
-	// register interrupt signals
+	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
+
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
-	// Read config
-	var err error
-	c.cfg, err = config.Get()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
-	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
 /*
 	// producer for triggering test events
 	if c.producer, err = kafka.NewProducer(
@@ -81,7 +87,7 @@ func (c *Component) Init() (http.Handler, error) {
 */
 	// Create service and initialise it
 	c.svc = service.New()
-	if err = c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
+	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
 		return nil, fmt.Errorf("failed to initialise service: %w", err)
 	}
 
@@ -102,6 +108,8 @@ func (c *Component) setInitialiserMock() {
 	service.GetGenerator = func() service.Generator{
 		return &mock.Generator{}
 	}
+
+	c.cfg.Mongo.Database = utils.RandomDatabase()
 }
 
 // startService starts the service under test and blocks until an error or an os interrupt is received.
@@ -130,7 +138,7 @@ func (c *Component) Close() {
 
 	// wait for graceful shutdown to finish (or timeout)
 	// TODO we should fix the timeout issue and then uncomment the following line.
-	//c.wg.Wait()
+	c.wg.Wait()
 
 	// close producer
 	//if err := c.producer.Close(c.ctx); err != nil {
@@ -142,11 +150,11 @@ func (c *Component) Close() {
 // Note that the service under test should not be started yet
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
+	c.setInitialiserMock()
+
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)
 	}
-
-	c.setInitialiserMock()
 
 	return nil
 }

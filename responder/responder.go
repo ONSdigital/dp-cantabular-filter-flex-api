@@ -2,11 +2,11 @@ package responder
 
 import (
 	"context"
-	"fmt"
 	"encoding/json"
 	"net/http"
 
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/pkg/errors"
 )
 
 // Responder is responsible for responding to http requests, providing methods for responding
@@ -25,7 +25,7 @@ func (r *Responder) JSON(ctx context.Context, w http.ResponseWriter, status int,
 	if err != nil {
 		respondError(ctx, w, Error{
 			statusCode: http.StatusInternalServerError,
-			err:        fmt.Errorf("failed to marshal response: %w", err),
+			err:        errors.Wrap(err, "failed to marshal response"),
 			message:    "Internal Server Error: Badly formed reponse attempt",
 			logData: log.Data{
 				"response": resp,
@@ -54,12 +54,16 @@ func (r *Responder) Error(ctx context.Context, w http.ResponseWriter, err error)
 // respondError is the implementation of Error, seperated so it can be used internally
 // by the other respond functions without having to create a new Responder
 func respondError(ctx context.Context, w http.ResponseWriter, err error){
-	log.Error(ctx, "error responding to HTTP request", err, unwrapLogData(err))
+	log.Info(ctx, "error responding to HTTP request", &log.EventErrors{{
+			Message:    err.Error(),
+			StackTrace: stackTrace(err),
+			Data:       unwrapLogData(err),
+		}},
+	)
 
 	status := unwrapStatusCode(err)
-	msg := errorMessage(err)
-
-	resp := errorResponse{
+	msg    := errorMessage(err)
+	resp   := errorResponse{
 		Errors: []string{msg},
 	}
 

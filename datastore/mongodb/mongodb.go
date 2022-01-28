@@ -1,14 +1,14 @@
 package mongodb
 
 import (
-	"fmt"
 	"context"
 
 	lock "github.com/ONSdigital/dp-mongodb/v3/dplock"
 	"github.com/ONSdigital/dp-mongodb/v3/health"
-
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+
+	"github.com/pkg/errors"
 )
 
 // Client is the client responsible for querying mongodb 
@@ -30,7 +30,7 @@ func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error){
 	var err error
 
 	if c.conn, err = mongo.Open(&cfg.MongoDriverConfig); err != nil {
-		return nil, fmt.Errorf("failed to open mongodb connection: %w", err)
+		return nil, errors.Wrap(err, "failed to open mongodb connection: %w")
 	}
 
 	collectionBuilder := map[health.Database][]health.Collection{

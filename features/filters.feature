@@ -1,7 +1,10 @@
-Feature: Filters Happy Path
+Feature: Filters Private Endpoints Not Enabled
 
-  Scenario: Creating a new filter journey
-    When the service starts
+  Background:
+    Given private endpoints are not enabled
+
+  Scenario: Creating a new filter happy
+
     When I POST "/filters"
     """
     {
@@ -85,3 +88,58 @@ Feature: Filters Happy Path
     """
 
     And the HTTP status code should be "201"
+
+Scenario: Creating a new filter bad request body
+
+    When I POST "/filters"
+    """
+    {
+      "ins
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "badly formed request body"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "400"
+
+  Scenario: Creating a new invalid request
+
+    When I POST "/filters"
+    """
+    {
+      "instance_id":     "054aa093-1c31-46dd-9472-14ff0b86abce",
+      "dataset_id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
+      "edition":         "2021",
+      "cantabular_blob": "Example",
+      "version":         1,
+      "dimensions": [
+        {
+          "name": "Number Of Siblings (3 categories)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "dimension_url": "http://dimension.url/siblings",
+          "is_area_type": false
+        }
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "400"

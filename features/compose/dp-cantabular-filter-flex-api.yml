@@ -13,8 +13,7 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
-        depends_on:
-            - mongodb
+#        depends_on:
 #            - kafka
         ports:
             - 27100:27100

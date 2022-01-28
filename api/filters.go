@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"github.com/pkg/errors"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 )
@@ -45,7 +46,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil{
-		api.respond.Error(ctx, w, fmt.Errorf("failed to create filter: %w", err))
+		api.respond.Error(ctx, w, errors.Wrap(err, "I am wrappingg the cause"))
 		return
 	}
 

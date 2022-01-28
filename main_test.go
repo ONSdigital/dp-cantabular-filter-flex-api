@@ -9,18 +9,22 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/steps"
-	componenttest "github.com/ONSdigital/dp-component-test"
+	cmptest "github.com/ONSdigital/dp-component-test"
 	dplogs "github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )
 
-const componentLogFile = "component-output.txt"
+const (
+	mongoVersion     = "4.4.8"
+	databaseName     = "filters"
+	componentLogFile = "component-output.txt"
+)
 
 var componentFlag = flag.Bool("component", false, "perform component tests")
 
 type ComponentTest struct {
-	MongoFeature *componenttest.MongoFeature
+	MongoFeature *cmptest.MongoFeature
 }
 
 func init() {
@@ -28,29 +32,51 @@ func init() {
 }
 
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
-	component := steps.NewComponent()
+	authFeature := cmptest.NewAuthorizationFeature()
+	zebedeeURL := authFeature.FakeAuthService.ResolveURL("")
+	mongoAddr := f.MongoFeature.Server.URI()
+
+	component, err := steps.NewComponent(zebedeeURL, mongoAddr)
+	if err != nil{
+		log.Panicf("unable to initialize component: %s", err)
+	}
+
 	component.Init()
 
-	apiFeature := componenttest.NewAPIFeature(component.Init)
+	apiFeature := cmptest.NewAPIFeature(component.Init)
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
 		apiFeature.Reset()
 		if err := component.Reset(); err != nil {
 			log.Panicf("unable to initialise scenario: %s", err)
 		}
+		if err := f.MongoFeature.Reset(); err != nil {
+			log.Panicf("failed to reset mongo feature: %s", err)
+		}
+		authFeature.Reset()
 	})
 
 	ctx.AfterScenario(func(*godog.Scenario, error) {
 		component.Close()
+		authFeature.Close()
 	})
 
+	authFeature.RegisterSteps(ctx)
 	apiFeature.RegisterSteps(ctx)
 	component.RegisterSteps(ctx)
 
 }
 
 func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
-
+	ctx.BeforeSuite(func() {
+		f.MongoFeature = cmptest.NewMongoFeature(cmptest.MongoOptions{
+			MongoVersion: mongoVersion,
+			DatabaseName: databaseName,
+		})
+	})
+	ctx.AfterSuite(func() {
+		f.MongoFeature.Close()
+	})
 }
 
 func TestComponent(t *testing.T) {
