@@ -53,7 +53,7 @@ Feature: Filters Private Endpoints Not Enabled
       "events": null,
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated": "2022-01-26T12:27:04.783936865Z",
-      "etag": "",
+      "etag": "defad5e5f9bf579bf894b3fbee3c95cba4321264",
       "instance_id": "054aa093-1c31-46dd-9472-14ff0b86abce",
       "dimensions": [
         {
@@ -137,7 +137,7 @@ Scenario: Creating a new filter bad request body
     """
     {
       "errors": [
-        "invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
+        "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
       ]
     }
     """

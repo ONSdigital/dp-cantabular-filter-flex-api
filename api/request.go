@@ -39,7 +39,7 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 		if err := v.Valid(); err != nil{
 			return Error{
 				statusCode: http.StatusBadRequest,
-				err:        fmt.Errorf("invalid request: %w", err),
+				err:        errors.Wrap(err, "invalid request"),
 				logData:    log.Data{
 					"body":    string(b),
 					"request": fmt.Sprintf("%+v", req),
