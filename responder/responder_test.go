@@ -19,7 +19,7 @@ type testResponse struct {
 
 type testError struct {
 	err  error
-	resp string
+	msg  string
 	code int
 }
 
@@ -34,8 +34,8 @@ func (e testError) Code() int {
 	return e.code
 }
 
-func (e testError) Response() string {
-	return e.resp
+func (e testError) Message() string {
+	return e.msg
 }
 
 func TestJSON(t *testing.T) {
@@ -116,7 +116,7 @@ func TestError(t *testing.T) {
 		Convey("Given an error that satisfies interfaces providing Code() and Response() functions", func() {
 			err := testError{
 				err:  errors.New("test error"),
-				resp: "test response",
+				msg: "test response",
 				code: http.StatusUnauthorized,
 			}
 

@@ -14,7 +14,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-	serviceMock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -41,13 +41,15 @@ func TestInit(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		producerMock := &kafkatest.IProducerMock{}
-		service.GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
-			return producerMock, nil
-		}
+		// Mock clients
+		producerMock  := &kafkatest.IProducerMock{}
+		subscribedTo  := []*healthcheck.Check{}
+		serverMock    := &mock.HTTPServerMock{}
+		datastoreMock := &mock.DatastoreMock{}
+		generatorMock := &mock.GeneratorMock{}
+		responderMock := &mock.ResponderMock{}
 
-		subscribedTo := []*healthcheck.Check{}
-		hcMock := &serviceMock.HealthCheckerMock{
+		hcMock := &mock.HealthCheckerMock{
 			AddAndGetCheckFunc: func(name string, checker healthcheck.Checker) (*healthcheck.Check, error) {
 				return testChecks[name], nil
 			},
@@ -55,16 +57,35 @@ func TestInit(t *testing.T) {
 				subscribedTo = append(subscribedTo, checks...)
 			},
 		}
-		service.GetHealthCheck = func(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
+
+
+		// Initialiser functions
+		service.GetHealthCheck = func(_ *config.Config, _, _, _ string) (service.HealthChecker, error) {
 			return hcMock, nil
 		}
 
-		serverMock := &serviceMock.HTTPServerMock{}
-		service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
+		service.GetKafkaProducer = func(_ context.Context, _ *config.Config) (kafka.IProducer, error) {
+			return producerMock, nil
+		}
+
+		service.GetHTTPServer = func(_ string, _ http.Handler) service.HTTPServer {
 			return serverMock
 		}
 
-		svc := &service.Service{}
+		service.GetMongoDB = func(_ context.Context, _ *config.Config, _ service.Generator) (service.Datastore, error) {
+			return datastoreMock, nil
+		}
+
+		service.GetGenerator = func() service.Generator {
+			return generatorMock
+		}
+
+		service.GetResponder = func() service.Responder {
+			return responderMock
+		}
+
+		// Service
+		svc := service.New()
 
 		Convey("Given that initialising healthcheck returns an error", func() {
 			service.GetHealthCheck = func(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
@@ -108,8 +129,9 @@ func TestInit(t *testing.T) {
 				So(svc.Producer, ShouldResemble, producerMock)
 
 				Convey("Then all checks are registered", func() {
-					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 1)
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 2)
 					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Kafka producer")
+					So(hcMock.AddAndGetCheckCalls()[1].Name, ShouldResemble, "Datastore")
 				})
 			})
 		})
@@ -121,17 +143,21 @@ func TestStart(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		hcMock := &serviceMock.HealthCheckerMock{
+		hcMock := &mock.HealthCheckerMock{
 			StartFunc: func(ctx context.Context) {},
 		}
 
 		serverWg := &sync.WaitGroup{}
-		serverMock := &serviceMock.HTTPServerMock{}
+		serverMock := &mock.HTTPServerMock{}
+		producerMock  := &kafkatest.IProducerMock{
+			LogErrorsFunc: func(_ context.Context){},
+		}
 
 		svc := &service.Service{
 			Cfg:         cfg,
 			Server:      serverMock,
 			HealthCheck: hcMock,
+			Producer:    producerMock,
 		}
 
 		Convey("When a service with a successful HTTP server is started", func() {
@@ -174,12 +200,12 @@ func TestClose(t *testing.T) {
 		hcStopped := false
 
 		// healthcheck Stop does not depend on any other service being closed/stopped
-		hcMock := &serviceMock.HealthCheckerMock{
+		hcMock := &mock.HealthCheckerMock{
 			StopFunc: func() { hcStopped = true },
 		}
 
 		// server Shutdown will fail if healthcheck is not stopped
-		serverMock := &serviceMock.HTTPServerMock{
+		serverMock := &mock.HTTPServerMock{
 			ShutdownFunc: func(ctx context.Context) error {
 				if !hcStopped {
 					return fmt.Errorf("server stopped before healthcheck")

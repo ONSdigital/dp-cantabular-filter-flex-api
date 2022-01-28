@@ -14,8 +14,10 @@ import (
 
 )
 
-//go:generate moq -out mock/initialiser.go -pkg mock . Initialiser
 //go:generate moq -out mock/server.go -pkg mock . HTTPServer
+//go:generate moq -out mock/datastore.go -pkg mock . Datastore
+//go:generate moq -out mock/responder.go -pkg mock . Responder
+//go:generate moq -out mock/generator.go -pkg mock . Generator
 //go:generate moq -out mock/health_check.go -pkg mock . HealthChecker
 
 // Initialiser defines the methods to initialise external services
