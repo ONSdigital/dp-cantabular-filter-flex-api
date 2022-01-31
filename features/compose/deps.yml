@@ -1,13 +1,15 @@
 version: '3.3'
 services:
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: 'confluentinc/cp-zookeeper:6.0.0'
     hostname: zookeeper
     restart: unless-stopped
-    ports:
-      - "2181:2181"
+    expose:
+      - 2181
     environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 #  kafka:
 #    image: 'bitnami/kafka:latest'
 #    hostname: kafka
