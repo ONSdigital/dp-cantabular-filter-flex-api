@@ -2,7 +2,6 @@ package mongodb
 
 import (
 	"fmt"
-	"net/http"
 	"context"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -30,11 +29,8 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	col := c.collections.filters
 
 	lockID, err := col.lock(ctx, f.ID.String())
-	if err != nil{
-		return &Error{
-			err:        errors.Wrap(err, "failed to aquire database lock"),
-			statusCode: http.StatusConflict,
-		}
+	if err != nil {
+		return err
 	}
 	defer col.unlock(ctx, lockID)
 

@@ -2,7 +2,11 @@ package mongodb
 
 import(
 	"context"
+	"net/http"
+
 	"github.com/ONSdigital/dp-mongodb/v3/dplock"
+
+	"github.com/pkg/errors"
 )
 
 // Collections holds information about the mongodb collections
@@ -20,7 +24,19 @@ type Collection struct{
 }
 
 func (c *Collection) lock(ctx context.Context, id string) (string, error){
-	return c.lockClient.Acquire(ctx, id)
+	l, err := c.lockClient.Acquire(ctx, id)
+	if err != nil{
+		status := http.StatusConflict
+		if errors.Is(err, dplock.ErrMongoDbClosing){
+			status = http.StatusServiceUnavailable
+		}
+		err = &Error{
+			err:        errors.Wrap(err, "failed to aquire database lock"),
+			statusCode: status,
+		}
+	}
+
+	return l, err
 }
 
 func (c *Collection) unlock(ctx context.Context, lockID string){

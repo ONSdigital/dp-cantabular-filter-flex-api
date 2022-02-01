@@ -10,7 +10,7 @@ import (
 )
 
 // LogIdentity checks for Service Auth or Florence Token and logs the embedded
-// User Identity if present. Fails if no Identity is present at all.
+// User Identity if present.
 func LogIdentity() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
@@ -43,7 +43,7 @@ type Permissions struct {
 	handler authHandler
 }
 
-// NewPermissions returns a new Permissions middleware struct
+// NewPermissions returns a new Permissions middleware struct.
 func NewPermissions(zebedeeURL string, enabled bool) *Permissions {
 	if !enabled{
 		return &Permissions{
@@ -64,7 +64,7 @@ func NewPermissions(zebedeeURL string, enabled bool) *Permissions {
 }
 
 // Require is the middleware handler you wrap around each route, providing which
-// permissions level is required for the call
+// permissions level is required for the call.
 func (p *Permissions) Require(required auth.Permissions) func(http.Handler) http.Handler{
 	return func(next http.Handler) http.Handler{
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){

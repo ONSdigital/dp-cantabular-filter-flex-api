@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	//"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 
@@ -49,8 +50,8 @@ func (api *API) enablePublicEndpoints(){
 func (api *API) enablePrivateEndpoints(){
 	r := chi.NewRouter()
 
-	checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
 	permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
+	checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
 
 	r.Use(checkIdentity)
 	r.Use(middleware.LogIdentity())
