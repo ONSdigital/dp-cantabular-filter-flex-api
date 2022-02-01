@@ -2,15 +2,18 @@ package service
 
 import (
 	"context"
+	"net/http"
 	"errors"
 	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/gorilla/mux"
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // Service contains all the configs, server and clients to run the event handler service
@@ -62,8 +65,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
-	r := mux.NewRouter()
-	r.StrictSlash(true).Path("/health").HandlerFunc(svc.HealthCheck.Handler)
+	r := chi.NewRouter()
+	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
