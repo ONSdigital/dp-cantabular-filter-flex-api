@@ -28,7 +28,7 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 		return Error{
 			statusCode: http.StatusBadRequest,
 			err:        fmt.Errorf("failed to unmarshal request body: %w", err),
-			message:    "badly formed request body",
+			message:    fmt.Sprintf("badly formed request body: %s", err),
 			logData:    log.Data{
 				"body": string(b),
 			},

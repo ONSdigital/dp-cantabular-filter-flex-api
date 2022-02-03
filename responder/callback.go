@@ -72,10 +72,6 @@ func unwrapLogData(err error) log.Data {
 		err = errors.Unwrap(err)
 	}
 
-	if len(data) == 0{
-		return nil
-	}
-
 	// flatten []log.Data into single log.Data with slice
 	// entries for duplicate keyed entries, but not for duplicate
 	// key-value pairs

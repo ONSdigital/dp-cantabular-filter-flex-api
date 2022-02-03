@@ -164,7 +164,7 @@ func TestErrors(t *testing.T) {
 			})
 		})
 
-		Convey("Given an slice errors that satisfy interfaces providing Code() and Response() functions", func() {
+		Convey("Given an slice errors that satisfy an interface providing a Response() function", func() {
 			testErrs := []testError{
 				{
 					err:  errors.New("test error 1"),

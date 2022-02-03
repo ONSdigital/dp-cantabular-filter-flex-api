@@ -47,6 +47,7 @@ type Responder interface{
 	Error(context.Context, http.ResponseWriter, error)
 	StatusCode(http.ResponseWriter, int)
 	Bytes(context.Context, http.ResponseWriter, int, []byte)
+	Errors(context.Context, http.ResponseWriter, int, []error)
 }
 
 // Datastore is the interface for interacting with the storage backend

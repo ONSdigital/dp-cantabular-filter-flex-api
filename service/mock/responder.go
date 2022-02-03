@@ -26,6 +26,9 @@ var _ service.Responder = &ResponderMock{}
 // 			ErrorFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, err error)  {
 // 				panic("mock out the Error method")
 // 			},
+// 			ErrorsFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)  {
+// 				panic("mock out the Errors method")
+// 			},
 // 			JSONFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, ifaceVal interface{})  {
 // 				panic("mock out the JSON method")
 // 			},
@@ -44,6 +47,9 @@ type ResponderMock struct {
 
 	// ErrorFunc mocks the Error method.
 	ErrorFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, err error)
+
+	// ErrorsFunc mocks the Errors method.
+	ErrorsFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)
 
 	// JSONFunc mocks the JSON method.
 	JSONFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, ifaceVal interface{})
@@ -73,6 +79,17 @@ type ResponderMock struct {
 			// Err is the err argument value.
 			Err error
 		}
+		// Errors holds details about calls to the Errors method.
+		Errors []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// ResponseWriter is the responseWriter argument value.
+			ResponseWriter http.ResponseWriter
+			// N is the n argument value.
+			N int
+			// Errs is the errs argument value.
+			Errs []error
+		}
 		// JSON holds details about calls to the JSON method.
 		JSON []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -94,6 +111,7 @@ type ResponderMock struct {
 	}
 	lockBytes      sync.RWMutex
 	lockError      sync.RWMutex
+	lockErrors     sync.RWMutex
 	lockJSON       sync.RWMutex
 	lockStatusCode sync.RWMutex
 }
@@ -177,6 +195,49 @@ func (mock *ResponderMock) ErrorCalls() []struct {
 	mock.lockError.RLock()
 	calls = mock.calls.Error
 	mock.lockError.RUnlock()
+	return calls
+}
+
+// Errors calls ErrorsFunc.
+func (mock *ResponderMock) Errors(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error) {
+	if mock.ErrorsFunc == nil {
+		panic("ResponderMock.ErrorsFunc: method is nil but Responder.Errors was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		ResponseWriter  http.ResponseWriter
+		N               int
+		Errs            []error
+	}{
+		ContextMoqParam: contextMoqParam,
+		ResponseWriter:  responseWriter,
+		N:               n,
+		Errs:            errs,
+	}
+	mock.lockErrors.Lock()
+	mock.calls.Errors = append(mock.calls.Errors, callInfo)
+	mock.lockErrors.Unlock()
+	mock.ErrorsFunc(contextMoqParam, responseWriter, n, errs)
+}
+
+// ErrorsCalls gets all the calls that were made to Errors.
+// Check the length with:
+//     len(mockedResponder.ErrorsCalls())
+func (mock *ResponderMock) ErrorsCalls() []struct {
+	ContextMoqParam context.Context
+	ResponseWriter  http.ResponseWriter
+	N               int
+	Errs            []error
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		ResponseWriter  http.ResponseWriter
+		N               int
+		Errs            []error
+	}
+	mock.lockErrors.RLock()
+	calls = mock.calls.Errors
+	mock.lockErrors.RUnlock()
 	return calls
 }
 

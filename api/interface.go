@@ -13,6 +13,7 @@ import (
 type responder interface{
 	JSON(context.Context, http.ResponseWriter, int, interface{})
 	Error(context.Context, http.ResponseWriter, error)
+	Errors(context.Context, http.ResponseWriter, int, []error)
 }
 
 type datastore interface{
