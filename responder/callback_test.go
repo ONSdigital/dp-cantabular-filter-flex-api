@@ -1,12 +1,12 @@
 package responder
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/ONSdigital/log.go/v2/log"
 
+	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -35,7 +35,7 @@ func (e testError) LogData() map[string]interface{} {
 	return e.logData
 }
 
-func TestCallbackHappy(t *testing.T) {
+func TestUnwrapLogDataHappy(t *testing.T) {
 
 	Convey("Given an error with embedded logData", t, func() {
 		err := &testError{
@@ -159,4 +159,39 @@ func TestCallbackHappy(t *testing.T) {
 			So(logData, ShouldResemble, expected)
 		})
 	})
+}
+
+func TestStackTraceHappy(t *testing.T){
+	Convey("Given an error with embedded stack trace from pkg/errors", t, func() {
+		err := testCallStackFunc1()
+		Convey("When stackTrace(err) is called", func() {
+			st := stackTrace(err)
+			So(len(st), ShouldEqual, 19)
+			
+			So(st[0].File, ShouldContainSubstring, "dp-cantabular-filter-flex-api/responder/callback_test.go")
+			So(st[0].Line, ShouldEqual, 195)
+			So(st[0].Function, ShouldEqual, "testCallStackFunc3")
+
+			So(st[1].File, ShouldContainSubstring, "dp-cantabular-filter-flex-api/responder/callback_test.go")
+			So(st[1].Line, ShouldEqual, 191)
+			So(st[1].Function, ShouldEqual, "testCallStackFunc2")
+
+			So(st[2].File, ShouldContainSubstring, "dp-cantabular-filter-flex-api/responder/callback_test.go")
+			So(st[2].Line, ShouldEqual, 187)
+			So(st[2].Function, ShouldEqual, "testCallStackFunc1")
+		})
+	})
+}
+
+func testCallStackFunc1() error{
+	return testCallStackFunc2()
+}
+
+func testCallStackFunc2() error{
+	return testCallStackFunc3()
+}
+
+func testCallStackFunc3() error{
+	cause := errors.New("I am the cause")
+	return errors.Wrap(cause, "I am the context")
 }

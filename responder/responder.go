@@ -54,7 +54,7 @@ func (r *Responder) Error(ctx context.Context, w http.ResponseWriter, err error)
 // respondError is the implementation of Error, seperated so it can be used internally
 // by the other respond functions without having to create a new Responder
 func respondError(ctx context.Context, w http.ResponseWriter, err error){
-	log.Info(ctx, "error responding to HTTP request", &log.EventErrors{{
+	log.Info(ctx, "error responding to HTTP request", log.ERROR, &log.EventErrors{{
 			Message:    err.Error(),
 			StackTrace: stackTrace(err),
 			Data:       unwrapLogData(err),
@@ -77,6 +77,50 @@ func respondError(ctx context.Context, w http.ResponseWriter, err error){
 	if err != nil {
 		log.Error(ctx, "badly formed error response", err, logData)
 		http.Error(w, msg, status)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+
+	if _, err := w.Write(b); err != nil {
+		log.Error(ctx, "failed to write error response", err, logData)
+		return
+	}
+
+	log.Info(ctx, "returned error response", logData)
+}
+
+// respondError is the implementation of Error, seperated so it can be used internally
+// by the other respond functions without having to create a new Responder
+func (r *Responder) Errors(ctx context.Context, w http.ResponseWriter, status int, errs []error){
+	var errorLogs log.EventErrors
+	var errorMsgs []string
+
+	for _, err := range errs{
+		errorLogs = append(errorLogs,log.EventError{
+			Message:    err.Error(),
+			StackTrace: stackTrace(err),
+			Data:       unwrapLogData(err),
+		})
+		errorMsgs = append(errorMsgs, errorMessage(err))
+	}
+
+	log.Info(ctx, "error responding to HTTP request", log.ERROR, &errorLogs)
+
+	resp   := errorResponse{
+		Errors: errorMsgs,
+	}
+
+	logData := log.Data{
+		"response":    resp,
+		"status_code": status,
+	}
+
+	b, err := json.Marshal(resp)
+	if err != nil {
+		log.Error(ctx, "badly formed error response", err, logData)
+		http.Error(w, "unexpected error", status)
 		return
 	}
 
