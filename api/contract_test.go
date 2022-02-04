@@ -20,10 +20,11 @@ func testUUID() *uuid.UUID{
 func TestCreateFiltersRequestValid(t *testing.T){
 	Convey("Given a valid createFilterRequest request object", t, func() {
 		req := createFilterRequest{
-			InstanceID:     testUUID(),
-			DatasetID:      "test-dataset-id",
-			Edition:        "test-edition",
-			Version:        1,
+			Dataset: &model.Dataset{
+				ID:      "test-dataset-id",
+				Edition: "test-edition",
+				Version: 1,
+			},
 			CantabularBlob: "test-blob",
 			Dimensions:     []model.Dimension{
 				{
@@ -46,18 +47,9 @@ func TestCreateFiltersRequestValid(t *testing.T){
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given instanceID is missing", func() {
-			r := req
-			r.InstanceID = nil
-			Convey("When Valid() is called", func() {
-				err := r.Valid()
-				So(err, ShouldNotBeNil)
-			})
-		})
-
 		Convey("Given datasetID is missing", func() {
 			r := req
-			r.DatasetID = ""
+			r.Dataset.ID = ""
 			Convey("When Valid() is called", func() {
 				err := r.Valid()
 				So(err, ShouldNotBeNil)
@@ -66,7 +58,7 @@ func TestCreateFiltersRequestValid(t *testing.T){
 
 		Convey("Given version is 0/missing", func() {
 			r := req
-			r.Version = 0
+			r.Dataset.Version = 0
 			Convey("When Valid() is called", func() {
 				err := r.Valid()
 				So(err, ShouldNotBeNil)
@@ -75,7 +67,7 @@ func TestCreateFiltersRequestValid(t *testing.T){
 
 		Convey("Given edition is missing", func() {
 			r := req
-			r.Edition = ""
+			r.Dataset.Edition = ""
 			Convey("When Valid() is called", func() {
 				err := r.Valid()
 				So(err, ShouldNotBeNil)

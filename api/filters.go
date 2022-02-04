@@ -18,27 +18,30 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 	}
 	defer r.Body.Close()
 
+	// getVersion
+	// validate dimensions
+
 	f := model.Filter{
 		Links: model.Links{
 			Version: model.Link{
 				HREF: fmt.Sprintf(
 					"%s/datasets/%s/editions/%s/version/%d",
 					api.cfg.DatasetAPIURL,
-					req.DatasetID,
-					req.Edition,
-					req.Version,
+					req.Dataset.ID,
+					req.Dataset.Edition,
+					req.Dataset.Version,
 				),
-				ID: req.InstanceID,
+				ID: nil,//"",//version.ID,,
 			},
 		},
 		Dimensions:      req.Dimensions,
 		UniqueTimestamp: api.generate.Timestamp(),
 		LastUpdated:     api.generate.Timestamp(),
-		InstanceID:      *req.InstanceID,
+		//InstanceID:      "",//version.ID,
 		Dataset: model.Dataset{
-			ID:      req.DatasetID,
-			Edition: req.Edition,
-			Version: req.Version,
+			ID:      req.Dataset.ID,
+			Edition: req.Dataset.Edition,
+			Version: req.Dataset.Version,
 		},
 		Published:         true, // TODO: Not sure what to
 		Events:            nil,  // populate for these

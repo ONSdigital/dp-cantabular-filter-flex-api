@@ -1,9 +1,10 @@
 {
-	"instance_id":     "054aa093-1c31-46dd-9472-14ff0b86abce",
-	"dataset_id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
-	"edition":         "2021",
+	"dataset":{
+		"id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
+		"edition": "2021",
+		"version": 1
+	},
 	"cantabular_blob": "Example",
-	"version":         1,
 	"dimensions": [
 		{
 			"name": "Number Of Siblings (3 categories)",

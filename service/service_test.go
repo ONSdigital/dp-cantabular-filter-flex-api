@@ -58,7 +58,6 @@ func TestInit(t *testing.T) {
 			},
 		}
 
-
 		// Initialiser functions
 		service.GetHealthCheck = func(_ *config.Config, _, _, _ string) (service.HealthChecker, error) {
 			return hcMock, nil

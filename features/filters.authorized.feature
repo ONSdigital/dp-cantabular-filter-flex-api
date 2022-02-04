@@ -11,11 +11,12 @@ Feature: Filters Private Endpoints Enabled
     When I POST "/filters"
     """
     {
-      "instance_id":     "054aa093-1c31-46dd-9472-14ff0b86abce",
-      "dataset_id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
-      "edition":         "2021",
+      "dataset":{
+          "id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
+          "edition": "2021",
+          "version": 1
+      },
       "cantabular_blob": "Example",
-      "version":         1,
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",
@@ -46,8 +47,7 @@ Feature: Filters Private Endpoints Enabled
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "localhost:8082/datasets/c7b634c9-b4e9-4e7a-a0b8-d255d38db200/editions/2021/version/1",
-          "id": "054aa093-1c31-46dd-9472-14ff0b86abce"
+          "href": "localhost:8082/datasets/c7b634c9-b4e9-4e7a-a0b8-d255d38db200/editions/2021/version/1"
         },
         "self": {
           "href": ":27100/flex/filters/94310d8d-72d6-492a-bc30-27584627edb1"
@@ -57,7 +57,7 @@ Feature: Filters Private Endpoints Enabled
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated": "2022-01-26T12:27:04.783936865Z",
       "etag": "defad5e5f9bf579bf894b3fbee3c95cba4321264",
-      "instance_id": "054aa093-1c31-46dd-9472-14ff0b86abce",
+      "instance_id": "00000000-0000-0000-0000-000000000000",
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",
@@ -98,8 +98,7 @@ Feature: Filters Private Endpoints Enabled
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "localhost:8082/datasets/c7b634c9-b4e9-4e7a-a0b8-d255d38db200/editions/2021/version/1",
-          "id": "054aa093-1c31-46dd-9472-14ff0b86abce"
+          "href": "localhost:8082/datasets/c7b634c9-b4e9-4e7a-a0b8-d255d38db200/editions/2021/version/1"
         },
         "self": {
           "href": ":27100/flex/filters/94310d8d-72d6-492a-bc30-27584627edb1"
@@ -109,7 +108,7 @@ Feature: Filters Private Endpoints Enabled
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated": "2022-01-26T12:27:04.783936865Z",
       "etag": "defad5e5f9bf579bf894b3fbee3c95cba4321264",
-      "instance_id": "054aa093-1c31-46dd-9472-14ff0b86abce",
+      "instance_id": ""00000000-0000-0000-0000-000000000000"",
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",

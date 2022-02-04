@@ -2,39 +2,37 @@ package api
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-
-	"github.com/google/uuid"
 )
 
 // createFilterRequest is the request body for POST /filters
-type createFilterRequest struct{
-	InstanceID     *uuid.UUID        `bson:"instance_id"     json:"instance_id"`
-	DatasetID      string            `bson:"dataset_id"      json:"dataset_id"`
-	Edition        string            `bson:"edition"         json:"edition"`
-	Version        int               `bson:"version"         json:"version"`
+type createFilterRequest struct {
 	CantabularBlob string            `bson:"cantabular_blob" json:"cantabular_blob"`
 	Dimensions     []model.Dimension `bson:"dimensions"      json:"dimensions"`
+	Dataset        *model.Dataset    `bson:"dataset"         json:"dataset"`
 }
 
 func (r *createFilterRequest) Valid() error {
-	if r.DatasetID == "" || r.Edition == "" || r.CantabularBlob == "" {
-		return errors.New("missing field: [dataset_id | edition | cantabular_blob]")
+	if r.Dataset == nil {
+		return errors.New("missing field: dataset")
 	}
 
-	if r.InstanceID == nil || r.Version == 0 {
-		return errors.New("missing/invalid field: [instance_id | version]")
+	if r.Dataset.ID == "" || r.Dataset.Edition == "" || r.Dataset.Version == 0 {
+		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version]")
+	}
+
+	if r.CantabularBlob == "" {
+		return errors.New("missing field: cantabular_blob")
 	}
 
 	if len(r.Dimensions) < 2 {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 2 values")
 	}
 
-	for i, d := range r.Dimensions{
-		if err := d.Valid(); err != nil{
-			return fmt.Errorf("invalid field: 'dimension [%d]': %w", i, err)
+	for _, d := range r.Dimensions{
+		if len(d.Name) == 0 || len(d.DimensionURL) == 0{
+			return errors.New("missing field: [dimension[%d].name | dimension[%d].dimension_url]")
 		}
 	}
 
