@@ -13,7 +13,12 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 	var req createFilterRequest
 
 	if err := api.ParseRequest(r.Body, &req); err != nil{
-		api.respond.Error(ctx, w, fmt.Errorf("failed to parse request: %w", err))
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			fmt.Errorf("failed to parse request: %w", err),
+		)
 		return
 	}
 	defer r.Body.Close()
@@ -49,7 +54,12 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request){
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil{
-		api.respond.Error(ctx, w, errors.Wrap(err, "failed to create filter"))
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to create filter"),
+		)
 		return
 	}
 

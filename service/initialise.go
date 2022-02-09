@@ -7,7 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/responder"
+	"github.com/ONSdigital/dp-net/v2/responder"
 	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"

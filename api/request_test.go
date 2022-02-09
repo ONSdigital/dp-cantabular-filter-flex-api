@@ -2,7 +2,6 @@ package api_test
 
 import (
 	"testing"
-	"net/http"
 	"bytes"
 	"errors"
 
@@ -10,15 +9,6 @@ import (
 
 	. "github.com/smartystreets/goconvey/convey"
 )
-
-func statusCode(err error) int {
-	var cerr interface{Code() int}
-	if errors.As(err, &cerr) {
-		return cerr.Code()
-	}
-
-	return 0
-}
 
 type fooRequest struct{
 	Foo     string
@@ -67,7 +57,6 @@ func TestParseRequest(t *testing.T){
 		Convey("When ParseRequest(body, request) is called", func() {
 			err := api.ParseRequest(bytes.NewReader(b), &req)
 			So(err, ShouldNotBeNil)
-			So(statusCode(err), ShouldEqual, http.StatusBadRequest)
 		})
 	})
 
@@ -78,7 +67,6 @@ func TestParseRequest(t *testing.T){
 		Convey("When ParseRequest(body, request) is called", func() {
 			err := api.ParseRequest(bytes.NewReader(b), &req)
 			So(err, ShouldNotBeNil)
-			So(statusCode(err), ShouldEqual, http.StatusBadRequest)
 		})
 	})
 

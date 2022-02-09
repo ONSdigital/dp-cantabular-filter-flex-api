@@ -12,7 +12,7 @@ import (
 // responder handles responding to http requests
 type responder interface{
 	JSON(context.Context, http.ResponseWriter, int, interface{})
-	Error(context.Context, http.ResponseWriter, error)
+	Error(context.Context, http.ResponseWriter, int, error)
 	Errors(context.Context, http.ResponseWriter, int, []error)
 }
 

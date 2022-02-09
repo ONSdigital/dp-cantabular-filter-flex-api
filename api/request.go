@@ -3,7 +3,6 @@ package api
 import (
 	"io"
 	"fmt"
-	"net/http"
 	"encoding/json"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -26,7 +25,6 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 
 	if err := json.Unmarshal(b, &req); err != nil{
 		return Error{
-			statusCode: http.StatusBadRequest,
 			err:        fmt.Errorf("failed to unmarshal request body: %w", err),
 			message:    fmt.Sprintf("badly formed request body: %s", err),
 			logData:    log.Data{
@@ -38,7 +36,6 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 	if v, ok := req.(validator); ok {
 		if err := v.Valid(); err != nil{
 			return Error{
-				statusCode: http.StatusBadRequest,
 				err:        errors.Wrap(err, "invalid request"),
 				logData:    log.Data{
 					"body":    string(b),

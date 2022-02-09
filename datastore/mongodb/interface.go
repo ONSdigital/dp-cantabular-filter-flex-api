@@ -15,3 +15,15 @@ type generator interface{
 type hasher interface {
 	Hash([]byte) (string, error)
 }
+
+type errNotFound interface{
+	NotFound() bool
+}
+
+type errConflict interface{
+	Conflict() bool
+}
+
+type errUnavailable interface{
+	Unavailable() bool
+}

@@ -23,7 +23,7 @@ var _ service.Responder = &ResponderMock{}
 // 			BytesFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, bytes []byte)  {
 // 				panic("mock out the Bytes method")
 // 			},
-// 			ErrorFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, err error)  {
+// 			ErrorFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, err error)  {
 // 				panic("mock out the Error method")
 // 			},
 // 			ErrorsFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)  {
@@ -46,7 +46,7 @@ type ResponderMock struct {
 	BytesFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, bytes []byte)
 
 	// ErrorFunc mocks the Error method.
-	ErrorFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, err error)
+	ErrorFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, err error)
 
 	// ErrorsFunc mocks the Errors method.
 	ErrorsFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)
@@ -76,6 +76,8 @@ type ResponderMock struct {
 			ContextMoqParam context.Context
 			// ResponseWriter is the responseWriter argument value.
 			ResponseWriter http.ResponseWriter
+			// N is the n argument value.
+			N int
 			// Err is the err argument value.
 			Err error
 		}
@@ -160,23 +162,25 @@ func (mock *ResponderMock) BytesCalls() []struct {
 }
 
 // Error calls ErrorFunc.
-func (mock *ResponderMock) Error(contextMoqParam context.Context, responseWriter http.ResponseWriter, err error) {
+func (mock *ResponderMock) Error(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, err error) {
 	if mock.ErrorFunc == nil {
 		panic("ResponderMock.ErrorFunc: method is nil but Responder.Error was just called")
 	}
 	callInfo := struct {
 		ContextMoqParam context.Context
 		ResponseWriter  http.ResponseWriter
+		N               int
 		Err             error
 	}{
 		ContextMoqParam: contextMoqParam,
 		ResponseWriter:  responseWriter,
+		N:               n,
 		Err:             err,
 	}
 	mock.lockError.Lock()
 	mock.calls.Error = append(mock.calls.Error, callInfo)
 	mock.lockError.Unlock()
-	mock.ErrorFunc(contextMoqParam, responseWriter, err)
+	mock.ErrorFunc(contextMoqParam, responseWriter, n, err)
 }
 
 // ErrorCalls gets all the calls that were made to Error.
@@ -185,11 +189,13 @@ func (mock *ResponderMock) Error(contextMoqParam context.Context, responseWriter
 func (mock *ResponderMock) ErrorCalls() []struct {
 	ContextMoqParam context.Context
 	ResponseWriter  http.ResponseWriter
+	N               int
 	Err             error
 } {
 	var calls []struct {
 		ContextMoqParam context.Context
 		ResponseWriter  http.ResponseWriter
+		N               int
 		Err             error
 	}
 	mock.lockError.RLock()

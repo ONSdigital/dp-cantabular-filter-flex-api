@@ -1,8 +1,8 @@
 package mongodb
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
@@ -15,11 +15,11 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	var err error
 
 	if f.ID, err = c.generate.UUID(); err != nil{
-		return fmt.Errorf("failed to generate UUID: %w", err)
+		return errors.Wrap(err, "failed to generate UUID: %w")
 	}
 
 	if f.ETag, err = f.Hash(nil); err != nil{
-		return fmt.Errorf("failed to generate eTag: %w", err)
+		return errors.Wrap(err, "failed to generate eTag: %w")
 	}
 
 	f.Links.Self = model.Link{

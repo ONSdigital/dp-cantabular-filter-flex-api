@@ -1,10 +1,14 @@
 package api
 
+import (
+	"net/http"
+	"github.com/ONSdigital/dp-net/v2/errors"
+)
+
 // Error is the packages error type
 type Error struct{
 	err        error
 	message    string
-	statusCode int
 	logData    map[string]interface{}
 }
 
@@ -21,12 +25,6 @@ func (e Error) Unwrap() error{
 	return e.err
 }
 
-// Code satisfies the coder interface which is used to recover a
-// HTTP status code from an error
-func (e Error) Code() int{
-	return e.statusCode
-}
-
 // Message satisfies the messanger interface which is used to specify
 // a response to be sent to the caller in place of the error text for a
 // given error. This is useful when you don't want sensitive information
@@ -40,4 +38,17 @@ func (e Error) Message() string{
 // log data from an error
 func (e Error) LogData() map[string]interface{}{
 	return e.logData
+}
+
+func statusCode(err error) int {
+	switch{
+		case errors.Unavailable(err):
+			return http.StatusServiceUnavailable
+		case errors.NotFound(err):
+			return http.StatusNotFound
+		case errors.Conflict(err):
+			return http.StatusConflict
+		default:
+			return http.StatusInternalServerError
+	}
 }
