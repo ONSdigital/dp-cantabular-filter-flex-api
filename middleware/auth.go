@@ -3,9 +3,9 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/ONSdigital/dp-authorisation/auth"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-net/v2/request"
-	"github.com/ONSdigital/dp-authorisation/auth"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 

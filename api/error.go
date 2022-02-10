@@ -2,7 +2,8 @@ package api
 
 import (
 	"net/http"
-	"github.com/ONSdigital/dp-net/v2/errors"
+
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 )
 
 // Error is the packages error type
