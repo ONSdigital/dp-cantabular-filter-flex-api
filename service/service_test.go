@@ -42,9 +42,9 @@ func TestInit(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Mock clients
-		producerMock  := &kafkatest.IProducerMock{}
-		subscribedTo  := []*healthcheck.Check{}
-		serverMock    := &mock.HTTPServerMock{}
+		producerMock := &kafkatest.IProducerMock{}
+		subscribedTo := []*healthcheck.Check{}
+		serverMock := &mock.HTTPServerMock{}
 		datastoreMock := &mock.DatastoreMock{}
 		generatorMock := &mock.GeneratorMock{}
 		responderMock := &mock.ResponderMock{}
@@ -148,8 +148,8 @@ func TestStart(t *testing.T) {
 
 		serverWg := &sync.WaitGroup{}
 		serverMock := &mock.HTTPServerMock{}
-		producerMock  := &kafkatest.IProducerMock{
-			LogErrorsFunc: func(_ context.Context){},
+		producerMock := &kafkatest.IProducerMock{
+			LogErrorsFunc: func(_ context.Context) {},
 		}
 
 		svc := &service.Service{

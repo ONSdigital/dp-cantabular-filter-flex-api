@@ -3,8 +3,8 @@ package config
 import (
 	"time"
 
-	"github.com/kelseyhightower/envconfig"
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
+	"github.com/kelseyhightower/envconfig"
 )
 
 // KafkaTLSProtocolFlag informs service to use TLS protocol for kafka
@@ -17,14 +17,14 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	ComponentTestUseLogFile    bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
-	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"` 
+	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"`
 	Kafka                      KafkaConfig
 	Mongo                      mongo.MongoDriverConfig
-	FiltersCollection          string   `envconfig:"FILTERS_COLLECTION"`
-	FilterOutputsCollection    string   `envconfig:"FILTER_OUTPUTS_COLLECTION"`
-	EnablePrivateEndpoints     bool     `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
-	EnablePermissionsAuth      bool     `envconfig:"ENABLE_PERMISSIONS_AUTH"`
-	ZebedeeURL                 string   `envconfig:"ZEBEDEE_URL"`
+	FiltersCollection          string `envconfig:"FILTERS_COLLECTION"`
+	FilterOutputsCollection    string `envconfig:"FILTER_OUTPUTS_COLLECTION"`
+	EnablePrivateEndpoints     bool   `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
+	EnablePermissionsAuth      bool   `envconfig:"ENABLE_PERMISSIONS_AUTH"`
+	ZebedeeURL                 string `envconfig:"ZEBEDEE_URL"`
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -46,7 +46,6 @@ type KafkaConfig struct {
 	CsvCreatedTopic           string   `envconfig:"KAFKA_TOPIC_CSV_CREATED"`
 }
 
-
 var cfg *Config
 
 // Get returns the default config with any modifications through environment
@@ -63,9 +62,9 @@ func Get() (*Config, error) {
 		HealthCheckCriticalTimeout: 90 * time.Second,
 		ComponentTestUseLogFile:    false,
 		DatasetAPIURL:              "localhost:8082",
-		FiltersCollection:         "censusFilters",
-		FilterOutputsCollection:   "censusFilterOutputs",
-		EnablePrivateEndpoints:    false,
+		FiltersCollection:          "censusFilters",
+		FilterOutputsCollection:    "censusFilterOutputs",
+		EnablePrivateEndpoints:     false,
 		EnablePermissionsAuth:      true,
 		ZebedeeURL:                 "http://localhost:8082",
 		Kafka: KafkaConfig{
@@ -86,13 +85,13 @@ func Get() (*Config, error) {
 			CsvCreatedTopic:           "cantabular-csv-created",
 		},
 		Mongo: mongo.MongoDriverConfig{
-			ClusterEndpoint:               "localhost:27017",
-			Username:                      "",
-			Password:                      "",
-			Database:                      "filters",
-			Collections:                   map[string]string{
-				"censusFilters":        "censusFilters",
-				"censusFilterOutputs":  "censuFilterOutputs",
+			ClusterEndpoint: "localhost:27017",
+			Username:        "",
+			Password:        "",
+			Database:        "filters",
+			Collections: map[string]string{
+				"censusFilters":       "censusFilters",
+				"censusFilterOutputs": "censuFilterOutputs",
 			},
 			ReplicaSet:                    "",
 			IsStrongReadConcernEnabled:    false,

@@ -37,11 +37,11 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	mongoAddr := f.MongoFeature.Server.URI()
 
 	component, err := steps.NewComponent(zebedeeURL, mongoAddr)
-	if err != nil{
+	if err != nil {
 		log.Panicf("unable to create component: %s", err)
 	}
 
-	if err := component.Init(); err != nil{
+	if err := component.Init(); err != nil {
 		log.Panicf("unable to initialize component: %s", err)
 	}
 
@@ -77,7 +77,7 @@ func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
 		})
 	})
 	ctx.AfterSuite(func() {
-		if err := f.MongoFeature.Close(); err != nil{
+		if err := f.MongoFeature.Close(); err != nil {
 			log.Println("failed to close mongo feature: %s", err)
 		}
 	})
@@ -100,11 +100,11 @@ func TestComponent(t *testing.T) {
 				t.Fatalf("could not create logs file: %s", err)
 			}
 
-			defer func(){
-				if err := logfile.Close(); err != nil{
+			defer func() {
+				if err := logfile.Close(); err != nil {
 					log.Printf("failed to close log file: %s", err)
 				}
-			}
+			}()
 
 			output = logfile
 			dplogs.SetDestination(logfile, nil)

@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"time"
 	"crypto/rand"
 	"github.com/google/uuid"
+	"time"
 
 	"github.com/pkg/errors"
 )

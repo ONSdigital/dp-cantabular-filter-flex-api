@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
 	"github.com/ONSdigital/dp-net/v2/responder"
-	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v3"

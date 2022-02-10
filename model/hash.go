@@ -4,8 +4,8 @@ import (
 	"crypto/sha1"
 	"fmt"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // Hash generates a SHA-1 hash of the filter struct. SHA-1 is not cryptographically safe,

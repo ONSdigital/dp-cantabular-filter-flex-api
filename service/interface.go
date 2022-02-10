@@ -11,7 +11,6 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/google/uuid"
-
 )
 
 //go:generate moq -out mock/server.go -pkg mock . HTTPServer
@@ -42,8 +41,8 @@ type HealthChecker interface {
 }
 
 // Responder handles responding to http requests
-type Responder interface{
-	JSON(context.Context,http.ResponseWriter, int, interface{})
+type Responder interface {
+	JSON(context.Context, http.ResponseWriter, int, interface{})
 	Error(context.Context, http.ResponseWriter, int, error)
 	StatusCode(http.ResponseWriter, int)
 	Bytes(context.Context, http.ResponseWriter, int, []byte)
@@ -51,13 +50,13 @@ type Responder interface{
 }
 
 // Datastore is the interface for interacting with the storage backend
-type Datastore interface{
+type Datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	Checker(context.Context, *healthcheck.CheckState) error
 }
 
 // Generator is the interface for generating dynamic tokens and timestamps
-type Generator interface{
+type Generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time

@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 
-	"github.com/ONSdigital/dp-component-test/utils"
 	componenttest "github.com/ONSdigital/dp-component-test"
+	"github.com/ONSdigital/dp-component-test/utils"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -70,21 +70,21 @@ func (c *Component) Init() (http.Handler, error) {
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
-/*
-	// producer for triggering test events
-	if c.producer, err = kafka.NewProducer(
-		c.ctx,
-		&kafka.ProducerConfig{
-			BrokerAddrs:       c.cfg.Kafka.Addr,
-			Topic:             c.cfg.Kafka.ExportStartTopic,
-			MinBrokersHealthy: &c.cfg.Kafka.ProducerMinBrokersHealthy,
-			KafkaVersion:      &c.cfg.Kafka.Version,
-			MaxMessageBytes:   &c.cfg.Kafka.MaxBytes,
-		},
-	); err != nil {
-		return fmt.Errorf("error creating kafka producer: %w", err)
-	}
-*/
+	/*
+		// producer for triggering test events
+		if c.producer, err = kafka.NewProducer(
+			c.ctx,
+			&kafka.ProducerConfig{
+				BrokerAddrs:       c.cfg.Kafka.Addr,
+				Topic:             c.cfg.Kafka.ExportStartTopic,
+				MinBrokersHealthy: &c.cfg.Kafka.ProducerMinBrokersHealthy,
+				KafkaVersion:      &c.cfg.Kafka.Version,
+				MaxMessageBytes:   &c.cfg.Kafka.MaxBytes,
+			},
+		); err != nil {
+			return fmt.Errorf("error creating kafka producer: %w", err)
+		}
+	*/
 	// Create service and initialise it
 	c.svc = service.New()
 	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
@@ -105,7 +105,7 @@ func (c *Component) setInitialiserMock() {
 		return c.HTTPServer
 	}
 
-	service.GetGenerator = func() service.Generator{
+	service.GetGenerator = func() service.Generator {
 		return &mock.Generator{}
 	}
 

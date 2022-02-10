@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
-	ctx.Step(`^the service starts`,            c.theServiceStarts)
+	ctx.Step(`^the service starts`, c.theServiceStarts)
 	ctx.Step(`^private endpoints are enabled`, c.privateEndpointsAreEnabled)
 	ctx.Step(`^private endpoints are not enabled`, c.privateEndpointsAreNotEnabled)
 	ctx.Step(`^the document in the database for id "([^"]*)" should be:$`, c.theDocumentInTheDatabaseShouldBe)

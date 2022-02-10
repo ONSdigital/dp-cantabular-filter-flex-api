@@ -7,40 +7,40 @@ import (
 )
 
 // Filter holds details for a user filter journey
-type Filter struct{
-	ID                 uuid.UUID          `bson:"filter_id"                    json:"filter_id"`
-	Links              Links              `bson:"links"                        json:"links"`
-	FilterOutput       *FilterOutput      `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
-	Events             []Event            `bson:"events"                       json:"events"`
-	UniqueTimestamp    time.Time          `bson:"unique_timestamp"             json:"unique_timestamp"`
-	LastUpdated        time.Time          `bson:"last_updated"                 json:"last_updated"`
-	ETag               string             `bson:"etag"                         json:"etag"`
-	InstanceID         uuid.UUID          `bson:"instance_id"                  json:"instance_id"`
-	Dimensions         []Dimension        `bson:"dimensions"                   json:"dimensions"`
-	Dataset            Dataset            `bson:"dataset"                      json:"dataset"`
-	Published          bool               `bson:"published"                    json:"published"`
-	DisclosureControl  *DisclosureControl `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
-	PopulationType     string             `bson:"population_type"              json:"population_type"`
+type Filter struct {
+	ID                uuid.UUID          `bson:"filter_id"                    json:"filter_id"`
+	Links             Links              `bson:"links"                        json:"links"`
+	FilterOutput      *FilterOutput      `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
+	Events            []Event            `bson:"events"                       json:"events"`
+	UniqueTimestamp   time.Time          `bson:"unique_timestamp"             json:"unique_timestamp"`
+	LastUpdated       time.Time          `bson:"last_updated"                 json:"last_updated"`
+	ETag              string             `bson:"etag"                         json:"etag"`
+	InstanceID        uuid.UUID          `bson:"instance_id"                  json:"instance_id"`
+	Dimensions        []Dimension        `bson:"dimensions"                   json:"dimensions"`
+	Dataset           Dataset            `bson:"dataset"                      json:"dataset"`
+	Published         bool               `bson:"published"                    json:"published"`
+	DisclosureControl *DisclosureControl `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
+	PopulationType    string             `bson:"population_type"              json:"population_type"`
 }
 
-type Links struct{
-	Version Link   `bson:"version" json:"version"`
-	Self    Link   `bson:"self"    json:"self"`
+type Links struct {
+	Version Link `bson:"version" json:"version"`
+	Self    Link `bson:"self"    json:"self"`
 }
 
-type Link struct{
+type Link struct {
 	HREF string     `bson:"href"           json:"href"`
 	ID   *uuid.UUID `bson:"id,omitempty"   json:"id,omitempty"`
 }
 
-type FilterOutput struct{
+type FilterOutput struct {
 	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty"`
 	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty"`
 	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty"`
 	XLS  *FileInfo `bson:"xls,omitempty"  json:"xls,omitempty"`
 }
 
-type FileInfo struct{
+type FileInfo struct {
 	HREF    string `bson:"href"    json:"href"`
 	Size    string `bson:"size"    json:"size"`
 	Public  string `bson:"public"  json:"public"`
@@ -48,12 +48,12 @@ type FileInfo struct{
 	Skipped bool   `bson:"skipped" json:"skipped"`
 }
 
-type Event struct{
+type Event struct {
 	Timestamp time.Time `bson:"timestamp" json:"timestamp"`
-	Name string         `bson:"name"      json:"name"`
+	Name      string    `bson:"name"      json:"name"`
 }
 
-type Dimension struct{
+type Dimension struct {
 	Name         string   `bson:"name"          json:"name"`
 	Options      []string `bson:"options"       json:"options"`
 	DimensionURL string   `bson:"dimension_url" json:"dimension_url"`
@@ -61,18 +61,18 @@ type Dimension struct{
 }
 
 type Dataset struct {
-	ID      string      `bson:"id"      json:"id"`
-	Edition string      `bson:"edition" json:"edition"`
-	Version int         `bson:"version" json:"version"`
+	ID      string `bson:"id"      json:"id"`
+	Edition string `bson:"edition" json:"edition"`
+	Version int    `bson:"version" json:"version"`
 }
 
-type DisclosureControl struct{
+type DisclosureControl struct {
 	Status         string         `bson:"status"          json:"status"`
 	Dimension      string         `bson:"dimension"       json:"dimension"`
 	BlockedOptions BlockedOptions `bson:"blocked_options" json:"blocked_options"`
 }
 
-type BlockedOptions struct{
-	BlockedOptions []string       `bson:"blocked_options" json:"blocked_options"`
-	BlockedCount   int            `bson:"blocked_count"   json:"blocked_count"`
+type BlockedOptions struct {
+	BlockedOptions []string `bson:"blocked_options" json:"blocked_options"`
+	BlockedCount   int      `bson:"blocked_count"   json:"blocked_count"`
 }

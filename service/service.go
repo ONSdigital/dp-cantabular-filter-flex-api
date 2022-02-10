@@ -2,16 +2,16 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -26,7 +26,7 @@ type Service struct {
 	responder      Responder
 	store          Datastore
 	generator      Generator
-	identityClient *identity.Client 
+	identityClient *identity.Client
 }
 
 func New() *Service {
@@ -57,7 +57,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
 
-	if svc.store, err = GetMongoDB(ctx, cfg, svc.generator); err != nil{
+	if svc.store, err = GetMongoDB(ctx, cfg, svc.generator); err != nil {
 		return fmt.Errorf("failed to initialise mongodb store: %w", err)
 	}
 

@@ -1,8 +1,8 @@
 package mock
 
 import (
-	"time"
 	"github.com/google/uuid"
+	"time"
 )
 
 const (
@@ -26,6 +26,6 @@ func (g *Generator) UUID() (uuid.UUID, error) {
 
 // Timestamp generates a timestamp of the current time
 func (g *Generator) Timestamp() time.Time {
-	t, _ := time.Parse(time.RFC3339,TestTimestamp)
+	t, _ := time.Parse(time.RFC3339, TestTimestamp)
 	return t
 }
