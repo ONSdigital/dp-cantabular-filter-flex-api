@@ -35,7 +35,7 @@ func (e *er) LogData() map[string]interface{}{
 	return e.logData
 }
 
-// NotFound satisfies the errConflict interface and allows other packages
+// NotFound satisfies the errNotFound interface and allows other packages
 // to recall metadata about the error thrown
 func (e *er) NotFound() bool{
 	return e.notFound
@@ -47,7 +47,7 @@ func (e *er) Conflict() bool{
 	return e.conflict
 }
 
-// Unavailable satisfies the errConflict interface and allows other packages
+// Unavailable satisfies the errUnavailable interface and allows other packages
 // to recall metadata about the error thrown
 func (e *er) Unavailable() bool{
 	return e.unavailable
