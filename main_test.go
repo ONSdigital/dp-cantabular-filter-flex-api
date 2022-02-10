@@ -41,7 +41,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 		log.Panicf("unable to create component: %s", err)
 	}
 
-	if err := component.Init(); err != nil {
+	if _, err := component.Init(); err != nil {
 		log.Panicf("unable to initialize component: %s", err)
 	}
 
@@ -78,7 +78,7 @@ func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
 	})
 	ctx.AfterSuite(func() {
 		if err := f.MongoFeature.Close(); err != nil {
-			log.Println("failed to close mongo feature: %s", err)
+			log.Printf("failed to close mongo feature: %s", err)
 		}
 	})
 }
