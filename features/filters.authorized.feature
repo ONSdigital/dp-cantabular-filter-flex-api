@@ -56,7 +56,7 @@ Feature: Filters Private Endpoints Enabled
       "events": null,
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated": "2022-01-26T12:27:04.783936865Z",
-      "etag": "defad5e5f9bf579bf894b3fbee3c95cba4321264",
+      "etag": "79a0377838c36642bce63f3d2d9addf6e47dbaa0",
       "instance_id": "00000000-0000-0000-0000-000000000000",
       "dimensions": [
         {
@@ -107,7 +107,7 @@ Feature: Filters Private Endpoints Enabled
       "events": null,
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated": "2022-01-26T12:27:04.783936865Z",
-      "etag": "defad5e5f9bf579bf894b3fbee3c95cba4321264",
+      "etag": "79a0377838c36642bce63f3d2d9addf6e47dbaa0",
       "instance_id": ""00000000-0000-0000-0000-000000000000"",
       "dimensions": [
         {
