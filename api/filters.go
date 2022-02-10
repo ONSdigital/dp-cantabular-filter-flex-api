@@ -35,7 +35,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 					req.Dataset.Edition,
 					req.Dataset.Version,
 				),
-				ID: nil, //"",//version.ID,,
+				ID: nil, // version.ID,
 			},
 		},
 		Dimensions:      req.Dimensions,

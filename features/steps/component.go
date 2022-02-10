@@ -92,8 +92,8 @@ func (c *Component) Init() (http.Handler, error) {
 	}
 
 	// wait for producer to be initialised
-	//<-c.producer.Channels().Initialised
-	//log.Info(c.ctx, "component-test kafka producer initialised")
+	// <-c.producer.Channels().Initialised
+	// log.Info(c.ctx, "component-test kafka producer initialised")
 
 	return c.HTTPServer.Handler, nil
 }
@@ -141,9 +141,9 @@ func (c *Component) Close() {
 	c.wg.Wait()
 
 	// close producer
-	//if err := c.producer.Close(c.ctx); err != nil {
-	//	log.Error(c.ctx, "error closing kafka producer", err)
-	//}
+	// if err := c.producer.Close(c.ctx); err != nil {
+	//     log.Error(c.ctx, "error closing kafka producer", err)
+	// }
 }
 
 // Reset re-initialises the service under test and the api mocks.
