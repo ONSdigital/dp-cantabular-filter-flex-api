@@ -121,7 +121,11 @@ func (c *Component) startService(ctx context.Context) {
 	select {
 	case err := <-c.errorChan:
 		err = fmt.Errorf("service error received: %w", err)
-		c.svc.Close(ctx)
+		defer func(){
+			if err := c.svc.Close(ctx); err != nil{
+				log.Error(ctx, "failed to shutdown service gracefully: %s", err)
+			}
+		}()
 		panic(fmt.Errorf("unexpected error received from errorChan: %w", err))
 	case sig := <-c.signals:
 		log.Info(ctx, "os signal received", log.Data{"signal": sig})
