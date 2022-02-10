@@ -121,8 +121,8 @@ func (c *Component) startService(ctx context.Context) {
 	select {
 	case err := <-c.errorChan:
 		err = fmt.Errorf("service error received: %w", err)
-		defer func(){
-			if err := c.svc.Close(ctx); err != nil{
+		defer func() {
+			if err := c.svc.Close(ctx); err != nil {
 				log.Error(ctx, "failed to shutdown service gracefully: %s", err)
 			}
 		}()
