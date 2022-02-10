@@ -16,7 +16,7 @@ Feature: Filters Private Endpoints Enabled
           "edition": "2021",
           "version": 1
       },
-      "cantabular_blob": "Example",
+      "population_type": "Example",
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",
@@ -86,7 +86,7 @@ Feature: Filters Private Endpoints Enabled
         "version": 1
       },
       "published": true,
-      "cantabular_blob": ""
+      "population_type": ""
     }
     """
 
@@ -137,7 +137,7 @@ Feature: Filters Private Endpoints Enabled
         "version": 1
       },
       "published": true,
-      "cantabular_blob": ""
+      "population_type": ""
     }
     """
 

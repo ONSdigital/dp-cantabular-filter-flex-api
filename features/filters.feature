@@ -13,7 +13,7 @@ Feature: Filters Private Endpoints Not Enabled
           "edition": "2021",
           "version": 1
       },
-      "cantabular_blob": "Example",
+      "population_type": "Example",
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",
@@ -84,7 +84,7 @@ Feature: Filters Private Endpoints Not Enabled
         "version": 1
       },
       "published": true,
-      "cantabular_blob": ""
+      "population_type": ""
     }
     """
 
@@ -119,7 +119,7 @@ Scenario: Creating a new filter bad request body
           "edition": "2021",
           "version": 1
        },
-      "cantabular_blob": "Example",
+      "population_type": "Example",
       "dimensions": [
         {
           "name": "Number Of Siblings (3 categories)",

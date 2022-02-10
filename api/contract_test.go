@@ -25,7 +25,7 @@ func TestCreateFiltersRequestValid(t *testing.T){
 				Edition: "test-edition",
 				Version: 1,
 			},
-			CantabularBlob: "test-blob",
+			PopulationType: "test-blob",
 			Dimensions:     []model.Dimension{
 				{
 					Name: "test-dimension-1",

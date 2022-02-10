@@ -8,7 +8,7 @@ import (
 
 // createFilterRequest is the request body for POST /filters
 type createFilterRequest struct {
-	CantabularBlob string            `bson:"cantabular_blob" json:"cantabular_blob"`
+	PopulationType string            `bson:"population_type" json:"population_type"`
 	Dimensions     []model.Dimension `bson:"dimensions"      json:"dimensions"`
 	Dataset        *model.Dataset    `bson:"dataset"         json:"dataset"`
 }
@@ -22,8 +22,8 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version]")
 	}
 
-	if r.CantabularBlob == "" {
-		return errors.New("missing field: cantabular_blob")
+	if r.PopulationType == "" {
+		return errors.New("missing field: population_type")
 	}
 
 	if len(r.Dimensions) < 2 {

@@ -20,7 +20,7 @@ type Filter struct{
 	Dataset            Dataset            `bson:"dataset"                      json:"dataset"`
 	Published          bool               `bson:"published"                    json:"published"`
 	DisclosureControl  *DisclosureControl `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
-	CantabularBlob     string             `bson:"cantabular_blob"              json:"cantabular_blob"`
+	PopulationType     string             `bson:"population_type"              json:"population_type"`
 }
 
 type Links struct{

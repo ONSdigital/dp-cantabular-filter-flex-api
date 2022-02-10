@@ -4,7 +4,7 @@
 		"edition": "2021",
 		"version": 1
 	},
-	"cantabular_blob": "Example",
+	"population_type": "Example",
 	"dimensions": [
 		{
 			"name": "Number Of Siblings (3 categories)",
