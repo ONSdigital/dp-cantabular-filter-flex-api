@@ -78,17 +78,17 @@ func (p *Permissions) RequireRead(next http.HandlerFunc) http.HandlerFunc {
 	return p.Require(auth.Permissions{Read: true})(next).(http.HandlerFunc)
 }
 
-// RequireRead is a helper function for directly adding a 'Create' requirement to a given route
+// RequireCreate is a helper function for directly adding a 'Create' requirement to a given route
 func (p *Permissions) RequireCreate(next http.HandlerFunc) http.HandlerFunc {
 	return p.Require(auth.Permissions{Create: true})(next).(http.HandlerFunc)
 }
 
-// RequireRead is a helper function for directly adding a 'Update' requirement to a given route
+// RequireUpdate is a helper function for directly adding a 'Update' requirement to a given route
 func (p *Permissions) RequireUpdate(next http.HandlerFunc) http.HandlerFunc {
 	return p.Require(auth.Permissions{Update: true})(next).(http.HandlerFunc)
 }
 
-// RequireRead is a helper function for directly adding a 'Delete' requirement to a given route
+// RequireDelete is a helper function for directly adding a 'Delete' requirement to a given route
 func (p *Permissions) RequireDelete(next http.HandlerFunc) http.HandlerFunc {
 	return p.Require(auth.Permissions{Delete: true})(next).(http.HandlerFunc)
 }

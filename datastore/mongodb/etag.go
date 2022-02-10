@@ -16,7 +16,7 @@ func (c *Client) CreateEtag(current, update interface{}) (eTag string, err error
 		return "", errors.Wrap(err, "failed to marshal bson: %w")
 	}
 
-	if h, ok := current.(hasher); ok{
+	if h, ok := current.(hasher); ok {
 		return h.Hash(b)
 	}
 

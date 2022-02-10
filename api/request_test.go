@@ -1,35 +1,35 @@
 package api_test
 
 import (
-	"testing"
 	"bytes"
 	"errors"
+	"testing"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
+	ffapi "github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-type fooRequest struct{
+type fooRequest struct {
 	Foo     string
 	Bar     int
 	IsValid bool
 }
 
-func (r *fooRequest) Valid() error{
-	if !r.IsValid{
+func (r *fooRequest) Valid() error {
+	if !r.IsValid {
 		return errors.New("test invalid request message")
 	}
 	return nil
 }
 
-type barRequest struct{
+type barRequest struct {
 	Alice string
 	Bob   int
 }
 
-func TestParseRequest(t *testing.T){
-	api := &api.API{}
+func TestParseRequest(t *testing.T) {
+	api := &ffapi.API{}
 
 	Convey("Given a valid request body matching request object", t, func() {
 		b := []byte(`{"foo":"I am foo", "bar": 2, "isValid": true}`)
@@ -41,8 +41,8 @@ func TestParseRequest(t *testing.T){
 
 			Convey("The request object should be populated with the expected values ", func() {
 				expected := fooRequest{
-					Foo:   "I am foo",
-					Bar:   2,
+					Foo:     "I am foo",
+					Bar:     2,
 					IsValid: true,
 				}
 				So(req, ShouldResemble, expected)
@@ -80,7 +80,7 @@ func TestParseRequest(t *testing.T){
 
 			Convey("The request object should be populated with the expected values ", func() {
 				expected := barRequest{
-					Alice:   "I am Alice",
+					Alice: "I am Alice",
 					Bob:   23,
 				}
 				So(req, ShouldResemble, expected)

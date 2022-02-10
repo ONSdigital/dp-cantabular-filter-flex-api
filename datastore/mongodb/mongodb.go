@@ -3,16 +3,16 @@ package mongodb
 import (
 	"context"
 
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	lock "github.com/ONSdigital/dp-mongodb/v3/dplock"
 	"github.com/ONSdigital/dp-mongodb/v3/health"
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
-	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/pkg/errors"
 )
 
-// Client is the client responsible for querying mongodb 
-type Client struct{
+// Client is the client responsible for querying mongodb
+type Client struct {
 	conn        *mongo.MongoConnection
 	health      *health.CheckMongoClient
 	lock        *lock.Lock
@@ -22,7 +22,7 @@ type Client struct{
 }
 
 // NewClient returns a new mongodb Client
-func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error){
+func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error) {
 	c := Client{
 		cfg:      cfg,
 		generate: g,

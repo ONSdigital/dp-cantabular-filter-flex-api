@@ -5,11 +5,11 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	. "github.com/smartystreets/goconvey/convey"
 	"github.com/google/uuid"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-func testUUID() *uuid.UUID{
+func testUUID() *uuid.UUID {
 	const idstr = "307c53db-4495-436f-8f2e-8435deb8144e"
 	id, err := uuid.Parse(idstr)
 	So(err, ShouldBeNil)
@@ -17,7 +17,7 @@ func testUUID() *uuid.UUID{
 	return &id
 }
 
-func TestCreateFiltersRequestValid(t *testing.T){
+func TestCreateFiltersRequestValid(t *testing.T) {
 	Convey("Given a valid createFilterRequest request object", t, func() {
 		req := createFilterRequest{
 			Dataset: &model.Dataset{
@@ -26,18 +26,18 @@ func TestCreateFiltersRequestValid(t *testing.T){
 				Version: 1,
 			},
 			PopulationType: "test-blob",
-			Dimensions:     []model.Dimension{
+			Dimensions: []model.Dimension{
 				{
-					Name: "test-dimension-1",
-					Options: []string{"a", "b", "c"},
+					Name:         "test-dimension-1",
+					Options:      []string{"a", "b", "c"},
 					DimensionURL: "http://dim-1.com",
-					IsAreaType: true,
+					IsAreaType:   true,
 				},
 				{
-					Name: "test-dimension-2",
-					Options: []string{"1", "2", "3"},
+					Name:         "test-dimension-2",
+					Options:      []string{"1", "2", "3"},
 					DimensionURL: "http://dim-2.com",
-					IsAreaType: false,
+					IsAreaType:   false,
 				},
 			},
 		}

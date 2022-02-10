@@ -30,8 +30,8 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 2 values")
 	}
 
-	for _, d := range r.Dimensions{
-		if len(d.Name) == 0 || len(d.DimensionURL) == 0{
+	for _, d := range r.Dimensions {
+		if len(d.Name) == 0 || len(d.DimensionURL) == 0 {
 			return errors.New("missing field: [dimension[%d].name | dimension[%d].dimension_url]")
 		}
 	}
@@ -40,6 +40,6 @@ func (r *createFilterRequest) Valid() error {
 }
 
 // createFilterResponse is the response body for POST /filters
-type createFilterResponse struct{
+type createFilterResponse struct {
 	model.Filter
 }

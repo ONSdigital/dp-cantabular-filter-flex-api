@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type generator interface{
+type generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
@@ -16,14 +16,14 @@ type hasher interface {
 	Hash([]byte) (string, error)
 }
 
-type errNotFound interface{
+type errNotFound interface {
 	NotFound() bool
 }
 
-type errConflict interface{
+type errConflict interface {
 	Conflict() bool
 }
 
-type errUnavailable interface{
+type errUnavailable interface {
 	Unavailable() bool
 }

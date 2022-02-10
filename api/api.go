@@ -6,9 +6,9 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/middleware"
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	"github.com/ONSdigital/dp-authorisation/auth"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/middleware"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 
 	"github.com/go-chi/chi/v5"
@@ -27,15 +27,15 @@ type API struct {
 // New creates and initialises a new API
 func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore) *API {
 	api := &API{
-		Router:          r,
-		respond:         rsp,
-		generate:        g,
-		store:           d,
-		cfg:             cfg,
-		identityClient:  idc,
+		Router:         r,
+		respond:        rsp,
+		generate:       g,
+		store:          d,
+		cfg:            cfg,
+		identityClient: idc,
 	}
 
-	if cfg.EnablePrivateEndpoints{
+	if cfg.EnablePrivateEndpoints {
 		api.enablePrivateEndpoints()
 	} else {
 		api.enablePublicEndpoints()
@@ -44,10 +44,10 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 	return api
 }
 
-func (api *API) enablePublicEndpoints(){
+func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
 }
-func (api *API) enablePrivateEndpoints(){
+func (api *API) enablePrivateEndpoints() {
 	r := chi.NewRouter()
 
 	permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)

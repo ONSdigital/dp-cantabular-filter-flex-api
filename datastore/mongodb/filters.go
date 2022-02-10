@@ -6,19 +6,19 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // CreateFilter creates a new Filter in the CantabularFilters colllection
 func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	var err error
 
-	if f.ID, err = c.generate.UUID(); err != nil{
+	if f.ID, err = c.generate.UUID(); err != nil {
 		return errors.Wrap(err, "failed to generate UUID: %w")
 	}
 
-	if f.ETag, err = f.Hash(nil); err != nil{
+	if f.ETag, err = f.Hash(nil); err != nil {
 		return errors.Wrap(err, "failed to generate eTag: %w")
 	}
 
@@ -34,7 +34,7 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	}
 	defer col.unlock(ctx, lockID)
 
-	if _, err = c.conn.Collection(col.name).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil{
+	if _, err = c.conn.Collection(col.name).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
 		return errors.Wrap(err, "failed to upsert filter")
 	}
 

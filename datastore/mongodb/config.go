@@ -5,7 +5,7 @@ import (
 )
 
 // Config holds the config for the mongodb store
-type Config struct{
+type Config struct {
 	mongo.MongoDriverConfig
 	FilterFlexAPIURL        string
 	FiltersCollection       string
