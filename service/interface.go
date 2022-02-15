@@ -62,6 +62,7 @@ type Generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
+	URL(host, path string, args... interface{}) string
 }
 
 type CantabularClient interface {

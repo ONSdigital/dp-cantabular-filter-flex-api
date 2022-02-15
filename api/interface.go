@@ -32,14 +32,15 @@ type generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
+	URL(host, path string, args... interface{}) string
 }
 
-type CantabularClient interface {
+type cantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
 	StatusCode(error) int
 }
 
-type DatasetAPIClient interface {
+type datasetAPIClient interface {
 	GetVersion(ctx context.Context, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error)
 }
 

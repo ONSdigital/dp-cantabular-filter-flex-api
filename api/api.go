@@ -21,13 +21,13 @@ type API struct {
 	respond        responder
 	generate       generator
 	identityClient *identity.Client
-	datasets       DatasetAPIClient
-	ctblr          CantabularClient
+	datasets       datasetAPIClient
+	ctblr          cantabularClient
 	cfg            *config.Config
 }
 
 // New creates and initialises a new API
-func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds DatasetAPIClient, c CantabularClient) *API {
+func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,

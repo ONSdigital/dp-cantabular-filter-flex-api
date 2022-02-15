@@ -24,6 +24,7 @@ const (
 var componentFlag = flag.Bool("component", false, "perform component tests")
 
 type ComponentTest struct {
+	t            *testing.T
 	MongoFeature *cmptest.MongoFeature
 }
 
@@ -36,7 +37,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	zebedeeURL := authFeature.FakeAuthService.ResolveURL("")
 	mongoAddr := f.MongoFeature.Server.URI()
 
-	component, err := steps.NewComponent(zebedeeURL, mongoAddr)
+	component, err := steps.NewComponent(f.t, zebedeeURL, mongoAddr)
 	if err != nil {
 		log.Panicf("unable to create component: %s", err)
 	}
@@ -116,7 +117,9 @@ func TestComponent(t *testing.T) {
 			Paths:  flag.Args(),
 		}
 
-		f := &ComponentTest{}
+		f := &ComponentTest{
+			t: t,
+		}
 
 		status = godog.TestSuite{
 			Name:                 "feature_tests",

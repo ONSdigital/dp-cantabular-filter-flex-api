@@ -2,9 +2,10 @@ package generator
 
 import (
 	"crypto/rand"
-	"github.com/google/uuid"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -36,4 +37,10 @@ func (g *Generator) UUID() (uuid.UUID, error) {
 // Timestamp generates a timestamp of the current time
 func (g *Generator) Timestamp() time.Time {
 	return time.Now()
+}
+
+// URL generates a URL from a host and a path made from a printf string
+// + arguments
+func (g *Generator) URL(host, path string, args... interface{}) string {
+	return host + fmt.Sprintf(path, args...)
 }

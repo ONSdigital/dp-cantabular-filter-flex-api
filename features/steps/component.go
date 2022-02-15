@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"testing"
 	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
@@ -18,6 +19,7 @@ import (
 	"github.com/ONSdigital/dp-component-test/utils"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/maxcnunes/httpfake"
 )
 
 const (
@@ -36,6 +38,7 @@ type Component struct {
 	componenttest.ErrorFeature
 	producer   kafka.IProducer
 	errorChan  chan error
+	DatasetAPI *httpfake.HTTPFake
 	svc        *service.Service
 	cfg        *config.Config
 	wg         *sync.WaitGroup
@@ -45,7 +48,7 @@ type Component struct {
 	store      service.Datastore
 }
 
-func NewComponent(zebedeeURL, mongoAddr string) (*Component, error) {
+func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config: %w", err)
@@ -60,40 +63,24 @@ func NewComponent(zebedeeURL, mongoAddr string) (*Component, error) {
 		ctx:        context.Background(),
 		HTTPServer: &http.Server{},
 		cfg:        cfg,
+		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
 	}, nil
 }
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
-	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
-
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
-	/*
-		// producer for triggering test events
-		if c.producer, err = kafka.NewProducer(
-			c.ctx,
-			&kafka.ProducerConfig{
-				BrokerAddrs:       c.cfg.Kafka.Addr,
-				Topic:             c.cfg.Kafka.ExportStartTopic,
-				MinBrokersHealthy: &c.cfg.Kafka.ProducerMinBrokersHealthy,
-				KafkaVersion:      &c.cfg.Kafka.Version,
-				MaxMessageBytes:   &c.cfg.Kafka.MaxBytes,
-			},
-		); err != nil {
-			return fmt.Errorf("error creating kafka producer: %w", err)
-		}
-	*/
+	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
+
+	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
+
 	// Create service and initialise it
 	c.svc = service.New()
 	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
 		return nil, fmt.Errorf("failed to initialise service: %w", err)
 	}
-
-	// wait for producer to be initialised
-	// <-c.producer.Channels().Initialised
-	// log.Info(c.ctx, "component-test kafka producer initialised")
 
 	return c.HTTPServer.Handler, nil
 }
@@ -106,7 +93,15 @@ func (c *Component) setInitialiserMock() {
 	}
 
 	service.GetGenerator = func() service.Generator {
-		return &mock.Generator{}
+		return &mock.Generator{
+			URLHost: "http://mockhost:9999",
+		}
+	}
+
+	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
+		return &mock.CantabularClient{
+			OptionsHappy: true,
+		}
 	}
 
 	c.cfg.Mongo.Database = utils.RandomDatabase()

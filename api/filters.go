@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -79,9 +78,9 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	f := model.Filter{
 		Links: model.Links{
 			Version: model.Link{
-				HREF: fmt.Sprintf(
-					"%s/datasets/%s/editions/%s/version/%d",
+				HREF: api.generate.URL(
 					api.cfg.DatasetAPIURL,
+					"/datasets/%s/editions/%s/version/%d",
 					req.Dataset.ID,
 					req.Dataset.Edition,
 					req.Dataset.Version,
