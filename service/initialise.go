@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
-	"github.com/ONSdigital/dp-net/v2/responder"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-net/v2/responder"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	dphttp "github.com/ONSdigital/dp-net/http"
@@ -34,6 +36,24 @@ var GetMongoDB = func(ctx context.Context, cfg *config.Config, g Generator) (Dat
 		FiltersCollection:       cfg.FiltersCollection,
 		FilterOutputsCollection: cfg.FilterOutputsCollection,
 	})
+}
+
+// GetCantabularClient gets and initialises the Cantabular Client
+var GetCantabularClient = func(cfg *config.Config) CantabularClient {
+	return cantabular.NewClient(
+		cantabular.Config{
+			Host:           cfg.CantabularURL,
+			ExtApiHost:     cfg.CantabularExtURL,
+			GraphQLTimeout: cfg.DefaultRequestTimeout,
+		},
+		dphttp.NewClient(),
+		nil,
+	)
+}
+
+// GetDatasetAPIClient gets and initialises the DatasetAPI Client
+var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
+	return dataset.NewAPIClient(cfg.DatasetAPIURL)
 }
 
 // GetKafkaProducer creates a Kafka producer

@@ -1,9 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
+	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 )
 
 // Error is the packages error type
@@ -42,12 +43,15 @@ func (e Error) LogData() map[string]interface{} {
 }
 
 func statusCode(err error) int {
+	var serr coder
 	switch {
-	case errors.Unavailable(err):
+	case errors.As(err, &serr):
+		return serr.Code()
+	case dperrors.Unavailable(err):
 		return http.StatusServiceUnavailable
-	case errors.NotFound(err):
+	case dperrors.NotFound(err):
 		return http.StatusNotFound
-	case errors.Conflict(err):
+	case dperrors.Conflict(err):
 		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError

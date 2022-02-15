@@ -1,29 +1,29 @@
 {
 	"dataset":{
-		"id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
+		"id":      "cantabular-example-1",
 		"edition": "2021",
 		"version": 1
 	},
 	"population_type": "Example",
 	"dimensions": [
 		{
-			"name": "Number Of Siblings (3 categories)",
-			"options": [
-				"0-3",
-				"4-7",
-				"7+"
-			],
-			"dimension_url": "http://dimension.url/siblings",
-			"is_area_type": false
-		},{
 			"name": "City",
 			"options": [
-				"Cardiff",
-				"London",
-				"Swansea"
+				"0",
+				"1",
+				"2"
 			],
 			"dimension_url": "http://dimension.url/city",
 			"is_area_type": true
+		},{
+			"name": "Number of siblings (3 mappings)",
+			"options": [
+				"0",
+				"1-2",
+				"3+"
+			],
+			"dimension_url": "http://dimension.url/siblings",
+			"is_area_type": false
 		}
 	]
 }

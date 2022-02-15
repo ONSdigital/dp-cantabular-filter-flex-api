@@ -29,8 +29,8 @@ type Links struct {
 }
 
 type Link struct {
-	HREF string     `bson:"href"           json:"href"`
-	ID   *uuid.UUID `bson:"id,omitempty"   json:"id,omitempty"`
+	HREF string `bson:"href"           json:"href"`
+	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
 }
 
 type FilterOutput struct {

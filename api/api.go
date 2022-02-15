@@ -21,11 +21,13 @@ type API struct {
 	respond        responder
 	generate       generator
 	identityClient *identity.Client
+	datasets       DatasetAPIClient
+	ctblr          CantabularClient
 	cfg            *config.Config
 }
 
 // New creates and initialises a new API
-func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore) *API {
+func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds DatasetAPIClient, c CantabularClient) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -33,6 +35,8 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		store:          d,
 		cfg:            cfg,
 		identityClient: idc,
+		datasets:       ds,
+		ctblr:          c,
 	}
 
 	if cfg.EnablePrivateEndpoints {

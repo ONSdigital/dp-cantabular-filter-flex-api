@@ -4,8 +4,10 @@ go 1.17
 
 replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.24+incompatible
 
+replace github.com/ONSdigital/dp-api-clients-go/v2 => /home/jpm/go-modules/onsdigital/dp-api-clients-go
+
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.1.7-beta
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.9.5
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.6.3
 	github.com/ONSdigital/dp-healthcheck v1.2.3
@@ -63,6 +65,7 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
+	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a // indirect
 	github.com/smartystreets/assertions v1.2.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

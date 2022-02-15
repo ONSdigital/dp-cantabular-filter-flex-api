@@ -18,15 +18,17 @@ import (
 
 // Service contains all the configs, server and clients to run the event handler service
 type Service struct {
-	Cfg            *config.Config
-	Server         HTTPServer
-	HealthCheck    HealthChecker
-	Producer       kafka.IProducer
-	Api            *api.API
-	responder      Responder
-	store          Datastore
-	generator      Generator
-	identityClient *identity.Client
+	Cfg              *config.Config
+	Server           HTTPServer
+	HealthCheck      HealthChecker
+	Producer         kafka.IProducer
+	Api              *api.API
+	responder        Responder
+	store            Datastore
+	generator        Generator
+	cantabularClient CantabularClient
+	datasetAPIClient DatasetAPIClient
+	identityClient   *identity.Client
 }
 
 func New() *Service {
@@ -54,6 +56,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("could not instantiate healthcheck: %w", err)
 	}
 
+	svc.cantabularClient = GetCantabularClient(cfg)
+	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
 
@@ -70,7 +74,17 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
-	svc.Api = api.New(ctx, cfg, r, svc.identityClient, svc.responder, svc.generator, svc.store)
+	svc.Api = api.New(
+		ctx,
+		cfg,
+		r,
+		svc.identityClient,
+		svc.responder,
+		svc.generator,
+		svc.store,
+		svc.datasetAPIClient,
+		svc.cantabularClient,
+	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
