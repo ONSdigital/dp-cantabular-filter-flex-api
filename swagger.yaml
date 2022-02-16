@@ -1,130 +1,611 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  title: "dp-cantabular-filter-flex-api"
-  description: "dp-cantabular-filter-flex-api"
+  description: >-
+    Create and submit custom queries, known as `filters`, against a given
+    Cantabular dataset. Specify which values, known as `options`, are of
+    interest in each `dimension`, and then submit a filter. This generates a
+    `filter output`, which provides links to the filtered results in a variety
+    of formats.
   version: 1.0.0
+  title: Filter a Cantabular dataset
   license:
-    name: "Open Government Licence v3.0"
-    url: "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
-basePath: "/v1"
+    name: Open Government Licence v3.0
+    url: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+basePath: /v1
+tags:
+  - name: Public
+    description: Used to filter published Cantaular datasets
+  - name: "Private"
+    description: "Used to filter Cantabular datasets pre-publish"
 schemes:
   - http
-tags:
-  - name: "hello"
-  - name: "private"
+parameters:
+  filter_id:
+    name: id
+    type: string
+    required: true
+    description: The unique filter ID for customising a dataset
+    in: path
+  filter_output_id:
+    name: filter_output_id
+    type: string
+    required: true
+    description: The unique filter output ID for a customised dataset
+    in: path
+  page_limit:
+    name: limit
+    description: >-
+      Limit the number of items that will be returned. Defaults to 20 and capped
+      at 1000
+    in: query
+    required: false
+    type: integer
+  offset:
+    name: offset
+    description: >-
+      Starting index of the items array that will be returned. By default it is
+      zero, meaning that the returned items will start from the beginning.
+    in: query
+    required: false
+    type: integer
+  name:
+    name: name
+    type: string
+    required: true
+    description: The name of a dimension
+    in: path
+  option:
+    name: option
+    type: string
+    required: true
+    description: The single option for a dimension
+    in: path
+  dimension:
+    name: dimension
+    schema:
+      $ref: '#/definitions/Dimension'
+    required: true
+    description: A dimension to filter the dataset
+    in: body
+  dimension_options:
+    name: dimension_options
+    schema:
+      $ref: '#/definitions/DimensionOptions'
+    required: true
+    description: Dimensions and options to filter the dataset
+    in: body
+  new_filter:
+    name: filter
+    schema:
+      $ref: '#/definitions/NewFilterRequest'
+    required: true
+    description: Model of all editable properties within a filter
+    in: body
+  update_filter_output:
+    name: filter_output
+    schema:
+      $ref: '#/definitions/UpdateOutputRequest'
+    required: true
+    description: Model of all editable properties within a filter output
+    in: body
+  submitted:
+    name: submitted
+    description: A flag to indicate the submission of a filter
+    in: query
+    type: boolean
+  update_filter:
+    name: filter
+    schema:
+      $ref: '#/definitions/UpdateFilterRequest'
+    required: true
+    description: Model of all editable properties within a filter
+    in: body
+  event:
+    name: event
+    schema:
+      $ref: '#/definitions/Event'
+    required: true
+    description: The model of an event
+    in: body
+  if_match:
+    name: If-Match
+    required: true
+    description: >-
+      Filter resource version, as returned by a previous ETag, to be validated;
+      or '*' to skip the version check
+    in: header
+    type: string
+  filter_submit:
+    name: filter_submit
+    schema:
+      $ref: '#/definitions/SubmitFilter'
+    required: true
+    description: Model of the fields required to start the results generation process.
+    in: body
 paths:
-  /hello:
+  /filter-outputs/{id}:
     get:
       tags:
-        - hello
-      summary: Example hello world endpoint
-      description: Returns an example payload.
+        - Public
+        - Private
+      summary: Retrieves the filter-outputs created for a specific filter
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/filter_id'
+      responses:
+        '200':
+          description: The filter is found and the filter-outputs are returned
+          schema:
+            $ref: '#/definitions/Downloads'
+        '400':
+          description: Invalid request body
+        '500':
+          $ref: '#/responses/InternalError'
+  /filter-outputs:
+    post:
+      tags:
+        - Public
+        - Private
+      summary: Updates the filter-outputs created for a specific filter
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/update_filter_output'
+      responses:
+        '201':
+          description: The update is successful
+          schema:
+            $ref: '#/definitions/Downloads'
+        '400':
+          description: Invalid request body
+        '500':
+          $ref: '#/responses/InternalError'
+  /filters:
+    post:
+      tags:
+        - Public
+        - Private
+      summary: Create a filter for a dataset
+      description: >-
+        Create a resource for listing a selection of dimensions and dimension
+        options to be added to filter for a dataset
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/new_filter'
+      responses:
+        '201':
+          description: filter was created
+          schema:
+            $ref: '#/definitions/FilterResponse'
+          headers:
+            ETag:
+              type: string
+              description: Defines a unique filter resource version
+        '400':
+          description: Invalid request body
+        '500':
+          $ref: '#/responses/InternalError'
+  /filters/{id}:
+    parameters:
+      - $ref: '#/parameters/filter_id'
+    get:
+      tags:
+        - Public
+        - Private
+      summary: Get a filter
+      description: Get document describing the filter
       produces:
         - application/json
       responses:
-        200:
-          description: OK
+        '200':
+          description: The filter was found and document is returned
           schema:
-            $ref: "#/definitions/HelloResponse"
+            $ref: '#/definitions/FilterResponse'
+          headers:
+            ETag:
+              type: string
+              description: Defines a unique filter resource version
+        '404':
+          $ref: '#/responses/FilterNotFound'
+        '500':
+          $ref: '#/responses/InternalError'
+    put:
+      tags:
+        - Public
+        - Private
+      summary: Update a filter
+      description: >-
+        Update the filter by providing new properties, submit a filter for
+        processing by setting query parameter `submitted` to `true`
+      parameters:
+        - $ref: '#/parameters/submitted'
+        - $ref: '#/parameters/update_filter'
+        - $ref: '#/parameters/if_match'
+      responses:
+        '200':
+          description: The filter job has been updated
+          schema:
+            $ref: '#/definitions/FilterResponse'
+          headers:
+            ETag:
+              type: string
+              description: Defines a unique filter resource version
+        '400':
+          description: Invalid request body or If-Match header not provided
+        '404':
+          $ref: '#/responses/FilterNotFound'
+        '409':
+          description: '#/responses/FilterConflict'
+        '422':
+          description: Unprocessable entity - instance has been removed
+        '500':
+          $ref: '#/responses/InternalError'
+  /filters/{id}/dimensions:
+    get:
+      tags:
+       - "Public"
+      summary: "Get all dimensions used in this filter"
+      description: |
+        Return a list of all dimensions which are going to be used to filter on
+      parameters:
+      - $ref: '#/parameters/filter_id'
+      - $ref: '#/parameters/page_limit'
+      - $ref: '#/parameters/offset'
+      responses:
+        200:
+          description: "A list of dimension URLs"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DimensionOptions'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        404:
+          $ref: '#/responses/FilterNotFound'
         500:
           $ref: '#/responses/InternalError'
-
-  /health:
-    get:
+    put:
       tags:
-        - private
-      summary: "Returns API's health status"
-      description: "Returns health status of the API and checks on dependent services"
-      produces:
-        - application/json
+       - "Public"
+      summary: "Update dimensions and options used in this filter"
+      description: |
+        Updates a list of dimensions and options that have been selected by the user
+      parameters:
+      - $ref: '#/parameters/filter_id'
+      - $ref: '#/parameters/dimension_options'
       responses:
         200:
-          description: "Successfully returns OK status with checks of dependent services"
+          description: "A list of dimension URLs"
           schema:
-            $ref: "#/definitions/Health"
-        429:
-          description: "Services warming up or degraded (at least one check in WARNING or CRITICAL status)"
+            type: array
+            items:
+              $ref: '#/definitions/DimensionOptions'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        404:
+          $ref: '#/responses/FilterNotFound'
         500:
-          $ref: "#/responses/InternalError"
-
+          $ref: '#/responses/InternalError'
+  /query:
+    post:
+      tags:
+        - Public
+        - Private
+      summary: Submits a filter query for a Cantabular dataset
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/filter_submit'
+      responses:
+        '201':
+          description: Query was submitted successfully
+          schema:
+            $ref: '#/definitions/SubmitFilter'
+        '400':
+          description: Invalid request body
+        '500':
+          $ref: '#/responses/InternalError'
 responses:
+  FilterNotFound:
+    description: Filter not found
+  FilterConflict:
+    description: Filter was modified by an external entity
+  FilterOutputNotFound:
+    description: Filter output not found
+  FilterOrDimensionNotFound:
+    description: Filter or dimension name not found
   InternalError:
-    description: "Failed to process the request due to an internal error"
-
+    description: Failed to process the request due to an internal error
+  MethodNotSupported:
+    description: Attempted to call an endpoint that is not supported for this API
 definitions:
-  HelloResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        description: "Message returned by hello world endpoint"
-        example: "Hello, world!"
-  Health:
-    type: object
-    properties:
-      status:
-        type: string
-        description: "The status of the API"
-        enum: ["OK", "WARNING", "CRITICAL"]
-      version:
-        type: object
+  NewFilterRequest:
+    description: A model used to create new filters. Dimensions are optional
+    allOf:
+      - type: object
         properties:
-          build_time:
+          dataset:
+            $ref: '#/definitions/Dataset'
+          dimensions:
+            readOnly: false
+            type: array
+            description: A list of dimensions in the filter job
+            items:
+              $ref: '#/definitions/DimensionOptions'
+          cantabular_blob:
             type: string
-            description: "The build date and time of the API"
-            example: "2020-06-11T12:49:20+01:00"
-          git_commit:
+            description: The Cantabular blob the information is selected from.
+  UpdateFilterRequest:
+    description: >-
+      A model used to update filters. Dimensions are optional, while downloads
+      and events are for internal use only.
+    allOf:
+      - $ref: '#/definitions/JobState'
+      - type: object
+        properties:
+          dataset:
+            readOnly: false
+            type: object
+            description: A dataset to filter on
+            properties:
+              version:
+                type: integer
+                description: A version of the dataset to filter on
+  FilterResponse:
+    description: A model for the response body when updating a filter
+    allOf:
+      - $ref: '#/definitions/JobState'
+      - type: object
+        properties:
+          unique_timestamp:
             type: string
-            description: "The git commit hash of the API"
-            example: "7c2febbf2b818175112478d4ffbadbee1b654f63"
-          language:
+            description: The time the filter was created
+            example: 2016-07-17T08:38:25.316+0000
+            format: string
+          last_updated:
             type: string
-            description: "The programming language used to implement API"
-            example: "go"
-          language_version:
+            description: The time the filter was last updated
+            example: 2016-07-17T08:38:25.316+0000
+            format: string
+          etag:
             type: string
-            description: "The version of the programming language used to implement API"
-            example: "go1.14.3"
-          version:
+            description: Identifier for the specific version of this filter
+          instance_id:
             type: string
-            description: "The version of API"
-            example: "1.0.0"
-      uptime:
-        type: string
-        description: "The uptime of API"
-        example: "34516"
-      start_time:
-        type: string
-        description: "The start date and time of API running"
-        example: "2020-06-11T11:49:21.520922Z"
-      checks:
-        type: array
-        items:
-          $ref: '#/definitions/HealthChecker'
-  HealthChecker:
+            description: The instance id related to this dataset, edition, and version
+            example: c0cb806d-5306-407e-8c29-cb995da730f6
+          dimensions:
+            $ref: '#/definitions/DimensionOptions'
+          dataset:
+            $ref: '#/definitions/Dataset'
+          links:
+            type: object
+            properties:
+              filter_output:
+                $ref: '#/definitions/Downloads'
+          published:
+            type: boolean
+            example: true
+            description: Indicates if this filter belongs to a published dataset or not
+          disclosurecontrol:
+            $ref: '#/definitions/DisclosureControl'
+          cantabular_blob:
+            type: string
+            description: The Cantabular blob the information is selected from.
+  UpdateOutputRequest:
+    description: >-
+      A model used to update filter outputs. Only the downloads list and state
+      are editable
     type: object
+    properties:
+      state:
+        type: string
+        description: >
+          The state of the job can be in five states;
+
+          * created - The job is ready to be updated with filters. (default
+          state)
+
+          * submitted - The job has been submitted to be processed. This will
+          lock the job and no further changes can be done
+
+          * completed - The job has been completed, if the filter created
+          results the download links will contain links. It is
+                        possible that a job gets marked as completed but no download URLs are present, this is due to the filter job
+                        returning no results. See the events for more information.
+          * failed - The job failed to be processed, See events for more
+          information
+      downloads:
+        $ref: '#/definitions/Downloads'
+  JobState:
+    description: |
+      A description of a job to generate a customised dataset
+    type: object
+    required:
+      - instance_id
+    properties:
+      filter_id:
+        readOnly: true
+        type: string
+        description: A unique id for this resource
+      links:
+        $ref: '#/definitions/FilterLinks'
+      events:
+        $ref: '#/definitions/Events'
+  Dataset:
+    readOnly: false
+    type: object
+    description: A version of an edition for a dataset to filter on.
+    properties:
+      id:
+        type: string
+        description: The unique identifier of a dataset
+      edition:
+        type: string
+        description: An edition of a dataset
+      version:
+        type: integer
+        description: A version of a dataset
+  Dimension:
+    type: object
+    description: >-
+      A dimension to filter on a dataset. Information on a dimension can be
+      gathered using the `Dataset API`
     properties:
       name:
         type: string
-        description: "The name of external service used by API"
-        enum: ["mongodb"]
+        description: The name of the dimension to filter on
+      dimension_url:
+        type: string
+        description: A link to the filtered options within the dimension
+        items:
+          type: string
+          example: /filters/00001/dimensions/age
+      is_area_type:
+        type: boolean
+        description: Indicates if the dimension is an area type
+  DimensionOptions:
+    type: object
+    description: >-
+      A dimension to filter on a dataset. Information on a dimension can be
+      gathered using the `Dataset API`
+    properties:
+      name:
+        type: string
+        description: The name of the dimension to filter on
+      options:
+        type: array
+        description: A list of options for dimension to filter on a dataset
+        items:
+          type: string
+      dimension_url:
+        type: string
+        description: A link to the filtered options within the dimension
+        items:
+          type: string
+          example: /filters/00001/dimensions/age
+      is_area_type:
+        type: boolean
+        description: Indicates if the dimension is an area type
+  Downloads:
+    type: object
+    description: >
+      The url to download the customised dataset. This will be blank until the
+      jobs `state` has been marked completed and can only be updated if
+      authorised
+    properties:
+      xls:
+        $ref: '#/definitions/DownloadFile'
+      csv:
+        $ref: '#/definitions/DownloadFile'
+      csvw:
+        $ref: '#/definitions/DownloadFile'
+      txt:
+        $ref: '#/definitions/DownloadFile'
+  Events:
+    type: array
+    items:
+      $ref: '#/definitions/Event'
+    description: >
+      A list of events which happened to the resource, can only be updated if
+      authorised.
+  Event:
+    type: object
+    description: A description of an event which has happened to the resource
+    properties:
+      timestamp:
+        type: string
+        description: The time of the event happened
+        example: 2016-07-17T08:38:25.316+0000
+        format: string
+      name:
+        type: string
+        description: The type of event which happened
+        example: cantabular-export-start
+  DownloadFile:
+    type: object
+    properties:
+      href:
+        type: string
+        description: The URL to the generated file
+      size:
+        type: string
+        description: The size of the file in bytes
+      public:
+        type: string
+        description: The URL to a public-accessible download
+      private:
+        type: string
+        description: The URL to a non public-accessible download
+      skipped:
+        type: boolean
+        description: A flag to indicate the file will not be generated due to size
+  FilterLinks:
+    description: A list of links related to this resource
+    readOnly: true
+    type: object
+    properties:
+      version:
+        type: object
+        properties:
+          href:
+            description: A URL to the version being filtered
+            example: >-
+              http://localhost:8080/datasets/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC/editions/2017/version/1
+            type: string
+          id:
+            description: An ID of the version being filtered
+            example: de3bc0b6-d6c4-4e20-917e-95d7ea8c91dc
+            type: string
+      self:
+        type: object
+        properties:
+          href:
+            description: A URL to the filter
+            example: >-
+              http://localhost:8080/filters/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC
+            type: string
+  DisclosureControl:
+    type: object
+    properties:
       status:
         type: string
-        description: "The status of the external service"
-        enum: ["OK", "WARNING", "CRITICAL"]
-      message:
+        description: An indicator of the status of the filter query, e.g. OK for no blocked categories, BLOCKED where disclosure rules have been triggered
+      dimension:
         type: string
-        description: "The message status of the external service"
-        example: "mongodb is OK"
-      last_checked:
+        description: The name of the dimension that triggers the disclosure rules
+      blockedoptions:
+         $ref: '#/definitions/BlockedOptions'
+  BlockedOptions:
+    type: object
+    properties:
+      blocked_options:
+        type: array
+        items:
+            type: string
+        description: A list of blocked options applicable to the dimension
+      blocked_count:
+        type: integer
+        description: The count of blocked options
+  SubmitFilter:
+    type: object
+    description: The information required to start the filter process
+    properties:
+      filter_id:
         type: string
-        description: "The last health check date and time of the external service"
-        example: "2020-06-11T11:49:50.330089Z"
-      last_success:
+        description: The unique identifier given to this filter job
+        example: 92a6cc27-c684-4523-b794-4b974f9f7413
+        format: string
+      dimension_options:
+        $ref: '#/definitions/DimensionOptions'
+      cantabular_blob:
         type: string
-        description: "The last successful health check date and time of the external service"
-        example: "2020-06-11T11:49:50.330089Z"
-      last_failure:
-        type: string
-        description: "The last failed health check date and time of the external service"
-        example: "2019-09-22T11:48:51.0000001Z"
+        description: The blob that the data should be queried from
+        example: Teaching-Dataset
+        format: string
