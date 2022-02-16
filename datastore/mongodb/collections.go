@@ -26,7 +26,7 @@ func (c *Collection) lock(ctx context.Context, id string) (string, error) {
 	l, err := c.lockClient.Acquire(ctx, id)
 	if err != nil {
 		err := &er{
-			err: errors.Wrap(err, "failed to aquire database lock"),
+			err: errors.Wrap(err, "failed to acquire database lock"),
 		}
 		if errors.Is(err, dplock.ErrMongoDbClosing) {
 			err.unavailable = true
