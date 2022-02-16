@@ -13,7 +13,6 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
-            - /home/jpm/go-modules/onsdigital/dp-api-clients-go:/home/jpm/go-modules/onsdigital/dp-api-clients-go
 #        depends_on:
 #            - kafka
         ports:
