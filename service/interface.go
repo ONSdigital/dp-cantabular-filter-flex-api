@@ -8,9 +8,9 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/google/uuid"
 )
@@ -62,7 +62,7 @@ type Generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
-	URL(host, path string, args... interface{}) string
+	URL(host, path string, args ...interface{}) string
 }
 
 type CantabularClient interface {

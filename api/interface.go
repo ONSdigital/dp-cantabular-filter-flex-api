@@ -7,8 +7,8 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 
 	"github.com/google/uuid"
 )
@@ -32,7 +32,7 @@ type generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
-	URL(host, path string, args... interface{}) string
+	URL(host, path string, args ...interface{}) string
 }
 
 type cantabularClient interface {
@@ -44,6 +44,6 @@ type datasetAPIClient interface {
 	GetVersion(ctx context.Context, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error)
 }
 
-type coder interface{
+type coder interface {
 	Code() int
 }

@@ -7,12 +7,12 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/log.go/v2/log"
 
-	"github.com/pkg/errors"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +53,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dimIDs, err := api.validateDimensions(ctx, req.Dimensions, v.Dimensions)
-	if err != nil{
+	if err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -65,7 +65,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 
 	// Validate dimension options by performing Cantabular query with selections,
 	// skip this check if requesting all options
-	if err := api.validateDimensionOptions(ctx, req, dimIDs); err != nil{
+	if err := api.validateDimensionOptions(ctx, req, dimIDs); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -88,17 +88,17 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 				ID: strconv.Itoa(v.Version),
 			},
 		},
-		Dimensions:      req.Dimensions,
-		UniqueTimestamp: api.generate.Timestamp(),
-		LastUpdated:     api.generate.Timestamp(),
-		Dataset:         *req.Dataset,
-		PopulationType:  req.PopulationType,
+		Dimensions:        req.Dimensions,
+		UniqueTimestamp:   api.generate.Timestamp(),
+		LastUpdated:       api.generate.Timestamp(),
+		Dataset:           *req.Dataset,
+		PopulationType:    req.PopulationType,
 		Published:         true, // TODO: Not sure what to
 		Events:            nil,  // populate for these
 		DisclosureControl: nil,  // fields yet
 	}
 
-	if f.InstanceID, err = uuid.Parse(v.ID); err != nil{
+	if f.InstanceID, err = uuid.Parse(v.ID); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -161,8 +161,8 @@ func (api *API) validateDimensionOptions(ctx context.Context, req createFilterRe
 	}
 
 	// only validate dimensions with specified options
-	for _, d := range req.Dimensions{
-		if len(d.Options) > 0{
+	for _, d := range req.Dimensions {
+		if len(d.Options) > 0 {
 			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
 				Codes:    d.Options,
@@ -170,11 +170,11 @@ func (api *API) validateDimensionOptions(ctx context.Context, req createFilterRe
 			})
 		}
 	}
-	if len(dReq.Filters) == 0{
+	if len(dReq.Filters) == 0 {
 		return nil
 	}
 
-	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil{
+	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
 		if api.ctblr.StatusCode(err) >= http.StatusInternalServerError {
 			return Error{
 				err:     errors.Wrap(err, "failed to query dimension options from Cantabular"),

@@ -14,7 +14,7 @@ const (
 
 // Generator is responsible for generating mocked constant strings and tokens
 // for tests
-type Generator struct{
+type Generator struct {
 	URLHost string
 }
 
@@ -36,6 +36,6 @@ func (g *Generator) Timestamp() time.Time {
 
 // URL generates a URL from a constant host and a path made from a printf
 // string + arguments
-func (g *Generator) URL(_, path string, args... interface{}) string {
+func (g *Generator) URL(_, path string, args ...interface{}) string {
 	return g.URLHost + fmt.Sprintf(path, args...)
 }

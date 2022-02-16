@@ -26,6 +26,9 @@ var _ service.Generator = &GeneratorMock{}
 // 			TimestampFunc: func() time.Time {
 // 				panic("mock out the Timestamp method")
 // 			},
+// 			URLFunc: func(host string, path string, args ...interface{}) string {
+// 				panic("mock out the URL method")
+// 			},
 // 			UUIDFunc: func() (uuid.UUID, error) {
 // 				panic("mock out the UUID method")
 // 			},
@@ -42,6 +45,9 @@ type GeneratorMock struct {
 	// TimestampFunc mocks the Timestamp method.
 	TimestampFunc func() time.Time
 
+	// URLFunc mocks the URL method.
+	URLFunc func(host string, path string, args ...interface{}) string
+
 	// UUIDFunc mocks the UUID method.
 	UUIDFunc func() (uuid.UUID, error)
 
@@ -53,12 +59,22 @@ type GeneratorMock struct {
 		// Timestamp holds details about calls to the Timestamp method.
 		Timestamp []struct {
 		}
+		// URL holds details about calls to the URL method.
+		URL []struct {
+			// Host is the host argument value.
+			Host string
+			// Path is the path argument value.
+			Path string
+			// Args is the args argument value.
+			Args []interface{}
+		}
 		// UUID holds details about calls to the UUID method.
 		UUID []struct {
 		}
 	}
 	lockPSK       sync.RWMutex
 	lockTimestamp sync.RWMutex
+	lockURL       sync.RWMutex
 	lockUUID      sync.RWMutex
 }
 
@@ -111,6 +127,45 @@ func (mock *GeneratorMock) TimestampCalls() []struct {
 	mock.lockTimestamp.RLock()
 	calls = mock.calls.Timestamp
 	mock.lockTimestamp.RUnlock()
+	return calls
+}
+
+// URL calls URLFunc.
+func (mock *GeneratorMock) URL(host string, path string, args ...interface{}) string {
+	if mock.URLFunc == nil {
+		panic("GeneratorMock.URLFunc: method is nil but Generator.URL was just called")
+	}
+	callInfo := struct {
+		Host string
+		Path string
+		Args []interface{}
+	}{
+		Host: host,
+		Path: path,
+		Args: args,
+	}
+	mock.lockURL.Lock()
+	mock.calls.URL = append(mock.calls.URL, callInfo)
+	mock.lockURL.Unlock()
+	return mock.URLFunc(host, path, args...)
+}
+
+// URLCalls gets all the calls that were made to URL.
+// Check the length with:
+//     len(mockedGenerator.URLCalls())
+func (mock *GeneratorMock) URLCalls() []struct {
+	Host string
+	Path string
+	Args []interface{}
+} {
+	var calls []struct {
+		Host string
+		Path string
+		Args []interface{}
+	}
+	mock.lockURL.RLock()
+	calls = mock.calls.URL
+	mock.lockURL.RUnlock()
 	return calls
 }
 

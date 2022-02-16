@@ -24,16 +24,16 @@ var _ service.HealthChecker = &HealthCheckerMock{}
 // 			AddAndGetCheckFunc: func(name string, checker healthcheck.Checker) (*healthcheck.Check, error) {
 // 				panic("mock out the AddAndGetCheck method")
 // 			},
-// 			HandlerFunc: func(w http.ResponseWriter, req *http.Request)  {
+// 			HandlerFunc: func(responseWriter http.ResponseWriter, request *http.Request)  {
 // 				panic("mock out the Handler method")
 // 			},
-// 			StartFunc: func(ctx context.Context)  {
+// 			StartFunc: func(contextMoqParam context.Context)  {
 // 				panic("mock out the Start method")
 // 			},
 // 			StopFunc: func()  {
 // 				panic("mock out the Stop method")
 // 			},
-// 			SubscribeFunc: func(s healthcheck.Subscriber, checks ...*healthcheck.Check)  {
+// 			SubscribeFunc: func(subscriber healthcheck.Subscriber, checks ...*healthcheck.Check)  {
 // 				panic("mock out the Subscribe method")
 // 			},
 // 		}
@@ -47,16 +47,16 @@ type HealthCheckerMock struct {
 	AddAndGetCheckFunc func(name string, checker healthcheck.Checker) (*healthcheck.Check, error)
 
 	// HandlerFunc mocks the Handler method.
-	HandlerFunc func(w http.ResponseWriter, req *http.Request)
+	HandlerFunc func(responseWriter http.ResponseWriter, request *http.Request)
 
 	// StartFunc mocks the Start method.
-	StartFunc func(ctx context.Context)
+	StartFunc func(contextMoqParam context.Context)
 
 	// StopFunc mocks the Stop method.
 	StopFunc func()
 
 	// SubscribeFunc mocks the Subscribe method.
-	SubscribeFunc func(s healthcheck.Subscriber, checks ...*healthcheck.Check)
+	SubscribeFunc func(subscriber healthcheck.Subscriber, checks ...*healthcheck.Check)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -69,23 +69,23 @@ type HealthCheckerMock struct {
 		}
 		// Handler holds details about calls to the Handler method.
 		Handler []struct {
-			// W is the w argument value.
-			W http.ResponseWriter
-			// Req is the req argument value.
-			Req *http.Request
+			// ResponseWriter is the responseWriter argument value.
+			ResponseWriter http.ResponseWriter
+			// Request is the request argument value.
+			Request *http.Request
 		}
 		// Start holds details about calls to the Start method.
 		Start []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
 		}
 		// Stop holds details about calls to the Stop method.
 		Stop []struct {
 		}
 		// Subscribe holds details about calls to the Subscribe method.
 		Subscribe []struct {
-			// S is the s argument value.
-			S healthcheck.Subscriber
+			// Subscriber is the subscriber argument value.
+			Subscriber healthcheck.Subscriber
 			// Checks is the checks argument value.
 			Checks []*healthcheck.Check
 		}
@@ -133,33 +133,33 @@ func (mock *HealthCheckerMock) AddAndGetCheckCalls() []struct {
 }
 
 // Handler calls HandlerFunc.
-func (mock *HealthCheckerMock) Handler(w http.ResponseWriter, req *http.Request) {
+func (mock *HealthCheckerMock) Handler(responseWriter http.ResponseWriter, request *http.Request) {
 	if mock.HandlerFunc == nil {
 		panic("HealthCheckerMock.HandlerFunc: method is nil but HealthChecker.Handler was just called")
 	}
 	callInfo := struct {
-		W   http.ResponseWriter
-		Req *http.Request
+		ResponseWriter http.ResponseWriter
+		Request        *http.Request
 	}{
-		W:   w,
-		Req: req,
+		ResponseWriter: responseWriter,
+		Request:        request,
 	}
 	mock.lockHandler.Lock()
 	mock.calls.Handler = append(mock.calls.Handler, callInfo)
 	mock.lockHandler.Unlock()
-	mock.HandlerFunc(w, req)
+	mock.HandlerFunc(responseWriter, request)
 }
 
 // HandlerCalls gets all the calls that were made to Handler.
 // Check the length with:
 //     len(mockedHealthChecker.HandlerCalls())
 func (mock *HealthCheckerMock) HandlerCalls() []struct {
-	W   http.ResponseWriter
-	Req *http.Request
+	ResponseWriter http.ResponseWriter
+	Request        *http.Request
 } {
 	var calls []struct {
-		W   http.ResponseWriter
-		Req *http.Request
+		ResponseWriter http.ResponseWriter
+		Request        *http.Request
 	}
 	mock.lockHandler.RLock()
 	calls = mock.calls.Handler
@@ -168,29 +168,29 @@ func (mock *HealthCheckerMock) HandlerCalls() []struct {
 }
 
 // Start calls StartFunc.
-func (mock *HealthCheckerMock) Start(ctx context.Context) {
+func (mock *HealthCheckerMock) Start(contextMoqParam context.Context) {
 	if mock.StartFunc == nil {
 		panic("HealthCheckerMock.StartFunc: method is nil but HealthChecker.Start was just called")
 	}
 	callInfo := struct {
-		Ctx context.Context
+		ContextMoqParam context.Context
 	}{
-		Ctx: ctx,
+		ContextMoqParam: contextMoqParam,
 	}
 	mock.lockStart.Lock()
 	mock.calls.Start = append(mock.calls.Start, callInfo)
 	mock.lockStart.Unlock()
-	mock.StartFunc(ctx)
+	mock.StartFunc(contextMoqParam)
 }
 
 // StartCalls gets all the calls that were made to Start.
 // Check the length with:
 //     len(mockedHealthChecker.StartCalls())
 func (mock *HealthCheckerMock) StartCalls() []struct {
-	Ctx context.Context
+	ContextMoqParam context.Context
 } {
 	var calls []struct {
-		Ctx context.Context
+		ContextMoqParam context.Context
 	}
 	mock.lockStart.RLock()
 	calls = mock.calls.Start
@@ -225,33 +225,33 @@ func (mock *HealthCheckerMock) StopCalls() []struct {
 }
 
 // Subscribe calls SubscribeFunc.
-func (mock *HealthCheckerMock) Subscribe(s healthcheck.Subscriber, checks ...*healthcheck.Check) {
+func (mock *HealthCheckerMock) Subscribe(subscriber healthcheck.Subscriber, checks ...*healthcheck.Check) {
 	if mock.SubscribeFunc == nil {
 		panic("HealthCheckerMock.SubscribeFunc: method is nil but HealthChecker.Subscribe was just called")
 	}
 	callInfo := struct {
-		S      healthcheck.Subscriber
-		Checks []*healthcheck.Check
+		Subscriber healthcheck.Subscriber
+		Checks     []*healthcheck.Check
 	}{
-		S:      s,
-		Checks: checks,
+		Subscriber: subscriber,
+		Checks:     checks,
 	}
 	mock.lockSubscribe.Lock()
 	mock.calls.Subscribe = append(mock.calls.Subscribe, callInfo)
 	mock.lockSubscribe.Unlock()
-	mock.SubscribeFunc(s, checks...)
+	mock.SubscribeFunc(subscriber, checks...)
 }
 
 // SubscribeCalls gets all the calls that were made to Subscribe.
 // Check the length with:
 //     len(mockedHealthChecker.SubscribeCalls())
 func (mock *HealthCheckerMock) SubscribeCalls() []struct {
-	S      healthcheck.Subscriber
-	Checks []*healthcheck.Check
+	Subscriber healthcheck.Subscriber
+	Checks     []*healthcheck.Check
 } {
 	var calls []struct {
-		S      healthcheck.Subscriber
-		Checks []*healthcheck.Check
+		Subscriber healthcheck.Subscriber
+		Checks     []*healthcheck.Check
 	}
 	mock.lockSubscribe.RLock()
 	calls = mock.calls.Subscribe

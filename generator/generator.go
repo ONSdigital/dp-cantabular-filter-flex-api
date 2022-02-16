@@ -41,6 +41,6 @@ func (g *Generator) Timestamp() time.Time {
 
 // URL generates a URL from a host and a path made from a printf string
 // + arguments
-func (g *Generator) URL(host, path string, args... interface{}) string {
+func (g *Generator) URL(host, path string, args ...interface{}) string {
 	return host + fmt.Sprintf(path, args...)
 }

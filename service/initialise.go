@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
-	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	mongo "github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-net/v2/responder"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
 	dphttp "github.com/ONSdigital/dp-net/http"
+	"github.com/ONSdigital/dp-net/v2/responder"
 )
 
 // GetHTTPServer creates an http server and sets the Server

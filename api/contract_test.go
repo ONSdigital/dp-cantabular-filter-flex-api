@@ -5,17 +5,8 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"github.com/google/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 )
-
-func testUUID() *uuid.UUID {
-	const idstr = "307c53db-4495-436f-8f2e-8435deb8144e"
-	id, err := uuid.Parse(idstr)
-	So(err, ShouldBeNil)
-
-	return &id
-}
 
 func TestCreateFiltersRequestValid(t *testing.T) {
 	Convey("Given a valid createFilterRequest request object", t, func() {
