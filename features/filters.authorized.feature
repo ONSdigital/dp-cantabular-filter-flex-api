@@ -110,7 +110,7 @@ Feature: Filters Private Endpoints Enabled
       "events": null,
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated":     "2022-01-26T12:27:04.783936865Z",
-      "etag":             "63d6683de011a71313bc4918b5e610c4099a7d49",
+      "etag":             "6e627be2c355c7cebe5de4af6a0c6d75c9523fb3",
       "instance_id":      "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -140,7 +140,8 @@ Feature: Filters Private Endpoints Enabled
         "version": 1
       },
       "published":       true,
-      "population_type": "Example"
+      "population_type": "Example",
+      "type": "flexible"
     }
     """
 
@@ -162,7 +163,7 @@ Feature: Filters Private Endpoints Enabled
       "events": null,
       "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
       "last_updated":     "2022-01-26T12:27:04.783936865Z",
-      "etag":             "79a0377838c36642bce63f3d2d9addf6e47dbaa0",
+      "etag":             "6e627be2c355c7cebe5de4af6a0c6d75c9523fb3",
       "instance_id":      "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {

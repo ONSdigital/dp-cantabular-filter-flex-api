@@ -15,6 +15,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	flexible = "flexible"
+)
+
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req createFilterRequest
@@ -93,6 +97,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
 		PopulationType:    req.PopulationType,
+		Type:              flexible,
 		Published:         true, // TODO: Not sure what to
 		Events:            nil,  // populate for these
 		DisclosureControl: nil,  // fields yet
