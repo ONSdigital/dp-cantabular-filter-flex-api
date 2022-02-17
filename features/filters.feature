@@ -55,6 +55,58 @@ Feature: Filters Private Endpoints Not Enabled
       }
       """
 
+    And the following version document with dataset id "cantabular-example-unpublished", edition "2021" and version "1" is available from dp-dataset-api:
+      """
+      {
+        "alerts": [],
+        "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "dimensions": [
+          {
+            "label": "City",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/city",
+            "id": "city",
+            "name": "City"
+          },
+          {
+            "label": "Number of siblings (3 mappings)", 
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/siblings",
+            "id": "siblings",
+            "name": "Number of siblings (3 mappings)"
+          }
+        ],
+        "edition": "2021",
+        "id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+        "links": {
+          "dataset": {
+            "href": "http://dp-dataset-api:22000/datasets/cantabular-example-unpublished",
+            "id": "cantabular-example-1"
+          },
+          "dimensions": {},
+          "edition": {
+            "href": "http://localhost:22000/datasets/cantabular-example-unpublished/editions/2021",
+            "id": "2021"
+          },
+          "self": {
+            "href": "http://localhost:22000/datasets/cantabular-example-unpublished/editions/2021/versions/1"
+          }
+        },
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "state": "associated",
+        "usage_notes": [],
+        "version": 1
+      }
+      """
+
   Scenario: Creating a new filter happy
 
     When I POST "/filters"
@@ -143,6 +195,53 @@ Feature: Filters Private Endpoints Not Enabled
     """
 
     And the HTTP status code should be "201"
+
+  Scenario: Creating a new filter unauthenticated on unpublished version
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+          "id":      "cantabular-example-unpublished",
+          "edition": "2021",
+          "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "Number of siblings (3 mappings)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "dimension_url": "http://dimension.url/siblings",
+          "is_area_type": false
+        },{
+          "name": "City",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "dimension_url": "http://dimension.url/city",
+          "is_area_type": true
+        }
+      ]
+
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "dataset not found"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "404"
 
 Scenario: Creating a new filter bad request body
 

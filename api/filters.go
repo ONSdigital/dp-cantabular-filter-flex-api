@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/google/uuid"
@@ -17,6 +18,7 @@ import (
 
 const (
 	flexible = "flexible"
+	published = "published"
 )
 
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +53,19 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get existing Version"),
 				message: "failed to get existing dataset information",
+			},
+		)
+		return
+	}
+
+	if v.State != published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "dataset not found",
 			},
 		)
 		return
@@ -98,9 +113,9 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		Dataset:           *req.Dataset,
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
-		Published:         true, // TODO: Not sure what to
-		Events:            nil,  // populate for these
-		DisclosureControl: nil,  // fields yet
+		Published:         v.State == published,
+		Events:            nil,  // TODO: Not sure what to 
+		DisclosureControl: nil,  // populate for these fields yet
 	}
 
 	if f.InstanceID, err = uuid.Parse(v.ID); err != nil {
