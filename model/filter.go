@@ -20,6 +20,7 @@ type Filter struct {
 	Dataset           Dataset            `bson:"dataset"                      json:"dataset"`
 	Published         bool               `bson:"published"                    json:"published"`
 	DisclosureControl *DisclosureControl `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
+	Type              string             `bson:"type"                         json:"type"`
 	PopulationType    string             `bson:"population_type"              json:"population_type"`
 }
 
