@@ -40,3 +40,24 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 
 	return nil
 }
+
+func (c *Client) CreateFilterOutputs(context.Context, *model.FilterOutput) error {
+	var err error
+	//logic to fill
+
+	return err
+}
+
+func (c *Client) CreateFilterId(context.Context, string) error {
+	var err error
+	//logic to fill
+
+	return err
+}
+
+func (c *Client) CreateFilterDimensions(context.Context, *[]model.Dimension) error {
+	var err error
+	//logic to fill
+
+	return err
+}

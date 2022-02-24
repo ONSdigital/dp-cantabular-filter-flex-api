@@ -129,6 +129,15 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
+func (api *API) createFilterOutputs(w http.ResponseWriter, r *http.Request) {
+}
+
+func (api *API) createFilterId(w http.ResponseWriter, r *http.Request) {
+}
+
+func (api *API) createFilterDimensions(w http.ResponseWriter, r *http.Request) {
+}
+
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
 func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {

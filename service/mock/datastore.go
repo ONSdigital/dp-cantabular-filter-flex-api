@@ -39,6 +39,9 @@ type DatastoreMock struct {
 
 	// CreateFilterFunc mocks the CreateFilter method.
 	CreateFilterFunc func(contextMoqParam context.Context, filter *model.Filter) error
+	CreateFilterOutputsFunc func(contextMoqParam context.Context,filterOutput *model.FilterOutput) error
+	CreateFilterIdFunc func(contextMoqParam context.Context, id string) error
+	CreateFilterDimensionsFunc func( contextMoqParam context.Context,dimensions *[]model.Dimension) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -129,4 +132,20 @@ func (mock *DatastoreMock) CreateFilterCalls() []struct {
 	calls = mock.calls.CreateFilter
 	mock.lockCreateFilter.RUnlock()
 	return calls
+}
+
+func (mock *DatastoreMock)CreateFilterOutputs(contextMoqParam context.Context,filterOutput *model.FilterOutput) error{
+	//add further logic
+	return mock.CreateFilterOutputsFunc(contextMoqParam, filterOutput)
+}
+
+func (mock *DatastoreMock)CreateFilterId(contextMoqParam context.Context, id string) error{
+	//add further logic
+	return mock.CreateFilterIdFunc(contextMoqParam, id)
+}
+
+func (mock *DatastoreMock)	CreateFilterDimensions( contextMoqParam context.Context,dimensions *[]model.Dimension) error{
+	//add further logic
+
+	return mock.CreateFilterDimensionsFunc(contextMoqParam, dimensions)
 }
