@@ -6,6 +6,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-mongodb/v3/mongodb"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -49,7 +50,12 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string) ([]model.D
 
 	var f model.Filter
 
-	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"id": fID}, f); err != nil {
+	v, err := uuid.Parse(fID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse filter uuid")
+	}
+
+	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": v}, &f); err != nil {
 		err := &er{
 			err: errors.Wrap(err, "failed to get filter dimensions"),
 		}

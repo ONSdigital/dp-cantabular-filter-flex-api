@@ -45,14 +45,14 @@ func (e Error) LogData() map[string]interface{} {
 func statusCode(err error) int {
 	var serr coder
 	switch {
-	case errors.As(err, &serr):
-		return serr.Code()
 	case dperrors.Unavailable(err):
 		return http.StatusServiceUnavailable
 	case dperrors.NotFound(err):
 		return http.StatusNotFound
 	case dperrors.Conflict(err):
 		return http.StatusConflict
+	case errors.As(err, &serr):
+		return serr.Code()
 	default:
 		return http.StatusInternalServerError
 	}
