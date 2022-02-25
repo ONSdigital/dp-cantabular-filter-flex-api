@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	flexible = "flexible"
+	flexible  = "flexible"
 	published = "published"
 )
 
@@ -114,8 +114,8 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
 		Published:         v.State == published,
-		Events:            nil,  // TODO: Not sure what to 
-		DisclosureControl: nil,  // populate for these fields yet
+		Events:            nil, // TODO: Not sure what to
+		DisclosureControl: nil, // populate for these fields yet
 	}
 
 	if f.InstanceID, err = uuid.Parse(v.ID); err != nil {
@@ -147,15 +147,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
-}
-
-func (api *API) createFilterOutputs(w http.ResponseWriter, r *http.Request) {
-}
-
-func (api *API) createFilterId(w http.ResponseWriter, r *http.Request) {
-}
-
-func (api *API) createFilterDimensions(w http.ResponseWriter, r *http.Request) {
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.

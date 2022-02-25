@@ -23,8 +23,6 @@ type responder interface {
 type datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	CreateFilterOutputs(context.Context, *model.FilterOutput) error
-	CreateFilterId(context.Context, string) error
-	CreateFilterDimensions(context.Context, *[]model.Dimension) error
 }
 
 type validator interface {

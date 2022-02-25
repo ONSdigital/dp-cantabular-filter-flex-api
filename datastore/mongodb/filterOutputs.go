@@ -11,9 +11,9 @@ import (
 )
 
 // CreateFilter creates a new Filter in the CantabularFilters colllection
-func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
+func (c *Client) CreateFilterOutputs(ctx context.Context, f *model.Filter) error {
 	var err error
-
+	//****this is just a copy of CreateFilter, need to update this *****//
 	if f.ID, err = c.generate.UUID(); err != nil {
 		return errors.Wrap(err, "failed to generate UUID: %w")
 	}

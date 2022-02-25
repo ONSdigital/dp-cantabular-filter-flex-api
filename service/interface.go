@@ -55,8 +55,6 @@ type Responder interface {
 type Datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	CreateFilterOutputs(context.Context, *model.FilterOutput) error
-	CreateFilterId(context.Context, string) error
-	CreateFilterDimensions(context.Context, *[]model.Dimension) error
 	Checker(context.Context, *healthcheck.CheckState) error
 }
 
