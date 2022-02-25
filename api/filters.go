@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	flexible = "flexible"
+	flexible  = "flexible"
 	published = "published"
 )
 
@@ -63,7 +63,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.State != published && !dprequest.IsCallerPresent(ctx){
+	if v.State != published && !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
 			w,
@@ -126,8 +126,8 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
 		Published:         v.State == published,
-		Events:            nil,  // TODO: Not sure what to 
-		DisclosureControl: nil,  // populate for these fields yet
+		Events:            nil, // TODO: Not sure what to
+		DisclosureControl: nil, // populate for these fields yet
 	}
 
 	if f.InstanceID, err = uuid.Parse(v.ID); err != nil {
@@ -181,7 +181,7 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 
 	if incorrect != nil {
 		return nil, Error{
-			err:     errors.Errorf("incorrect dimensions chosen: %v", incorrect),
+			err: errors.Errorf("incorrect dimensions chosen: %v", incorrect),
 			logData: log.Data{
 				"available_dimensions": dimensions,
 			},
