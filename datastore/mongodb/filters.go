@@ -24,7 +24,7 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	}
 
 	f.Links.Self = model.Link{
-		HREF: fmt.Sprintf("%s/flex/filters/%s", c.cfg.FilterFlexAPIURL, f.ID),
+		HREF: fmt.Sprintf("%s/filters/%s", c.cfg.FilterFlexAPIURL, f.ID),
 	}
 
 	col := c.collections.filters
