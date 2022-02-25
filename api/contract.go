@@ -43,3 +43,22 @@ func (r *createFilterRequest) Valid() error {
 type createFilterResponse struct {
 	model.Filter
 }
+
+// createFilterRequest is the request body for POST /filters
+type createFilterOutputsRequest struct {
+	State     string             `bson:"state" json:"state"`
+	Downloads model.FilterOutput `bson:"downloads"      json:"downloads"`
+}
+
+func (r *createFilterOutputsRequest) Valid() error {
+
+	if r.State == "" {
+		return errors.New("missing field: state")
+	}
+	return nil
+}
+
+// createFilterResponse is the response body for POST /filters
+type createFilterOutputsResponse struct {
+	model.FilterOutput
+}
