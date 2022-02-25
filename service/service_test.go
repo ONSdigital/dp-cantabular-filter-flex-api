@@ -128,9 +128,10 @@ func TestInit(t *testing.T) {
 				So(svc.Producer, ShouldResemble, producerMock)
 
 				Convey("Then all checks are registered", func() {
-					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 2)
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 3)
 					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Kafka producer")
 					So(hcMock.AddAndGetCheckCalls()[1].Name, ShouldResemble, "Datastore")
+					So(hcMock.AddAndGetCheckCalls()[2].Name, ShouldResemble, "Zebedee")
 				})
 			})
 		})

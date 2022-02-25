@@ -1,6 +1,6 @@
 {
 	"dataset":{
-		"id":      "cantabular-example-1",
+		"id":      "cantabular-flexible-example",
 		"edition": "2021",
 		"version": 1
 	},
@@ -16,7 +16,7 @@
 			"dimension_url": "http://dimension.url/city",
 			"is_area_type": true
 		},{
-			"name": "Number of siblings (3 mappings)",
+			"name": "Number of siblings (3 mappings",
 			"options": [
 				"0",
 				"1-2",

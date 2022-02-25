@@ -171,7 +171,9 @@ func (svc *Service) registerCheckers() error {
 		return fmt.Errorf("error adding check for datastore: %w", err)
 	}
 
-	// TODO: add other health checks here, as per dp-upload-service
+	if _, err := svc.HealthCheck.AddAndGetCheck("Zebedee", svc.identityClient.Checker); err != nil {
+		return fmt.Errorf("error adding check for datastore: %w", err)
+	}
 
 	return nil
 }

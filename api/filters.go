@@ -35,6 +35,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logData := log.Data{
+		"request": req,
+	}
+
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -53,12 +57,13 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get existing Version"),
 				message: "failed to get existing dataset information",
+				logData: logData,
 			},
 		)
 		return
 	}
 
-	if v.State != published && !dprequest.IsCallerPresent(ctx) {
+	if v.State != published && !dprequest.IsCallerPresent(ctx){
 		api.respond.Error(
 			ctx,
 			w,
@@ -66,6 +71,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.New("unauthenticated request on unpublished dataset"),
 				message: "dataset not found",
+				logData: logData,
 			},
 		)
 		return
@@ -77,7 +83,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			http.StatusBadRequest,
-			errors.Wrap(err, "failed to validate request dimensions"),
+			Error{
+				err:     errors.Wrap(err, "failed to validate request dimensions"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -89,7 +98,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to validate dimension options"),
+			Error{
+				err:     errors.Wrap(err, "failed to validate dimension options"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -137,7 +149,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to create filter"),
+			Error{
+				err:     errors.Wrap(err, "failed to create filter"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -165,7 +180,12 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 	}
 
 	if incorrect != nil {
-		return nil, errors.Errorf("incorrect dimensions chosen: %v", incorrect)
+		return nil, Error{
+			err:     errors.Errorf("incorrect dimensions chosen: %v", incorrect),
+			logData: log.Data{
+				"available_dimensions": dimensions,
+			},
+		}
 	}
 
 	return dimensions, nil
