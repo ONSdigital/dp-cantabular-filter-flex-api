@@ -22,7 +22,7 @@ type responder interface {
 
 type datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
-	CreateFilterOutputs(context.Context, *model.FilterOutput) error
+	CreateFilterOutput(context.Context, *model.FilterOutput) error
 }
 
 type validator interface {

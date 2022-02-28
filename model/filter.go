@@ -35,6 +35,7 @@ type Link struct {
 }
 
 type FilterOutput struct {
+	ID   uuid.UUID `bson:"filter_id"      json:"filter_id"`
 	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty"`
 	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty"`
 	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty"`
