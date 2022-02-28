@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
@@ -49,6 +49,7 @@ type Component struct {
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
+	ctx := context.Background()
 	cfg, err := config.Get()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get config: %w", err)
@@ -56,14 +57,30 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 
 	cfg.ZebedeeURL = zebedeeURL
 	cfg.Mongo.ClusterEndpoint = mongoAddr
+	cfg.Mongo.Database = utils.RandomDatabase()
+
+	g := &mock.Generator{
+		URLHost: "http://mockhost:9999",
+	}
+
+	mongoClient, err := mongodb.NewClient(ctx, g, mongodb.Config{
+		MongoDriverConfig:       cfg.Mongo,
+		FilterFlexAPIURL:        cfg.BindAddr,
+		FiltersCollection:       cfg.FiltersCollection,
+		FilterOutputsCollection: cfg.FilterOutputsCollection,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
 
 	return &Component{
 		errorChan:  make(chan error),
 		wg:         &sync.WaitGroup{},
-		ctx:        context.Background(),
+		ctx:        ctx,
 		HTTPServer: &http.Server{},
 		cfg:        cfg,
 		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
+		store:      mongoClient,
 	}, nil
 }
 
@@ -102,6 +119,10 @@ func (c *Component) setInitialiserMock() {
 		return &mock.CantabularClient{
 			OptionsHappy: true,
 		}
+	}
+
+	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
+		return c.store, nil
 	}
 
 	c.cfg.Mongo.Database = utils.RandomDatabase()

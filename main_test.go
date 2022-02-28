@@ -50,11 +50,11 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
 		apiFeature.Reset()
-		if err := component.Reset(); err != nil {
-			log.Panicf("unable to initialise scenario: %s", err)
-		}
 		if err := f.MongoFeature.Reset(); err != nil {
 			log.Panicf("failed to reset mongo feature: %s", err)
+		}
+		if err := component.Reset(); err != nil {
+			log.Panicf("unable to initialise scenario: %s", err)
 		}
 		authFeature.Reset()
 	})
