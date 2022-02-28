@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
@@ -162,6 +163,32 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+
+	dimensions, err := api.store.GetFilterDimensions(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter dimensions"),
+				message: "failed to get filter dimensions",
+				logData: log.Data{
+					"id": fID,
+				},
+			},
+		)
+		return
+	}
+
+	resp := getFilterDimensionsResponse{dimensions}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.

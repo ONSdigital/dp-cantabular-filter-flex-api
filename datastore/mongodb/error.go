@@ -3,7 +3,6 @@ package mongodb
 // er is the packages error type
 type er struct {
 	err         error
-	statusCode  int
 	logData     map[string]interface{}
 	notFound    bool
 	conflict    bool
@@ -21,12 +20,6 @@ func (e *er) Error() string {
 // Unwrap implements the standard library Go unwrapper interface
 func (e *er) Unwrap() error {
 	return e.err
-}
-
-// Code satisfies the coder interface which is used to recover a
-// HTTP status code from an error
-func (e *er) Code() int {
-	return e.statusCode
 }
 
 // LogData satisfies the dataLogger interface which is used to recover
