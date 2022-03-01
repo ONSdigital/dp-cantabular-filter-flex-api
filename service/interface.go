@@ -54,6 +54,7 @@ type Responder interface {
 // Datastore is the interface for interacting with the storage backend
 type Datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
+	GetFilter(context.Context, string) (*model.Filter, error)
 	GetFilterDimensions(context.Context, string) ([]model.Dimension, error)
 	Checker(context.Context, *healthcheck.CheckState) error
 }

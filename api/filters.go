@@ -151,6 +151,32 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
+func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+
+	f, err := api.store.GetFilter(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter"),
+				message: "failed to get filter",
+				logData: log.Data{
+					"id": fID,
+				},
+			},
+		)
+		return
+	}
+
+	resp := getFilterResponse{*f}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
+}
+
 func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")

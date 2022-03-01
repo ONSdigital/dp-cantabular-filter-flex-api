@@ -44,6 +44,27 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	return nil
 }
 
+// GetFilter gets a filter doc from the filters collections
+func (c *Client) GetFilter(ctx context.Context, fID string) (*model.Filter, error) {
+	var err error
+
+	col := c.collections.filters
+
+	var f model.Filter
+
+	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": fID}, &f); err != nil {
+		err := &er{
+			err: errors.Wrap(err, "failed to get filter"),
+		}
+		if errors.Is(err, mongodb.ErrNoDocumentFound) {
+			err.notFound = true
+		}
+		return nil, err
+	}
+
+	return &f, nil
+}
+
 // GetFilterDimensions gets the dimensions for a Filter in the CantabularFilters collection
 func (c *Client) GetFilterDimensions(ctx context.Context, fID string) ([]model.Dimension, error) {
 	var err error
