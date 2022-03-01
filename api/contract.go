@@ -60,7 +60,7 @@ type updateFilterOutputResponse struct {
 	FilterOutput *model.FilterOutput
 }
 
-// getFilterOutputsResponse is the response body for GET /filter-output
-type getFilterOutputsResponse struct {
+// getFilterOutputResponse is the response body for GET /filter-output
+type getFilterOutputResponse struct {
 	FilterOutput *model.FilterOutput
 }

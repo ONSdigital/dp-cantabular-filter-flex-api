@@ -27,8 +27,14 @@ var _ service.Datastore = &DatastoreMock{}
 // 			CreateFilterFunc: func(contextMoqParam context.Context, filter *model.Filter) error {
 // 				panic("mock out the CreateFilter method")
 // 			},
+// 			GetFilterFunc: func(contextMoqParam context.Context, s string) (*model.Filter, error) {
+// 				panic("mock out the GetFilter method")
+// 			},
 // 			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string) ([]model.Dimension, error) {
 // 				panic("mock out the GetFilterDimensions method")
+// 			},
+// 			UpdateFilterFunc: func(contextMoqParam context.Context, filter *model.Filter) error {
+// 				panic("mock out the UpdateFilter method")
 // 			},
 // 		}
 //
@@ -43,8 +49,14 @@ type DatastoreMock struct {
 	// CreateFilterFunc mocks the CreateFilter method.
 	CreateFilterFunc func(contextMoqParam context.Context, filter *model.Filter) error
 
+	// GetFilterFunc mocks the GetFilter method.
+	GetFilterFunc func(contextMoqParam context.Context, s string) (*model.Filter, error)
+
 	// GetFilterDimensionsFunc mocks the GetFilterDimensions method.
 	GetFilterDimensionsFunc func(contextMoqParam context.Context, s string) ([]model.Dimension, error)
+
+	// UpdateFilterFunc mocks the UpdateFilter method.
+	UpdateFilterFunc func(contextMoqParam context.Context, filter *model.Filter) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -62,6 +74,13 @@ type DatastoreMock struct {
 			// Filter is the filter argument value.
 			Filter *model.Filter
 		}
+		// GetFilter holds details about calls to the GetFilter method.
+		GetFilter []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// S is the s argument value.
+			S string
+		}
 		// GetFilterDimensions holds details about calls to the GetFilterDimensions method.
 		GetFilterDimensions []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -69,10 +88,19 @@ type DatastoreMock struct {
 			// S is the s argument value.
 			S string
 		}
+		// UpdateFilter holds details about calls to the UpdateFilter method.
+		UpdateFilter []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// Filter is the filter argument value.
+			Filter *model.Filter
+		}
 	}
 	lockChecker             sync.RWMutex
 	lockCreateFilter        sync.RWMutex
+	lockGetFilter           sync.RWMutex
 	lockGetFilterDimensions sync.RWMutex
+	lockUpdateFilter        sync.RWMutex
 }
 
 // Checker calls CheckerFunc.
@@ -145,6 +173,41 @@ func (mock *DatastoreMock) CreateFilterCalls() []struct {
 	return calls
 }
 
+// GetFilter calls GetFilterFunc.
+func (mock *DatastoreMock) GetFilter(contextMoqParam context.Context, s string) (*model.Filter, error) {
+	if mock.GetFilterFunc == nil {
+		panic("DatastoreMock.GetFilterFunc: method is nil but Datastore.GetFilter was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		S               string
+	}{
+		ContextMoqParam: contextMoqParam,
+		S:               s,
+	}
+	mock.lockGetFilter.Lock()
+	mock.calls.GetFilter = append(mock.calls.GetFilter, callInfo)
+	mock.lockGetFilter.Unlock()
+	return mock.GetFilterFunc(contextMoqParam, s)
+}
+
+// GetFilterCalls gets all the calls that were made to GetFilter.
+// Check the length with:
+//     len(mockedDatastore.GetFilterCalls())
+func (mock *DatastoreMock) GetFilterCalls() []struct {
+	ContextMoqParam context.Context
+	S               string
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		S               string
+	}
+	mock.lockGetFilter.RLock()
+	calls = mock.calls.GetFilter
+	mock.lockGetFilter.RUnlock()
+	return calls
+}
+
 // GetFilterDimensions calls GetFilterDimensionsFunc.
 func (mock *DatastoreMock) GetFilterDimensions(contextMoqParam context.Context, s string) ([]model.Dimension, error) {
 	if mock.GetFilterDimensionsFunc == nil {
@@ -177,5 +240,40 @@ func (mock *DatastoreMock) GetFilterDimensionsCalls() []struct {
 	mock.lockGetFilterDimensions.RLock()
 	calls = mock.calls.GetFilterDimensions
 	mock.lockGetFilterDimensions.RUnlock()
+	return calls
+}
+
+// UpdateFilter calls UpdateFilterFunc.
+func (mock *DatastoreMock) UpdateFilter(contextMoqParam context.Context, filter *model.Filter) error {
+	if mock.UpdateFilterFunc == nil {
+		panic("DatastoreMock.UpdateFilterFunc: method is nil but Datastore.UpdateFilter was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		Filter          *model.Filter
+	}{
+		ContextMoqParam: contextMoqParam,
+		Filter:          filter,
+	}
+	mock.lockUpdateFilter.Lock()
+	mock.calls.UpdateFilter = append(mock.calls.UpdateFilter, callInfo)
+	mock.lockUpdateFilter.Unlock()
+	return mock.UpdateFilterFunc(contextMoqParam, filter)
+}
+
+// UpdateFilterCalls gets all the calls that were made to UpdateFilter.
+// Check the length with:
+//     len(mockedDatastore.UpdateFilterCalls())
+func (mock *DatastoreMock) UpdateFilterCalls() []struct {
+	ContextMoqParam context.Context
+	Filter          *model.Filter
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		Filter          *model.Filter
+	}
+	mock.lockUpdateFilter.RLock()
+	calls = mock.calls.UpdateFilter
+	mock.lockUpdateFilter.RUnlock()
 	return calls
 }

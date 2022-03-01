@@ -217,8 +217,7 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := updateFilterOutputResponse{FilterOutput: filter.FilterOutput}
-	api.respond.JSON(ctx, w, http.StatusOK, response)
+	api.respond.JSON(ctx, w, http.StatusOK, updateFilterOutputResponse{filter.FilterOutput})
 }
 
 func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
@@ -230,9 +229,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "query filter"))
 		return
 	}
-
-	response := getFilterOutputResponse{FilterOutput: filter.FilterOutput}
-	api.respond.JSON(ctx, w, http.StatusOK, response)
+	api.respond.JSON(ctx, w, http.StatusOK, getFilterOutputResponse{filter.FilterOutput})
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
