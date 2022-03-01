@@ -191,6 +191,50 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
+func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var request updateFilterOutputRequest
+	if err := api.ParseRequest(r.Body, &request); err != nil {
+		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "parse request"))
+		return
+	}
+	if err := api.validate.Struct(&request); err != nil {
+		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "validate request fields"))
+		return
+	}
+
+	id := chi.URLParam(r, "id")
+	filter, err := api.store.GetFilter(ctx, id)
+	if err != nil {
+		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "query filter"))
+		return
+	}
+	filter.FilterOutput = request.FilterOutput
+
+	if err := api.store.UpdateFilter(ctx, filter); err != nil {
+		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "update filter"))
+		return
+	}
+
+	response := updateFilterOutputResponse{FilterOutput: filter.FilterOutput}
+	api.respond.JSON(ctx, w, http.StatusOK, response)
+}
+
+func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := chi.URLParam(r, "id")
+	filter, err := api.store.GetFilter(ctx, id)
+	if err != nil {
+		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "query filter"))
+		return
+	}
+
+	response := getFilterOutputResponse{FilterOutput: filter.FilterOutput}
+	api.respond.JSON(ctx, w, http.StatusOK, response)
+}
+
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
 func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {

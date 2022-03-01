@@ -35,17 +35,17 @@ type Link struct {
 }
 
 type FilterOutput struct {
-	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty"`
-	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty"`
-	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty"`
-	XLS  *FileInfo `bson:"xls,omitempty"  json:"xls,omitempty"`
+	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty" validate:"required"`
+	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty" validate:"required"`
+	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty" validate:"required"`
+	XLS  *FileInfo `bson:"xls,omitempty"  json:"xls,omitempty" validate:"required"`
 }
 
 type FileInfo struct {
-	HREF    string `bson:"href"    json:"href"`
-	Size    string `bson:"size"    json:"size"`
-	Public  string `bson:"public"  json:"public"`
-	Private string `bson:"private" json:"private"`
+	HREF    string `bson:"href"    json:"href" validate:"required"`
+	Size    string `bson:"size"    json:"size" validate:"required"`
+	Public  string `bson:"public"  json:"public" validate:"required"`
+	Private string `bson:"private" json:"private" validate:"required"`
 	Skipped bool   `bson:"skipped" json:"skipped"`
 }
 

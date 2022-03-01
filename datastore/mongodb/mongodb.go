@@ -15,7 +15,6 @@ import (
 type Client struct {
 	conn        *mongo.MongoConnection
 	health      *health.CheckMongoClient
-	lock        *lock.Lock
 	cfg         Config
 	collections *Collections
 	generate    generator

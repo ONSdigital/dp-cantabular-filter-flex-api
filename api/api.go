@@ -2,9 +2,9 @@ package api
 
 import (
 	"context"
-	// "net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	validatorv10 "github.com/go-playground/validator/v10"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	"github.com/ONSdigital/dp-authorisation/auth"
@@ -24,6 +24,7 @@ type API struct {
 	datasets       datasetAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
+	validate       *validatorv10.Validate
 }
 
 // New creates and initialises a new API
@@ -37,6 +38,7 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		identityClient: idc,
 		datasets:       ds,
 		ctblr:          c,
+		validate:       validatorv10.New(),
 	}
 
 	if cfg.EnablePrivateEndpoints {
@@ -51,6 +53,8 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	api.Router.Get("/filter-output/{id}", api.getFilterOutput)
+	api.Router.Post("/filter-output/{id}", api.updateFilterOutput)
 }
 func (api *API) enablePrivateEndpoints() {
 	r := chi.NewRouter()
@@ -64,6 +68,8 @@ func (api *API) enablePrivateEndpoints() {
 
 	r.Post("/filters", api.createFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	r.Get("/filter-output/{id}", api.getFilterOutput)
+	r.Post("/filter-output/{id}", api.updateFilterOutput)
 
 	api.Router.Mount("/", r)
 }

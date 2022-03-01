@@ -48,3 +48,19 @@ type createFilterResponse struct {
 type getFilterDimensionsResponse struct {
 	Dimensions []model.Dimension `json:"dimensions"`
 }
+
+// updateFilterOutputRequest is the request body for POST /filter-output
+type updateFilterOutputRequest struct {
+	State        string              `json:"state" validate:"required"`
+	FilterOutput *model.FilterOutput `json:"filter_output" validate:"required"`
+}
+
+// updateFilterOutputResponse is the response body for POST /filter-output
+type updateFilterOutputResponse struct {
+	FilterOutput *model.FilterOutput
+}
+
+// getFilterOutputsResponse is the response body for GET /filter-output
+type getFilterOutputsResponse struct {
+	FilterOutput *model.FilterOutput
+}
