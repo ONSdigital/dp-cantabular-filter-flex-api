@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -24,6 +25,8 @@ const (
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req createFilterRequest
+
+	fmt.Println("the request is %w", r.Body)
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
@@ -63,6 +66,8 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("The request is %w", v)
+
 	if v.State != published && !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
@@ -76,6 +81,9 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
+	fmt.Println("the dimensions are %w", req.Dimensions)
+	fmt.Println("the other dimensions are %w", v.Dimensions)
 
 	dimIDs, err := api.validateDimensions(ctx, req.Dimensions, v.Dimensions)
 	if err != nil {
@@ -171,6 +179,9 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID
 	}
+
+	fmt.Println("d dimensions are %w", dims)
+	fmt.Println("filterdims are %w", filterDims)
 
 	var incorrect []string
 	for _, fd := range filterDims {
