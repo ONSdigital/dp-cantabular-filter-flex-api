@@ -12,7 +12,6 @@ import (
 func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	//******need to discuss the kind of error that we need if the caller is not present****
 	if !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
@@ -20,7 +19,7 @@ func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 			http.StatusNotFound,
 			Error{
 				err:     errors.New("unauthenticated request on unpublished dataset"),
-				message: "dataset not found",
+				message: "caller not found",
 			},
 		)
 		return
@@ -49,7 +48,10 @@ func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.store.CreateFilterOutput(ctx, &req.Downloads); err != nil {
+	f := model.FilterOutputResponse{
+		Download: req.Downloads,
+	}
+	if err := api.store.CreateFilterOutput(ctx, &f); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -60,7 +62,8 @@ func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := createFilterOutputsResponse{
-		FilterOutput: req.Downloads,
+		ID:        f.ID,
+		Downloads: f.Download,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)

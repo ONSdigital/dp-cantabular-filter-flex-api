@@ -1,0 +1,19 @@
+{
+	"dataset":{
+		"id":      "Flex-test-99",
+		"edition": "2021",
+		"version": 1
+	},
+	"population_type": "Usual-Residents",
+	"dimensions": [
+		{
+			"dimension_url": "http://localhost:22400/code-lists/msoa",
+			"is_area_type": true,
+			"name": "MSOA"
+		},
+		{
+			"dimension_url": "http://localhost:22400/code-lists/AGGDTWPEW11_R006A",
+			"name": "AGGDTWPEW11_R006A"
+		}
+	]
+}

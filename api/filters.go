@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
@@ -35,6 +36,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logData := log.Data{
+		"request": req,
+	}
+
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -53,6 +58,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get existing Version"),
 				message: "failed to get existing dataset information",
+				logData: logData,
 			},
 		)
 		return
@@ -66,6 +72,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.New("unauthenticated request on unpublished dataset"),
 				message: "dataset not found",
+				logData: logData,
 			},
 		)
 		return
@@ -77,7 +84,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			http.StatusBadRequest,
-			errors.Wrap(err, "failed to validate request dimensions"),
+			Error{
+				err:     errors.Wrap(err, "failed to validate request dimensions"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -89,7 +99,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to validate dimension options"),
+			Error{
+				err:     errors.Wrap(err, "failed to validate dimension options"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -137,7 +150,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to create filter"),
+			Error{
+				err:     errors.Wrap(err, "failed to create filter"),
+				logData: logData,
+			},
 		)
 		return
 	}
@@ -147,6 +163,32 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+
+	dimensions, err := api.store.GetFilterDimensions(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter dimensions"),
+				message: "failed to get filter dimensions",
+				logData: log.Data{
+					"id": fID,
+				},
+			},
+		)
+		return
+	}
+
+	resp := getFilterDimensionsResponse{dimensions}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
@@ -165,7 +207,12 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 	}
 
 	if incorrect != nil {
-		return nil, errors.Errorf("incorrect dimensions chosen: %v", incorrect)
+		return nil, Error{
+			err: errors.Errorf("incorrect dimensions chosen: %v", incorrect),
+			logData: log.Data{
+				"available_dimensions": dimensions,
+			},
+		}
 	}
 
 	return dimensions, nil

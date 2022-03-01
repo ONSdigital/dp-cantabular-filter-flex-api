@@ -9,7 +9,7 @@ import (
 )
 
 // CreateFilterOutput creates a new FilterOutputs in the CantabularFilters colllection
-func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
+func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutputResponse) error {
 	var err error
 
 	if f.ID, err = c.generate.UUID(); err != nil {

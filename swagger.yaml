@@ -156,7 +156,7 @@ paths:
         '201':
           description: The update is successful
           schema:
-            $ref: '#/definitions/Downloads'
+            $ref: '#/definitions/FilterOutputResponse'
         '400':
           description: Invalid request body
         '500':
@@ -357,6 +357,14 @@ definitions:
               version:
                 type: integer
                 description: A version of the dataset to filter on
+  FilterOutputResponse:
+    description: A model for the response body when posting a filter output
+    properties:
+      filter_output_id:
+        type: string
+        description: The unique filter output ID for a customised dataset
+      downloads:
+        $ref: '#/definitions/Downloads'
   FilterResponse:
     description: A model for the response body when updating a filter
     allOf:

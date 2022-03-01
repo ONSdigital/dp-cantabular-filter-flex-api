@@ -153,7 +153,7 @@ Feature: Filters Private Endpoints Not Enabled
           "id": "1"
         },
         "self": {
-          "href": ":27100/flex/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
         }
       },
       "events": null,

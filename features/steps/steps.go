@@ -1,10 +1,14 @@
 package steps
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/cucumber/godog"
+	"github.com/pkg/errors"
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -27,6 +31,10 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(
 		`^the following version document with dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
 		c.theFollowingVersionDocumentIsAvailable,
+	)
+	ctx.Step(
+		`^I have these filters:$`,
+		c.iHaveTheseFilters,
 	)
 }
 
@@ -52,6 +60,25 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocString) error {
 	// TODO: implement step for verifying documents stored in Mongo. No prior
 	// art of this being done properly in ONS yet so save to be done in future ticket
+	return nil
+}
+
+func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
+	ctx := context.Background()
+	var filters []model.Filter
+	m := c.store
+
+	err := json.Unmarshal([]byte(docs.Content), &filters)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshall")
+	}
+
+	for _, filter := range filters {
+		if err := m.CreateFilter(ctx, &filter); err != nil {
+			return errors.Wrap(err, "failed to create filter")
+		}
+	}
+
 	return nil
 }
 

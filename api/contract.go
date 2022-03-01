@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/google/uuid"
 )
 
 // createFilterRequest is the request body for POST /filters
@@ -52,13 +53,16 @@ type createFilterOutputsRequest struct {
 
 func (r *createFilterOutputsRequest) Valid() error {
 
-	if r.State == "" {
-		return errors.New("missing field: state")
-	}
 	return nil
 }
 
 // createFilterResponse is the response body for POST /filters
 type createFilterOutputsResponse struct {
-	model.FilterOutput
+	ID        uuid.UUID          `bson:"filter_output_id" json:"filter_output_id"`
+	Downloads model.FilterOutput `bson:"downloads" json:"downloads"`
+}
+
+// getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
+type getFilterDimensionsResponse struct {
+	Dimensions []model.Dimension `json:"dimensions"`
 }
