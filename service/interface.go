@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //go:generate moq -out mock/server.go -pkg mock . HTTPServer
@@ -64,6 +65,7 @@ type Generator interface {
 	PSK() ([]byte, error)
 	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
+	UniqueTimestamp() primitive.Timestamp
 	URL(host, path string, args ...interface{}) string
 }
 

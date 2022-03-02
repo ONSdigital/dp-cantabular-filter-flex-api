@@ -120,7 +120,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		Dimensions:        req.Dimensions,
-		UniqueTimestamp:   api.generate.Timestamp(),
+		UniqueTimestamp:   api.generate.UniqueTimestamp(),
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
 		InstanceID:        v.ID,

@@ -157,9 +157,6 @@ Feature: Filters Private Endpoints Not Enabled
         }
       },
       "events": null,
-      "unique_timestamp": "2022-01-26T12:27:04.783936865Z",
-      "last_updated": "2022-01-26T12:27:04.783936865Z",
-      "etag": "adac38a98397446c01a821c6d041b2639c514f6b",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
