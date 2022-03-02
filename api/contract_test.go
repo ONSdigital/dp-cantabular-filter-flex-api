@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -83,4 +82,59 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			})
 		})
 	})
+}
+
+func TestCreateFilterOutputsRequestValid(t *testing.T) {
+
+	Convey("Given a valid createFilterOutputsRequest request object", t, func() {
+		blankInfo := model.FileInfo{
+			HREF:    " ",
+			Size:    " ",
+			Public:  " ",
+			Private: " ",
+			Skipped: true,
+		}
+
+		partialblankInfo := model.FileInfo{
+			HREF:    " ",
+			Size:    " ",
+			Public:  "test1 test ",
+			Private: " ",
+			Skipped: true,
+		}
+
+		validInfo := model.FileInfo{
+			HREF:    "test ",
+			Size:    "  tets tts t",
+			Public:  "test1 test ",
+			Private: " t e s t",
+			Skipped: true,
+		}
+
+		req := createFilterOutputsRequest{
+			State: "published",
+			Downloads: model.FilterOutput{
+				CSV:  &blankInfo,
+				CSVW: new(model.FileInfo),
+				TXT:  new(model.FileInfo),
+				XLS:  &partialblankInfo,
+			},
+		}
+
+		Convey("When Valid() is called with invalid input", func() {
+			err := req.Valid()
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("When Valid() is called with valid input", func() {
+			r := req
+			r.Downloads.CSV = &validInfo
+			r.Downloads.CSVW = &validInfo
+			r.Downloads.TXT = &validInfo
+			r.Downloads.XLS = &validInfo
+			err := r.Valid()
+			So(err, ShouldBeNil)
+		})
+	})
+
 }
