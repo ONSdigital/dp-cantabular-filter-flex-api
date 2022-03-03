@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+
+	"go.mongodb.org/mongo-driver/bson"
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
 )
@@ -66,16 +68,18 @@ func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocSt
 func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 	ctx := context.Background()
 	var filters []model.Filter
-	m := c.store
 
 	err := json.Unmarshal([]byte(docs.Content), &filters)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshall")
 	}
 
-	for _, filter := range filters {
-		if err := m.CreateFilter(ctx, &filter); err != nil {
-			return errors.Wrap(err, "failed to create filter")
+	store := c.store
+	col := c.cfg.FiltersCollection
+
+	for _, f := range filters {
+		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
+			return errors.Wrap(err, "failed to upsert filter")
 		}
 	}
 

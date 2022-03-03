@@ -4,9 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
+)
+
+const (
+	eTagHeader = "If-Match"
+	eTagAny    = "*"
 )
 
 // ParseRequest attemts to read unmarshal a request body into a
@@ -46,4 +52,11 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 	}
 
 	return nil
+}
+
+func (api *API) getETag(r *http.Request) string {
+	if eTag := r.Header.Get(eTagHeader); eTag != "" {
+		return eTag
+	}
+	return eTagAny
 }

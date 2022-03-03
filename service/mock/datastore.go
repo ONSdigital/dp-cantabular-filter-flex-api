@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"sync"
 )
 
@@ -23,6 +24,9 @@ var _ service.Datastore = &DatastoreMock{}
 // 		mockedDatastore := &DatastoreMock{
 // 			CheckerFunc: func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error {
 // 				panic("mock out the Checker method")
+// 			},
+// 			ConnFunc: func() *mongo.MongoConnection {
+// 				panic("mock out the Conn method")
 // 			},
 // 			CreateFilterFunc: func(contextMoqParam context.Context, filter *model.Filter) error {
 // 				panic("mock out the CreateFilter method")
@@ -43,6 +47,9 @@ type DatastoreMock struct {
 	// CheckerFunc mocks the Checker method.
 	CheckerFunc func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error
 
+	// ConnFunc mocks the Conn method.
+	ConnFunc func() *mongo.MongoConnection
+
 	// CreateFilterFunc mocks the CreateFilter method.
 	CreateFilterFunc func(contextMoqParam context.Context, filter *model.Filter) error
 
@@ -60,6 +67,9 @@ type DatastoreMock struct {
 			ContextMoqParam context.Context
 			// CheckState is the checkState argument value.
 			CheckState *healthcheck.CheckState
+		}
+		// Conn holds details about calls to the Conn method.
+		Conn []struct {
 		}
 		// CreateFilter holds details about calls to the CreateFilter method.
 		CreateFilter []struct {
@@ -84,6 +94,7 @@ type DatastoreMock struct {
 		}
 	}
 	lockChecker             sync.RWMutex
+	lockConn                sync.RWMutex
 	lockCreateFilter        sync.RWMutex
 	lockGetFilter           sync.RWMutex
 	lockGetFilterDimensions sync.RWMutex
@@ -121,6 +132,32 @@ func (mock *DatastoreMock) CheckerCalls() []struct {
 	mock.lockChecker.RLock()
 	calls = mock.calls.Checker
 	mock.lockChecker.RUnlock()
+	return calls
+}
+
+// Conn calls ConnFunc.
+func (mock *DatastoreMock) Conn() *mongo.MongoConnection {
+	if mock.ConnFunc == nil {
+		panic("DatastoreMock.ConnFunc: method is nil but Datastore.Conn was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockConn.Lock()
+	mock.calls.Conn = append(mock.calls.Conn, callInfo)
+	mock.lockConn.Unlock()
+	return mock.ConnFunc()
+}
+
+// ConnCalls gets all the calls that were made to Conn.
+// Check the length with:
+//     len(mockedDatastore.ConnCalls())
+func (mock *DatastoreMock) ConnCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockConn.RLock()
+	calls = mock.calls.Conn
+	mock.lockConn.RUnlock()
 	return calls
 }
 

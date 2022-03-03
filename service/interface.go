@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -58,6 +59,7 @@ type Datastore interface {
 	GetFilter(context.Context, string) (*model.Filter, error)
 	GetFilterDimensions(context.Context, string) ([]model.Dimension, error)
 	Checker(context.Context, *healthcheck.CheckState) error
+	Conn() *mongo.MongoConnection
 }
 
 // Generator is the interface for generating dynamic tokens and timestamps

@@ -56,6 +56,11 @@ func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error) {
 	return &c, nil
 }
 
+// Conn returns the underlying mongodb connection.
+func (c *Client) Conn() *mongo.MongoConnection{
+	return c.conn
+}
+
 // Close represents mongo session closing within the context deadline
 func (c *Client) Close(ctx context.Context) error {
 	return c.conn.Close(ctx)

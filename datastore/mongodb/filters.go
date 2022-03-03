@@ -54,7 +54,7 @@ func (c *Client) GetFilter(ctx context.Context, fID string) (*model.Filter, erro
 
 	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": fID}, &f); err != nil {
 		err := &er{
-			err: errors.Wrap(err, "failed to get filter"),
+			err: errors.Wrap(err, "failed to find filter"),
 		}
 		if errors.Is(err, mongodb.ErrNoDocumentFound) {
 			err.notFound = true
@@ -75,7 +75,7 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string) ([]model.D
 
 	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": fID}, &f); err != nil {
 		err := &er{
-			err: errors.Wrap(err, "failed to get filter dimensions"),
+			err: errors.Wrap(err, "failed to find filter"),
 		}
 		if errors.Is(err, mongodb.ErrNoDocumentFound) {
 			err.notFound = true

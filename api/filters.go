@@ -155,6 +155,10 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
+	logData := log.Data{
+		"filter_id": fID,
+	}
+
 	f, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
 		api.respond.Error(
@@ -167,6 +171,38 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 				logData: log.Data{
 					"id": fID,
 				},
+			},
+		)
+		return
+	}
+
+	if eTag := api.getETag(r); eTag != eTagAny {
+		if eTag != f.ETag{
+			api.respond.Error(
+				ctx,
+				w,
+				http.StatusConflict,
+				Error{
+					err:     errors.New("conflict: invalid ETag provided or filter has been updated"),
+					logData: log.Data{
+						"expected_etag": eTag,
+						"actual_etag": f.ETag,
+					},
+				},
+			)
+		}
+		return
+	}
+
+	if !f.Published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "failed to get filter",
+				logData: logData,
 			},
 		)
 		return
