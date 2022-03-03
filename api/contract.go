@@ -49,18 +49,20 @@ type getFilterDimensionsResponse struct {
 	Dimensions []model.Dimension `json:"dimensions"`
 }
 
-// updateFilterOutputRequest is the request body for POST /filter-output
-type updateFilterOutputRequest struct {
-	State        string              `json:"state" validate:"required"`
-	FilterOutput *model.FilterOutput `json:"filter_output" validate:"required"`
+type Downloads struct {
+	CSV  *model.FileInfo `json:"csv" validate:"required"`
+	CSVW *model.FileInfo `json:"csvw" validate:"required"`
+	TXT  *model.FileInfo `json:"txt" validate:"required"`
+	XLS  *model.FileInfo `json:"xls" validate:"required"`
 }
 
-// updateFilterOutputResponse is the response body for POST /filter-output
-type updateFilterOutputResponse struct {
-	FilterOutput *model.FilterOutput
+// createFilterOutputRequest is the request body for POST /filter-outputs
+type createFilterOutputRequest struct {
+	State     string              `json:"state" validate:"required"`
+	Downloads *model.FilterOutput `json:"downloads" validate:"required"`
 }
 
-// getFilterOutputResponse is the response body for GET /filter-output
-type getFilterOutputResponse struct {
+// createFilterOutputResponse is the response body for POST /filter-outputs
+type createFilterOutputResponse struct {
 	FilterOutput *model.FilterOutput
 }

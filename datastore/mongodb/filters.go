@@ -11,11 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// Filters returns the Filters collection
-func (c *Client) Filters() *mongodb.Collection {
-	return c.conn.Collection(c.collections.filters.name)
-}
-
 // CreateFilter creates a new Filter in the CantabularFilters collection
 func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	var err error
@@ -45,37 +40,6 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	}
 
 	return nil
-}
-
-// UpdateFilter updates a filter in Filters collection
-func (c *Client) UpdateFilter(ctx context.Context, filter *model.Filter) error {
-	col := c.collections.filters
-
-	lockID, err := col.lock(ctx, filter.ID.String())
-	if err != nil {
-		return err
-	}
-	defer col.unlock(ctx, lockID)
-
-	if _, err := c.Filters().UpdateById(ctx, filter.ID, bson.M{"$set": filter}); err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetFilter returns a special filter by id
-func (c *Client) GetFilter(ctx context.Context, id string) (*model.Filter, error) {
-	uuid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-
-	var filter model.Filter
-	if err := c.Filters().FindOne(ctx, bson.M{"filter_id": uuid}, &filter); err != nil {
-		return nil, err
-	}
-
-	return &filter, nil
 }
 
 // GetFilterDimensions gets the dimensions for a Filter in the CantabularFilters collection

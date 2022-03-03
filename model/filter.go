@@ -35,10 +35,11 @@ type Link struct {
 }
 
 type FilterOutput struct {
-	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty" validate:"required"`
+	ID   uuid.UUID `bson:"id" json:"id"`
+	CSV  *FileInfo `bson:"csv,omitempty" json:"csv,omitempty" validate:"required"`
 	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty" validate:"required"`
-	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty" validate:"required"`
-	XLS  *FileInfo `bson:"xls,omitempty"  json:"xls,omitempty" validate:"required"`
+	TXT  *FileInfo `bson:"txt,omitempty" json:"txt,omitempty" validate:"required"`
+	XLS  *FileInfo `bson:"xls,omitempty" json:"xls,omitempty" validate:"required"`
 }
 
 type FileInfo struct {
