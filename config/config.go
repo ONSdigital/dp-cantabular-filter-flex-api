@@ -12,23 +12,24 @@ const KafkaTLSProtocolFlag = "TLS"
 
 // Config represents service configuration for dp-cantabular-filter-flex-api
 type Config struct {
-	BindAddr                   string        `envconfig:"BIND_ADDR"`
-	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
-	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
-	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
-	DefaultRequestTimeout      time.Duration `envconfig:"DEFAULT_REQUEST_TIMEOUT"`
-	ComponentTestUseLogFile    bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
-	CantabularURL              string        `envconfig:"CANTABULAR_URL"`
-	CantabularExtURL           string        `envconfig:"CANTABULAR_API_EXT_URL"`
-	DatasetAPIURL              string        `envconfig:"DATASET_API_URL"`
-	FiltersCollection          string        `envconfig:"FILTERS_COLLECTION"`
-	FilterOutputsCollection    string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
-	EnablePrivateEndpoints     bool          `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
-	EnablePermissionsAuth      bool          `envconfig:"ENABLE_PERMISSIONS_AUTH"`
-	ServiceAuthToken           string        `envconfig:"SERVICE_AUTH_TOKEN"`
-	ZebedeeURL                 string        `envconfig:"ZEBEDEE_URL"`
-	Kafka                      KafkaConfig
-	Mongo                      mongo.MongoDriverConfig
+	BindAddr                     string        `envconfig:"BIND_ADDR"`
+	GracefulShutdownTimeout      time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
+	HealthCheckInterval          time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
+	HealthCheckCriticalTimeout   time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
+	DefaultRequestTimeout        time.Duration `envconfig:"DEFAULT_REQUEST_TIMEOUT"`
+	ComponentTestUseLogFile      bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
+	CantabularURL                string        `envconfig:"CANTABULAR_URL"`
+	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
+	DatasetAPIURL                string        `envconfig:"DATASET_API_URL"`
+	FiltersCollection            string        `envconfig:"FILTERS_COLLECTION"`
+	FilterOutputsCollection      string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
+	EnablePrivateEndpoints       bool          `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
+	EnablePermissionsAuth        bool          `envconfig:"ENABLE_PERMISSIONS_AUTH"`
+	CantabularHealthcheckEnabled bool          `envconfig:"CANTABULAR_HEALTHCHECK_ENABLED"`
+	ServiceAuthToken             string        `envconfig:"SERVICE_AUTH_TOKEN"`
+	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
+	Kafka                        KafkaConfig
+	Mongo                        mongo.MongoDriverConfig
 }
 
 // KafkaConfig contains the config required to connect to Kafka
@@ -60,21 +61,22 @@ func Get() (*Config, error) {
 	}
 
 	cfg = &Config{
-		BindAddr:                   ":27100",
-		GracefulShutdownTimeout:    5 * time.Second,
-		HealthCheckInterval:        30 * time.Second,
-		HealthCheckCriticalTimeout: 90 * time.Second,
-		DefaultRequestTimeout:      10 * time.Second,
-		ComponentTestUseLogFile:    false,
-		DatasetAPIURL:              "http://localhost:22000",
-		CantabularURL:              "http://localhost:8491",
-		CantabularExtURL:           "http://localhost:8492",
-		FiltersCollection:          "filters",
-		FilterOutputsCollection:    "filterOutputs",
-		EnablePrivateEndpoints:     false,
-		EnablePermissionsAuth:      true,
-		ServiceAuthToken:           "",
-		ZebedeeURL:                 "http://localhost:8082",
+		BindAddr:                     ":27100",
+		GracefulShutdownTimeout:      5 * time.Second,
+		HealthCheckInterval:          30 * time.Second,
+		HealthCheckCriticalTimeout:   90 * time.Second,
+		DefaultRequestTimeout:        10 * time.Second,
+		ComponentTestUseLogFile:      false,
+		DatasetAPIURL:                "http://localhost:22000",
+		CantabularURL:                "http://localhost:8491",
+		CantabularExtURL:             "http://localhost:8492",
+		FiltersCollection:            "filters",
+		FilterOutputsCollection:      "filterOutputs",
+		EnablePrivateEndpoints:       false,
+		EnablePermissionsAuth:        true,
+		CantabularHealthcheckEnabled: false,
+		ServiceAuthToken:             "",
+		ZebedeeURL:                   "http://localhost:8082",
 		Kafka: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,

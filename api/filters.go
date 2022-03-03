@@ -120,7 +120,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			},
 		},
 		Dimensions:        req.Dimensions,
-		UniqueTimestamp:   api.generate.Timestamp(),
+		UniqueTimestamp:   api.generate.UniqueTimestamp(),
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
 		InstanceID:        v.ID,
@@ -149,6 +149,68 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+
+	logData := log.Data{
+		"filter_id": fID,
+	}
+
+	f, err := api.store.GetFilter(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter"),
+				message: "failed to get filter",
+				logData: log.Data{
+					"id": fID,
+				},
+			},
+		)
+		return
+	}
+
+	if eTag := api.getETag(r); eTag != eTagAny {
+		if eTag != f.ETag{
+			api.respond.Error(
+				ctx,
+				w,
+				http.StatusConflict,
+				Error{
+					err:     errors.New("conflict: invalid ETag provided or filter has been updated"),
+					logData: log.Data{
+						"expected_etag": eTag,
+						"actual_etag": f.ETag,
+					},
+				},
+			)
+		}
+		return
+	}
+
+	if !f.Published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	resp := getFilterResponse{*f}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {

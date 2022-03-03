@@ -44,6 +44,11 @@ type createFilterResponse struct {
 	model.Filter
 }
 
+// getFilterDimensionsResponse is the response body for GET /filters/{id}
+type getFilterResponse struct {
+	model.Filter
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
 	Dimensions []model.Dimension `json:"dimensions"`

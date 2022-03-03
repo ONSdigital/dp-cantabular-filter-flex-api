@@ -11,6 +11,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/go-chi/chi/v5"
@@ -163,6 +164,31 @@ func (svc *Service) Close(ctx context.Context) error {
 
 // registerCheckers adds the checkers for the service clients to the health check object.
 func (svc *Service) registerCheckers() error {
+	// TODO - when Cantabular server is deployed to Production, remove this placeholder and the flag,
+	// and always use the real Checker instead: svc.cantabularClient.Checker
+	cantabularChecker := svc.cantabularClient.Checker
+	cantabularAPIExtChecker := svc.cantabularClient.CheckerAPIExt
+	if !svc.Cfg.CantabularHealthcheckEnabled {
+		cantabularChecker = func(ctx context.Context, state *healthcheck.CheckState) error {
+			return state.Update(healthcheck.StatusOK, "Cantabular healthcheck placeholder", http.StatusOK)
+		}
+		cantabularAPIExtChecker = func(ctx context.Context, state *healthcheck.CheckState) error {
+			return state.Update(healthcheck.StatusOK, "Cantabular APIExt healthcheck placeholder", http.StatusOK)
+		}
+	}
+
+	if _, err := svc.HealthCheck.AddAndGetCheck("Cantabular server", cantabularChecker); err != nil {
+		return fmt.Errorf("error adding check for Cantabular server: %w", err)
+	}
+
+	if _, err := svc.HealthCheck.AddAndGetCheck("Cantabular API Extension", cantabularAPIExtChecker); err != nil {
+		return fmt.Errorf("error adding check for Cantabular api extension: %w", err)
+	}
+
+	if _, err := svc.HealthCheck.AddAndGetCheck("Dataset API client", svc.datasetAPIClient.Checker); err != nil {
+		return fmt.Errorf("error addig check for dataset API client: %w", err)
+	}
+
 	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
 		return fmt.Errorf("error adding check for Kafka producer: %w", err)
 	}

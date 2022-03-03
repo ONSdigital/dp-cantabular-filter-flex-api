@@ -9,7 +9,7 @@
 		{
 			"dimension_url": "http://localhost:22400/code-lists/msoa",
 			"is_area_type": true,
-			"name": "MSOA"
+			"name": "middle-layer-super-output-area"
 		},
 		{
 			"dimension_url": "http://localhost:22400/code-lists/AGGDTWPEW11_R006A",

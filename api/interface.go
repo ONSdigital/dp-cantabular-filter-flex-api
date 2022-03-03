@@ -10,7 +10,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // responder handles responding to http requests
@@ -22,6 +22,7 @@ type responder interface {
 
 type datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
+	GetFilter(context.Context, string) (*model.Filter, error)
 	GetFilterDimensions(context.Context, string) ([]model.Dimension, error)
 }
 
@@ -30,9 +31,8 @@ type validator interface {
 }
 
 type generator interface {
-	PSK() ([]byte, error)
-	UUID() (uuid.UUID, error)
 	Timestamp() time.Time
+	UniqueTimestamp() primitive.Timestamp
 	URL(host, path string, args ...interface{}) string
 }
 
