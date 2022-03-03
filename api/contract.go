@@ -49,13 +49,6 @@ type getFilterDimensionsResponse struct {
 	Dimensions []model.Dimension `json:"dimensions"`
 }
 
-type Downloads struct {
-	CSV  *model.FileInfo `json:"csv" validate:"required"`
-	CSVW *model.FileInfo `json:"csvw" validate:"required"`
-	TXT  *model.FileInfo `json:"txt" validate:"required"`
-	XLS  *model.FileInfo `json:"xls" validate:"required"`
-}
-
 // createFilterOutputRequest is the request body for POST /filter-outputs
 type createFilterOutputRequest struct {
 	State     string              `json:"state" validate:"required"`
