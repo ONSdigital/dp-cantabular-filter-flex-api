@@ -49,6 +49,34 @@ type getFilterResponse struct {
 	model.Filter
 }
 
+// createFilterResponse is the response body for POST /filters
+type createFilterOutputResponse struct {
+	Downloads model.FilterOutput `bson:"downloads" json:"downloads"`
+}
+
+// createFilterRequest is the request body for POST /filters
+type createFilterOutputsRequest struct {
+	State     string             `bson:"state" json:"state"`
+	Downloads model.FilterOutput `bson:"downloads"      json:"downloads"`
+}
+
+func (r *createFilterOutputsRequest) Valid() error {
+	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
 	Dimensions []model.Dimension `json:"dimensions"`
