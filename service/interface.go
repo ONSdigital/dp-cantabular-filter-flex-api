@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"time"
-
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -22,12 +20,6 @@ import (
 //go:generate moq -out mock/responder.go -pkg mock . Responder
 //go:generate moq -out mock/generator.go -pkg mock . Generator
 //go:generate moq -out mock/health_check.go -pkg mock . HealthChecker
-
-// Initialiser defines the methods to initialise external services
-type Initialiser interface {
-	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
-	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
-}
 
 // HTTPServer defines the required methods from the HTTP server
 type HTTPServer interface {
