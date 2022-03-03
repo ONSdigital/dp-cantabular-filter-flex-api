@@ -52,6 +52,9 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+
+	api.Router.Post("/filter-outputs", api.createFilterOutput)
+
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -68,5 +71,6 @@ func (api *API) enablePrivateEndpoints() {
 	r.Get("/filters/{id}", api.getFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 
+	r.Post("/filter-outputs", api.createFilterOutput)
 	api.Router.Mount("/", r)
 }

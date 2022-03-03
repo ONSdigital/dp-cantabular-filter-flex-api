@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -49,6 +50,7 @@ type Responder interface {
 type Datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	GetFilter(context.Context, string) (*model.Filter, error)
+	CreateFilterOutput(context.Context, *model.FilterOutputResponse) error
 	GetFilterDimensions(context.Context, string) ([]model.Dimension, error)
 	Checker(context.Context, *healthcheck.CheckState) error
 	Conn() *mongo.MongoConnection
