@@ -33,7 +33,7 @@ type Link struct {
 }
 
 type FilterOutputResponse struct {
-	ID       uuid.UUID    `bson:"filter_output_id" json:"filter_output_id"`
+	ID       string       `bson:"filter_output_id" json:"filter_output_id"`
 	Download FilterOutput `bson:"downloads" json:"downloads"`
 }
 

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/google/uuid"
 )
 
 // createFilterRequest is the request body for POST /filters
@@ -95,7 +94,7 @@ func (r *createFilterOutputsRequest) Valid() error {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterOutputsResponse struct {
-	ID        uuid.UUID          `bson:"filter_output_id" json:"filter_output_id"`
+	ID        string             `bson:"filter_output_id" json:"filter_output_id"`
 	Downloads model.FilterOutput `bson:"downloads" json:"downloads"`
 }
 
