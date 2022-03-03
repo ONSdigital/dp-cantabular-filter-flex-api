@@ -13,7 +13,6 @@ import (
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -124,25 +123,12 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		UniqueTimestamp:   api.generate.Timestamp(),
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
+		InstanceID:        v.ID,
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
 		Published:         v.State == published,
 		Events:            nil, // TODO: Not sure what to
 		DisclosureControl: nil, // populate for these fields yet
-	}
-
-	if f.InstanceID, err = uuid.Parse(v.ID); err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusInternalServerError,
-			Error{
-				err:     errors.Wrap(err, "failed to parse version instance id"),
-				message: "Internal Server Error",
-				logData: log.Data{"version": v},
-			},
-		)
-		return
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil {

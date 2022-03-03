@@ -6,7 +6,6 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-mongodb/v3/mongodb"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -15,9 +14,12 @@ import (
 func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	var err error
 
-	if f.ID, err = c.generate.UUID(); err != nil {
+	id, err := c.generate.UUID()
+	if err != nil {
 		return errors.Wrap(err, "failed to generate UUID: %w")
 	}
+
+	f.ID = id.String()
 
 	if f.ETag, err = f.Hash(nil); err != nil {
 		return errors.Wrap(err, "failed to generate eTag: %w")
@@ -29,7 +31,7 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 
 	col := c.collections.filters
 
-	lockID, err := col.lock(ctx, f.ID.String())
+	lockID, err := col.lock(ctx, f.ID)
 	if err != nil {
 		return err
 	}
@@ -50,12 +52,7 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string) ([]model.D
 
 	var f model.Filter
 
-	v, err := uuid.Parse(fID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse filter uuid")
-	}
-
-	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": v}, &f); err != nil {
+	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": fID}, &f); err != nil {
 		err := &er{
 			err: errors.Wrap(err, "failed to get filter dimensions"),
 		}
