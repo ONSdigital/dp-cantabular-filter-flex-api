@@ -471,6 +471,29 @@ definitions:
         type: boolean
         description: Indicates if the dimension is an area type
   DimensionOptions:
+    description: "A dimension to filter on a dataset. Information on a dimension can be
+      gathered using the `Dataset API`"
+    type: object
+    properties:
+      count:
+        description: "The number of dimension options returned"
+        readOnly: true
+        type: integer
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/DimensionOptionsResponse'
+      limit:
+        description: "The number of dimension options requested"
+        type: integer
+      offset:
+        description: "The first row of dimension options to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
+        type: integer
+      total_count:
+        description: "The total number of dimension options"
+        readOnly: true
+        type: integer
+  DimensionOptionsResponse:
     type: object
     description: >-
       A dimension to filter on a dataset. Information on a dimension can be
