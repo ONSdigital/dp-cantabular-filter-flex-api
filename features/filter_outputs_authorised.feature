@@ -114,7 +114,7 @@ Scenario: Creating a new filter outputs bad request body
 
     And the HTTP status code should be "400"
     
-Scenario: Creating a new filter empty request body
+Scenario: Creating a new filter output with one empty field in request body
     Given I am identified as "user@ons.gov.uk"
     
     And I am authorised
@@ -170,3 +170,62 @@ Scenario: Creating a new filter empty request body
     """
 
     And the HTTP status code should be "400"
+
+Scenario: Creating a new filter output with broken mongo db
+    Given I am identified as "user@ons.gov.uk"
+    
+    And I am authorised
+
+    And Mongo datastore fails for update filter output
+    When I POST "/filter-outputs"
+    """
+    {
+        "state": "string",
+        "downloads": 
+        {
+            "xls": 
+            {
+              "href" : "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
+              "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
+              "size" : "6944",
+              "public" : "https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
+              "skipped": true
+            },
+            "csv":
+            {
+              "href" : "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.csv",
+              "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.csv",
+              "public" : "https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.csv",
+              "size" : "277",
+              "skipped": true
+            },
+            "csvw":
+            {
+              "href" : "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.csv-metadata.json",
+              "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.csvw",
+              "public" : "https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.csvw",
+              "size" : "607",
+              "skipped": true
+            },
+            "txt":
+            {
+              "href" : "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.txt",
+              "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.txt",
+              "public" : "607",
+              "size" : "530",
+              "skipped": true
+            }
+        }
+    }   
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "failed to create filter outputs: failed to upsert filter"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "500"

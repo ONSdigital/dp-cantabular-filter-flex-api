@@ -112,13 +112,16 @@ func TestCreateFilterOutputsRequestValid(t *testing.T) {
 			Skipped: true,
 		}
 
-		req := createFilterOutputsRequest{
-			State: "published",
-			Downloads: model.Downloads{
-				CSV:  &blankInfo,
-				CSVW: new(model.FileInfo),
-				TXT:  new(model.FileInfo),
-				XLS:  &partialblankInfo,
+		req := createFilterOutputRequest{
+			model.FilterOutput{
+				ID:    "12344576",
+				State: "published",
+				Downloads: model.Downloads{
+					CSV:  &blankInfo,
+					CSVW: new(model.FileInfo),
+					TXT:  new(model.FileInfo),
+					XLS:  &partialblankInfo,
+				},
 			},
 		}
 

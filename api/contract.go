@@ -49,18 +49,17 @@ type getFilterResponse struct {
 	model.Filter
 }
 
-// createFilterResponse is the response body for POST /filters
+// createFilterOutputResponse is the response body for POST /filters
 type createFilterOutputResponse struct {
 	model.FilterOutput
 }
 
-// createFilterRequest is the request body for POST /filters
-type createFilterOutputsRequest struct {
-	State     string          `bson:"state" json:"state"`
-	Downloads model.Downloads `bson:"downloads"      json:"downloads"`
+// createFilterOutputRequest is the request body for POST /filters
+type createFilterOutputRequest struct {
+	model.FilterOutput
 }
 
-func (r *createFilterOutputsRequest) Valid() error {
+func (r *createFilterOutputRequest) Valid() error {
 	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
 		return err
 	}

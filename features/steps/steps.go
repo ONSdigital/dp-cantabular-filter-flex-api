@@ -8,9 +8,9 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -38,6 +38,21 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I have these filters:$`,
 		c.iHaveTheseFilters,
 	)
+
+	ctx.Step(
+		`^Mongo datastore fails for update filter output`,
+		c.MongoDatastoreFailsForUpdateFilterOutput,
+	)
+}
+
+func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+	var err error
+	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	if err != nil {
+		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+
+	return nil
 }
 
 // theServiceStarts starts the service under test in a new go-routine

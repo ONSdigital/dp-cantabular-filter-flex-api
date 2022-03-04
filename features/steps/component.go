@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,7 +15,9 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
+	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
@@ -46,6 +49,7 @@ type Component struct {
 	ctx        context.Context
 	HTTPServer *http.Server
 	store      service.Datastore
+	g          service.Generator
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -63,12 +67,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		URLHost: "http://mockhost:9999",
 	}
 
-	mongoClient, err := mongodb.NewClient(ctx, g, mongodb.Config{
-		MongoDriverConfig:       cfg.Mongo,
-		FilterFlexAPIURL:        cfg.BindAddr,
-		FiltersCollection:       cfg.FiltersCollection,
-		FilterOutputsCollection: cfg.FilterOutputsCollection,
-	})
+	mongoClient, err := GetWorkingMongo(ctx, cfg, g)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
 	}
@@ -81,6 +80,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		cfg:        cfg,
 		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
 		store:      mongoClient,
+		g:          g,
 	}, nil
 }
 
@@ -177,4 +177,26 @@ func (c *Component) Reset() error {
 	}
 
 	return nil
+}
+
+func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
+	mongoClient, err := mongodb.NewClient(ctx, g, mongodb.Config{
+		MongoDriverConfig:       cfg.Mongo,
+		FilterFlexAPIURL:        cfg.BindAddr,
+		FiltersCollection:       cfg.FiltersCollection,
+		FilterOutputsCollection: cfg.FilterOutputsCollection,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+	return mongoClient, nil
+}
+
+func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
+	mongoClient := servicemock.DatastoreMock{
+		CreateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
+			return errors.New("failed to upsert filter")
+		},
+	}
+	return &mongoClient, nil
 }
