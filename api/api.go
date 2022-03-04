@@ -53,7 +53,7 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
-	api.Router.Post("/filter-outputs", api.createFilterOutput)
+	api.Router.Post("/filter-outputs", api.CreateFilterOutput)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -68,7 +68,7 @@ func (api *API) enablePrivateEndpoints() {
 
 	r.Post("/filters", api.createFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
-	r.Post("/filter-outputs", api.createFilterOutput)
+	r.Post("/filter-outputs", api.CreateFilterOutput)
 
 	api.Router.Mount("/", r)
 }

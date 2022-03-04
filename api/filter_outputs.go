@@ -6,10 +6,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
+func (api *API) CreateFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var request createFilterOutputRequest
+	var request CreateFilterOutputRequest
 	if err := api.ParseRequest(r.Body, &request); err != nil {
 		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "parse request"))
 		return
@@ -24,5 +24,5 @@ func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	api.respond.JSON(ctx, w, http.StatusOK, &createFilterOutputResponse{FilterOutput: request.Downloads})
+	api.respond.JSON(ctx, w, http.StatusOK, &CreateFilterOutputResponse{FilterOutput: request.Downloads})
 }
