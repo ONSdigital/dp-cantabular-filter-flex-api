@@ -51,13 +51,13 @@ type getFilterResponse struct {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterOutputResponse struct {
-	Downloads model.FilterOutput `bson:"downloads" json:"downloads"`
+	model.FilterOutput
 }
 
 // createFilterRequest is the request body for POST /filters
 type createFilterOutputsRequest struct {
-	State     string             `bson:"state" json:"state"`
-	Downloads model.FilterOutput `bson:"downloads"      json:"downloads"`
+	State     string          `bson:"state" json:"state"`
+	Downloads model.Downloads `bson:"downloads"      json:"downloads"`
 }
 
 func (r *createFilterOutputsRequest) Valid() error {

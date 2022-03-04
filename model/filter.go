@@ -37,7 +37,12 @@ type Link struct {
 }
 
 type FilterOutput struct {
-	ID   string    `bson:"id,omitempty"   json:"id,omitempty"`
+	ID        string    `bson:"id,omitempty"   json:"id,omitempty"`
+	State     string    `bson:"state,omitempty"   json:"state,omitempty"`
+	Downloads Downloads `bson:"downloads,omitempty"   json:"downloads,omitempty"`
+}
+
+type Downloads struct {
 	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
 	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
 	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`

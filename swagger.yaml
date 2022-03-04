@@ -360,9 +360,12 @@ definitions:
   FilterOutputResponse:
     description: A model for the response body when posting a filter output
     properties:
-      filter_output_id:
+      id:
         type: string
         description: The unique filter output ID for a customised dataset
+      state:
+        type: string
+        description: The state of API
       downloads:
         $ref: '#/definitions/Downloads'
   FilterResponse:

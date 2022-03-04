@@ -37,10 +37,8 @@ func (api *API) createFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := model.FilterOutput{
-		CSV:  req.Downloads.CSV,
-		CSVW: req.Downloads.CSVW,
-		TXT:  req.Downloads.TXT,
-		XLS:  req.Downloads.XLS,
+		State:     req.State,
+		Downloads: req.Downloads,
 	}
 
 	if err := api.store.CreateFilterOutput(ctx, &f); err != nil {
