@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
-	validatorv10 "github.com/go-playground/validator/v10"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	"github.com/ONSdigital/dp-authorisation/auth"
@@ -24,7 +23,6 @@ type API struct {
 	datasets       datasetAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
-	validate       *validatorv10.Validate
 }
 
 // New creates and initialises a new API
@@ -38,7 +36,6 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		identityClient: idc,
 		datasets:       ds,
 		ctblr:          c,
-		validate:       validatorv10.New(),
 	}
 
 	if cfg.EnablePrivateEndpoints {

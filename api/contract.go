@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	validatorv10 "github.com/go-playground/validator/v10"
 )
 
 // createFilterRequest is the request body for POST /filters
@@ -53,6 +54,11 @@ type getFilterDimensionsResponse struct {
 type CreateFilterOutputRequest struct {
 	State     string              `json:"state" validate:"required"`
 	Downloads *model.FilterOutput `json:"downloads" validate:"required"`
+}
+
+// Valid checks the request fields
+func (request *CreateFilterOutputRequest) Valid() error {
+	return validatorv10.New().Struct(request)
 }
 
 // CreateFilterOutputResponse is the response body for POST /filter-outputs

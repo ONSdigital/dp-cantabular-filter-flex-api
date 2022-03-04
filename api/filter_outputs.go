@@ -14,10 +14,6 @@ func (api *API) CreateFilterOutput(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "parse request"))
 		return
 	}
-	if err := api.validate.Struct(&request); err != nil {
-		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "validate request fields"))
-		return
-	}
 
 	if err := api.store.CreateFilterOutput(ctx, request.Downloads); err != nil {
 		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "failed to upsert filter output"))
