@@ -123,43 +123,47 @@ parameters:
     description: Model of the fields required to start the results generation process.
     in: body
 paths:
-  /filter-outputs/{id}:
+  /filter-outputs/{filter_output_id}:
+    parameters:
+      - $ref: '#/parameters/filter_output_id'
     get:
       tags:
-        - Public
-        - Private
-      summary: Retrieves the filter-outputs created for a specific filter
+      - "Public"
+      - "Private"
+      summary: "Get a filter output"
+      description: "Get document describing the filter output"
       produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/filter_id'
+      - "application/json"
       responses:
-        '200':
-          description: The filter is found and the filter-outputs are returned
+        200:
+          description: "The filter output was found and document is returned"
           schema:
-            $ref: '#/definitions/Downloads'
-        '400':
-          description: Invalid request body
-        '500':
+            $ref: '#/definitions/FilterOutputResponse'
+        404:
+           $ref: '#/responses/FilterOutputNotFound'
+        500:
           $ref: '#/responses/InternalError'
   /filter-outputs:
-    post:
+    put:
       tags:
-        - Public
-        - Private
-      summary: Updates the filter-outputs created for a specific filter
-      produces:
-        - application/json
+      - "Private"
+      summary: "Update a filter output"
+      description: |
+        Update the filter output state and to contain downloads
       parameters:
-        - $ref: '#/parameters/update_filter_output'
+      - $ref: '#/parameters/update_filter_output'
       responses:
-        '201':
-          description: The update is successful
-          schema:
-            $ref: '#/definitions/Downloads'
-        '400':
-          description: Invalid request body
-        '500':
+        200:
+          description: "The filter output has been updated"
+        400:
+          description: "Invalid request body"
+        401:
+          description: "Unauthorised, request lacks valid authentication credentials"
+        403:
+          description: "Forbidden, the filter output state has been set to `completed`, resource has a list of downloadable files"
+        404:
+          $ref: '#/responses/FilterOutputNotFound'
+        500:
           $ref: '#/responses/InternalError'
   /filters:
     post:
@@ -178,7 +182,7 @@ paths:
         '201':
           description: filter was created
           schema:
-            $ref: '#/definitions/FilterResponse'
+            $ref: '#/definitions/NewFilterResponse'
           headers:
             ETag:
               type: string
@@ -202,7 +206,7 @@ paths:
         '200':
           description: The filter was found and document is returned
           schema:
-            $ref: '#/definitions/FilterResponse'
+            $ref: '#/definitions/NewFilterResponse'
           headers:
             ETag:
               type: string
@@ -398,6 +402,14 @@ definitions:
           cantabular_blob:
             type: string
             description: The Cantabular blob the information is selected from.
+  NewFilterResponse:
+    description: "A model for the response body when creating a new filter"
+    allOf:
+    - $ref: '#/definitions/JobState'
+    - type: object
+      properties:
+        dataset:
+          $ref: '#/definitions/Dataset'
   UpdateOutputRequest:
     description: >-
       A model used to update filter outputs. Only the downloads list and state
@@ -632,3 +644,34 @@ definitions:
         description: The blob that the data should be queried from
         example: Teaching-Dataset
         format: string
+  FilterOutputResponse:
+    description: "A model for the response body when retrieving a filter output"
+    allOf:
+      - type: object
+        properties:
+          downloads:
+            $ref: '#/definitions/Downloads'
+          state:
+            description: "This describes the status of the filter."
+            enum:
+              - "completed"
+              - "created"
+            type: string
+      - type: object
+        properties:
+          links:
+            allOf:
+              - $ref: '#/definitions/FilterLinks'
+              - type: object
+                properties:
+                  filter_blueprint:
+                    properties:
+                      href:
+                        description: "A URL to the filter blueprint"
+                        example: "http://localhost:8080/filters/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
+                        type: string
+                      id:
+                        description: "An ID of the filter blueprint"
+                        example: "DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
+                        type: string
+      - $ref: '#/definitions/JobState'
