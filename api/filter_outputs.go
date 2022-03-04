@@ -20,7 +20,7 @@ func (api *API) CreateFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := api.store.CreateFilterOutput(ctx, request.Downloads); err != nil {
-		api.respond.Error(ctx, w, http.StatusBadRequest, errors.Wrap(err, "upsert filter output"))
+		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.Wrap(err, "failed to upsert filter output"))
 		return
 	}
 

@@ -33,7 +33,7 @@ func (c *Client) CreateFilterOutput(ctx context.Context, filterOutput *model.Fil
 	defer col.unlock(ctx, lockID)
 
 	if _, err := c.FilterOutputs().UpsertById(ctx, filterOutput.ID, bson.M{"$set": filterOutput}); err != nil {
-		errors.Wrap(err, "failed to upsert filter output")
+		return errors.Wrap(err, "failed to upsert filter output")
 	}
 	return nil
 }
