@@ -217,34 +217,31 @@ paths:
           $ref: '#/responses/InternalError'
     put:
       tags:
-        - Public
-        - Private
-      summary: Update a filter
-      description: >-
-        Update the filter by providing new properties, submit a filter for
-        processing by setting query parameter `submitted` to `true`
+      - "Public"
+      summary: "Update a filter"
+      description: "Update the filter by providing new properties, submit a filter for processing by setting query parameter `submitted` to `true`"
       parameters:
-        - $ref: '#/parameters/submitted'
-        - $ref: '#/parameters/update_filter'
-        - $ref: '#/parameters/if_match'
+      - $ref: '#/parameters/submitted'
+      - $ref: '#/parameters/update_filter'
+      - $ref: '#/parameters/if_match'
       responses:
-        '200':
-          description: The filter job has been updated
+        200:
+          description: "The filter job has been updated"
           schema:
-            $ref: '#/definitions/FilterResponse'
+            $ref: '#/definitions/UpdateFilterResponse'
           headers:
             ETag:
               type: string
-              description: Defines a unique filter resource version
-        '400':
-          description: Invalid request body or If-Match header not provided
-        '404':
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Invalid request body or If-Match header not provided"
+        404:
           $ref: '#/responses/FilterNotFound'
-        '409':
+        409:
           description: '#/responses/FilterConflict'
-        '422':
-          description: Unprocessable entity - instance has been removed
-        '500':
+        422:
+          description: "Unprocessable entity - instance has been removed"
+        500:
           $ref: '#/responses/InternalError'
   /filters/{id}/dimensions:
     get:
@@ -675,3 +672,26 @@ definitions:
                         example: "DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
                         type: string
       - $ref: '#/definitions/JobState'
+  UpdateFilterResponse:
+    description: "A model for the response body when updating a filter"
+    allOf:
+    - $ref: '#/definitions/JobState'
+    - type: object
+      properties:
+        dataset:
+          $ref: '#/definitions/Dataset'
+        links:
+          type: object
+          properties:
+            filter_output:
+              description: "A link object containing the url to the filter output document, this is only returned once the submitted query parameter is set to true."
+              type: object
+              properties:
+                href:
+                  description: "A URL to the filter output document"
+                  example: "http://localhost:8080/filter-outputs/95c4669b-3ae9-4ba7-b690-87e890a1c543"
+                  type: string
+                id:
+                  description: "An ID of the created filter output document"
+                  example: "95c4669b-3ae9-4ba7-b690-87e890a1c543"
+                  type: string
