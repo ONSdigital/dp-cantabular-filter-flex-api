@@ -51,7 +51,7 @@ type Datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	GetFilter(context.Context, string) (*model.Filter, error)
 	CreateFilterOutput(context.Context, *model.FilterOutput) error
-	GetFilterDimensions(context.Context, string) ([]model.Dimension, error)
+	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
 	Checker(context.Context, *healthcheck.CheckState) error
 	Conn() *mongo.MongoConnection
 }

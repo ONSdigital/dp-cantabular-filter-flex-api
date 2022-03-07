@@ -17,6 +17,7 @@ type Config struct {
 	HealthCheckInterval          time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout   time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	DefaultRequestTimeout        time.Duration `envconfig:"DEFAULT_REQUEST_TIMEOUT"`
+	DefaultMaximumLimit          int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
 	ComponentTestUseLogFile      bool          `envconfig:"COMPONENT_TEST_USE_LOG_FILE"`
 	CantabularURL                string        `envconfig:"CANTABULAR_URL"`
 	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
@@ -66,6 +67,7 @@ func Get() (*Config, error) {
 		HealthCheckInterval:          30 * time.Second,
 		HealthCheckCriticalTimeout:   90 * time.Second,
 		DefaultRequestTimeout:        10 * time.Second,
+		DefaultMaximumLimit:          500,
 		ComponentTestUseLogFile:      false,
 		DatasetAPIURL:                "http://localhost:22000",
 		CantabularURL:                "http://localhost:8491",

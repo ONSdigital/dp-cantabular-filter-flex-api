@@ -78,5 +78,14 @@ func (r *createFilterOutputRequest) Valid() error {
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
-	Dimensions []model.Dimension `json:"dimensions"`
+	Items []model.Dimension `json:"items"`
+	paginationResponse
+}
+
+// paginationResponse represents pagination data as returned to the client.
+type paginationResponse struct {
+	Limit      int `json:"limit"`
+	Offset     int `json:"offset"`
+	Count      int `json:"count"`
+	TotalCount int `json:"total_count"`
 }
