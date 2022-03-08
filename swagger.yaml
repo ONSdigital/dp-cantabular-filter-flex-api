@@ -274,7 +274,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/DimensionOptions'
+              $ref: '#/definitions/Dimension'
           headers:
             ETag:
               type: string
@@ -437,9 +437,9 @@ definitions:
             description: A list of dimensions in the filter job
             items:
               $ref: '#/definitions/DimensionOptions'
-          cantabular_blob:
+          population_type:
             type: string
-            description: The Cantabular blob the information is selected from.
+            description: The population type the information is selected from.
   UpdateFilterRequest:
     description: >-
       A model used to update filters. Dimensions are optional, while downloads
@@ -541,6 +541,10 @@ definitions:
         readOnly: true
         type: string
         description: A unique id for this resource
+      dimension_list_url:
+        readOnly: true
+        type: string
+        description: "A url that lists all dimensions currently set for filter"
       links:
         $ref: '#/definitions/FilterLinks'
       events:
@@ -573,19 +577,17 @@ definitions:
         description: the type of dataset
   Dimension:
     type: object
-    description: >-
-      A dimension to filter on a dataset. Information on a dimension can be
-      gathered using the `Dataset API`
+    description: "A dimension to filter on a dataset. Information on a dimension can be gathered using the `Dataset API`"
     properties:
       name:
         type: string
-        description: The name of the dimension to filter on
+        description: "The name of the dimension to filter on"
       dimension_url:
         type: string
-        description: A link to the filtered options within the dimension
+        description: "A link to the filtered options within the dimension"
         items:
           type: string
-          example: /filters/00001/dimensions/age
+          example: "/filters/00001/dimensions/age"
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
@@ -626,12 +628,6 @@ definitions:
         description: A list of options for dimension to filter on a dataset
         items:
           type: string
-      dimension_url:
-        type: string
-        description: A link to the filtered options within the dimension
-        items:
-          type: string
-          example: /filters/00001/dimensions/age
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
@@ -784,9 +780,9 @@ definitions:
         format: string
       dimension_options:
         $ref: '#/definitions/DimensionOptions'
-      cantabular_blob:
+      population_type:
         type: string
-        description: The blob that the data should be queried from
+        description: The population type that the data should be queried from
         example: Teaching-Dataset
         format: string
   FilterOutputResponse:
