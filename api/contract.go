@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 )
@@ -30,9 +31,9 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 2 values")
 	}
 
-	for _, d := range r.Dimensions {
-		if len(d.Name) == 0 || len(d.DimensionURL) == 0 {
-			return errors.New("missing field: [dimension[%d].name | dimension[%d].dimension_url]")
+	for i, d := range r.Dimensions {
+		if len(d.Name) == 0 {
+			return errors.New(fmt.Sprintf("missing field: [dimension[%d].name]", i))
 		}
 	}
 
