@@ -27,6 +27,10 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.privateEndpointsAreNotEnabled,
 	)
 	ctx.Step(
+		`^the maximum pagination limit is set to (\d+)$`,
+		c.theMaximumLimitIsSetTo,
+	)
+	ctx.Step(
 		`^the document in the database for id "([^"]*)" should be:$`,
 		c.theDocumentInTheDatabaseShouldBe,
 	)
@@ -77,6 +81,11 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocString) error {
 	// TODO: implement step for verifying documents stored in Mongo. No prior
 	// art of this being done properly in ONS yet so save to be done in future ticket
+	return nil
+}
+
+func (c *Component) theMaximumLimitIsSetTo(val int) error {
+	c.cfg.DefaultMaximumLimit = val
 	return nil
 }
 

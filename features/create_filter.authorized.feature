@@ -21,7 +21,7 @@ Feature: Filters Private Endpoints Enabled
             "name": "City"
           },
           {
-            "label": "Number of siblings (3 mappings)", 
+            "label": "Number of siblings (3 mappings)",
             "links": {
               "code_list": {},
               "options": {},
@@ -58,9 +58,9 @@ Feature: Filters Private Endpoints Enabled
 
   Scenario: Creating a new filter journey when authorized
     Given I am identified as "user@ons.gov.uk"
-    
+
     And I am authorised
-    
+
     When I POST "/filters"
     """
     {
@@ -193,9 +193,9 @@ Feature: Filters Private Endpoints Enabled
 
   Scenario: Creating a new filter journey when not authorized
     Given I am not identified
-    
+
     And I am not authorised
-    
+
     When I POST "/filters"
     """
     {"foo":"bar"}

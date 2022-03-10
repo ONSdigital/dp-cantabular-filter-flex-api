@@ -21,7 +21,7 @@ Feature: Filters Private Endpoints Not Enabled
             "name": "City"
           },
           {
-            "label": "Number of siblings (3 mappings)", 
+            "label": "Number of siblings (3 mappings)",
             "links": {
               "code_list": {},
               "options": {},
@@ -73,7 +73,7 @@ Feature: Filters Private Endpoints Not Enabled
             "name": "City"
           },
           {
-            "label": "Number of siblings (3 mappings)", 
+            "label": "Number of siblings (3 mappings)",
             "links": {
               "code_list": {},
               "options": {},

@@ -217,7 +217,18 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
-	dimensions, err := api.store.GetFilterDimensions(ctx, fID)
+	logData := log.Data{"id": fID}
+
+	limit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit, logData)
+	if err != nil {
+		api.respond.Error(ctx, w, http.StatusBadRequest, err)
+		return
+	}
+
+	logData["limit"] = limit
+	logData["offset"] = offset
+
+	dimensions, totalCount, err := api.store.GetFilterDimensions(ctx, fID, limit, offset)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -226,15 +237,21 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get filter dimensions"),
 				message: "failed to get filter dimensions",
-				logData: log.Data{
-					"id": fID,
-				},
+				logData: logData,
 			},
 		)
 		return
 	}
 
-	resp := getFilterDimensionsResponse{dimensions}
+	resp := getFilterDimensionsResponse{
+		Items: dimensions,
+		paginationResponse: paginationResponse{
+			Limit:      limit,
+			Offset:     offset,
+			Count:      len(dimensions),
+			TotalCount: totalCount,
+		},
+	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
