@@ -138,6 +138,20 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     And the HTTP status code should be "200"
 
+  Scenario: Get paginated filter dimensions successfully (0 limit)
+    When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=0"
+    Then I should receive the following JSON response:
+    """
+    {
+      "items": [],
+      "count": 0,
+      "offset": 0,
+      "limit": 0,
+      "total_count": 2
+    }
+    """
+    And the HTTP status code should be "200"
+
   Scenario: Get filter dimensions unsuccessfully
     When I GET "/filters/94310d8d-72d6-492a-03cb-27584627edb1/dimensions"
     Then I should receive the following JSON response:

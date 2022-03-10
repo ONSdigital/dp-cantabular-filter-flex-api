@@ -88,14 +88,16 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 		bson.D{{"$project", bson.D{{"found", "$foundFilters"}}}},
 	}
 
-	facet := bson.D{{
-		"$facet",
-		bson.D{
-			{"dimensions", dimensionsFacet},
-			{"pagination", paginationFacet},
-			{"foundFilters", foundFacet},
-		},
-	}}
+	facet := bson.D{
+		{"pagination", paginationFacet},
+		{"foundFilters", foundFacet},
+	}
+
+	// We can't use `$limit` with a value of 0 on aggregates, so if we know
+	// we're not returning results, don't include the dimensions query.
+	if limit > 0 {
+		facet = append(facet, bson.E{Key: "dimensions", Value: dimensionsFacet})
+	}
 
 	// Flatten lists where we know there is only one value, or all values are equal
 	flatten := bson.D{
@@ -111,7 +113,7 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 		// if no row was found this will never be set, and will deserialize into `false`.
 		bson.D{{"$addFields", bson.D{{"foundFilters", true}}}},
 		bson.D{{"$unwind", "$dimensions"}},
-		facet,
+		bson.D{{"$facet", facet}},
 		flatten,
 	}
 
@@ -133,6 +135,11 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 			err:      errors.Errorf("failed to find filter with ID (%s)", fID),
 			notFound: true,
 		}
+	}
+
+	// Ensure we return an empty slice, so it serializes into `[]`.
+	if result.Dimensions == nil {
+		result.Dimensions = []model.Dimension{}
 	}
 
 	return result.Dimensions, result.Pagination.TotalCount, nil
