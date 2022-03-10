@@ -33,7 +33,7 @@ func (r *createFilterRequest) Valid() error {
 
 	for i, d := range r.Dimensions {
 		if len(d.Name) == 0 {
-			return errors.New(fmt.Sprintf("missing field: [dimension[%d].name]", i))
+			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
 	}
 
