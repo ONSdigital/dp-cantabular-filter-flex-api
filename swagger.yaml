@@ -234,34 +234,6 @@ paths:
           $ref: '#/responses/FilterNotFound'
         '500':
           $ref: '#/responses/InternalError'
-    put:
-      tags:
-      - "Public"
-      summary: "Update a filter"
-      description: "Update the filter by providing new properties, submit a filter for processing by setting query parameter `submitted` to `true`"
-      parameters:
-      - $ref: '#/parameters/submitted'
-      - $ref: '#/parameters/update_filter'
-      - $ref: '#/parameters/if_match'
-      responses:
-        200:
-          description: "The filter job has been updated"
-          schema:
-            $ref: '#/definitions/UpdateFilterResponse'
-          headers:
-            ETag:
-              type: string
-              description: "Defines a unique filter resource version"
-        400:
-          description: "Invalid request body or If-Match header not provided"
-        404:
-          $ref: '#/responses/FilterNotFound'
-        409:
-          description: '#/responses/FilterConflict'
-        422:
-          description: "Unprocessable entity - instance has been removed"
-        500:
-          $ref: '#/responses/InternalError'
   /filters/{id}/dimensions:
     get:
       tags:
