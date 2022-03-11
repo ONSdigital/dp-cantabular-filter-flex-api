@@ -6,6 +6,7 @@ package mock
 import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"sync"
 	"time"
 )
@@ -32,6 +33,9 @@ var _ service.Generator = &GeneratorMock{}
 // 			UUIDFunc: func() (uuid.UUID, error) {
 // 				panic("mock out the UUID method")
 // 			},
+// 			UniqueTimestampFunc: func() primitive.Timestamp {
+// 				panic("mock out the UniqueTimestamp method")
+// 			},
 // 		}
 //
 // 		// use mockedGenerator in code that requires service.Generator
@@ -50,6 +54,9 @@ type GeneratorMock struct {
 
 	// UUIDFunc mocks the UUID method.
 	UUIDFunc func() (uuid.UUID, error)
+
+	// UniqueTimestampFunc mocks the UniqueTimestamp method.
+	UniqueTimestampFunc func() primitive.Timestamp
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -71,11 +78,15 @@ type GeneratorMock struct {
 		// UUID holds details about calls to the UUID method.
 		UUID []struct {
 		}
+		// UniqueTimestamp holds details about calls to the UniqueTimestamp method.
+		UniqueTimestamp []struct {
+		}
 	}
-	lockPSK       sync.RWMutex
-	lockTimestamp sync.RWMutex
-	lockURL       sync.RWMutex
-	lockUUID      sync.RWMutex
+	lockPSK             sync.RWMutex
+	lockTimestamp       sync.RWMutex
+	lockURL             sync.RWMutex
+	lockUUID            sync.RWMutex
+	lockUniqueTimestamp sync.RWMutex
 }
 
 // PSK calls PSKFunc.
@@ -192,5 +203,31 @@ func (mock *GeneratorMock) UUIDCalls() []struct {
 	mock.lockUUID.RLock()
 	calls = mock.calls.UUID
 	mock.lockUUID.RUnlock()
+	return calls
+}
+
+// UniqueTimestamp calls UniqueTimestampFunc.
+func (mock *GeneratorMock) UniqueTimestamp() primitive.Timestamp {
+	if mock.UniqueTimestampFunc == nil {
+		panic("GeneratorMock.UniqueTimestampFunc: method is nil but Generator.UniqueTimestamp was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockUniqueTimestamp.Lock()
+	mock.calls.UniqueTimestamp = append(mock.calls.UniqueTimestamp, callInfo)
+	mock.lockUniqueTimestamp.Unlock()
+	return mock.UniqueTimestampFunc()
+}
+
+// UniqueTimestampCalls gets all the calls that were made to UniqueTimestamp.
+// Check the length with:
+//     len(mockedGenerator.UniqueTimestampCalls())
+func (mock *GeneratorMock) UniqueTimestampCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockUniqueTimestamp.RLock()
+	calls = mock.calls.UniqueTimestamp
+	mock.lockUniqueTimestamp.RUnlock()
 	return calls
 }

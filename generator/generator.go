@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Generator is responsible for randomly generating new strings and tokens
@@ -32,6 +33,15 @@ func (g *Generator) PSK() ([]byte, error) {
 func (g *Generator) UUID() (uuid.UUID, error) {
 	id, err := uuid.NewRandom()
 	return id, errors.WithStack(err)
+}
+
+// UniqueTimestamp generates a timestamp of the current time in the
+// special format required by mongoDB
+func (g *Generator) UniqueTimestamp() primitive.Timestamp {
+	return primitive.Timestamp{
+		T: uint32(time.Now().Unix()),
+		I: 1,
+	}
 }
 
 // Timestamp generates a timestamp of the current time

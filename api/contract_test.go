@@ -19,16 +19,14 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			PopulationType: "test-blob",
 			Dimensions: []model.Dimension{
 				{
-					Name:         "test-dimension-1",
-					Options:      []string{"a", "b", "c"},
-					DimensionURL: "http://dim-1.com",
-					IsAreaType:   true,
+					Name:       "test-dimension-1",
+					Options:    []string{"a", "b", "c"},
+					IsAreaType: true,
 				},
 				{
-					Name:         "test-dimension-2",
-					Options:      []string{"1", "2", "3"},
-					DimensionURL: "http://dim-2.com",
-					IsAreaType:   false,
+					Name:       "test-dimension-2",
+					Options:    []string{"1", "2", "3"},
+					IsAreaType: false,
 				},
 			},
 		}
@@ -83,4 +81,62 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			})
 		})
 	})
+}
+
+func TestCreateFilterOutputsRequestValid(t *testing.T) {
+
+	Convey("Given a valid createFilterOutputsRequest request object", t, func() {
+		blankInfo := model.FileInfo{
+			HREF:    " ",
+			Size:    " ",
+			Public:  " ",
+			Private: " ",
+			Skipped: true,
+		}
+
+		partialblankInfo := model.FileInfo{
+			HREF:    " ",
+			Size:    " ",
+			Public:  "test1 test ",
+			Private: " ",
+			Skipped: true,
+		}
+
+		validInfo := model.FileInfo{
+			HREF:    "test ",
+			Size:    "  tets tts t",
+			Public:  "test1 test ",
+			Private: " t e s t",
+			Skipped: true,
+		}
+
+		req := createFilterOutputRequest{
+			model.FilterOutput{
+				ID:    "12344576",
+				State: "published",
+				Downloads: model.Downloads{
+					CSV:  &blankInfo,
+					CSVW: new(model.FileInfo),
+					TXT:  new(model.FileInfo),
+					XLS:  &partialblankInfo,
+				},
+			},
+		}
+
+		Convey("When Valid() is called with invalid input", func() {
+			err := req.Valid()
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("When Valid() is called with valid input", func() {
+			r := req
+			r.Downloads.CSV = &validInfo
+			r.Downloads.CSVW = &validInfo
+			r.Downloads.TXT = &validInfo
+			r.Downloads.XLS = &validInfo
+			err := r.Valid()
+			So(err, ShouldBeNil)
+		})
+	})
+
 }

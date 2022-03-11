@@ -36,10 +36,13 @@ parameters:
     name: limit
     description: >-
       Limit the number of items that will be returned. Defaults to 20 and capped
-      at 1000
+      at 500
     in: query
     required: false
     type: integer
+    default: 20
+    minimum: 0
+    maximum: 500
   offset:
     name: offset
     description: >-
@@ -48,6 +51,8 @@ parameters:
     in: query
     required: false
     type: integer
+    default: 0
+    minimum: 0
   name:
     name: name
     type: string
@@ -260,14 +265,14 @@ paths:
   /filters/{id}/dimensions:
     get:
       tags:
-       - "Public"
+        - "Public"
       summary: "Get all dimensions used in this filter"
       description: |
         Return a list of all dimensions which are going to be used to filter on
       parameters:
-      - $ref: '#/parameters/filter_id'
-      - $ref: '#/parameters/page_limit'
-      - $ref: '#/parameters/offset'
+        - $ref: '#/parameters/filter_id'
+        - $ref: '#/parameters/page_limit'
+        - $ref: '#/parameters/offset'
       responses:
         200:
           description: "A list of dimension URLs"
@@ -764,7 +769,7 @@ definitions:
       blocked_options:
         type: array
         items:
-            type: string
+          type: string
         description: A list of blocked options applicable to the dimension
       blocked_count:
         type: integer

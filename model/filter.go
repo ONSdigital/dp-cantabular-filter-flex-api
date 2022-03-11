@@ -1,25 +1,29 @@
 package model
 
 import (
+	"errors"
+	"strings"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Filter holds details for a user filter journey
 type Filter struct {
-	ID                string             `bson:"filter_id"                    json:"filter_id"`
-	Links             Links              `bson:"links"                        json:"links"`
-	FilterOutput      *FilterOutput      `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
-	Events            []Event            `bson:"events"                       json:"events"`
-	UniqueTimestamp   time.Time          `bson:"unique_timestamp"             json:"unique_timestamp"`
-	LastUpdated       time.Time          `bson:"last_updated"                 json:"last_updated"`
-	ETag              string             `bson:"etag"                         json:"etag"`
-	InstanceID        string             `bson:"instance_id"                  json:"instance_id"`
-	Dimensions        []Dimension        `bson:"dimensions"                   json:"dimensions"`
-	Dataset           Dataset            `bson:"dataset"                      json:"dataset"`
-	Published         bool               `bson:"published"                    json:"published"`
-	DisclosureControl *DisclosureControl `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
-	Type              string             `bson:"type"                         json:"type"`
-	PopulationType    string             `bson:"population_type"              json:"population_type"`
+	ID                string              `bson:"filter_id"                    json:"filter_id"`
+	Links             Links               `bson:"links"                        json:"links"`
+	FilterOutput      *FilterOutput       `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
+	Events            []Event             `bson:"events"                       json:"events"`
+	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
+	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
+	ETag              string              `bson:"etag"                         json:"-"`
+	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
+	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions"`
+	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
+	Published         bool                `bson:"published"                    json:"published"`
+	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
+	Type              string              `bson:"type"                         json:"type"`
+	PopulationType    string              `bson:"population_type"              json:"population_type"`
 }
 
 type Links struct {
@@ -33,10 +37,16 @@ type Link struct {
 }
 
 type FilterOutput struct {
-	CSV  *FileInfo `bson:"csv,omitempty"  json:"csv,omitempty"`
-	CSVW *FileInfo `bson:"csvw,omitempty" json:"csvw,omitempty"`
-	TXT  *FileInfo `bson:"txt,omitempty"  json:"txt,omitempty"`
-	XLS  *FileInfo `bson:"xls,omitempty"  json:"xls,omitempty"`
+	ID        string    `bson:"id,omitempty"   json:"id,omitempty"`
+	State     string    `bson:"state,omitempty"   json:"state,omitempty"`
+	Downloads Downloads `bson:"downloads,omitempty"   json:"downloads,omitempty"`
+}
+
+type Downloads struct {
+	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
+	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
+	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`
+	XLS  *FileInfo `bson:"xls,omitempty"   json:"xls,omitempty"`
 }
 
 type FileInfo struct {
@@ -74,4 +84,26 @@ type DisclosureControl struct {
 type BlockedOptions struct {
 	BlockedOptions []string `bson:"blocked_options" json:"blocked_options"`
 	BlockedCount   int      `bson:"blocked_count"   json:"blocked_count"`
+}
+
+func (fi *FileInfo) IsNotFullyPopulated() error {
+	cutset := " "
+
+	if len(strings.Trim(fi.HREF, cutset)) == 0 {
+		return errors.New(`"HREF" is empty in input`)
+	}
+
+	if len(strings.Trim(fi.Private, cutset)) == 0 {
+		return errors.New(`"Private" is empty in input`)
+	}
+
+	if len(strings.Trim(fi.Public, cutset)) == 0 {
+		return errors.New(`"Public" is empty in input`)
+	}
+
+	if len(strings.Trim(fi.Size, cutset)) == 0 {
+		return errors.New(`"Size" is empty in input`)
+	}
+
+	return nil
 }

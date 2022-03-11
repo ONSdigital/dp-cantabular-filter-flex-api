@@ -7,8 +7,10 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -25,6 +27,10 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.privateEndpointsAreNotEnabled,
 	)
 	ctx.Step(
+		`^the maximum pagination limit is set to (\d+)$`,
+		c.theMaximumLimitIsSetTo,
+	)
+	ctx.Step(
 		`^the document in the database for id "([^"]*)" should be:$`,
 		c.theDocumentInTheDatabaseShouldBe,
 	)
@@ -36,6 +42,21 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I have these filters:$`,
 		c.iHaveTheseFilters,
 	)
+
+	ctx.Step(
+		`^Mongo datastore fails for update filter output`,
+		c.MongoDatastoreFailsForUpdateFilterOutput,
+	)
+}
+
+func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+	var err error
+	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	if err != nil {
+		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+
+	return nil
 }
 
 // theServiceStarts starts the service under test in a new go-routine
@@ -63,19 +84,26 @@ func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocSt
 	return nil
 }
 
+func (c *Component) theMaximumLimitIsSetTo(val int) error {
+	c.cfg.DefaultMaximumLimit = val
+	return nil
+}
+
 func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 	ctx := context.Background()
 	var filters []model.Filter
-	m := c.store
 
 	err := json.Unmarshal([]byte(docs.Content), &filters)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshall")
 	}
 
-	for _, filter := range filters {
-		if err := m.CreateFilter(ctx, &filter); err != nil {
-			return errors.Wrap(err, "failed to create filter")
+	store := c.store
+	col := c.cfg.FiltersCollection
+
+	for _, f := range filters {
+		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
+			return errors.Wrap(err, "failed to upsert filter")
 		}
 	}
 

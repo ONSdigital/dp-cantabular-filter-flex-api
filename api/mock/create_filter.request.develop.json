@@ -9,11 +9,11 @@
 		{
 			"dimension_url": "http://localhost:22400/code-lists/msoa",
 			"is_area_type": true,
-			"name": "MSOA"
+			"name": "Middle Layer Super Output Area"
 		},
 		{
 			"dimension_url": "http://localhost:22400/code-lists/AGGDTWPEW11_R006A",
-			"name": "AGGDTWPEW11_R006A"
+			"name": "Distance travelled to work (6 categories)"
 		}
 	]
 }

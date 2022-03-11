@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const (
@@ -32,6 +33,15 @@ func (g *Generator) UUID() (uuid.UUID, error) {
 func (g *Generator) Timestamp() time.Time {
 	t, _ := time.Parse(time.RFC3339, TestTimestamp)
 	return t
+}
+
+// Timestamp generates a constant timestamp
+func (g *Generator) UniqueTimestamp() primitive.Timestamp {
+	t, _ := time.Parse(time.RFC3339, TestTimestamp)
+	return primitive.Timestamp{
+		T: uint32(t.Unix()),
+		I: 1,
+	}
 }
 
 // URL generates a URL from a constant host and a path made from a printf
