@@ -758,6 +758,9 @@ definitions:
       name:
         type: string
         description: "The name of the dimension"
+      is_area_type:
+        type: boolean
+        description: "Indicates if the dimension is an area type"
       options:
         type: array
         description: "A list of options for dimension to filter on a dataset"
