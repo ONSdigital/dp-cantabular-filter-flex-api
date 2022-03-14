@@ -2,16 +2,18 @@ package api
 
 import (
 	"context"
+	"crypto/sha1"
+	"fmt"
 	"net/http"
 	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/go-chi/chi/v5"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/pkg/errors"
 )
@@ -177,16 +179,16 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if eTag := api.getETag(r); eTag != eTagAny {
-		if eTag != f.ETag{
+		if eTag != f.ETag {
 			api.respond.Error(
 				ctx,
 				w,
 				http.StatusConflict,
 				Error{
-					err:     errors.New("conflict: invalid ETag provided or filter has been updated"),
+					err: errors.New("conflict: invalid ETag provided or filter has been updated"),
 					logData: log.Data{
 						"expected_etag": eTag,
-						"actual_etag": f.ETag,
+						"actual_etag":   f.ETag,
 					},
 				},
 			)
@@ -211,6 +213,163 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	resp := getFilterResponse{*f}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
+}
+
+func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+
+	var newDimension model.Dimension
+	if err := api.ParseRequest(r.Body, &newDimension); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			errors.Wrap(err, "failed to parse request"),
+		)
+		return
+	}
+
+	logData := log.Data{
+		"request": newDimension,
+		"id":      fID,
+	}
+
+	filter, err := api.store.GetFilter(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	v, err := api.datasets.GetVersion(
+		ctx,
+		"",
+		api.cfg.ServiceAuthToken,
+		"",
+		"",
+		filter.Dataset.ID,
+		filter.Dataset.Edition,
+		strconv.Itoa(filter.Dataset.Version),
+	)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get existing Version"),
+				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if v.State != published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "dataset not found",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	dimensions := []model.Dimension{newDimension}
+	dimIDs, err := api.validateDimensions(ctx, dimensions, v.Dimensions)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.Wrap(err, "failed to validate request dimensions"),
+				logData: logData,
+			},
+		)
+		return
+	}
+	// Validate dimension options by performing Cantabular query with selections,
+	// skip this check if requesting all options
+	if err := api.validateOptions(ctx, dimensions, dimIDs, filter.PopulationType); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to validate dimension options"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if err := api.store.AddFilterDimension(ctx, fID, newDimension); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to add filter dimension"),
+				logData: logData,
+			},
+		)
+		return
+	}
+	resp := addFilterDimensionResponse{
+		Dimension: newDimension,
+	}
+	fdBytes, err := api.hashFilterDimensions(ctx, filter.ID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to hash filter dimensions"),
+				logData: logData,
+			},
+		)
+		return
+	}
+	w.Header().Set("ETag", fdBytes)
+	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) hashFilterDimensions(ctx context.Context, fID string) (string, error) {
+	filter, err := api.store.GetFilter(ctx, fID)
+	if err != nil {
+		return "", err
+	}
+
+	h := sha1.New()
+
+	dimensions := struct {
+		items []model.Dimension
+	}{
+		items: filter.Dimensions,
+	}
+	fdBytes, err := bson.Marshal(dimensions)
+	if err != nil {
+		return "", err
+	}
+	if _, err := h.Write(fdBytes); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
@@ -288,12 +447,19 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 // ids, which are required by the Cantabular query
 // TODO: Requires rule variable to be first in POST request, acceptable?
 func (api *API) validateDimensionOptions(ctx context.Context, req createFilterRequest, dimIDs map[string]string) error {
-	dReq := cantabular.GetDimensionOptionsRequest{
-		Dataset: req.PopulationType,
+	// only validate dimensions with specified options
+	if err := api.validateOptions(ctx, req.Dimensions, dimIDs, req.PopulationType); err != nil {
+		return err
 	}
 
-	// only validate dimensions with specified options
-	for _, d := range req.Dimensions {
+	return nil
+}
+
+func (api *API) validateOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
+	dReq := cantabular.GetDimensionOptionsRequest{
+		Dataset: populationType,
+	}
+	for _, d := range filterDimensions {
 		if len(d.Options) > 0 {
 			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
@@ -321,6 +487,5 @@ func (api *API) validateDimensionOptions(ctx context.Context, req createFilterRe
 			message: "failed to validate dimension options for filter",
 		}
 	}
-
 	return nil
 }

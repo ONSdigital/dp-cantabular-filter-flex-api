@@ -47,6 +47,18 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Mongo datastore fails for update filter output`,
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
+
+	ctx.Step(`^an eTag is returned`,
+		c.anETagIsReturned)
+
+}
+
+func (c *Component) anETagIsReturned() error {
+	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
+	if eTag == "" {
+		return fmt.Errorf("no 'ETag' header returned")
+	}
+	return nil
 }
 
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {

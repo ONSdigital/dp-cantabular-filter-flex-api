@@ -47,7 +47,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	}
 
 	apiFeature := cmptest.NewAPIFeature(component.Init)
-
+	component.ApiFeature = apiFeature
 	ctx.BeforeScenario(func(*godog.Scenario) {
 		apiFeature.Reset()
 		if err := f.MongoFeature.Reset(); err != nil {

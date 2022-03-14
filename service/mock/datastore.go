@@ -22,6 +22,9 @@ var _ service.Datastore = &DatastoreMock{}
 //
 // 		// make and configure a mocked service.Datastore
 // 		mockedDatastore := &DatastoreMock{
+// 			AddFilterDimensionFunc: func(ctx context.Context, s string, dimension model.Dimension) error {
+// 				panic("mock out the AddFilterDimension method")
+// 			},
 // 			CheckerFunc: func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error {
 // 				panic("mock out the Checker method")
 // 			},
@@ -47,6 +50,9 @@ var _ service.Datastore = &DatastoreMock{}
 //
 // 	}
 type DatastoreMock struct {
+	// AddFilterDimensionFunc mocks the AddFilterDimension method.
+	AddFilterDimensionFunc func(ctx context.Context, s string, dimension model.Dimension) error
+
 	// CheckerFunc mocks the Checker method.
 	CheckerFunc func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error
 
@@ -67,6 +73,15 @@ type DatastoreMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddFilterDimension holds details about calls to the AddFilterDimension method.
+		AddFilterDimension []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// S is the s argument value.
+			S string
+			// Dimension is the dimension argument value.
+			Dimension model.Dimension
+		}
 		// Checker holds details about calls to the Checker method.
 		Checker []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -110,12 +125,52 @@ type DatastoreMock struct {
 			N2 int
 		}
 	}
+	lockAddFilterDimension  sync.RWMutex
 	lockChecker             sync.RWMutex
 	lockConn                sync.RWMutex
 	lockCreateFilter        sync.RWMutex
 	lockCreateFilterOutput  sync.RWMutex
 	lockGetFilter           sync.RWMutex
 	lockGetFilterDimensions sync.RWMutex
+}
+
+// AddFilterDimension calls AddFilterDimensionFunc.
+func (mock *DatastoreMock) AddFilterDimension(ctx context.Context, s string, dimension model.Dimension) error {
+	if mock.AddFilterDimensionFunc == nil {
+		panic("DatastoreMock.AddFilterDimensionFunc: method is nil but Datastore.AddFilterDimension was just called")
+	}
+	callInfo := struct {
+		Ctx       context.Context
+		S         string
+		Dimension model.Dimension
+	}{
+		Ctx:       ctx,
+		S:         s,
+		Dimension: dimension,
+	}
+	mock.lockAddFilterDimension.Lock()
+	mock.calls.AddFilterDimension = append(mock.calls.AddFilterDimension, callInfo)
+	mock.lockAddFilterDimension.Unlock()
+	return mock.AddFilterDimensionFunc(ctx, s, dimension)
+}
+
+// AddFilterDimensionCalls gets all the calls that were made to AddFilterDimension.
+// Check the length with:
+//     len(mockedDatastore.AddFilterDimensionCalls())
+func (mock *DatastoreMock) AddFilterDimensionCalls() []struct {
+	Ctx       context.Context
+	S         string
+	Dimension model.Dimension
+} {
+	var calls []struct {
+		Ctx       context.Context
+		S         string
+		Dimension model.Dimension
+	}
+	mock.lockAddFilterDimension.RLock()
+	calls = mock.calls.AddFilterDimension
+	mock.lockAddFilterDimension.RUnlock()
+	return calls
 }
 
 // Checker calls CheckerFunc.

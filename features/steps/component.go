@@ -39,6 +39,7 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
+	ApiFeature        *componenttest.APIFeature
 	errorChan         chan error
 	DatasetAPI        *httpfake.HTTPFake
 	svc               *service.Service
