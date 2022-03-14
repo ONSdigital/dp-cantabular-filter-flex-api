@@ -12,7 +12,6 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
 	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-net/v2/responder"
 )
@@ -54,26 +53,6 @@ var GetCantabularClient = func(cfg *config.Config) CantabularClient {
 // GetDatasetAPIClient gets and initialises the DatasetAPI Client
 var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 	return dataset.NewAPIClient(cfg.DatasetAPIURL)
-}
-
-// GetKafkaProducer creates a Kafka producer
-var GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
-	pConfig := &kafka.ProducerConfig{
-		BrokerAddrs:       cfg.Kafka.Addr,
-		Topic:             cfg.Kafka.CsvCreatedTopic,
-		MinBrokersHealthy: &cfg.Kafka.ProducerMinBrokersHealthy,
-		KafkaVersion:      &cfg.Kafka.Version,
-		MaxMessageBytes:   &cfg.Kafka.MaxBytes,
-	}
-	if cfg.Kafka.SecProtocol == config.KafkaTLSProtocolFlag {
-		pConfig.SecurityConfig = kafka.GetSecurityConfig(
-			cfg.Kafka.SecCACerts,
-			cfg.Kafka.SecClientCert,
-			cfg.Kafka.SecClientKey,
-			cfg.Kafka.SecSkipVerify,
-		)
-	}
-	return kafka.NewProducer(ctx, pConfig)
 }
 
 // GetHealthCheck creates a healthcheck with versionInfo

@@ -22,7 +22,6 @@ import (
 	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -40,7 +39,6 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	producer          kafka.IProducer
 	errorChan         chan error
 	DatasetAPI        *httpfake.HTTPFake
 	svc               *service.Service
@@ -165,10 +163,6 @@ func (c *Component) Close() {
 		c.wg.Wait()
 	}
 
-	// close producer
-	// if err := c.producer.Close(c.ctx); err != nil {
-	//     log.Error(c.ctx, "error closing kafka producer", err)
-	// }
 }
 
 // Reset re-initialises the service under test and the api mocks.
