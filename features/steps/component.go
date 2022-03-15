@@ -146,7 +146,6 @@ func (c *Component) startService(ctx context.Context) {
 		}()
 		panic(fmt.Errorf("unexpected error received from errorChan: %w", err))
 	case sig := <-c.signals:
-		fmt.Println(1234)
 		log.Info(ctx, "os signal received", log.Data{"signal": sig})
 	}
 	if err := c.svc.Close(ctx); err != nil {
