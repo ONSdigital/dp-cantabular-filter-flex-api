@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -65,46 +66,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.State != published && !dprequest.IsCallerPresent(ctx) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusNotFound,
-			Error{
-				err:     errors.New("unauthenticated request on unpublished dataset"),
-				message: "dataset not found",
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	dimIDs, err := api.validateDimensions(ctx, req.Dimensions, v.Dimensions)
-	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusBadRequest,
-			Error{
-				err:     errors.Wrap(err, "failed to validate request dimensions"),
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	// Validate dimension options by performing Cantabular query with selections,
-	// skip this check if requesting all options
-	if err := api.validateDimensionOptions(ctx, req, dimIDs); err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			Error{
-				err:     errors.Wrap(err, "failed to validate dimension options"),
-				logData: logData,
-			},
-		)
+	if !api.isValidDatasetDimensions(w, ctx, logData, v, req.Dimensions, req.PopulationType) {
 		return
 	}
 
@@ -219,7 +181,10 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
-	var newDimension model.Dimension
+	newDimension := model.Dimension{
+		Options: make([]string, 0),
+	}
+
 	if err := api.ParseRequest(r.Body, &newDimension); err != nil {
 		api.respond.Error(
 			ctx,
@@ -250,6 +215,34 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashedFilterDimensions, err := api.hashFilterDimensions(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	ifMatch := r.Header.Get("If-Match") // e.g. `"asdf", "qwer", "1234"`
+	if ifMatch != "" && ifMatch != eTagAny && !strings.Contains(ifMatch, hashedFilterDimensions) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusConflict,
+			Error{
+				err:     errors.Wrap(err, "ETag does not match"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -274,46 +267,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.State != published && !dprequest.IsCallerPresent(ctx) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusNotFound,
-			Error{
-				err:     errors.New("unauthenticated request on unpublished dataset"),
-				message: "dataset not found",
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	dimensions := []model.Dimension{newDimension}
-	dimIDs, err := api.validateDimensions(ctx, dimensions, v.Dimensions)
-	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusBadRequest,
-			Error{
-				err:     errors.Wrap(err, "failed to validate request dimensions"),
-				logData: logData,
-			},
-		)
-		return
-	}
-	// Validate dimension options by performing Cantabular query with selections,
-	// skip this check if requesting all options
-	if err := api.validateOptions(ctx, dimensions, dimIDs, filter.PopulationType); err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			Error{
-				err:     errors.Wrap(err, "failed to validate dimension options"),
-				logData: logData,
-			},
-		)
+	if !api.isValidDatasetDimensions(w, ctx, logData, v, []model.Dimension{newDimension}, filter.PopulationType) {
 		return
 	}
 
@@ -337,7 +291,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(
 			ctx,
 			w,
-			statusCode(err),
+			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "failed to hash filter dimensions"),
 				logData: logData,
@@ -415,6 +369,52 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
+func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Context, logData log.Data, v dataset.Version, d []model.Dimension, pt string) bool {
+	if v.State != published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "dataset not found",
+				logData: logData,
+			},
+		)
+		return false
+	}
+
+	dimIDs, err := api.validateDimensions(ctx, d, v.Dimensions)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.Wrap(err, "failed to validate request dimensions"),
+				logData: logData,
+			},
+		)
+		return false
+	}
+
+	// Validate dimension options by performing Cantabular query with selections,
+	// skip this check if requesting all options
+	if err := api.validateDimensionOptions(ctx, d, dimIDs, pt); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to validate dimension options"),
+				logData: logData,
+			},
+		)
+		return false
+	}
+	return true
+}
+
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
 func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {
@@ -442,20 +442,7 @@ func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimen
 	return dimensions, nil
 }
 
-// validateDimensionOptions validates the dimension options in a createFilterRequest by making a call
-// to Cantabular to check they exist. Takes as a second argument a map mapping the dimension names to
-// ids, which are required by the Cantabular query
-// TODO: Requires rule variable to be first in POST request, acceptable?
-func (api *API) validateDimensionOptions(ctx context.Context, req createFilterRequest, dimIDs map[string]string) error {
-	// only validate dimensions with specified options
-	if err := api.validateOptions(ctx, req.Dimensions, dimIDs, req.PopulationType); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (api *API) validateOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
+func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
 	dReq := cantabular.GetDimensionOptionsRequest{
 		Dataset: populationType,
 	}

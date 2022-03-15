@@ -48,9 +48,49 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
 
-	ctx.Step(`^an eTag is returned`,
-		c.anETagIsReturned)
+	ctx.Step(`^an ETag is returned`,
+		c.anETagIsReturned,
+	)
 
+	ctx.Step(
+		`^I (try to )?add a new dimension to an existing filter$`,
+		c.iAddANewDimensionToAnExistingFilter,
+	)
+
+	ctx.Step(
+		`^I (try to )?add a new dimension with no options to an existing filter$`,
+		c.iAddANewDimensionWithoutOptionsToAnExistingFilter,
+	)
+
+	ctx.Step(
+		`^I receive the dimension\'s body back in the body of the response$`,
+		c.iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse,
+	)
+
+	ctx.Step(
+		`^I receive the dimension\'s body back with an empty \'options\' slice$`,
+		c.iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse,
+	)
+
+	ctx.Step(
+		`^I try to add a malformed dimension to an existing filter$`,
+		c.iTryToAddAMalformedDimensionToAnExistingFilter,
+	)
+
+	ctx.Step(
+		`^I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them$`,
+		c.iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem,
+	)
+
+	ctx.Step(
+		`^I try to add a new dimension to a non-existent filter$`,
+		c.iTryToAddANewDimensionToANonexistentFilter,
+	)
+
+	ctx.Step(
+		`^the client for the dataset API failed and is returning errors$`,
+		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
+	)
 }
 
 func (c *Component) anETagIsReturned() error {
@@ -138,4 +178,81 @@ func (c *Component) theFollowingVersionDocumentIsAvailable(datasetID, edition, v
 		BodyString(v.Content)
 
 	return nil
+}
+
+const example_dimension = `{
+	"name": "Number of siblings (3 mappings)",
+	"is_area_type": false,
+	"options": ["4-7", "7+"]
+}`
+
+func (c *Component) iAddANewDimensionToAnExistingFilter() error {
+	c.postedJSON = example_dimension
+
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
+		&godog.DocString{Content: c.postedJSON},
+	)
+}
+
+func (c *Component) iAddANewDimensionWithoutOptionsToAnExistingFilter() error {
+	c.postedJSON = `{
+		"name": "Number of siblings (3 mappings)"
+	}`
+
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
+		&godog.DocString{Content: c.postedJSON},
+	)
+}
+
+func (c *Component) iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse() error {
+	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: c.postedJSON})
+}
+
+func (c *Component) iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse() error {
+	var want = `{
+		"name": "Number of siblings (3 mappings)",
+		"is_area_type": false,
+		"options": []
+	}`
+	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: want})
+}
+
+func (c *Component) iTryToAddAMalformedDimensionToAnExistingFilter() error {
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
+		&godog.DocString{Content: "not valid JSON"},
+	)
+}
+
+func (c *Component) iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem() error {
+	staleEtag := "a-stale-etag" // this would normally be a SHA-1 hash representing an older copy of the dimensions slice
+	json := example_dimension
+	c.ApiFeature.ISetTheHeaderTo("If-Match", staleEtag)
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
+		&godog.DocString{Content: json},
+	)
+}
+
+func (c *Component) iTryToAddANewDimensionToANonexistentFilter() error {
+	json := example_dimension
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-000000000000/dimensions",
+		&godog.DocString{Content: json},
+	)
+}
+
+func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error {
+	c.DatasetAPI.Reset()
+	c.DatasetAPI.NewHandler().
+		Get("/datasets/cantabular-example-1/editions/2021/versions/1").
+		Reply(http.StatusInternalServerError)
+
+	json := example_dimension
+	return c.ApiFeature.IPostToWithBody(
+		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
+		&godog.DocString{Content: json},
+	)
 }

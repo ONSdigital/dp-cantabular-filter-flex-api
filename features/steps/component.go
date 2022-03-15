@@ -51,6 +51,7 @@ type Component struct {
 	store             service.Datastore
 	g                 service.Generator
 	shutdownInitiated bool
+	postedJSON        string
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -87,6 +88,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
+
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
@@ -171,6 +173,7 @@ func (c *Component) Close() {
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
 	c.setInitialiserMock()
+	c.DatasetAPI.Reset()
 
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)

@@ -139,30 +139,33 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "200"
 
   Scenario: Add a filter dimension successfully
-    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
-    """
-    {
-      "name": "Number of siblings (3 mappings)",
-      "is_area_type": false,
-      "options": [
-        "4-7",
-        "7+"
-      ]
-    }
-    """
-    Then I should receive the following JSON response:
-    """
-    {
-      "name": "Number of siblings (3 mappings)",
-      "is_area_type": false,
-      "options": [
-        "4-7",
-        "7+"
-      ]
-    }
-    """
-    And the HTTP status code should be "201"
+    When I add a new dimension to an existing filter
+    Then the HTTP status code should be "201"
+    And I receive the dimension's body back in the body of the response
     And an ETag is returned
+
+  Scenario: Add a filter dimension with no options successfully
+    When I add a new dimension with no options to an existing filter
+    Then the HTTP status code should be "201"
+    And I receive the dimension's body back with an empty 'options' slice
+    And an ETag is returned
+
+  Scenario: Add a filter dimension but request is malformed
+    When I try to add a malformed dimension to an existing filter
+    Then the HTTP status code should be "400"
+
+  Scenario: Add a filter dimension but the filter is not found
+    When I try to add a new dimension to a non-existent filter
+    Then the HTTP status code should be "404"
+
+  Scenario: Add a filter dimension but the filter's dimensions have been modified since I retrieved it
+    When I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them
+    Then the HTTP status code should be "409"
+
+  Scenario: Add a filter dimension but something goes wrong on the server
+    Given the client for the dataset API failed and is returning errors
+    When I try to add a new dimension to an existing filter
+    Then the HTTP status code should be "500"
 
   Scenario: Get paginated filter dimensions successfully (limit)
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=1"

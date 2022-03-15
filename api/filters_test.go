@@ -118,6 +118,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -136,7 +137,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 
@@ -147,6 +148,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -157,7 +159,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -175,6 +177,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -193,7 +196,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})

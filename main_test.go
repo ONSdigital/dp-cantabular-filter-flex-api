@@ -7,12 +7,13 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cucumber/godog"
+	"github.com/cucumber/godog/colors"
+
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/steps"
 	cmptest "github.com/ONSdigital/dp-component-test"
 	dplogs "github.com/ONSdigital/log.go/v2/log"
-	"github.com/cucumber/godog"
-	"github.com/cucumber/godog/colors"
 )
 
 const (
@@ -22,6 +23,7 @@ const (
 )
 
 var componentFlag = flag.Bool("component", false, "perform component tests")
+var quietComponentFlag = flag.Bool("quiet-component", false, "perform component tests with dp logging disabled")
 
 type ComponentTest struct {
 	t            *testing.T
@@ -60,6 +62,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 
 	ctx.AfterScenario(func(*godog.Scenario, error) {
+		component.Reset()
 		component.Close()
 		authFeature.Close()
 	})
@@ -85,7 +88,7 @@ func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
 }
 
 func TestComponent(t *testing.T) {
-	if *componentFlag {
+	if *componentFlag || *quietComponentFlag {
 		status := 0
 
 		cfg, err := config.Get()
@@ -111,10 +114,15 @@ func TestComponent(t *testing.T) {
 			dplogs.SetDestination(logfile, nil)
 		}
 
+		if *quietComponentFlag {
+			dplogs.SetDestination(io.Discard, io.Discard)
+		}
+
 		var opts = godog.Options{
-			Output: colors.Colored(output),
-			Format: "pretty",
-			Paths:  flag.Args(),
+			Output:   colors.Colored(output),
+			Format:   "pretty",
+			Paths:    flag.Args(),
+			TestingT: t,
 		}
 
 		f := &ComponentTest{
