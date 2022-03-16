@@ -384,7 +384,7 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 		return false
 	}
 
-	dimIDs, err := api.validateDimensions(ctx, d, v.Dimensions)
+	dimIDs, err := api.validateDimensions(d, v.Dimensions)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -417,7 +417,7 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
-func (api *API) validateDimensions(ctx context.Context, filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {
+func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {
 	dimensions := make(map[string]string)
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID
