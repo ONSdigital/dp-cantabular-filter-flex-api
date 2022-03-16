@@ -456,9 +456,17 @@ definitions:
             type: object
             description: A dataset to filter on
             properties:
+              id:
+                type: string
+                description: The unique identifier of a dataset
+              edition:
+                type: string
+                description: An edition of a dataset
               version:
                 type: integer
-                description: A version of the dataset to filter on
+                description: A version of a dataset
+              is_based_on:
+                $ref: '#/definitions/IsBasedOn'
   FilterResponse:
     description: A model for the response body when updating a filter
     allOf:
