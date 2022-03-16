@@ -465,8 +465,9 @@ definitions:
               version:
                 type: integer
                 description: A version of a dataset
-              is_based_on:
-                $ref: '#/definitions/IsBasedOn'
+          population_type:
+            type: string
+            description: The population type the information is selected from.
   FilterResponse:
     description: A model for the response body when updating a filter
     allOf:
