@@ -10,7 +10,6 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/ONSdigital/log.go/v2/log"
 
@@ -22,7 +21,6 @@ type Service struct {
 	Cfg              *config.Config
 	Server           HTTPServer
 	HealthCheck      HealthChecker
-	Producer         kafka.IProducer
 	Api              *api.API
 	responder        Responder
 	store            Datastore
@@ -45,10 +43,6 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	}
 
 	svc.Cfg = cfg
-
-	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
-		return fmt.Errorf("failed to create kafka producer: %w", err)
-	}
 
 	svc.identityClient = identity.New(cfg.ZebedeeURL)
 
@@ -96,7 +90,6 @@ func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
 	log.Info(ctx, "starting service")
 
 	svc.HealthCheck.Start(ctx)
-	svc.Producer.LogErrors(ctx)
 
 	// Run the http server in a new go-routine
 	go func() {
@@ -131,15 +124,6 @@ func (svc *Service) Close(ctx context.Context) error {
 				hasShutdownError = true
 			}
 			log.Info(ctx, "stopped http server")
-		}
-
-		// If kafka producer exists, close it.
-		if svc.Producer != nil {
-			if err := svc.Producer.Close(ctx); err != nil {
-				log.Error(ctx, "error closing kafka producer", err)
-				hasShutdownError = true
-			}
-			log.Info(ctx, "closed kafka producer")
 		}
 
 		// TODO: Close other dependencies, in the expected order
@@ -187,10 +171,6 @@ func (svc *Service) registerCheckers() error {
 
 	if _, err := svc.HealthCheck.AddAndGetCheck("Dataset API client", svc.datasetAPIClient.Checker); err != nil {
 		return fmt.Errorf("error addig check for dataset API client: %w", err)
-	}
-
-	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka producer", svc.Producer.Checker); err != nil {
-		return fmt.Errorf("error adding check for Kafka producer: %w", err)
 	}
 
 	if _, err := svc.HealthCheck.AddAndGetCheck("Datastore", svc.store.Checker); err != nil {

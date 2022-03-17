@@ -25,6 +25,7 @@ type datastore interface {
 	GetFilter(context.Context, string) (*model.Filter, error)
 	CreateFilterOutput(context.Context, *model.FilterOutput) error
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
+	AddFilterDimension(context.Context, string, model.Dimension) error
 }
 
 type validator interface {

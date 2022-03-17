@@ -65,7 +65,7 @@ type Event struct {
 type Dimension struct {
 	Name         string   `bson:"name"          json:"name"`
 	Options      []string `bson:"options"       json:"options"`
-	DimensionURL string   `bson:"dimension_url" json:"dimension_url"`
+	DimensionURL string   `bson:"dimension_url" json:"dimension_url,omitempty"`
 	IsAreaType   bool     `bson:"is_area_type"  json:"is_area_type"`
 }
 

@@ -90,3 +90,8 @@ type paginationResponse struct {
 	Count      int `json:"count"`
 	TotalCount int `json:"total_count"`
 }
+
+// addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
+type addFilterDimensionResponse struct {
+	model.Dimension
+}

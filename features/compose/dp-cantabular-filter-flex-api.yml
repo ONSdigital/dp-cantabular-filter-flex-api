@@ -13,18 +13,12 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
-#        depends_on:
-#            - kafka
         ports:
             - 27100:27100
         environment:
             BIND_ADDR:                          ":27100"
             SERVICE_AUTH_TOKEN:                 "testToken"
             COMPONENT_TEST_USE_LOG_FILE:        "${COMPONENT_TEST_USE_LOG_FILE-false}"
-            KAFKA_ADDR:                         "kafka:9092"
-            KAFKA_CONSUMER_MIN_BROKERS_HEALTHY: 1
-            KAFKA_PRODUCER_MIN_BROKERS_HEALTHY: 1
-            KAFKA_SEC_PROTO:                    ""
             CANTABULAR_URL:              "http://dp-cantabular-server:8491"
             ENABLE_PRIVATE_ENDPOINTS:    "false"
             ENABLE_PERMISSIONS_AUTH:     "false"

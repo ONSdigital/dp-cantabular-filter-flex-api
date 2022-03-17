@@ -2,6 +2,57 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
 
   Background:
     Given private endpoints are not enabled
+    And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
+      """
+           {
+        "alerts": [],
+        "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "dimensions": [
+          {
+            "label": "City",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/city",
+            "id": "city",
+            "name": "City"
+          },
+          {
+            "label": "Number of siblings (3 mappings)",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/siblings",
+            "id": "siblings",
+            "name": "Number of siblings (3 mappings)"
+          }
+        ],
+        "edition": "2021",
+        "id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+        "links": {
+          "dataset": {
+            "href": "http://dp-dataset-api:22000/datasets/cantabular-example-1",
+            "id": "cantabular-example-1"
+          },
+          "dimensions": {},
+          "edition": {
+            "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021",
+            "id": "2021"
+          },
+          "self": {
+            "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1"
+          }
+        },
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "state": "published",
+        "usage_notes": [],
+        "version": 1
+      }
+      """
     And I have these filters:
     """
     [
@@ -52,7 +103,6 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     ]
     """
 
-
   Scenario: Get filter dimensions successfully
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
     Then I should receive the following JSON response:
@@ -87,6 +137,35 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     }
     """
     And the HTTP status code should be "200"
+
+  Scenario: Add a filter dimension successfully
+    When I add a new dimension to an existing filter
+    Then the HTTP status code should be "201"
+    And I receive the dimension's body back in the body of the response
+    And an ETag is returned
+
+  Scenario: Add a filter dimension with no options successfully
+    When I add a new dimension with no options to an existing filter
+    Then the HTTP status code should be "201"
+    And I receive the dimension's body back with an empty 'options' slice
+    And an ETag is returned
+
+  Scenario: Add a filter dimension but request is malformed
+    When I try to add a malformed dimension to an existing filter
+    Then the HTTP status code should be "400"
+
+  Scenario: Add a filter dimension but the filter is not found
+    When I try to add a new dimension to a non-existent filter
+    Then the HTTP status code should be "404"
+
+  Scenario: Add a filter dimension but the filter's dimensions have been modified since I retrieved it
+    When I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them
+    Then the HTTP status code should be "409"
+
+  Scenario: Add a filter dimension but something goes wrong on the server
+    Given the client for the dataset API failed and is returning errors
+    When I try to add a new dimension to an existing filter
+    Then the HTTP status code should be "500"
 
   Scenario: Get paginated filter dimensions successfully (limit)
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=1"
