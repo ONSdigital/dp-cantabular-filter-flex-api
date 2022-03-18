@@ -22,7 +22,6 @@ import (
 	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -40,7 +39,7 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	producer          kafka.IProducer
+	ApiFeature        *componenttest.APIFeature
 	errorChan         chan error
 	DatasetAPI        *httpfake.HTTPFake
 	svc               *service.Service
@@ -52,6 +51,7 @@ type Component struct {
 	store             service.Datastore
 	g                 service.Generator
 	shutdownInitiated bool
+	postedJSON        string
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -88,6 +88,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
+
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
@@ -165,10 +166,6 @@ func (c *Component) Close() {
 		c.wg.Wait()
 	}
 
-	// close producer
-	// if err := c.producer.Close(c.ctx); err != nil {
-	//     log.Error(c.ctx, "error closing kafka producer", err)
-	// }
 }
 
 // Reset re-initialises the service under test and the api mocks.
@@ -176,6 +173,7 @@ func (c *Component) Close() {
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
 	c.setInitialiserMock()
+	c.DatasetAPI.Reset()
 
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)

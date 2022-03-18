@@ -8,13 +8,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
-	"github.com/ONSdigital/dp-kafka/v3/kafkatest"
-
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -42,7 +39,6 @@ func TestInit(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		// Mock clients
-		producerMock := &kafkatest.IProducerMock{}
 		subscribedTo := []*healthcheck.Check{}
 		serverMock := &mock.HTTPServerMock{}
 		datastoreMock := &mock.DatastoreMock{}
@@ -61,10 +57,6 @@ func TestInit(t *testing.T) {
 		// Initialiser functions
 		service.GetHealthCheck = func(_ *config.Config, _, _, _ string) (service.HealthChecker, error) {
 			return hcMock, nil
-		}
-
-		service.GetKafkaProducer = func(_ context.Context, _ *config.Config) (kafka.IProducer, error) {
-			return producerMock, nil
 		}
 
 		service.GetHTTPServer = func(_ string, _ http.Handler) service.HTTPServer {
@@ -125,17 +117,14 @@ func TestInit(t *testing.T) {
 				So(svc.Cfg, ShouldResemble, cfg)
 				So(svc.Server, ShouldEqual, serverMock)
 				So(svc.HealthCheck, ShouldResemble, hcMock)
-				So(svc.Producer, ShouldResemble, producerMock)
 
 				Convey("Then all checks are registered", func() {
-					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 6)
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 5)
 					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Cantabular server")
 					So(hcMock.AddAndGetCheckCalls()[1].Name, ShouldResemble, "Cantabular API Extension")
 					So(hcMock.AddAndGetCheckCalls()[2].Name, ShouldResemble, "Dataset API client")
-					So(hcMock.AddAndGetCheckCalls()[3].Name, ShouldResemble, "Kafka producer")
-					So(hcMock.AddAndGetCheckCalls()[4].Name, ShouldResemble, "Datastore")
-					So(hcMock.AddAndGetCheckCalls()[5].Name, ShouldResemble, "Zebedee")
-
+					So(hcMock.AddAndGetCheckCalls()[3].Name, ShouldResemble, "Datastore")
+					So(hcMock.AddAndGetCheckCalls()[4].Name, ShouldResemble, "Zebedee")
 				})
 			})
 		})
@@ -153,15 +142,11 @@ func TestStart(t *testing.T) {
 
 		serverWg := &sync.WaitGroup{}
 		serverMock := &mock.HTTPServerMock{}
-		producerMock := &kafkatest.IProducerMock{
-			LogErrorsFunc: func(_ context.Context) {},
-		}
 
 		svc := &service.Service{
 			Cfg:         cfg,
 			Server:      serverMock,
 			HealthCheck: hcMock,
-			Producer:    producerMock,
 		}
 
 		Convey("When a service with a successful HTTP server is started", func() {

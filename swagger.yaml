@@ -292,6 +292,34 @@ paths:
           $ref: '#/responses/FilterNotFound'
         500:
           $ref: '#/responses/InternalError'
+    post:
+      tags:
+        - "Public"
+        - "Private"
+      summary: "Add a dimension to a filter"
+      description: "Add a dimension to filter with a list of options"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: '#/parameters/options'
+        - $ref: '#/parameters/if_match'
+      responses:
+        201:
+          description: "The dimension was created"
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Invalid request body"
+        404:
+          description: "Filter job was not found"
+        409:
+          $ref: '#/responses/FilterConflict'
+        422:
+          description: "Unprocessable entity - instance has been removed"
+        500:
+          $ref: '#/responses/InternalError'
   /filters/{id}/dimensions/{name}:
     parameters:
       - $ref: '#/parameters/filter_id'
@@ -315,34 +343,6 @@ paths:
           description: "Filter was not found"
         404:
           description: "Dimension name was not found"
-        500:
-          $ref: '#/responses/InternalError'
-    post:
-      tags:
-      - "Public"
-      - "Private"
-      summary: "Add a dimension to a filter"
-      description: "Add a dimension to filter with a list of options"
-      produces:
-      - "application/json"
-      parameters:
-      - $ref: '#/parameters/options'
-      - $ref: '#/parameters/if_match'
-      responses:
-        201:
-          description: "The dimension was created"
-          headers:
-            ETag:
-              type: string
-              description: "Defines a unique filter resource version"
-        400:
-          description: "Invalid request body"
-        404:
-          description: "Filter job was not found"
-        409:
-          description: '#/responses/FilterConflict'
-        422:
-          description: "Unprocessable entity - instance has been removed"
         500:
           $ref: '#/responses/InternalError'
     patch:
@@ -372,7 +372,7 @@ paths:
         404:
           description: "Dimension was not found"
         409:
-          description: '#/responses/FilterConflict'
+          $ref: '#/responses/FilterConflict'
         422:
           description: "Unprocessable entity - instance has been removed"
         500:

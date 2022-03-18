@@ -50,6 +50,11 @@ type getFilterResponse struct {
 	model.Filter
 }
 
+// putFilterResponse is the response body for PUT /filters/{id}
+type putFilterResponse struct {
+	model.PutFilter
+}
+
 // createFilterOutputResponse is the response body for POST /filters
 type createFilterOutputResponse struct {
 	model.FilterOutput
@@ -89,4 +94,9 @@ type paginationResponse struct {
 	Offset     int `json:"offset"`
 	Count      int `json:"count"`
 	TotalCount int `json:"total_count"`
+}
+
+// addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
+type addFilterDimensionResponse struct {
+	model.Dimension
 }
