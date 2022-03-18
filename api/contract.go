@@ -42,7 +42,10 @@ func (r *createFilterRequest) Valid() error {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterResponse struct {
-	model.Filter
+	model.JobState
+	Links          model.Links   `json:"links"`
+	Dataset        model.Dataset `json:"dataset"`
+	PopulationType string        `json:"population_type"`
 }
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
