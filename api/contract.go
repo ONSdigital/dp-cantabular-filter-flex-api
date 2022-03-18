@@ -58,9 +58,16 @@ type putFilterResponse struct {
 	model.PutFilter
 }
 
-// createFilterOutputResponse is the response body for POST /filters
+// createFilterOutputResponse is the response body for POST /filters-output
 type createFilterOutputResponse struct {
 	model.FilterOutput
+}
+
+// filterOutputResponse is the response body for PUT /filters-outputs
+type filterOutputResponse struct {
+	model.FilterOutput
+	model.JobState
+	Links model.FilterOutputLinks `json:"links"`
 }
 
 // createFilterOutputRequest is the request body for POST /filters

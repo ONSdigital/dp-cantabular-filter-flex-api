@@ -45,6 +45,11 @@ type Links struct {
 	Self    Link `bson:"self"    json:"self"`
 }
 
+type FilterOutputLinks struct {
+	Links
+	FilterBlueprint Link `json:"filter_blueprint"`
+}
+
 type Link struct {
 	HREF string `bson:"href"           json:"href"`
 	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
