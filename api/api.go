@@ -68,6 +68,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filters", api.createFilter)
 	r.Get("/filters/{id}", api.getFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
 
 	r.Post("/filter-outputs", api.createFilterOutput)
 	api.Router.Mount("/", r)
