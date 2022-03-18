@@ -50,6 +50,11 @@ type getFilterResponse struct {
 	model.Filter
 }
 
+// putFilterResponse is the response body for PUT /filters/{id}
+type putFilterResponse struct {
+	model.PutFilter
+}
+
 // createFilterOutputResponse is the response body for POST /filters
 type createFilterOutputResponse struct {
 	model.FilterOutput

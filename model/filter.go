@@ -26,6 +26,13 @@ type Filter struct {
 	PopulationType    string              `bson:"population_type"              json:"population_type"`
 }
 
+//PutFilter holds details for PUT filter response
+type PutFilter struct {
+	Events         []Event `bson:"events"                       json:"events"`
+	Dataset        Dataset `bson:"dataset"                      json:"dataset"`
+	PopulationType string  `bson:"population_type"              json:"population_type"`
+}
+
 type Links struct {
 	Version Link `bson:"version" json:"version"`
 	Self    Link `bson:"self"    json:"self"`

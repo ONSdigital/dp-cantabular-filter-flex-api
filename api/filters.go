@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -324,6 +325,31 @@ func (api *API) hashFilterDimensions(ctx context.Context, fID string) (string, e
 		return "", err
 	}
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	time, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
+
+	resp := putFilterResponse{
+		model.PutFilter{
+			Events: []model.Event{
+				{
+					Timestamp: time,
+					Name:      "cantabular-export-start",
+				},
+			},
+			Dataset: model.Dataset{
+				ID:      "string",
+				Edition: "string",
+				Version: 0,
+			},
+			PopulationType: "string",
+		},
+	}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
