@@ -110,7 +110,15 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := createFilterResponse{
-		Filter: f,
+		model.JobState{
+			InstanceID:       f.InstanceID,
+			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, f.ID),
+			FilterID:         f.ID,
+			Events:           f.Events,
+		},
+		f.Links,
+		f.Dataset,
+		f.PopulationType,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
