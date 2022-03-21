@@ -141,6 +141,12 @@ parameters:
     required: true
     description: Model of the fields required to start the results generation process.
     in: body
+securityDefinitions:
+  InternalAPIKey:
+    name: internal-token
+    description: "API key used to allow only internal services to update the state of an import job"
+    in: header
+    type: apiKey
 paths:
   /filter-outputs/{filter_output_id}:
     parameters:
@@ -162,7 +168,6 @@ paths:
            $ref: '#/responses/FilterOutputNotFound'
         500:
           $ref: '#/responses/InternalError'
-  /filter-outputs:
     put:
       tags:
       - "Private"
@@ -295,6 +300,7 @@ paths:
       produces:
         - "application/json"
       parameters:
+        - $ref: '#/parameters/filter_id'
         - $ref: '#/parameters/options'
         - $ref: '#/parameters/if_match'
       responses:
@@ -394,24 +400,29 @@ paths:
           description: '#/responses/FilterConflict'
         500:
           $ref: '#/responses/InternalError'
-  /query:
+  /filter-outputs/{filter_output_id}/events:
+    parameters:
+      - $ref: '#/parameters/filter_output_id'
     post:
       tags:
-        - Public
-        - Private
-      summary: Submits a filter query for a Cantabular dataset
-      produces:
-        - application/json
+      - "Private"
+      summary: "Add an event to a filter output"
+      description: |
+        Add an event to a filter output
       parameters:
-        - $ref: '#/parameters/filter_submit'
+      - $ref: '#/parameters/event'
+      security:
+      - InternalAPIKey: []
       responses:
-        '201':
-          description: Query was submitted successfully
-          schema:
-            $ref: '#/definitions/SubmitFilter'
-        '400':
-          description: Invalid request body
-        '500':
+        201:
+          description: "The event has been created on the filter output"
+        400:
+          description: "Invalid request body"
+        401:
+          description: "Unauthorised, request lacks valid authentication credentials"
+        404:
+          $ref: '#/responses/FilterOutputNotFound'
+        500:
           $ref: '#/responses/InternalError'
 responses:
   FilterNotFound:
@@ -517,6 +528,9 @@ definitions:
       properties:
         dataset:
           $ref: '#/definitions/Dataset'
+        population_type:
+          type: string
+          description: The population type the information is selected from.
   UpdateOutputRequest:
     description: >-
       A model used to update filter outputs. Only the downloads list and state
@@ -575,8 +589,6 @@ definitions:
       version:
         type: integer
         description: A version of a dataset
-      is_based_on:
-        $ref: '#/definitions/IsBasedOn'
   IsBasedOn:
     type: object
     description: If the dataset is related to Census, which population-type the dataset is taken from, and the type of dataset
