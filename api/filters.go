@@ -125,7 +125,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
-
 	ctx := r.Context()
 
 	filterID := chi.URLParam(r, "id")
