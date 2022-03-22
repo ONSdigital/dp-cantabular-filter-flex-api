@@ -124,6 +124,46 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
+func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+
+	filterID := chi.URLParam(r, "id")
+	postTime, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
+
+	// return a mock response for now.
+	resp := updateFilterResponse{
+		model.JobState{
+			InstanceID: "",
+			FilterID:   filterID,
+			Events: []model.Event{
+				{
+					Timestamp: postTime,
+					Name:      "mock-export-event",
+				},
+			},
+		},
+
+		model.Dataset{
+			ID:      "mock-id",
+			Edition: "mock-edition",
+			Version: 0,
+		},
+		model.Links{
+			Version: model.Link{
+				HREF: "",
+				ID:   "",
+			},
+			Self: model.Link{
+				HREF: "",
+				ID:   "",
+			},
+		},
+	}
+
+	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
+}
+
 func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
