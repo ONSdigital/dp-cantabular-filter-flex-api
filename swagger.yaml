@@ -424,7 +424,7 @@ paths:
           $ref: '#/responses/FilterOutputNotFound'
         500:
           $ref: '#/responses/InternalError'
-  /query/{id}:
+  /filters/{id}/submit:
     post:
       tags:
         - Public
