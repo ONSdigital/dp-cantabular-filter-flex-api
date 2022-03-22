@@ -48,6 +48,13 @@ type createFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
+// updateFilter Response is the response body for POST /filters/{id}/submit
+type updateFilterResponse struct {
+	model.JobState
+	Dataset model.Dataset `json:"dataset"`
+	Links   model.Links   `json:"links"`
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
 	model.Filter
