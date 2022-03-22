@@ -435,7 +435,7 @@ paths:
       parameters:
          - $ref: '#/parameters/filter_id'
       responses:
-        '201':
+        '202':
           description: Query was submitted successfully
           schema:
            $ref: '#/definitions/UpdateFilterResponse'
