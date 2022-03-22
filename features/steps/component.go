@@ -197,7 +197,7 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 
 func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
-		CreateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
+		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
 		},
 	}
