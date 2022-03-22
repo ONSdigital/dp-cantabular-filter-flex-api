@@ -424,6 +424,23 @@ paths:
           $ref: '#/responses/FilterOutputNotFound'
         500:
           $ref: '#/responses/InternalError'
+  /query/{id}:
+    post:
+      tags:
+        - Public
+        - Private
+      summary: Submits a filter query for a Cantabular dataset
+      produces:
+        - application/json
+      parameters:
+         - $ref: '#/parameters/filter_id'
+      responses:
+        '201':
+          description: Query was submitted successfully
+          schema:
+           $ref: '#/definitions/UpdateFilterResponse'
+        '500':
+          $ref: '#/responses/InternalError'
 responses:
   FilterNotFound:
     description: Filter not found
