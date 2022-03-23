@@ -130,17 +130,21 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 	filterID := chi.URLParam(r, "id")
 	postTime, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
 
-	filter, error := api.store.GetFilter(ctx, filterID)
+	_, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
 		// error 500
 	}
 
-	error := api.store.CreateFilterOutput(ctx, nil)
+	err = api.store.CreateFilterOutput(ctx, nil)
 	if err != nil {
 		// error 500
 	}
 
 	// send the export event through Kafka
+	if err := api.ProduceCSVCreateEvent(); err != nil {
+		return
+	}
+
 	// return a mock response for now.
 	resp := updateFilterResponse{
 		model.JobState{
