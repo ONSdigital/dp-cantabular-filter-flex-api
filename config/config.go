@@ -28,7 +28,7 @@ type Config struct {
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
 	Mongo                        mongo.MongoDriverConfig
 
-	Kafka KafkaConfig
+	KafkaConfig KafkaConfig
 }
 
 type KafkaConfig struct {
@@ -44,9 +44,11 @@ type KafkaConfig struct {
 	SecClientKey              string   `envconfig:"KAFKA_SEC_CLIENT_KEY"                  json:"-"`
 	SecClientCert             string   `envconfig:"KAFKA_SEC_CLIENT_CERT"`
 	SecSkipVerify             bool     `envconfig:"KAFKA_SEC_SKIP_VERIFY"`
-	ExportStartGroup          string   `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START"`
-	ExportStartTopic          string   `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
-	CsvCreatedTopic           string   `envconfig:"KAFKA_TOPIC_CSV_CREATED"`
+	//	ExportStartGroup          string   `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START"`
+	ExportStartTopic string `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
+
+	// added this as it might be necessary. TODO: ask if necessary.
+	TLSProtocolFlag bool `envconfig:"TLS_PROTOCOL_FLAG"`
 }
 
 var cfg *Config
@@ -94,7 +96,7 @@ func Get() (*Config, error) {
 				IsSSL: false,
 			},
 		},
-		Kafka: KafkaConfig{
+		KafkaConfig: KafkaConfig{
 			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
 			ConsumerMinBrokersHealthy: 1,
 			ProducerMinBrokersHealthy: 2,
@@ -107,8 +109,8 @@ func Get() (*Config, error) {
 			SecClientKey:              "",
 			SecClientCert:             "",
 			SecSkipVerify:             false,
-			ExportStartGroup:          "dp-cantabular-filter-flex-api",
 			ExportStartTopic:          "cantabular-export-start",
+			TLSProtocolFlag:           false,
 		},
 	}
 
