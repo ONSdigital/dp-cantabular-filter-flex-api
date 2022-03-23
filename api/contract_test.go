@@ -19,16 +19,14 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			PopulationType: "test-blob",
 			Dimensions: []model.Dimension{
 				{
-					Name:         "test-dimension-1",
-					Options:      []string{"a", "b", "c"},
-					DimensionURL: "http://dim-1.com",
-					IsAreaType:   true,
+					Name:       "test-dimension-1",
+					Options:    []string{"a", "b", "c"},
+					IsAreaType: true,
 				},
 				{
-					Name:         "test-dimension-2",
-					Options:      []string{"1", "2", "3"},
-					DimensionURL: "http://dim-2.com",
-					IsAreaType:   false,
+					Name:       "test-dimension-2",
+					Options:    []string{"1", "2", "3"},
+					IsAreaType: false,
 				},
 			},
 		}

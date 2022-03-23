@@ -26,9 +26,28 @@ type Filter struct {
 	PopulationType    string              `bson:"population_type"              json:"population_type"`
 }
 
+//PutFilter holds details for PUT filter response
+type PutFilter struct {
+	Events         []Event `bson:"events"                       json:"events"`
+	Dataset        Dataset `bson:"dataset"                      json:"dataset"`
+	PopulationType string  `bson:"population_type"              json:"population_type"`
+}
+
+type JobState struct {
+	InstanceID       string  `json:"instance_id"`
+	DimensionListUrl string  `json:"dimension_list_url"`
+	FilterID         string  `json:"filter_id"`
+	Events           []Event `json:"events"`
+}
+
 type Links struct {
 	Version Link `bson:"version" json:"version"`
 	Self    Link `bson:"self"    json:"self"`
+}
+
+type FilterOutputLinks struct {
+	Links
+	FilterBlueprint Link `json:"filter_blueprint"`
 }
 
 type Link struct {
@@ -65,7 +84,7 @@ type Event struct {
 type Dimension struct {
 	Name         string   `bson:"name"          json:"name"`
 	Options      []string `bson:"options"       json:"options"`
-	DimensionURL string   `bson:"dimension_url" json:"dimension_url"`
+	DimensionURL string   `bson:"dimension_url" json:"dimension_url,omitempty"`
 	IsAreaType   bool     `bson:"is_area_type"  json:"is_area_type"`
 }
 

@@ -70,51 +70,34 @@ func (c *Client) GetFilter(ctx context.Context, fID string) (*model.Filter, erro
 func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, offset int) ([]model.Dimension, int, error) {
 	col := c.collections.filters
 
-	// Paginates the nested dimensions field
-	dimensionsFacet := bson.A{
-		bson.D{{"$replaceRoot", bson.D{{"newRoot", "$dimensions"}}}},
-		bson.D{{"$sort", bson.D{{"name", 1}}}},
-		bson.D{{"$limit", limit}},
-		bson.D{{"$skip", offset}},
+	projection := bson.D{
+		{"_id", 0},
+		{"totalCount", "$totalCount"},
 	}
 
-	// Adds a total record count for all a filter's dimensions
-	paginationFacet := bson.A{
-		bson.D{{"$count", "totalCount"}},
-	}
-
-	// Adds the filter-found flag
-	foundFacet := bson.A{
-		bson.D{{"$project", bson.D{{"found", "$foundFilters"}}}},
-	}
-
-	facet := bson.D{
-		{"pagination", paginationFacet},
-		{"foundFilters", foundFacet},
-	}
-
-	// We can't use `$limit` with a value of 0 on aggregates, so if we know
-	// we're not returning results, don't include the dimensions query.
+	// We can't use `$slice` with a value of 0 , so if we know we're not returning results,
+	// don't include the `dimensions` projection.
 	if limit > 0 {
-		facet = append(facet, bson.E{Key: "dimensions", Value: dimensionsFacet})
-	}
-
-	// Flatten lists where we know there is only one value, or all values are equal
-	flatten := bson.D{
-		{"$addFields", bson.D{
-			{"pagination", bson.D{{"$arrayElemAt", bson.A{"$pagination", 0}}}},
-			{"foundFilters", bson.D{{"$arrayElemAt", bson.A{"$foundFilters", 0}}}},
-		}},
+		projection = append(projection, bson.E{
+			Key:   "dimensions",
+			Value: bson.D{{"$slice", bson.A{"$dimensions", offset, limit}}},
+		})
 	}
 
 	pipeline := mongo.Pipeline{
 		bson.D{{"$match", bson.D{{"filter_id", fID}}}},
-		// Add a flag to indicate if a filter was set. Since stages run on matched rows,
-		// if no row was found this will never be set, and will deserialize into `false`.
-		bson.D{{"$addFields", bson.D{{"foundFilters", true}}}},
 		bson.D{{"$unwind", "$dimensions"}},
-		bson.D{{"$facet", facet}},
-		flatten,
+		bson.D{{"$replaceRoot", bson.D{{"newRoot", "$dimensions"}}}},
+		bson.D{{"$sort", bson.D{{"name", 1}}}},
+		bson.D{{
+			"$group",
+			bson.D{
+				{"_id", 0},
+				{"dimensions", bson.D{{"$push", "$$ROOT"}}},
+				{"totalCount", bson.D{{"$sum", 1}}},
+			},
+		}},
+		bson.D{{"$project", projection}},
 	}
 
 	var results []dimensionQueryResult
@@ -125,39 +108,36 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 	}
 
 	if len(results) == 0 {
-		return nil, 0, errors.Errorf("no results found in aggregate query: %v", results)
-	}
-
-	result := results[0]
-
-	if !result.FoundFilters.Found {
 		return nil, 0, &er{
 			err:      errors.Errorf("failed to find filter with ID (%s)", fID),
 			notFound: true,
 		}
 	}
 
+	result := results[0]
+
 	// Ensure we return an empty slice, so it serializes into `[]`.
 	if result.Dimensions == nil {
 		result.Dimensions = []model.Dimension{}
 	}
 
-	return result.Dimensions, result.Pagination.TotalCount, nil
-}
-
-// foundFilters contains a bool indicating if there were any row matches.
-// We need this to distinguish between zero dimensions (which is not an error)
-// and zero matched filters (which is an error).
-type foundFilters struct {
-	Found bool `bson:"found"`
-}
-
-type paginationQueryResult struct {
-	TotalCount int `bson:"totalCount"`
+	return result.Dimensions, result.TotalCount, nil
 }
 
 type dimensionQueryResult struct {
-	Dimensions   []model.Dimension     `bson:"dimensions"`
-	Pagination   paginationQueryResult `bson:"pagination"`
-	FoundFilters foundFilters          `bson:"foundFilters"`
+	Dimensions []model.Dimension `bson:"dimensions"`
+	TotalCount int               `bson:"totalCount"`
+}
+
+func (c *Client) AddFilterDimension(ctx context.Context, fID string, dimension model.Dimension) error {
+	col := c.collections.filters
+
+	newDimension := map[string]model.Dimension{
+		"dimensions": dimension,
+	}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, bson.M{"filter_id": fID}, bson.M{"$push": newDimension}); err != nil {
+		return errors.Wrap(err, "failed to add dimension to filter")
+	}
+	return nil
 }

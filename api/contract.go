@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 )
@@ -30,9 +31,9 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 2 values")
 	}
 
-	for _, d := range r.Dimensions {
-		if len(d.Name) == 0 || len(d.DimensionURL) == 0 {
-			return errors.New("missing field: [dimension[%d].name | dimension[%d].dimension_url]")
+	for i, d := range r.Dimensions {
+		if len(d.Name) == 0 {
+			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
 	}
 
@@ -41,7 +42,10 @@ func (r *createFilterRequest) Valid() error {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterResponse struct {
-	model.Filter
+	model.JobState
+	Links          model.Links   `json:"links"`
+	Dataset        model.Dataset `json:"dataset"`
+	PopulationType string        `json:"population_type"`
 }
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
@@ -49,9 +53,21 @@ type getFilterResponse struct {
 	model.Filter
 }
 
-// createFilterOutputResponse is the response body for POST /filters
+// putFilterResponse is the response body for PUT /filters/{id}
+type putFilterResponse struct {
+	model.PutFilter
+}
+
+// createFilterOutputResponse is the response body for POST /filters-output
 type createFilterOutputResponse struct {
 	model.FilterOutput
+}
+
+// filterOutputResponse is the response body for PUT /filters-outputs
+type filterOutputResponse struct {
+	model.FilterOutput
+	model.JobState
+	Links model.FilterOutputLinks `json:"links"`
 }
 
 // createFilterOutputRequest is the request body for POST /filters
@@ -88,4 +104,9 @@ type paginationResponse struct {
 	Offset     int `json:"offset"`
 	Count      int `json:"count"`
 	TotalCount int `json:"total_count"`
+}
+
+// addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
+type addFilterDimensionResponse struct {
+	model.Dimension
 }

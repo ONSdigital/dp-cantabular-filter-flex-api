@@ -14,7 +14,6 @@ import (
 )
 
 func TestValidateDimensions(t *testing.T) {
-	ctx := context.Background()
 	var api API
 
 	Convey("Given a set of filter dimensions which match existing dimensions found in Version doc", t, func() {
@@ -52,7 +51,7 @@ func TestValidateDimensions(t *testing.T) {
 				"bar": "bar01",
 			}
 
-			got, err := api.validateDimensions(ctx, filterDims, existingDims)
+			got, err := api.validateDimensions(filterDims, existingDims)
 			So(err, ShouldBeNil)
 			So(got, ShouldResemble, expected)
 		})
@@ -95,7 +94,7 @@ func TestValidateDimensions(t *testing.T) {
 		}
 
 		Convey("When validateDimensions is called", func() {
-			_, err := api.validateDimensions(ctx, filterDims, existingDims)
+			_, err := api.validateDimensions(filterDims, existingDims)
 			So(err, ShouldNotBeNil)
 		})
 	})
@@ -118,6 +117,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -136,7 +136,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 
@@ -147,6 +147,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -157,7 +158,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -175,6 +176,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 			}
 
 			req := createFilterRequest{
+				PopulationType: "Example",
 				Dimensions: []model.Dimension{
 					{
 						Name: "foo",
@@ -193,7 +195,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req, dimIDs)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})

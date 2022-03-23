@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/maxcnunes/httpfake"
+
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
@@ -20,9 +22,7 @@ import (
 	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
-	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/maxcnunes/httpfake"
 )
 
 const (
@@ -39,17 +39,19 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	producer   kafka.IProducer
-	errorChan  chan error
-	DatasetAPI *httpfake.HTTPFake
-	svc        *service.Service
-	cfg        *config.Config
-	wg         *sync.WaitGroup
-	signals    chan os.Signal
-	ctx        context.Context
-	HTTPServer *http.Server
-	store      service.Datastore
-	g          service.Generator
+	ApiFeature        *componenttest.APIFeature
+	errorChan         chan error
+	DatasetAPI        *httpfake.HTTPFake
+	svc               *service.Service
+	cfg               *config.Config
+	wg                *sync.WaitGroup
+	signals           chan os.Signal
+	ctx               context.Context
+	HTTPServer        *http.Server
+	store             service.Datastore
+	g                 service.Generator
+	shutdownInitiated bool
+	postedJSON        string
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -86,6 +88,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
+
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
@@ -154,16 +157,15 @@ func (c *Component) startService(ctx context.Context) {
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
 	// kill application
-	c.signals <- os.Interrupt
+	if !c.shutdownInitiated {
+		c.shutdownInitiated = true
+		c.signals <- os.Interrupt
 
-	// wait for graceful shutdown to finish (or timeout)
-	// TODO we should fix the timeout issue and then uncomment the following line.
-	c.wg.Wait()
+		// wait for graceful shutdown to finish (or timeout)
+		// TODO we should fix the timeout issue and then uncomment the following line.
+		c.wg.Wait()
+	}
 
-	// close producer
-	// if err := c.producer.Close(c.ctx); err != nil {
-	//     log.Error(c.ctx, "error closing kafka producer", err)
-	// }
 }
 
 // Reset re-initialises the service under test and the api mocks.
@@ -171,6 +173,7 @@ func (c *Component) Close() {
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
 	c.setInitialiserMock()
+	c.DatasetAPI.Reset()
 
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)

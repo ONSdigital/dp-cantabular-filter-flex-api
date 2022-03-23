@@ -1,7 +1,7 @@
-Feature: Filter Dimensions Private Endpoints Not Enabled
+Feature: Filter Outputs Private Endpoints Enabled
 
   Background:
-    Given private endpoints are not enabled
+    Given private endpoints are enabled
     And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
       """
            {
@@ -104,6 +104,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
 
   Scenario: Get filter dimensions successfully
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
     Then I should receive the following JSON response:
     """
@@ -139,35 +141,49 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "200"
 
   Scenario: Add a filter dimension successfully
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I add a new dimension to an existing filter
     Then the HTTP status code should be "201"
     And I receive the dimension's body back in the body of the response
     And an ETag is returned
 
   Scenario: Add a filter dimension with no options successfully
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I add a new dimension with no options to an existing filter
     Then the HTTP status code should be "201"
     And I receive the dimension's body back with an empty 'options' slice
     And an ETag is returned
 
   Scenario: Add a filter dimension but request is malformed
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I try to add a malformed dimension to an existing filter
     Then the HTTP status code should be "400"
 
   Scenario: Add a filter dimension but the filter is not found
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I try to add a new dimension to a non-existent filter
     Then the HTTP status code should be "404"
 
   Scenario: Add a filter dimension but the filter's dimensions have been modified since I retrieved it
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them
     Then the HTTP status code should be "409"
 
   Scenario: Add a filter dimension but something goes wrong on the server
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     Given the client for the dataset API failed and is returning errors
     When I try to add a new dimension to an existing filter
     Then the HTTP status code should be "500"
 
   Scenario: Get paginated filter dimensions successfully (limit)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=1"
     Then I should receive the following JSON response:
     """
@@ -193,6 +209,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "200"
 
   Scenario: Get paginated filter dimensions successfully (offset)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?offset=1"
     Then I should receive the following JSON response:
     """
@@ -218,6 +236,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "200"
 
   Scenario: Get paginated filter dimensions successfully (0 limit)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=0"
     Then I should receive the following JSON response:
     """
@@ -232,6 +252,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "200"
 
   Scenario: Get filter dimensions unsuccessfully
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-03cb-27584627edb1/dimensions"
     Then I should receive the following JSON response:
     """
@@ -242,6 +264,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "404"
 
   Scenario: Get filter dimensions unsuccessfully (cannot parse offset)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?offset=dog"
     Then I should receive the following JSON response:
     """
@@ -252,6 +276,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "400"
 
   Scenario: Get filter dimensions unsuccessfully (cannot parse limit)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=dog"
     Then I should receive the following JSON response:
     """
@@ -262,6 +288,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "400"
 
   Scenario: Get filter dimensions unsuccessfully (invalid limit, too large)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     Given the maximum pagination limit is set to 100
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=101"
     Then I should receive the following JSON response:
@@ -273,6 +301,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "400"
 
   Scenario: Get filter dimensions unsuccessfully (invalid limit, less than 0)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-03cb-27584627edb1/dimensions?limit=-1"
     Then I should receive the following JSON response:
     """
@@ -283,6 +313,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And the HTTP status code should be "400"
 
   Scenario: Get filter dimensions unsuccessfully (invalid offset, less than 0)
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
     When I GET "/filters/94310d8d-72d6-492a-03cb-27584627edb1/dimensions?offset=-1"
     Then I should receive the following JSON response:
     """

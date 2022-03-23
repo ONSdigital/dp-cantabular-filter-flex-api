@@ -158,36 +158,13 @@ Feature: Filters Private Endpoints Not Enabled
       },
       "events": null,
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
-      "dimensions": [
-        {
-          "name": "Number of siblings (3 mappings)",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "dimension_url": "http://dimension.url/siblings",
-          "is_area_type": false
-        },
-        {
-          "name": "City",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "dimension_url": "http://dimension.url/city",
-          "is_area_type": true
-        }
-      ],
+      "dimension_list_url":":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
         "version": 1
       },
-      "published": true,
-      "population_type": "Example",
-      "type": "flexible"
+      "population_type": "Example"
     }
     """
 
