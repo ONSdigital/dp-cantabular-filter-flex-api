@@ -124,7 +124,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
-func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
+func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	filterID := chi.URLParam(r, "id")
