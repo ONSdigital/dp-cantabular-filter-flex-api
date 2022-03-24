@@ -94,7 +94,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 }
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
-func (c *Component) Init(ctx context.Context) (http.Handler, error) {
+func (c *Component) Init() (http.Handler, error) {
 
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
