@@ -5,8 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-kafka/v3/avro"
 
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
@@ -91,8 +94,52 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^the client for the dataset API failed and is returning errors$`,
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
+
+	ctx.Step(`^one event with the following fields are in the produced kafka topic cantabular-export-start:$`, c.csvExportStartEventProduced)
 }
 
+func (c *Component) csvExportStartEventProduced() error {
+
+	select {
+	case <-time.After(c.waitEventTimeout):
+		return nil
+	case <-c.consumer.Channels().Closer:
+		return errors.New("closer channel closed")
+	case msg, ok := <-c.consumer.Channels().Upstream:
+		if !ok {
+			return errors.New("upstream channel closed")
+		}
+
+		var e api.ExportStart
+		var exportStart = `{
+  "type": "record",
+  "name": "cantabular-export-start",
+  "fields": [
+    {"name": "instance_id", "type": "string", "default": ""},
+    {"name": "dataset_id",  "type": "string", "default": ""},
+    {"name": "edition",     "type": "string", "default": ""},
+    {"name": "version",     "type": "string", "default": ""},
+    {"name": "filter_id",   "type":"string",  "default": ""}
+  ]
+}`
+
+		var s = &avro.Schema{
+			Definition: exportStart,
+		}
+
+		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
+			msg.Commit()
+			msg.Release()
+			return fmt.Errorf("error unmarshalling message: %w", err)
+		}
+
+		msg.Commit()
+		msg.Release()
+
+		return fmt.Errorf("kafka event received in csv-created topic: %v", e)
+
+	}
+}
 func (c *Component) anETagIsReturned() error {
 	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
 	if eTag == "" {
