@@ -8,7 +8,7 @@ import (
 )
 
 // GetKafkaProducer creates a Kafka producer. Currently just for POST filters/{id}/submit
-var GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
+func GetKafkaProducer(ctx context.Context, cfg *config.Config) (*kafka.Producer, error) {
 	pConfig := &kafka.ProducerConfig{
 		BrokerAddrs: cfg.KafkaConfig.Addr,
 		// TODO: Right default?
@@ -17,7 +17,9 @@ var GetKafkaProducer = func(ctx context.Context, cfg *config.Config) (kafka.IPro
 		KafkaVersion:      &cfg.KafkaConfig.Version,
 		MaxMessageBytes:   &cfg.KafkaConfig.MaxBytes,
 	}
-	if cfg.KafkaConfig.SecProtocol == config.KafkaConfig.TLSProtocolFlag {
+	// TODOwhat should the types be here really ?
+	// if cfg.KafkaConfig.SecProtocol == config.KafkaConfig.TLSProtocolFlag {
+	if false {
 		pConfig.SecurityConfig = kafka.GetSecurityConfig(
 			cfg.KafkaConfig.SecCACerts,
 			cfg.KafkaConfig.SecClientCert,
