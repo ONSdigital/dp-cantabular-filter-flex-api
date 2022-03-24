@@ -56,7 +56,6 @@ type Component struct {
 	shutdownInitiated bool
 	postedJSON        string
 
-	producer         kafka.IProducer
 	consumer         kafka.IConsumerGroup
 	waitEventTimeout time.Duration
 }
