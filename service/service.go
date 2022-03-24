@@ -25,7 +25,7 @@ type Service struct {
 	Api              *api.API
 	responder        Responder
 	store            Datastore
-	Producer         kafka.IProducer
+	Producer         *kafka.Producer
 	generator        Generator
 	cantabularClient CantabularClient
 	datasetAPIClient DatasetAPIClient
@@ -86,6 +86,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.store,
 		svc.datasetAPIClient,
 		svc.cantabularClient,
+		svc.Producer,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
