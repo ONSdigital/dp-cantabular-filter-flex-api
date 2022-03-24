@@ -46,6 +46,7 @@ type KafkaConfig struct {
 	SecSkipVerify             bool     `envconfig:"KAFKA_SEC_SKIP_VERIFY"`
 	//	ExportStartGroup          string   `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START"`
 	ExportStartTopic string `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
+	ExportStartGroup string `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START`
 
 	// added this as it might be necessary. TODO: ask if necessary.
 	TLSProtocolFlag bool `envconfig:"TLS_PROTOCOL_FLAG"`
@@ -110,6 +111,7 @@ func Get() (*Config, error) {
 			SecClientCert:             "",
 			SecSkipVerify:             false,
 			ExportStartTopic:          "cantabular-export-start",
+			ExportStartGroup:          "cantabular-export-start-group",
 			TLSProtocolFlag:           false,
 		},
 	}
