@@ -130,49 +130,108 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 	filterID := chi.URLParam(r, "id")
 	postTime, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
 
-	_, err := api.store.GetFilter(ctx, filterID)
-	if err != nil {
-		// error 500
+	logData := log.Data{
+		"filter_id": filterID,
 	}
 
-	err = api.store.CreateFilterOutput(ctx, nil)
+	// I do not understand why we are getting the filter and not doing anything with it
+	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
 		// error 500
+		api.respond.Error(
+			ctx,
+			w,
+			//			statusCode(err),
+			500,
+			Error{
+				err:     errors.Wrap(err, "failed to get existing Version"),
+				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
+		return
+
 	}
 
+	// State has not been discussed.
+	// Just chosen a reasonable looking one.
+	// TODO: RAISE STATE in a round table.
+	filterOutput := &model.FilterOutput{
+		ID:    filter.Dataset.ID,
+		State: "submitted",
+	}
+
+	err = api.store.CreateFilterOutput(ctx, filterOutput)
+	if err != nil {
+		// error 500
+		api.respond.Error(
+			ctx,
+			w,
+			//			statusCode(err),
+			500,
+			Error{
+				err:     errors.Wrap(err, "failed to get existing Version"),
+				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
+		return
+
+	}
+
+	// schema mismatch between avro and model Type.
+	// naively converting for now.
+	datasetVersion := strconv.Itoa(filter.Dataset.Version)
+
+	exportEvent := ExportStart{
+		InstanceID: filter.InstanceID,
+		DatasetID:  filter.Dataset.ID,
+		Edition:    filter.Dataset.Edition,
+		Version:    datasetVersion,
+		Filter_ID:  filterID,
+	}
 	// send the export event through Kafka
-	if err := api.ProduceCSVCreateEvent(); err != nil {
+	if err := api.ProduceCSVCreateEvent(&exportEvent); err != nil {
+		// return error at 500
+		api.respond.Error(
+			ctx,
+			w,
+			//			statusCode(err),
+			500,
+			Error{
+				err:     errors.Wrap(err, "failed to get existing Version"),
+				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
 		return
 	}
 
-	// return a mock response for now.
+	// update filter response could be an oversight
+	// double check with fran if this is a real update.
+	// if not just update with filter links
+	// TODO: Josh mentioned that this might not be the right
+	// response for the service given that there is no updating ocurring.
 	resp := updateFilterResponse{
 		model.JobState{
-			InstanceID: "",
+			InstanceID: filter.InstanceID,
 			FilterID:   filterID,
 			Events: []model.Event{
 				{
 					Timestamp: postTime,
-					Name:      "mock-export-event",
+					// TODO: right?
+					Name: "produce-csv-event",
 				},
 			},
 		},
 
 		model.Dataset{
-			ID:      "mock-id",
-			Edition: "mock-edition",
-			Version: 0,
+			ID:      filter.Dataset.ID,
+			Edition: filter.Dataset.Edition,
+			Version: filter.Dataset.Version,
 		},
-		model.Links{
-			Version: model.Link{
-				HREF: "",
-				ID:   "",
-			},
-			Self: model.Link{
-				HREF: "",
-				ID:   "",
-			},
-		},
+		// just pull the Links from the dataset
+		filter.Links,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
