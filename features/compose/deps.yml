@@ -1,12 +1,24 @@
 version: '3.3'
+
 services:
   zookeeper:
-    image: 'confluentinc/cp-zookeeper:6.0.0'
-    hostname: zookeeper
-    restart: unless-stopped
+    image: confluentinc/cp-zookeeper:6.0.0
     expose:
       - 2181
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+  kafka:
+    image: confluentinc/cp-kafka:6.0.0
+    expose:
+      - 9092 # exposed port to docker network so that the broker is reachable by other brokers, value needs to match PLAINTEXT port
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
