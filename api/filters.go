@@ -128,8 +128,6 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	filterID := chi.URLParam(r, "id")
-	postTime, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
-
 	logData := log.Data{
 		"filter_id": filterID,
 	}
@@ -144,8 +142,8 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 			//			statusCode(err),
 			500,
 			Error{
-				err:     errors.Wrap(err, "failed to get existing Version"),
-				message: "failed to get existing dataset information",
+				err:     errors.Wrap(err, "filter does not exist"),
+				message: "failed to get filter",
 				logData: logData,
 			},
 		)
@@ -170,8 +168,8 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 			//			statusCode(err),
 			500,
 			Error{
-				err:     errors.Wrap(err, "failed to get existing Version"),
-				message: "failed to get existing dataset information",
+				err:     errors.Wrap(err, "failed to create filter output"),
+				message: "filter output was not submitted",
 				logData: logData,
 			},
 		)
@@ -179,7 +177,7 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// schema mismatch between avro and model Type.
+	// schema mismatch between avro and model type.
 	// naively converting for now.
 	datasetVersion := strconv.Itoa(filter.Dataset.Version)
 
@@ -199,28 +197,34 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 			//			statusCode(err),
 			500,
 			Error{
-				err:     errors.Wrap(err, "failed to get existing Version"),
-				message: "failed to get existing dataset information",
+				err:     errors.Wrap(err, "failed to create csv event"),
+				message: "csv create event was not submitted",
 				logData: logData,
 			},
 		)
 		return
 	}
 
+	timeNow := time.Now()
 	// update filter response could be an oversight
 	// double check with fran if this is a real update.
 	// if not just update with filter links
 	// TODO: Josh mentioned that this might not be the right
 	// response for the service given that there is no updating ocurring.
+
+	// TODO: add in the dimensions
+	// TODO: population type
+	// Note that this is different to
+	// the swagger spec as discussed with Fran
 	resp := updateFilterResponse{
 		model.JobState{
 			InstanceID: filter.InstanceID,
 			FilterID:   filterID,
 			Events: []model.Event{
 				{
-					Timestamp: postTime,
+					Timestamp: timeNow,
 					// TODO: right?
-					Name: "produce-csv-event",
+					Name: "cantabular-export-start",
 				},
 			},
 		},
@@ -230,8 +234,9 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 			Edition: filter.Dataset.Edition,
 			Version: filter.Dataset.Version,
 		},
-		// just pull the Links from the dataset
 		filter.Links,
+		filter.PopulationType,
+		filter.Dimensions,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
