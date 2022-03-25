@@ -366,9 +366,12 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 
 	logData := log.Data{"id": fID}
 
-	limit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit, logData)
+	limit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit)
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusBadRequest, err)
+		api.respond.Error(ctx, w, http.StatusBadRequest, &Error{
+			err:     err,
+			logData: logData,
+		})
 		return
 	}
 
