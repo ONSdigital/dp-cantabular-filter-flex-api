@@ -19,7 +19,7 @@ func GetKafkaProducer(ctx context.Context, cfg *config.Config) (kafka.IProducer,
 	}
 	// TODOwhat should the types be here really ?
 	// if cfg.KafkaConfig.SecProtocol == config.KafkaConfig.TLSProtocolFlag {
-	if false {
+	if cfg.KafkaConfig.TLSProtocolFlag {
 		pConfig.SecurityConfig = kafka.GetSecurityConfig(
 			cfg.KafkaConfig.SecCACerts,
 			cfg.KafkaConfig.SecClientCert,
