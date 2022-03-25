@@ -138,7 +138,6 @@ func (c *Component) Init() (http.Handler, error) {
 		return nil, fmt.Errorf("error creating kafka consumer: %w", err)
 	}
 
-	// start consumer group
 	// For checking the csv create request
 	if err := c.consumer.Start(); err != nil {
 		return nil, fmt.Errorf("error starting kafka consumer: %w", err)
