@@ -132,7 +132,6 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 		"filter_id": filterID,
 	}
 
-	// I do not understand why we are getting the filter and not doing anything with it
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
 		// error 500
@@ -190,11 +189,10 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 	}
 	// send the export event through Kafka
 	if err := api.ProduceCSVCreateEvent(&exportEvent); err != nil {
-		// return error at 500
+
 		api.respond.Error(
 			ctx,
 			w,
-			//			statusCode(err),
 			500,
 			Error{
 				err:     errors.Wrap(err, "failed to create csv event"),
