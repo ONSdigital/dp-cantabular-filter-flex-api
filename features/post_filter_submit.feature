@@ -1,3 +1,4 @@
+@post
 Feature: Post Filter Private Endpoints Not Enabled
 
   Background:
@@ -95,7 +96,11 @@ Feature: Post Filter Private Endpoints Not Enabled
       }
     ]
     """
-
+  Scenario: POST Filter Not Found
+    When I POST "/filters/cannot-find/submit"
+    """
+    """
+    Then the HTTP status code should be "500"
   Scenario: POST filter successfully
     When I POST "/filters/TEST-FILTER-ID/submit"
     """
