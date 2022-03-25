@@ -206,20 +206,16 @@ func (api *API) postFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	timeNow := time.Now()
-	// update filter response could be an oversight
-	// double check with fran if this is a real update.
-	// if not just update with filter links
-	// TODO: Josh mentioned that this might not be the right
-	// response for the service given that there is no updating ocurring.
 
-	// TODO: add in the dimensions
-	// TODO: population type
-	// Note that this is different to
-	// the swagger spec as discussed with Fran
-	resp := updateFilterResponse{
+	/*
+	   Note that this respose is different to swagger
+	   as discussed with Fran
+	*/
+	resp := UpdateFilterResponse{
 		model.JobState{
-			InstanceID: filter.InstanceID,
-			FilterID:   filterID,
+			InstanceID:       filter.InstanceID,
+			FilterID:         filterID,
+			DimensionListUrl: "",
 			Events: []model.Event{
 				{
 					Timestamp: timeNow,
