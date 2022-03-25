@@ -2,7 +2,6 @@ Feature: Post Filter Private Endpoints Not Enabled
 
   Background:
     Given private endpoints are not enabled
-
     And I have these filters:
     """
     [
@@ -17,15 +16,7 @@ Feature: Post Filter Private Endpoints Not Enabled
             "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
           }
         },
-        "events": {
-          "version": {
-            "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
-            "id": "1"
-          },
-          "self": {
-            "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
-          }
-        },
+        "events": null,
         "instance_id": "TEST-INSTANCE-ID",
         "dimensions": [
           {
@@ -59,7 +50,7 @@ Feature: Post Filter Private Endpoints Not Enabled
         "type": "flexible"
       },
       {
-        "filter_id": "83210d8d-72d6-492a-bc30-27584627abc2",
+        "filter_id": "test-case-2",
         "links": {
           "version": {
             "href": "http://mockhost:9999/datasets/cantabular-example-unpublished/editions/2021/version/1",
@@ -109,13 +100,15 @@ Feature: Post Filter Private Endpoints Not Enabled
     When I POST "/filters/TEST-FILTER-ID/submit"
     """
     """
-    Then I should receive the following JSON response:
+    Then I should receive the following time ignored JSON response:
     """
         {
 
               "instance_id":"TEST-INSTANCE-ID",
               "filter_id":"TEST-FILTER-ID",
-              "events":[{
+
+              "dimension_list_url": "",
+"events":[{
                       "timestamp": "2016-07-17T08:38:25.316Z",
                       "name": "cantabular-export-start"
               }],
