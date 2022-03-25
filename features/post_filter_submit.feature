@@ -7,7 +7,7 @@ Feature: Post Filter Private Endpoints Not Enabled
     """
     [
       {
-        "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+        "filter_id": "TEST-FILTER-ID",
         "links": {
           "version": {
             "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
@@ -17,8 +17,16 @@ Feature: Post Filter Private Endpoints Not Enabled
             "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
           }
         },
-        "events": null,
-        "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+        "events": {
+          "version": {
+            "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+            "id": "1"
+          },
+          "self": {
+            "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          }
+        },
+        "instance_id": "TEST-INSTANCE-ID",
         "dimensions": [
           {
             "name": "Number of siblings (3 mappings)",
@@ -98,34 +106,59 @@ Feature: Post Filter Private Endpoints Not Enabled
     """
 
   Scenario: POST filter successfully
-    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/submit"
+    When I POST "/filters/TEST-FILTER-ID/submit"
     """
     """
     Then I should receive the following JSON response:
     """
         {
 
-              "instance_id":"",
-              "dimension_list_url":"",
-              "filter_id":"94310d8d-72d6-492a-bc30-27584627edb1",
+              "instance_id":"TEST-INSTANCE-ID",
+              "filter_id":"TEST-FILTER-ID",
               "events":[{
                       "timestamp": "2016-07-17T08:38:25.316Z",
-                      "name": "mock-export-event"
+                      "name": "cantabular-export-start"
               }],
-
            "dataset":{
-              "id":"mock-id",
-              "edition":"mock-edition",
-              "version":0
+              "id":"cantabular-example-1",
+              "edition":"2021",
+              "version": 1
            },
-           "links":{
-              "version":{
-                 "href":""
-              },
-              "self":{
-                 "href":""
-              }
-           }
+           "links": {
+          "version": {
+            "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+            "id": "1"
+          },
+          "self": {
+            "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          }
+        },
+        "population_type": "Example",
+        "dimensions": [
+          {
+            "name": "Number of siblings (3 mappings)",
+            "options": [
+              "0-3",
+              "4-7",
+              "7+"
+            ],
+            "dimension_url": "http://dimension.url/siblings",
+            "is_area_type": false
+          },
+          {
+            "name": "City",
+            "options": [
+              "Cardiff",
+              "London",
+              "Swansea"
+            ],
+            "dimension_url": "http://dimension.url/city",
+            "is_area_type": true
+          }
+        ]
         }
     """
     And the HTTP status code should be "202"
+    And one event with the following fields are in the produced kafka topic catabular-export-start:
+      | InstanceID        | DatasetID            | Edition          | Version          | FilterID       |
+      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1                | TEST-FILTER-ID |
