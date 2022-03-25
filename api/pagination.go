@@ -1,47 +1,44 @@
 package api
 
 import (
-	"fmt"
 	"net/url"
 	"strconv"
 
-	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 )
 
-const DefaultLimit = 20
-const DefaultOffset = 0
+const (
+	DefaultLimit = 20
+	DefaultOffset = 0
+)
 
 // getPaginationParams parses a URL and extracts limit/offset values.
-func getPaginationParams(url *url.URL, maximumLimit int, logData log.Data) (limit, offset int, err error) {
+func getPaginationParams(url *url.URL, maximumLimit int) (int, int, error) {
 	query := url.Query()
 
-	limit, err = getInt(query.Get("limit"), DefaultLimit)
+	limit, err := getInt(query.Get("limit"), DefaultLimit)
 	if err != nil {
-		return 0, 0, &Error{err: err, message: "invalid parameter limit", logData: logData}
+		return 0, 0, errors.Wrap(err, "invalid parameter limit")
 	}
 
 	if limit > maximumLimit {
-		msg := fmt.Sprintf("limit cannot be larger than %v", maximumLimit)
-		return 0, 0, &Error{err: errors.New(msg), message: msg, logData: logData}
+		return 0, 0, errors.Errorf("limit cannot be larger than %v", maximumLimit)
 	}
 
 	if limit < 0 {
-		msg := "limit cannot be less than 0"
-		return 0, 0, &Error{err: errors.New(msg), message: msg, logData: logData}
+		return 0, 0, errors.New("limit cannot be less than 0")
 	}
 
-	offset, err = getInt(query.Get("offset"), DefaultOffset)
+	offset, err := getInt(query.Get("offset"), DefaultOffset)
 	if err != nil {
-		return 0, 0, &Error{err: err, message: "invalid parameter offset", logData: logData}
+		return 0, 0, errors.Wrap(err, "invalid parameter offset")
 	}
 
 	if offset < 0 {
-		msg := "offset cannot be less than 0"
-		return 0, 0, &Error{err: errors.New(msg), message: msg, logData: logData}
+		return 0, 0, errors.New("offset cannot be less than 0")
 	}
 
-	return
+	return limit, offset, nil
 }
 
 // getInt attempts to parse a passed string into a number, falling back to
