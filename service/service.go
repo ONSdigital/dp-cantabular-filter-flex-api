@@ -25,7 +25,7 @@ type Service struct {
 	Api              *api.API
 	responder        Responder
 	store            Datastore
-	Producer         *kafka.Producer
+	Producer         kafka.IProducer
 	generator        Generator
 	cantabularClient CantabularClient
 	datasetAPIClient DatasetAPIClient
