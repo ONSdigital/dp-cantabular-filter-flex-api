@@ -1,10 +1,12 @@
 package steps
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
@@ -95,10 +97,48 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
 
-	ctx.Step(`^one event with the following fields are in the produced kafka topic cantabular-export-start:$`, c.csvExportStartEventProduced)
+	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`, c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart)
+
+	ctx.Step(`^I should receive the following time ignored JSON response:$`, c.iShouldReceiveTheFollowingTimeIgnoredJSONResponse)
+
 }
 
-func (c *Component) csvExportStartEventProduced() error {
+/*
+   The POST api now returns a Jobstate with a time component in it.
+   This results in failed tests as example is not current.
+   This custom JSON response parser is just to ensure time is ignored
+   when comparing requests.
+
+   open to suggestions on better way to handle
+*/
+func (c *Component) iShouldReceiveTheFollowingTimeIgnoredJSONResponse(arg1 *godog.DocString) error {
+	now := time.Now()
+
+	actual := new(bytes.Buffer)
+	actual.ReadFrom(c.ApiFeature.HttpResponse.Body)
+
+	var actualUpdateResponse api.UpdateFilterResponse
+	var expectedUpdateResponse api.UpdateFilterResponse
+
+	if err := json.Unmarshal([]byte(actual.String()), &actualUpdateResponse); err != nil {
+		return errors.New("Failed to unmarshal ACTUAL response.")
+	}
+
+	if err := json.Unmarshal([]byte(arg1.Content), &expectedUpdateResponse); err != nil {
+		return errors.New("Failed to unmarshal EXPECTED")
+	}
+
+	// naive setting because as per method, it should always be set.
+	actualUpdateResponse.Events[0].Timestamp = now
+	expectedUpdateResponse.Events[0].Timestamp = now
+
+	if !reflect.DeepEqual(actualUpdateResponse, expectedUpdateResponse) {
+		return errors.New("Structs are not equal")
+	}
+	return nil
+}
+
+func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
 
 	select {
 	case <-time.After(c.waitEventTimeout):
