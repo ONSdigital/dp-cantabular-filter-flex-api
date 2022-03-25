@@ -49,7 +49,8 @@ type createFilterResponse struct {
 }
 
 // updateFilter Response is the response body for POST /filters/{id}/submit
-type updateFilterResponse struct {
+// made public because needed for integration tests.
+type UpdateFilterResponse struct {
 	model.JobState
 	Dataset        model.Dataset     `json:"dataset"`
 	Links          model.Links       `json:"links"`
