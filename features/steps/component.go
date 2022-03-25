@@ -221,6 +221,13 @@ func (c *Component) startService(ctx context.Context) {
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
 
+	wg := sync.WaitGroup{}
+
+	// for future tests?
+	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
+		log.Error(c.ctx, "error draining topic", err)
+	}
+
 	if err := c.consumer.Close(c.ctx); err != nil {
 		log.Error(c.ctx, "error closing kafka consumer", err)
 	}
