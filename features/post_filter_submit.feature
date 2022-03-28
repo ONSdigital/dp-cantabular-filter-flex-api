@@ -112,7 +112,7 @@ Feature: Post Filter Private Endpoints Not Enabled
               "instance_id":"TEST-INSTANCE-ID",
               "filter_id":"TEST-FILTER-ID",
 
-              "dimension_list_url": "",
+              "dimension_list_url": ":27017/filters/TEST-FILTER-ID/dimensions",
 "events":[{
                       "timestamp": "2016-07-17T08:38:25.316Z",
                       "name": "cantabular-export-start"

@@ -164,8 +164,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(
 			ctx,
 			w,
-			//			statusCode(err),
-			500,
+			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "failed to create filter output"),
 				message: "filter output was not submitted",
