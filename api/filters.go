@@ -139,7 +139,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			//			statusCode(err),
-			500,
+			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "filter does not exist"),
 				message: "failed to get filter",
