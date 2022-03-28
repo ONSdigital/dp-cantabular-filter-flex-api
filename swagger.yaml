@@ -345,6 +345,31 @@ paths:
           description: "Dimension name was not found"
         500:
           $ref: '#/responses/InternalError'
+    put:
+      tags:
+      - "Public"
+      summary: "Update a dimension"
+      description: "Update the filter by updating a selected dimension"
+      parameters:
+      - $ref: '#/parameters/dimension'
+      - $ref: '#/parameters/if_match'
+      responses:
+        200:
+          description: "The dimension has been updated"
+          schema:
+            $ref: '#/definitions/Dimension'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Invalid request body, filter does not exist, or If-Match header not provided"
+        404:
+          description: "Dimension was not found"
+        409:
+          description: '#/responses/FilterConflict'
+        500:
+          $ref: '#/responses/InternalError'
     patch:
       tags:
       - "Public"
