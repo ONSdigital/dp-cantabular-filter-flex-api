@@ -17,13 +17,11 @@ const (
 type Filter struct {
 	ID                string              `bson:"filter_id"                    json:"filter_id"`
 	Links             Links               `bson:"links"                        json:"links"`
-	FilterOutput      *FilterOutput       `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
-	Events            []Event             `bson:"events"                       json:"events"`
 	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
 	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
 	ETag              string              `bson:"etag"                         json:"-"`
 	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
-	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions"`
+	Dimensions        []Dimension         `bson:"dimensions"                   json:"-"`
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
 	Published         bool                `bson:"published"                    json:"published"`
 	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
@@ -31,7 +29,7 @@ type Filter struct {
 	PopulationType    string              `bson:"population_type"              json:"population_type"`
 }
 
-//PutFilter holds details for PUT filter response
+// PutFilter holds details for PUT filter response
 type PutFilter struct {
 	Events         []Event `bson:"events"                       json:"events"`
 	Dataset        Dataset `bson:"dataset"                      json:"dataset"`
