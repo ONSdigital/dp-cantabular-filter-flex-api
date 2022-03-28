@@ -138,7 +138,6 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(
 			ctx,
 			w,
-			//			statusCode(err),
 			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "filter does not exist"),
@@ -160,7 +159,6 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	err = api.store.CreateFilterOutput(ctx, filterOutput)
 	if err != nil {
-		// error 500
 		api.respond.Error(
 			ctx,
 			w,
@@ -192,7 +190,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		api.respond.Error(
 			ctx,
 			w,
-			500,
+			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "failed to create csv event"),
 				message: "csv create event was not submitted",
