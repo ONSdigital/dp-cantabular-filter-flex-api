@@ -43,6 +43,9 @@ var _ service.Datastore = &DatastoreMock{}
 // 			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error) {
 // 				panic("mock out the GetFilterDimensions method")
 // 			},
+// 			UpdateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
+// 				panic("mock out the UpdateFilterOutput method")
+// 			},
 // 		}
 //
 // 		// use mockedDatastore in code that requires service.Datastore
@@ -70,6 +73,9 @@ type DatastoreMock struct {
 
 	// GetFilterDimensionsFunc mocks the GetFilterDimensions method.
 	GetFilterDimensionsFunc func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error)
+
+	// UpdateFilterOutputFunc mocks the UpdateFilterOutput method.
+	UpdateFilterOutputFunc func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -124,6 +130,13 @@ type DatastoreMock struct {
 			// N2 is the n2 argument value.
 			N2 int
 		}
+		// UpdateFilterOutput holds details about calls to the UpdateFilterOutput method.
+		UpdateFilterOutput []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// FilterOutput is the filterOutput argument value.
+			FilterOutput *model.FilterOutput
+		}
 	}
 	lockAddFilterDimension  sync.RWMutex
 	lockChecker             sync.RWMutex
@@ -132,6 +145,7 @@ type DatastoreMock struct {
 	lockCreateFilterOutput  sync.RWMutex
 	lockGetFilter           sync.RWMutex
 	lockGetFilterDimensions sync.RWMutex
+	lockUpdateFilterOutput  sync.RWMutex
 }
 
 // AddFilterDimension calls AddFilterDimensionFunc.
@@ -379,5 +393,40 @@ func (mock *DatastoreMock) GetFilterDimensionsCalls() []struct {
 	mock.lockGetFilterDimensions.RLock()
 	calls = mock.calls.GetFilterDimensions
 	mock.lockGetFilterDimensions.RUnlock()
+	return calls
+}
+
+// UpdateFilterOutput calls UpdateFilterOutputFunc.
+func (mock *DatastoreMock) UpdateFilterOutput(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
+	if mock.UpdateFilterOutputFunc == nil {
+		panic("DatastoreMock.UpdateFilterOutputFunc: method is nil but Datastore.UpdateFilterOutput was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		FilterOutput    *model.FilterOutput
+	}{
+		ContextMoqParam: contextMoqParam,
+		FilterOutput:    filterOutput,
+	}
+	mock.lockUpdateFilterOutput.Lock()
+	mock.calls.UpdateFilterOutput = append(mock.calls.UpdateFilterOutput, callInfo)
+	mock.lockUpdateFilterOutput.Unlock()
+	return mock.UpdateFilterOutputFunc(contextMoqParam, filterOutput)
+}
+
+// UpdateFilterOutputCalls gets all the calls that were made to UpdateFilterOutput.
+// Check the length with:
+//     len(mockedDatastore.UpdateFilterOutputCalls())
+func (mock *DatastoreMock) UpdateFilterOutputCalls() []struct {
+	ContextMoqParam context.Context
+	FilterOutput    *model.FilterOutput
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		FilterOutput    *model.FilterOutput
+	}
+	mock.lockUpdateFilterOutput.RLock()
+	calls = mock.calls.UpdateFilterOutput
+	mock.lockUpdateFilterOutput.RUnlock()
 	return calls
 }

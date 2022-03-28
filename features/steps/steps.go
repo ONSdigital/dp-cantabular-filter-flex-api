@@ -101,6 +101,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 
 	ctx.Step(`^I should receive the following time ignored JSON response:$`, c.iShouldReceiveTheFollowingTimeIgnoredJSONResponse)
 
+	ctx.Step(`^I have these filter outputs:$`, c.iHaveTheseFilterOutputs)
+
 }
 
 /*
@@ -342,4 +344,25 @@ func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error 
 		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
 		&godog.DocString{Content: json},
 	)
+}
+
+func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
+	ctx := context.Background()
+	var filterOutputs []model.FilterOutput
+
+	err := json.Unmarshal([]byte(docs.Content), &filterOutputs)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshall")
+	}
+
+	store := c.store
+	col := c.cfg.FiltersCollection
+
+	for _, f := range filterOutputs {
+		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
+			return errors.Wrap(err, "failed to upsert filter")
+		}
+	}
+
+	return nil
 }
