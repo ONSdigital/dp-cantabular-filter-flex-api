@@ -7,12 +7,9 @@ import (
 )
 
 /*
-   Note: schema copied from csv export event
-   lifted from the repository, so there is some
-   code duplication here.
-
-   Duplicate rather
-   Was not sure where to get the
+   Note: schema copied from
+   csv export event lifted
+   from the repository
 */
 
 // ExportStart provides an avro structure for a Export Start event
