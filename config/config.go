@@ -48,7 +48,6 @@ type KafkaConfig struct {
 	ExportStartTopic string `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
 	ExportStartGroup string `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START`
 
-	// added this as it might be necessary. TODO: ask if necessary.
 	TLSProtocolFlag bool `envconfig:"TLS_PROTOCOL_FLAG"`
 }
 

@@ -10,8 +10,7 @@ import (
 // GetKafkaProducer creates a Kafka producer. Currently just for POST filters/{id}/submit
 func GetKafkaProducer(ctx context.Context, cfg *config.Config) (kafka.IProducer, error) {
 	pConfig := &kafka.ProducerConfig{
-		BrokerAddrs: cfg.KafkaConfig.Addr,
-		// TODO: Right default?
+		BrokerAddrs:       cfg.KafkaConfig.Addr,
 		Topic:             cfg.KafkaConfig.ExportStartTopic,
 		MinBrokersHealthy: &cfg.KafkaConfig.ProducerMinBrokersHealthy,
 		KafkaVersion:      &cfg.KafkaConfig.Version,
