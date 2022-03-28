@@ -92,10 +92,19 @@ func (r *createFilterOutputRequest) Valid() error {
 	return nil
 }
 
+type getFilterDimensionsRequest struct{
+	paginationParams
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
 	Items []model.Dimension `json:"items"`
 	paginationResponse
+}
+
+type paginationParams struct{
+	Limit  string `schema: limit`
+	Offset string `schema: offset`
 }
 
 // paginationResponse represents pagination data as returned to the client.
@@ -104,6 +113,11 @@ type paginationResponse struct {
 	Offset     int `json:"offset"`
 	Count      int `json:"count"`
 	TotalCount int `json:"total_count"`
+}
+
+// addFilterDimensionRequest is the request body for POST /filters/{id}/dimensions
+type addFilterDimensionRequest struct{
+	model.Dimension
 }
 
 // addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions

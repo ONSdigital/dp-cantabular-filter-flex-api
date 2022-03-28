@@ -129,15 +129,16 @@ type dimensionQueryResult struct {
 	TotalCount int               `bson:"totalCount"`
 }
 
-func (c *Client) AddFilterDimension(ctx context.Context, fID string, dimension model.Dimension) error {
+func (c *Client) AddFilterDimension(ctx context.Context, fID string, dim model.Dimension) error {
 	col := c.collections.filters
 
-	newDimension := map[string]model.Dimension{
-		"dimensions": dimension,
+	q := map[string]model.Dimension{
+		"dimensions": dim,
 	}
 
-	if _, err := c.conn.Collection(col.name).Update(ctx, bson.M{"filter_id": fID}, bson.M{"$push": newDimension}); err != nil {
+	if _, err := c.conn.Collection(col.name).Update(ctx, bson.M{"filter_id": fID}, bson.M{"$push": q}); err != nil {
 		return errors.Wrap(err, "failed to add dimension to filter")
 	}
+
 	return nil
 }

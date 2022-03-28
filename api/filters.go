@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"crypto/sha1"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/pkg/errors"
 )
@@ -92,7 +90,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
 		Published:         v.State == published,
-		Events:            nil, // TODO: Not sure what to
 		DisclosureControl: nil, // populate for these fields yet
 	}
 
@@ -114,7 +111,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			InstanceID:       f.InstanceID,
 			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, f.ID),
 			FilterID:         f.ID,
-			Events:           f.Events,
 		},
 		f.Links,
 		f.Dataset,
@@ -190,11 +186,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
-	newDimension := model.Dimension{
-		Options: make([]string, 0),
-	}
+	var req addFilterDimensionRequest
 
-	if err := api.ParseRequest(r.Body, &newDimension); err != nil {
+	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -205,7 +199,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logData := log.Data{
-		"request": newDimension,
+		"request": req,
 		"id":      fID,
 	}
 
@@ -218,34 +212,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get filter"),
 				message: "failed to get filter",
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	hashedFilterDimensions, err := api.hashFilterDimensions(ctx, fID)
-	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusInternalServerError,
-			Error{
-				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	ifMatch := r.Header.Get("If-Match") // e.g. `"asdf", "qwer", "1234"`
-	if ifMatch != "" && ifMatch != eTagAny && !strings.Contains(ifMatch, hashedFilterDimensions) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusConflict,
-			Error{
-				err:     errors.Wrap(err, "ETag does not match"),
 				logData: logData,
 			},
 		)
@@ -276,11 +242,39 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !api.isValidDatasetDimensions(w, ctx, logData, v, []model.Dimension{newDimension}, filter.PopulationType) {
+	if !api.isValidDatasetDimensions(w, ctx, logData, v, []model.Dimension{req.Dimension}, filter.PopulationType) {
 		return
 	}
 
-	if err := api.store.AddFilterDimension(ctx, fID, newDimension); err != nil {
+	h, err := filter.HashDimensions()
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if eTag := api.getETag(r); eTag != eTagAny && !strings.Contains(eTag, h) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusConflict,
+			Error{
+				err:     errors.Wrap(err, "ETag does not match"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+
+	if err := api.store.AddFilterDimension(ctx, fID, req.Dimension); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -292,10 +286,27 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
 	resp := addFilterDimensionResponse{
-		Dimension: newDimension,
+		Dimension: req.Dimension,
 	}
-	fdBytes, err := api.hashFilterDimensions(ctx, filter.ID)
+
+	filter, err = api.store.GetFilter(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get updated filter"),
+				message: "failed to get updated filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	b, err := filter.HashDimensions()
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -308,31 +319,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	w.Header().Set("ETag", fdBytes)
+
+	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
-}
-
-func (api *API) hashFilterDimensions(ctx context.Context, fID string) (string, error) {
-	filter, err := api.store.GetFilter(ctx, fID)
-	if err != nil {
-		return "", err
-	}
-
-	h := sha1.New()
-
-	dimensions := struct {
-		items []model.Dimension
-	}{
-		items: filter.Dimensions,
-	}
-	fdBytes, err := bson.Marshal(dimensions)
-	if err != nil {
-		return "", err
-	}
-	if _, err := h.Write(fdBytes); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
@@ -449,6 +438,7 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 		)
 		return false
 	}
+
 	return true
 }
 

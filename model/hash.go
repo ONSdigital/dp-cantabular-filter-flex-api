@@ -31,3 +31,24 @@ func (f *Filter) Hash(extraBytes []byte) (string, error) {
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
+
+func (f *Filter) HashDimensions() (string, error) {
+	h := sha1.New()
+
+	dims := struct {
+		items []Dimension
+	}{
+		items: f.Dimensions,
+	}
+
+	b, err := bson.Marshal(dims)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to marshal as bson")
+	}
+
+	if _, err := h.Write(b); err != nil {
+		return "", errors.Wrap(err, "failed to write to sha1 hash body")
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
