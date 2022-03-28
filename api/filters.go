@@ -212,12 +212,11 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		model.JobState{
 			InstanceID:       filter.InstanceID,
 			FilterID:         filterID,
-			DimensionListUrl: "",
+			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, filterID),
 			Events: []model.Event{
 				{
 					Timestamp: timeNow,
-					// TODO: right?
-					Name: "cantabular-export-start",
+					Name:      "cantabular-export-start",
 				},
 			},
 		},
