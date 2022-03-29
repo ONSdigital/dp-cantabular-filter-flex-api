@@ -25,6 +25,9 @@ var _ service.Datastore = &DatastoreMock{}
 // 			AddFilterDimensionFunc: func(ctx context.Context, s string, dimension model.Dimension) error {
 // 				panic("mock out the AddFilterDimension method")
 // 			},
+// 			AddFilterOutputEventFunc: func(contextMoqParam context.Context, s string, event *model.Event) error {
+// 				panic("mock out the AddFilterOutputEvent method")
+// 			},
 // 			CheckerFunc: func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error {
 // 				panic("mock out the Checker method")
 // 			},
@@ -55,6 +58,9 @@ var _ service.Datastore = &DatastoreMock{}
 type DatastoreMock struct {
 	// AddFilterDimensionFunc mocks the AddFilterDimension method.
 	AddFilterDimensionFunc func(ctx context.Context, s string, dimension model.Dimension) error
+
+	// AddFilterOutputEventFunc mocks the AddFilterOutputEvent method.
+	AddFilterOutputEventFunc func(contextMoqParam context.Context, s string, event *model.Event) error
 
 	// CheckerFunc mocks the Checker method.
 	CheckerFunc func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error
@@ -87,6 +93,15 @@ type DatastoreMock struct {
 			S string
 			// Dimension is the dimension argument value.
 			Dimension model.Dimension
+		}
+		// AddFilterOutputEvent holds details about calls to the AddFilterOutputEvent method.
+		AddFilterOutputEvent []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// S is the s argument value.
+			S string
+			// Event is the event argument value.
+			Event *model.Event
 		}
 		// Checker holds details about calls to the Checker method.
 		Checker []struct {
@@ -138,14 +153,15 @@ type DatastoreMock struct {
 			FilterOutput *model.FilterOutput
 		}
 	}
-	lockAddFilterDimension  sync.RWMutex
-	lockChecker             sync.RWMutex
-	lockConn                sync.RWMutex
-	lockCreateFilter        sync.RWMutex
-	lockCreateFilterOutput  sync.RWMutex
-	lockGetFilter           sync.RWMutex
-	lockGetFilterDimensions sync.RWMutex
-	lockUpdateFilterOutput  sync.RWMutex
+	lockAddFilterDimension   sync.RWMutex
+	lockAddFilterOutputEvent sync.RWMutex
+	lockChecker              sync.RWMutex
+	lockConn                 sync.RWMutex
+	lockCreateFilter         sync.RWMutex
+	lockCreateFilterOutput   sync.RWMutex
+	lockGetFilter            sync.RWMutex
+	lockGetFilterDimensions  sync.RWMutex
+	lockUpdateFilterOutput   sync.RWMutex
 }
 
 // AddFilterDimension calls AddFilterDimensionFunc.
@@ -184,6 +200,45 @@ func (mock *DatastoreMock) AddFilterDimensionCalls() []struct {
 	mock.lockAddFilterDimension.RLock()
 	calls = mock.calls.AddFilterDimension
 	mock.lockAddFilterDimension.RUnlock()
+	return calls
+}
+
+// AddFilterOutputEvent calls AddFilterOutputEventFunc.
+func (mock *DatastoreMock) AddFilterOutputEvent(contextMoqParam context.Context, s string, event *model.Event) error {
+	if mock.AddFilterOutputEventFunc == nil {
+		panic("DatastoreMock.AddFilterOutputEventFunc: method is nil but Datastore.AddFilterOutputEvent was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		S               string
+		Event           *model.Event
+	}{
+		ContextMoqParam: contextMoqParam,
+		S:               s,
+		Event:           event,
+	}
+	mock.lockAddFilterOutputEvent.Lock()
+	mock.calls.AddFilterOutputEvent = append(mock.calls.AddFilterOutputEvent, callInfo)
+	mock.lockAddFilterOutputEvent.Unlock()
+	return mock.AddFilterOutputEventFunc(contextMoqParam, s, event)
+}
+
+// AddFilterOutputEventCalls gets all the calls that were made to AddFilterOutputEvent.
+// Check the length with:
+//     len(mockedDatastore.AddFilterOutputEventCalls())
+func (mock *DatastoreMock) AddFilterOutputEventCalls() []struct {
+	ContextMoqParam context.Context
+	S               string
+	Event           *model.Event
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		S               string
+		Event           *model.Event
+	}
+	mock.lockAddFilterOutputEvent.RLock()
+	calls = mock.calls.AddFilterOutputEvent
+	mock.lockAddFilterOutputEvent.RUnlock()
 	return calls
 }
 

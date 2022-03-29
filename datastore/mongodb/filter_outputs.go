@@ -75,3 +75,32 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 
 	return nil
 }
+
+//AddFilterOutputEvent will append to the existing list of events in the filter output
+func (c *Client) AddFilterOutputEvent(ctx context.Context, id string, f *model.Event) error {
+	col := c.collections.filterOutputs
+
+	var fo model.FilterOutput
+	//find the model output for a given id
+	if err := c.conn.Collection(col.name).FindOne(ctx, bson.M{"id": id}, &fo); err != nil {
+		err := &er{
+			err: errors.Wrap(err, "failed to find filter"),
+		}
+		if errors.Is(err, mongodb.ErrNoDocumentFound) {
+			err.notFound = true
+		}
+		return err
+	}
+
+	//append the filteroutput events with the new event
+	ev := fo.Events
+	ev = append(ev, *f)
+
+	searchCondition := bson.M{"id": id}
+	update := bson.M{"events": ev}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, searchCondition, update); err != nil {
+		return errors.Wrap(err, "failed to add dimension to filter")
+	}
+	return nil
+}

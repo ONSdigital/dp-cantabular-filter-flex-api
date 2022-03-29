@@ -78,6 +78,10 @@ type updateFilterOutputRequest struct {
 	Downloads model.Downloads `json:"downloads"`
 }
 
+type eventRequest struct {
+	model.Event
+}
+
 func (r *updateFilterOutputRequest) Valid() error {
 	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
 		return errors.Wrap(err, "'csv' field not fully populated")
@@ -111,8 +115,8 @@ type addFilterDimensionResponse struct {
 	dimensionItem
 }
 
-type dimensionItem struct{
-	Name string              `json:"name"`
+type dimensionItem struct {
+	Name  string             `json:"name"`
 	Links dimensionItemLinks `json:"links"`
 }
 
@@ -120,15 +124,15 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
 
-	d.Name  = dim.Name
+	d.Name = dim.Name
 	d.Links = dimensionItemLinks{
-		Self:    model.Link{
+		Self: model.Link{
 			HREF: dimURL,
-			ID: dim.Name,
+			ID:   dim.Name,
 		},
-		Filter:  model.Link{
+		Filter: model.Link{
 			HREF: filterURL,
-			ID: filterID,
+			ID:   filterID,
 		},
 		Options: model.Link{
 			HREF: dimURL + "/options",
@@ -140,23 +144,23 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 type dimensionItems []dimensionItem
 
 func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filterID string) {
-	if len(dims) == 0{
+	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
-	for _, dim := range dims{
+	for _, dim := range dims {
 		var item dimensionItem
 		item.fromDimension(dim, host, filterID)
 		*items = append(*items, item)
 	}
 }
 
-type dimensionItemLinks struct{
+type dimensionItemLinks struct {
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
 	Self    model.Link `json:"self"`
 }
 
-type submitFilterResponse struct{
+type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterID       string            `json:"filter_id"`
 	Events         []model.Event     `json:"events"`
