@@ -232,33 +232,33 @@ func TestClose(t *testing.T) {
 			So(serverMock.ShutdownCalls(), ShouldHaveLength, 1)
 		})
 		/*
-		   TODO - figure out if this has been added to the boilerplate code or been removed from the csv exporter,
-		   such that, do we need to make this work here
+			   TODO - figure out if this has been added to the boilerplate code or been removed from the csv exporter,
+			   such that, do we need to make this work here
 
-		   		Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {
-		   			cfg.GracefulShutdownTimeout = 1 * time.Millisecond
-		   			timeoutServerMock := &mock.HTTPServerMock{
-		   				ListenAndServeFunc: func() error { return nil },
-		   				ShutdownFunc: func(ctx context.Context) error {
-		   					time.Sleep(2 * time.Millisecond)
-		   					return nil
-		   				},
-		   			}
+					Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {
+						cfg.GracefulShutdownTimeout = 1 * time.Millisecond
+						timeoutServerMock := &mock.HTTPServerMock{
+							ListenAndServeFunc: func() error { return nil },
+							ShutdownFunc: func(ctx context.Context) error {
+								time.Sleep(2 * time.Millisecond)
+								return nil
+							},
+						}
 
-		   			svcList := service.NewServiceList(nil)
-		   			svcList.HealthCheck = true
-		   			svc := service.Service{
-		   				Config:      cfg,
-		   				ServiceList: svcList,
-		   				Server:      timeoutServerMock,
-		   				HealthCheck: hcMock,
-		   			}
+						svcList := service.NewServiceList(nil)
+						svcList.HealthCheck = true
+						svc := service.Service{
+							Config:      cfg,
+							ServiceList: svcList,
+							Server:      timeoutServerMock,
+							HealthCheck: hcMock,
+						}
 
-		   			err = svc.Close(context.Background())
-		   			So(err, ShouldNotBeNil)
-		   			So(err.Error(), ShouldResemble, "context deadline exceeded")
-		   			So(len(hcMock.StopCalls()), ShouldEqual, 1)
-		   			So(len(timeoutServerMock.ShutdownCalls()), ShouldEqual, 1)
-		   		})*/
+						err = svc.Close(context.Background())
+						So(err, ShouldNotBeNil)
+						So(err.Error(), ShouldResemble, "context deadline exceeded")
+						So(len(hcMock.StopCalls()), ShouldEqual, 1)
+						So(len(timeoutServerMock.ShutdownCalls()), ShouldEqual, 1)
+					})*/
 	})
 }
