@@ -54,7 +54,7 @@ func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter_output_id")
 
-	var req eventRequest
+	var req createEventRequest
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(

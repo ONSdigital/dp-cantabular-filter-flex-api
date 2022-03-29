@@ -79,6 +79,15 @@ type updateFilterOutputRequest struct {
 }
 
 type eventRequest struct {
+	model.FilterOutput
+}
+
+// createFilterOutputRequest is the request body for POST /filters
+type createFilterOutputRequest struct {
+	model.FilterOutput
+}
+
+type createEventRequest struct {
 	model.Event
 }
 
