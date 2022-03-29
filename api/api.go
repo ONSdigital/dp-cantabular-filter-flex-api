@@ -54,6 +54,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Put("/filters/{id}", api.putFilter)
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Get("/flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
 }
 
 func (api *API) enablePrivateEndpoints() {

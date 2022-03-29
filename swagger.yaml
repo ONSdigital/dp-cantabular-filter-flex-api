@@ -20,6 +20,18 @@ tags:
 schemes:
   - http
 parameters:
+  dataset_id:
+    name: dataset_id
+    description: "Id that represents a dataset"
+    in: path
+    required: true
+    type: string
+  edition:
+    name: edition
+    description: "An edition of a dataset"
+    in: path
+    required: true
+    type: string
   filter_id:
     name: id
     type: string
@@ -32,6 +44,12 @@ parameters:
     required: true
     description: The unique filter output ID for a customised dataset
     in: path
+  geography:
+    description: "The name of the geography dimension that is being flexed, e.g. ward"
+    name: geography
+    in: query
+    required: false
+    type: string
   page_limit:
     name: limit
     description: >-
@@ -72,6 +90,12 @@ parameters:
     required: true
     description: The single option for a dimension
     in: path
+  version:
+    name: version
+    description: "A version of a dataset"
+    in: path
+    required: true
+    type: string
   dimension:
     name: dimension
     schema:
@@ -465,6 +489,34 @@ paths:
           schema:
            $ref: '#/definitions/UpdateFilterResponse'
         '500':
+          $ref: '#/responses/InternalError'
+  /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json:
+    get:
+      tags:
+      - "Public"
+      summary: "Get observations for a census dataset"
+      description: "Get observations for a census datase, with capability to flex and filter the data to the users need.  If no geography, dimension, or options parameters are supplied then observations for the default geography are returned."
+      parameters:
+        - $ref: '#/parameters/dataset_id'
+        - $ref: '#/parameters/edition'
+        - $ref: '#/parameters/version'
+      responses:
+        200:
+          description: "Json object containing all metadata for a version"
+          schema:
+            $ref: '#/definitions/GetDatasetJSONObservationsResponse'
+        400:
+          description: |
+            Invalid request, reasons can be one of the following:
+              * query parameters contain incorrect dimensions
+        404:
+          description: |
+            Resource not found, reasons can be one of the following:
+              * dataset id was incorrect
+              * edition was incorrect
+              * version was incorrect
+              * observations not found for selected query paramaters
+        500:
           $ref: '#/responses/InternalError'
 responses:
   FilterNotFound:
@@ -908,4 +960,76 @@ definitions:
                   description: "An ID of the created filter output document"
                   example: "95c4669b-3ae9-4ba7-b690-87e890a1c543"
                   type: string
+  GetDatasetJSONObservationsResponse:
+    description: "An object containing information on a list of observations for a given version of a census dataset"
+    type: object
+    properties:
+      dimensions:
+        description: "A list of dimensions for the given query"
+        type: array 
+        items:
+          type: object
+          description: "Each element is a dimension and will represent a query parameter in the request unless the query parameter is equal to a wildcard value (*)"
+          properties:
+            name:
+              description: "The name of the dimension"
+            options:
+              type: array
+              items:
+                description: "A list of links to the corresponding dimension codes for the given `dimension_options`"
+                type: object
+                properties:
+                  href:
+                    description: "A link to the corresponding dimension code for the given `dimension_option`"
+                    type: string
+                    example: "http://localhost:8080/codelists/AB12CD34/codes/K02000001"
+                  id:
+                    description: "The id of the corresponding dimension code for the given `dimension_option`"
+                    type: string
+      links:
+        $ref: '#/definitions/ObservationLinks'
+      observations:
+        description: "A list of observations found when filtering on query parameters"
+        type: array
+        items:
+         type: integer
+      total_observations:
+        description: "The number of observations found"
+        type: integer
+  ObservationLinks:
+    description: "A list of links related to this observation resource"
+    readOnly: true
+    type: object
+    properties:
+      dataset_metadata:
+        $ref: '#/definitions/MetadataLink'
+      self:
+        $ref: '#/definitions/SelfLink'
+      version:
+        $ref: '#/definitions/VersionLink'
+  MetadataLink:
+    description: "The version metadata that is associated with this resource"
+    type: object
+    properties:
+      href:
+        description: "A URL for the version metadata this resource relates to"
+        type: string
+  SelfLink:
+    description: "A link to this resource"
+    readOnly: true
+    type: object
+    properties:
+      href:
+        description: "A URL to this resource"
+        type: string
+  VersionLink:
+    description: "The dataset version this resource belongs to"
+    type: object
+    properties:
+      href:
+        description: "A URL to the version this resource relates to"
+        type: string
+      id:
+        description: "The version number this resource relates to"
+        type: string
 
