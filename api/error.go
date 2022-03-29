@@ -51,6 +51,8 @@ func statusCode(err error) int {
 		return http.StatusServiceUnavailable
 	case dperrors.NotFound(err):
 		return http.StatusNotFound
+	case dperrors.BadRequest(err):
+		return http.StatusBadRequest
 	case dperrors.Conflict(err):
 		return http.StatusConflict
 	case dperrors.Forbidden(err):

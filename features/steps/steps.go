@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
 	"github.com/ONSdigital/log.go/v2/log"
+
 	"github.com/cucumber/godog"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
@@ -47,39 +48,63 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I have these filters:$`,
 		c.iHaveTheseFilters,
 	)
-
+	ctx.Step(
+		`^I have this filter with an ETag of "([^"]*)":$`,
+		c.iHaveThisFilterWithETag,
+	)
 	ctx.Step(
 		`^Mongo datastore fails for update filter output`,
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
-
 	// this is the same as above, but added for clearer step definition
 	ctx.Step(
 		`^Mongo datastore is failing`,
 		c.MongoDatastoreIsFailing,
 	)
-
 	ctx.Step(`^an ETag is returned`,
 		c.anETagIsReturned,
 	)
-
+	ctx.Step(`^the ETag is a hash of the filter "([^"]*)"`,
+		c.theETagIsAHashOfTheFilter,
+	)
 	ctx.Step(
 		`^I provide If-Match header "([^"]*)"$`,
 		c.iProvideIfMatchHeader,
 	)
-
 	ctx.Step(
 		`^the client for the dataset API failed and is returning errors$`,
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
-
 	ctx.Step(`^one event with the following fields are in the produced kafka topic cantabular-export-start:$`,
 		c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart,
 	)
-
 	ctx.Step(`^I have these filter outputs:$`,
 		c.iHaveTheseFilterOutputs,
 	)
+	ctx.Step(
+		`^I should receive an errors array`,
+		c.iShouldReceiveAnErrorsArray,
+	)
+}
+
+// iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
+// an error response, and contains at least one error.
+func (c *Component) iShouldReceiveAnErrorsArray() error {
+	responseBody := c.ApiFeature.HttpResponse.Body
+
+	var errorResponse struct {
+		Errors []string `json:"errors"`
+	}
+
+	if err := json.NewDecoder(responseBody).Decode(&errorResponse); err != nil {
+		return fmt.Errorf("failed to decode error response from body: %w", err)
+	}
+
+	if len(errorResponse.Errors) == 0 {
+		return errors.New("expected at least one error in response")
+	}
+
+	return nil
 }
 
 func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart(events *godog.Table) error {
@@ -143,6 +168,38 @@ func (c *Component) anETagIsReturned() error {
 	return nil
 }
 
+// theETagIsAHashOfTheFilter checks that the returned ETag header (and stored ETag field)
+// are a hash of a filter. Used to validate that the ETag was updated after a mutation.
+func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
+	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
+	if eTag == "" {
+		return errors.New("expected ETag")
+	}
+
+	ctx := context.Background()
+	col := c.cfg.FiltersCollection
+
+	var response model.Filter
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": filterID}, &response); err != nil {
+		return errors.Wrap(err, "failed to retrieve filter")
+	}
+
+	hash, err := response.Hash(nil)
+	if err != nil {
+		return errors.Wrap(err, "unable to hash stored filter")
+	}
+
+	if eTag != hash {
+		return errors.Wrapf(err, "ETag header did not match, expected %s, got %s", hash, eTag)
+	}
+
+	if eTag != response.ETag {
+		return fmt.Errorf("ETag on stored filter did not match, expected %s, got %s", hash, eTag)
+	}
+
+	return nil
+}
+
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
 	var err error
 	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
@@ -194,7 +251,6 @@ func (c *Component) theMaximumLimitIsSetTo(val int) error {
 }
 
 func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
-	ctx := context.Background()
 	var filters []model.Filter
 
 	err := json.Unmarshal([]byte(docs.Content), &filters)
@@ -202,11 +258,40 @@ func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 		return errors.Wrap(err, "failed to unmarshall")
 	}
 
+	if err := c.insertFilters(filters); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// iHaveThisFilterWithETag inserts the provided filter into the database,
+// setting the ETag to the provided stub value.
+func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) error {
+	var filter model.Filter
+
+	err := json.Unmarshal([]byte(docs.Content), &filter)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal")
+	}
+
+	filter.ETag = eTag
+
+	if err := c.insertFilters([]model.Filter{filter}); err != nil {
+		return errors.Wrap(err, "failed to insert filter with ETag")
+	}
+
+	return nil
+}
+
+// insertFilters loops through the provided filters and inserts them into the database.
+func (c *Component) insertFilters(filters []model.Filter) error {
+	ctx := context.Background()
 	store := c.store
 	col := c.cfg.FiltersCollection
 
-	for _, f := range filters {
-		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
+	for _, filter := range filters {
+		if _, err := store.Conn().Collection(col).UpsertById(ctx, filter.ID, bson.M{"$set": filter}); err != nil {
 			return errors.Wrap(err, "failed to upsert filter")
 		}
 	}

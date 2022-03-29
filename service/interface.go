@@ -57,6 +57,7 @@ type Datastore interface {
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
 	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	AddFilterDimension(ctx context.Context, s string, dimension model.Dimension) error
+	UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (eTag string, err error)
 	Checker(context.Context, *healthcheck.CheckState) error
 	Conn() *mongo.MongoConnection
 }

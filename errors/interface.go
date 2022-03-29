@@ -12,6 +12,10 @@ type errUnavailable interface {
 	Unavailable() bool
 }
 
+type errBadRequest interface {
+	BadRequest() bool
+}
+
 type errForbidden interface {
 	Forbidden() bool
 }

@@ -7,6 +7,7 @@ type er struct {
 	notFound    bool
 	conflict    bool
 	unavailable bool
+	badRequest  bool
 	forbidden   bool
 }
 
@@ -45,6 +46,12 @@ func (e *er) Conflict() bool {
 // to recall metadata about the error thrown
 func (e *er) Unavailable() bool {
 	return e.unavailable
+}
+
+// BadRequest satisfies the errBadRequest interface and allows other packages
+// to recall metadata about the error thrown
+func (e *er) BadRequest() bool {
+	return e.badRequest
 }
 
 // Forbidden satisfies the errForbidden interface and allows other packages

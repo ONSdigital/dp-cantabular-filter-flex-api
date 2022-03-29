@@ -8,16 +8,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-
-	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/go-chi/chi/v5"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 )
 
@@ -412,6 +411,60 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	filterID := chi.URLParam(r, "id")
+	dimensionName := chi.URLParam(r, "name")
+
+	logData := log.Data{
+		"filter_id":      filterID,
+		"dimension_name": dimensionName,
+	}
+
+	updatedDimension := model.Dimension{
+		Options: []string{},
+	}
+
+	if err := api.ParseRequest(r.Body, &updatedDimension); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.Wrap(err, "failed to parse update filter request"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	var eTag string
+	if reqETag := api.getETag(r); reqETag != eTagAny {
+		eTag = reqETag
+	}
+
+	newETag, err := api.store.UpdateFilterDimension(ctx, filterID, dimensionName, updatedDimension, eTag)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "unable to update filter dimension"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	responseDimension := dimensionItem{}
+	responseDimension.fromDimension(updatedDimension, api.cfg.FilterAPIURL, filterID)
+
+	w.Header().Set("ETag", newETag)
+
+	api.respond.JSON(ctx, w, http.StatusOK, responseDimension)
 }
 
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
