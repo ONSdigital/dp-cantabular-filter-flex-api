@@ -9,9 +9,10 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
+	service "github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	"github.com/ONSdigital/dp-kafka/v3/kafkatest"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -203,12 +204,16 @@ func TestClose(t *testing.T) {
 			},
 		}
 
+		producerMock := &kafkatest.IProducerMock{
+			CloseFunc: func(ctx context.Context) error { return nil },
+		}
+
 		svc := &service.Service{
 			Cfg:         cfg,
 			Server:      serverMock,
 			HealthCheck: hcMock,
+			Producer:    producerMock,
 		}
-
 		Convey("Closing the service results in all the dependencies being closed in the expected order", func() {
 			err := svc.Close(context.Background())
 			So(err, ShouldBeNil)
