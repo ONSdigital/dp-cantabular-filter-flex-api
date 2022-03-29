@@ -48,6 +48,16 @@ type createFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
+// updateFilter Response is the response body for POST /filters/{id}/submit
+// made public because needed for integration tests.
+type UpdateFilterResponse struct {
+	model.JobState
+	Dataset        model.Dataset     `json:"dataset"`
+	Links          model.Links       `json:"links"`
+	PopulationType string            `json:"population_type"`
+	Dimensions     []model.Dimension `json:"dimensions"`
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
 	model.Filter

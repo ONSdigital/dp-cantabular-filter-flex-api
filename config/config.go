@@ -27,6 +27,28 @@ type Config struct {
 	ServiceAuthToken             string        `envconfig:"SERVICE_AUTH_TOKEN"`
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
 	Mongo                        mongo.MongoDriverConfig
+
+	KafkaConfig KafkaConfig
+}
+
+type KafkaConfig struct {
+	Addr                      []string `envconfig:"KAFKA_ADDR"                            json:"-"`
+	ConsumerMinBrokersHealthy int      `envconfig:"KAFKA_CONSUMER_MIN_BROKERS_HEALTHY"`
+	ProducerMinBrokersHealthy int      `envconfig:"KAFKA_PRODUCER_MIN_BROKERS_HEALTHY"`
+	Version                   string   `envconfig:"KAFKA_VERSION"`
+	OffsetOldest              bool     `envconfig:"KAFKA_OFFSET_OLDEST"`
+	NumWorkers                int      `envconfig:"KAFKA_NUM_WORKERS"`
+	MaxBytes                  int      `envconfig:"KAFKA_MAX_BYTES"`
+	SecProtocol               string   `envconfig:"KAFKA_SEC_PROTO"`
+	SecCACerts                string   `envconfig:"KAFKA_SEC_CA_CERTS"`
+	SecClientKey              string   `envconfig:"KAFKA_SEC_CLIENT_KEY"                  json:"-"`
+	SecClientCert             string   `envconfig:"KAFKA_SEC_CLIENT_CERT"`
+	SecSkipVerify             bool     `envconfig:"KAFKA_SEC_SKIP_VERIFY"`
+
+	ExportStartTopic string `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
+	ExportStartGroup string `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START`
+
+	TLSProtocolFlag bool `envconfig:"TLS_PROTOCOL_FLAG"`
 }
 
 var cfg *Config
@@ -73,6 +95,23 @@ func Get() (*Config, error) {
 			TLSConnectionConfig: mongo.TLSConnectionConfig{
 				IsSSL: false,
 			},
+		},
+		KafkaConfig: KafkaConfig{
+			Addr:                      []string{"localhost:9092", "localhost:9093", "localhost:9094"},
+			ConsumerMinBrokersHealthy: 1,
+			ProducerMinBrokersHealthy: 2,
+			Version:                   "1.0.2",
+			OffsetOldest:              true,
+			NumWorkers:                1,
+			MaxBytes:                  2000000,
+			SecProtocol:               "",
+			SecCACerts:                "",
+			SecClientKey:              "",
+			SecClientCert:             "",
+			SecSkipVerify:             false,
+			ExportStartTopic:          "cantabular-export-start",
+			ExportStartGroup:          "cantabular-export-start-group",
+			TLSProtocolFlag:           false,
 		},
 	}
 
