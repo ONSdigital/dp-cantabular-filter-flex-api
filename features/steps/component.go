@@ -22,13 +22,16 @@ import (
 	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
+	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const (
-	DrainTopicTimeout     = 1 * time.Second // maximum time to wait for a topic to be drained
-	DrainTopicMaxMessages = 1000            // maximum number of messages that will be drained from a topic
-	MinioCheckRetries     = 3               // maximum number of retires to validate that a file is present in minio
+	ComponentTestGroup    = "test-consumer-group"
+	DrainTopicTimeout     = 1 * time.Second  // maximum time to wait for a topic to be drained
+	DrainTopicMaxMessages = 1000             // maximum number of messages that will be drained from a topic
+	MinioCheckRetries     = 3                // maximum number of retires to validate that a file is present in minio
+	WaitEventTimeout      = 15 * time.Second // maximum time that the component test consumer will wait for a
 )
 
 var (
@@ -52,6 +55,9 @@ type Component struct {
 	g                 service.Generator
 	shutdownInitiated bool
 	postedJSON        string
+
+	consumer         kafka.IConsumerGroup
+	waitEventTimeout time.Duration
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -75,14 +81,15 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 	}
 
 	return &Component{
-		errorChan:  make(chan error),
-		wg:         &sync.WaitGroup{},
-		ctx:        ctx,
-		HTTPServer: &http.Server{},
-		cfg:        cfg,
-		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
-		store:      mongoClient,
-		g:          g,
+		errorChan:        make(chan error),
+		wg:               &sync.WaitGroup{},
+		ctx:              ctx,
+		HTTPServer:       &http.Server{},
+		cfg:              cfg,
+		DatasetAPI:       httpfake.New(httpfake.WithTesting(t)),
+		store:            mongoClient,
+		g:                g,
+		waitEventTimeout: WaitEventTimeout,
 	}, nil
 }
 
@@ -95,6 +102,46 @@ func (c *Component) Init() (http.Handler, error) {
 	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
 
 	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
+
+	var err error
+	ctx := context.Background()
+	kafkaConfig := config.KafkaConfig{
+		Addr:                      []string{"kafka-1:9092"},
+		ConsumerMinBrokersHealthy: 1,
+		ProducerMinBrokersHealthy: 1,
+		Version:                   "1.0.2",
+		OffsetOldest:              true,
+		NumWorkers:                1,
+		MaxBytes:                  2000000,
+		SecProtocol:               "",
+		SecCACerts:                "",
+		SecClientKey:              "",
+		SecClientCert:             "",
+		SecSkipVerify:             false,
+		ExportStartTopic:          "cantabular-export-start",
+		ExportStartGroup:          "cantabular-export-start-group",
+		TLSProtocolFlag:           false,
+	}
+
+	kafkaOffset := kafka.OffsetOldest
+	if c.consumer, err = kafka.NewConsumerGroup(
+		ctx,
+		&kafka.ConsumerGroupConfig{
+			BrokerAddrs:       kafkaConfig.Addr,
+			Topic:             kafkaConfig.ExportStartTopic,
+			GroupName:         ComponentTestGroup,
+			MinBrokersHealthy: &(kafkaConfig.ConsumerMinBrokersHealthy),
+			KafkaVersion:      &(kafkaConfig.Version),
+			Offset:            &(kafkaOffset),
+		},
+	); err != nil {
+		return nil, fmt.Errorf("error creating kafka consumer: %w", err)
+	}
+
+	// For checking the csv create request
+	if err := c.consumer.Start(); err != nil {
+		return nil, fmt.Errorf("error starting kafka consumer: %w", err)
+	}
 
 	// Create service and initialise it
 	c.svc = service.New()
@@ -156,7 +203,18 @@ func (c *Component) startService(ctx context.Context) {
 
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
-	// kill application
+
+	wg := sync.WaitGroup{}
+
+	// for future tests?
+	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
+		log.Error(c.ctx, "error draining topic", err)
+	}
+
+	if err := c.consumer.Close(c.ctx); err != nil {
+		log.Error(c.ctx, "error closing kafka consumer", err)
+	}
+
 	if !c.shutdownInitiated {
 		c.shutdownInitiated = true
 		c.signals <- os.Interrupt
