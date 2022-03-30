@@ -16,9 +16,9 @@ services:
         ports:
             - 27100:27100
         environment:
-            BIND_ADDR:                          ":27100"
-            SERVICE_AUTH_TOKEN:                 "testToken"
-            COMPONENT_TEST_USE_LOG_FILE:        "${COMPONENT_TEST_USE_LOG_FILE-false}"
+            BIND_ADDR:                   ":27100"
+            SERVICE_AUTH_TOKEN:          "testToken"
+            COMPONENT_TEST_USE_LOG_FILE: "${COMPONENT_TEST_USE_LOG_FILE-false}"
             CANTABULAR_URL:              "http://dp-cantabular-server:8491"
             ENABLE_PRIVATE_ENDPOINTS:    "false"
             ENABLE_PERMISSIONS_AUTH:     "false"

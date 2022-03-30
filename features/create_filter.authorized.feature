@@ -18,7 +18,7 @@ Feature: Filters Private Endpoints Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "City"
+            "name": "geography"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -27,9 +27,9 @@ Feature: Filters Private Endpoints Enabled
               "options": {},
               "version": {}
             },
-            "href": "http://api.localhost:23200/v1/code-lists/siblings",
-            "id": "siblings",
-            "name": "Number of siblings (3 mappings)"
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
           }
         ],
         "edition": "2021",
@@ -55,7 +55,6 @@ Feature: Filters Private Endpoints Enabled
       }
       """
 
-
   Scenario: Creating a new filter journey when authorized
     Given I am identified as "user@ons.gov.uk"
 
@@ -72,22 +71,20 @@ Feature: Filters Private Endpoints Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "Number of siblings (3 mappings)",
+          "name": "siblings",
           "options": [
             "0-3",
             "4-7",
             "7+"
           ],
-          "dimension_url": "http://dimension.url/siblings",
           "is_area_type": false
         },{
-          "name": "City",
+          "name": "geography",
           "options": [
             "Cardiff",
             "London",
             "Swansea"
           ],
-          "dimension_url": "http://dimension.url/city",
           "is_area_type": true
         }
       ]
@@ -105,17 +102,20 @@ Feature: Filters Private Endpoints Enabled
         },
         "self": {
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "events": null,
       "instance_id":      "c733977d-a2ca-4596-9cb1-08a6e724858b",
-      "dimension_list_url":":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
       "dataset": {
         "id":      "cantabular-example-1",
         "edition": "2021",
         "version": 1
       },
-      "population_type": "Example"
+      "population_type": "Example",
+      "published": true,
+      "type": "flexible"
     }
     """
 
