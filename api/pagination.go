@@ -18,11 +18,14 @@ func getPaginationParams(url *url.URL, maximumLimit int) (int, int, error) {
 
 	limit, err := getInt(query.Get("limit"), DefaultLimit)
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "invalid parameter limit")
+		return 0, 0, Error{
+			err:     errors.Wrap(err, "invalid parameter limit"),
+			message: "invalid parameter limit",
+		}
 	}
 
 	if limit > maximumLimit {
-		return 0, 0, errors.Errorf("limit cannot be larger than %v", maximumLimit)
+		return 0, 0, errors.Errorf("limit cannot be larger than %d", maximumLimit)
 	}
 
 	if limit < 0 {
@@ -31,7 +34,10 @@ func getPaginationParams(url *url.URL, maximumLimit int) (int, int, error) {
 
 	offset, err := getInt(query.Get("offset"), DefaultOffset)
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "invalid parameter offset")
+		return 0, 0, Error{
+			err:     errors.Wrap(err, "invalid parameter offset"),
+			message: "invalid parameter offset",
+		}
 	}
 
 	if offset < 0 {

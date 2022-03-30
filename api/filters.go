@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -70,7 +69,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := model.Filter{
-		Links: model.Links{
+		Links: model.FilterLinks{
 			Version: model.Link{
 				HREF: api.generate.URL(
 					api.cfg.DatasetAPIURL,
@@ -106,16 +105,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := createFilterResponse{
-		model.JobState{
-			InstanceID:       f.InstanceID,
-			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, f.ID),
-			FilterID:         f.ID,
-		},
-		f.Links,
-		f.Dataset,
-		f.PopulationType,
-	}
+	// don't return dimensions in response
+	f.Dimensions = nil
+
+	resp := createFilterResponse{f}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
@@ -145,6 +138,20 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !f.Published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	if eTag := api.getETag(r); eTag != eTagAny {
 		if eTag != f.ETag {
 			api.respond.Error(
@@ -163,19 +170,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !f.Published && !dprequest.IsCallerPresent(ctx) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusNotFound,
-			Error{
-				err:     errors.New("unauthenticated request on unpublished dataset"),
-				message: "failed to get filter",
-				logData: logData,
-			},
-		)
-		return
-	}
+	// don't return dimensions in response
+	f.Dimensions = nil
 
 	resp := getFilterResponse{*f}
 
@@ -273,7 +269,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if err := api.store.AddFilterDimension(ctx, fID, req.Dimension); err != nil {
 		api.respond.Error(
 			ctx,
@@ -287,9 +282,8 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := addFilterDimensionResponse{
-		Dimension: req.Dimension,
-	}
+	var resp addFilterDimensionResponse
+	resp.dimensionItem.fromDimension(req.Dimension, "host", fID)
 
 	filter, err = api.store.GetFilter(ctx, fID)
 	if err != nil {
@@ -330,20 +324,18 @@ func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	time, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
 
 	resp := putFilterResponse{
-		model.PutFilter{
-			Events: []model.Event{
-				{
-					Timestamp: time,
-					Name:      "cantabular-export-start",
-				},
+		Events: []model.Event{
+			{
+				Timestamp: time,
+				Name:      "cantabular-export-start",
 			},
-			Dataset: model.Dataset{
-				ID:      "string",
-				Edition: "string",
-				Version: 0,
-			},
-			PopulationType: "string",
 		},
+		Dataset: model.Dataset{
+			ID:      "string",
+			Edition: "string",
+			Version: 0,
+		},
+		PopulationType: "string",
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
@@ -367,7 +359,7 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	logData["limit"] = limit
 	logData["offset"] = offset
 
-	dimensions, totalCount, err := api.store.GetFilterDimensions(ctx, fID, limit, offset)
+	dims, totalCount, err := api.store.GetFilterDimensions(ctx, fID, limit, offset)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -382,12 +374,15 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var items dimensionItems
+	items.fromDimensions(dims, "host", fID)
+
 	resp := getFilterDimensionsResponse{
-		Items: dimensions,
+		Items: items,
 		paginationResponse: paginationResponse{
 			Limit:      limit,
 			Offset:     offset,
-			Count:      len(dimensions),
+			Count:      len(dims),
 			TotalCount: totalCount,
 		},
 	}

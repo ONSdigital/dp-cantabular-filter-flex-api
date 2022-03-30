@@ -7,11 +7,19 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 )
 
+// paginationResponse represents pagination data as returned to the client.
+type paginationResponse struct {
+	Limit      int `json:"limit"`
+	Offset     int `json:"offset"`
+	Count      int `json:"count"`
+	TotalCount int `json:"total_count"`
+}
+
 // createFilterRequest is the request body for POST /filters
 type createFilterRequest struct {
-	PopulationType string            `bson:"population_type" json:"population_type"`
-	Dimensions     []model.Dimension `bson:"dimensions"      json:"dimensions"`
-	Dataset        *model.Dataset    `bson:"dataset"         json:"dataset"`
+	PopulationType string            `json:"population_type"`
+	Dimensions     []model.Dimension `json:"dimensions"`
+	Dataset        *model.Dataset    `json:"dataset"`
 }
 
 func (r *createFilterRequest) Valid() error {
@@ -42,10 +50,7 @@ func (r *createFilterRequest) Valid() error {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterResponse struct {
-	model.JobState
-	Links          model.Links   `json:"links"`
-	Dataset        model.Dataset `json:"dataset"`
-	PopulationType string        `json:"population_type"`
+	model.Filter
 }
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
@@ -55,7 +60,9 @@ type getFilterResponse struct {
 
 // putFilterResponse is the response body for PUT /filters/{id}
 type putFilterResponse struct {
-	model.PutFilter
+	Events         []model.Event `json:"events"`
+	Dataset        model.Dataset `json:"dataset"`
+	PopulationType string        `json:"population_type"`
 }
 
 // createFilterOutputResponse is the response body for POST /filters-output
@@ -66,7 +73,6 @@ type createFilterOutputResponse struct {
 // filterOutputResponse is the response body for PUT /filters-outputs
 type filterOutputResponse struct {
 	model.FilterOutput
-	model.JobState
 	Links model.FilterOutputLinks `json:"links"`
 }
 
@@ -92,35 +98,63 @@ func (r *createFilterOutputRequest) Valid() error {
 	return nil
 }
 
-type getFilterDimensionsRequest struct{
-	paginationParams
-}
-
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
-	Items []model.Dimension `json:"items"`
+	Items dimensionItems `json:"items"`
 	paginationResponse
 }
 
-type paginationParams struct{
-	Limit  string `schema: limit`
-	Offset string `schema: offset`
-}
-
-// paginationResponse represents pagination data as returned to the client.
-type paginationResponse struct {
-	Limit      int `json:"limit"`
-	Offset     int `json:"offset"`
-	Count      int `json:"count"`
-	TotalCount int `json:"total_count"`
-}
-
 // addFilterDimensionRequest is the request body for POST /filters/{id}/dimensions
-type addFilterDimensionRequest struct{
+type addFilterDimensionRequest struct {
 	model.Dimension
 }
 
 // addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
 type addFilterDimensionResponse struct {
-	model.Dimension
+	dimensionItem
+}
+
+type dimensionItem struct{
+	Name string              `json:"name"`
+	Links dimensionItemLinks `json:"links"`
+}
+
+func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
+	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
+	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
+
+	d.Name  = dim.Name
+	d.Links = dimensionItemLinks{
+		Self:    model.Link{
+			HREF: dimURL,
+			ID: dim.Name,
+		},
+		Filter:  model.Link{
+			HREF: filterURL,
+			ID: filterID,
+		},
+		Options: model.Link{
+			HREF: dimURL + "/options",
+		},
+	}
+
+}
+
+type dimensionItems []dimensionItem
+
+func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filterID string) {
+	if len(dims) == 0{
+		*items = dimensionItems{}
+	}
+	for _, dim := range dims{
+		var item dimensionItem
+		item.fromDimension(dim, host, filterID)
+		*items = append(*items, item)
+	}
+}
+
+type dimensionItemLinks struct{
+	Filter  model.Link `json:"filter"`
+	Options model.Link `json:"options"`
+	Self    model.Link `json:"self"`
 }

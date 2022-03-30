@@ -1,26 +1,24 @@
 {
 	"dataset":{
-		"id":      "cantabular-flexible-example",
-		"edition": "2021",
 		"version": 1
 	},
 	"population_type": "Example",
 	"dimensions": [
 		{
-			"name": "geography",
+			"name": "City",
 			"options": [
 				"0",
 				"1",
-				"2"
 			],
+			"dimension_url": "http://dimension.url/city",
 			"is_area_type": true
 		},{
-			"name": "siblings",
+			"name": "Number of siblings (3 mappings)",
 			"options": [
 				"0",
-				"1-2",
 				"3+"
 			],
+			"dimension_url": "http://dimension.url/siblings",
 			"is_area_type": false
 		}
 	]

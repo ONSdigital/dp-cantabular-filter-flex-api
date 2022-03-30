@@ -13,21 +13,22 @@ Feature: Get Filter Private Endpoints Not Enabled
             "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
             "id": "1"
           },
+          "dimensions": {
+            "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          },
           "self": {
             "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
           }
         },
-        "events": null,
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
           {
-            "name": "Number of siblings (3 mappings)",
+            "name": "silbings",
             "options": [
               "0-3",
               "4-7",
               "7+"
             ],
-            "dimension_url": "http://dimension.url/siblings",
             "is_area_type": false
           },
           {
@@ -37,7 +38,6 @@ Feature: Get Filter Private Endpoints Not Enabled
               "London",
               "Swansea"
             ],
-            "dimension_url": "http://dimension.url/city",
             "is_area_type": true
           }
         ],
@@ -57,21 +57,22 @@ Feature: Get Filter Private Endpoints Not Enabled
             "href": "http://mockhost:9999/datasets/cantabular-example-unpublished/editions/2021/version/1",
             "id": "1"
           },
+          "dimensions": {
+            "href": ":27100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions"
+          },
           "self": {
             "href": ":27100/filters/83210d8d-72d6-492a-bc30-27584627abc2"
           }
         },
-        "events": null,
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
           {
-            "name": "Number of siblings (3 mappings)",
+            "name": "siblings",
             "options": [
               "0-3",
               "4-7",
               "7+"
             ],
-            "dimension_url": "http://dimension.url/siblings",
             "is_area_type": false
           },
           {
@@ -81,7 +82,6 @@ Feature: Get Filter Private Endpoints Not Enabled
               "London",
               "Swansea"
             ],
-            "dimension_url": "http://dimension.url/city",
             "is_area_type": true
           }
         ],
@@ -104,6 +104,7 @@ Feature: Get Filter Private Endpoints Not Enabled
     """
     {
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "links": {
         "version": {
           "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
@@ -111,32 +112,11 @@ Feature: Get Filter Private Endpoints Not Enabled
         },
         "self": {
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "events": null,
-      "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
-      "dimensions": [
-        {
-          "name": "Number of siblings (3 mappings)",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "dimension_url": "http://dimension.url/siblings",
-          "is_area_type": false
-        },
-        {
-          "name": "City",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "dimension_url": "http://dimension.url/city",
-          "is_area_type": true
-        }
-      ],
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",

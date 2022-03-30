@@ -12,7 +12,7 @@ require (
 	github.com/ONSdigital/dp-kafka/v3 v3.0.2
 	github.com/ONSdigital/dp-mongodb/v3 v3.0.0-beta.9
 	github.com/ONSdigital/dp-net v1.4.1
-	github.com/ONSdigital/dp-net/v2 v2.4.0-beta
+	github.com/ONSdigital/dp-net/v2 v2.2.0
 	github.com/ONSdigital/log.go/v2 v2.1.0
 	github.com/cucumber/godog v0.12.4
 	github.com/go-chi/chi/v5 v5.0.7
@@ -75,6 +75,5 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220224120231-95c6836cb0e7 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
