@@ -15,6 +15,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
+
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -356,11 +357,11 @@ func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 	}
 
 	store := c.store
-	col := c.cfg.FiltersCollection
+	col := c.cfg.FilterOutputsCollection
 
 	for _, f := range filterOutputs {
 		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
-			return errors.Wrap(err, "failed to upsert filter")
+			return errors.Wrap(err, "failed to upsert filter output")
 		}
 	}
 

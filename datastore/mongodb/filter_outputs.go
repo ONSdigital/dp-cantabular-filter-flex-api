@@ -31,31 +31,51 @@ func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
 
 	col := c.collections.filterOutputs
+	var err error
+	var records []model.FilterOutput
+	var num int
 
 	searchCondition := bson.M{"id": f.ID}
-	update := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
 
-	var result *mongodb.CollectionUpdateResult
-	var err error
-	if result, err = c.conn.Collection(col.name).Update(ctx, searchCondition, update); err != nil {
+	if num, err = c.conn.Collection(col.name).Find(ctx, searchCondition, &records, mongodb.Limit(1)); err != nil {
 		return errors.Wrap(err, "failed to update filter outputs")
 	}
-
-	//check for the condition when the search fails. In this case there is no error returned by update API
-	//but the result's MatchedCount returns the count of matched documents
-	if result.MatchedCount < 1 {
-		println("Record not found... Searched ID: ", "`", f.ID, "`")
+	if num < 1 {
 		err := &er{
-			err: errors.Wrap(err, "failed to find filter output"),
+			err: errors.Errorf("failed to find filter output"),
 		}
 		err.notFound = true
 		return err
 	}
-	/* Do we need to handle the error case when for any reson there are more than one record with
-	same filter output id
-	else if result.ModifiedCount > 1 {
-		// return errors.
-	}*/
+
+	//a record with stat 'completed' can't be updated further
+	if records[0].State == model.COMPLETED {
+		err := &er{
+			err: errors.Errorf(`filter output is already in "completed" state`),
+		}
+		err.forbidden = true
+		return err
+	}
+
+	update := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
+
+	var result *mongodb.CollectionUpdateResult
+
+	if result, err = c.conn.Collection(col.name).Update(ctx, searchCondition, update); err != nil {
+		return errors.Wrap(err, "failed to update filter outputs")
+	}
+
+	//this should not happen unless the recored is being removed btween the first find and the update
+	//check for the condition if the update the search failed. In this case there is no error returned by update API
+	//but the result's MatchedCount returns the count of matched documents
+	if result.MatchedCount < 1 {
+		println("Record not found... Searched ID: ", "`", f.ID, "`")
+		err := &er{
+			err: errors.Errorf("failed to find filter output"),
+		}
+		err.notFound = true
+		return err
+	}
 
 	return nil
 }
