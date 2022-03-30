@@ -56,9 +56,16 @@ type Link struct {
 }
 
 type FilterOutput struct {
-	ID        string    `bson:"id,omitempty"   json:"id,omitempty"`
-	State     string    `bson:"state,omitempty"   json:"state,omitempty"`
-	Downloads Downloads `bson:"downloads,omitempty"   json:"downloads,omitempty"`
+	ID         string             `bson:"id"                      json:"id"`
+	FilterID   string             `bson:"filter_id"               json:"filter_id"`
+	InstanceID string             `bson:"instance_id"             json:"instance_id"`
+	Dataset    *Dataset           `bson:"dataset,omitempty"       json:"dataset,omitempty"`
+	Dimensions []Dimension        `bson:"dimensions,omitempty"    json:"dimensions,omitempty"`
+	Downloads  *Downloads         `bson:"downloads,omitempty"     json:"downloads,omitempty"`
+	Events     []Event            `bson:"events,omitempty"        json:"events,omitempty"`
+	Links      *FilterOutputLinks `bson:"links,omitempty"         json:"links,omitempty"`
+	Published  *bool              `bson:"published,omitempty"     json:"published,omitempty"`
+	State      *string            `bson:"state,omitempty"         json:"state,omitempty"`
 }
 
 type Downloads struct {
