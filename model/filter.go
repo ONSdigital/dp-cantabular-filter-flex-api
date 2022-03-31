@@ -66,7 +66,7 @@ type FilterOutput struct {
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
 	Published         bool                `bson:"published"                    json:"published"`
 	State             string              `bson:"state,omitempty"              json:"state,omitempty"`
-	Downloads         Downloads           `bson:"downloads,omitempty"          json:"downloads,omitempty"`
+	Downloads         Downloads           `bson:"downloads"                    json:"downloads"`
 	Events            []Event             `bson:"events"                       json:"events"`
 	Type              string              `bson:"type"                         json:"type"`
 	PopulationType    string              `bson:"population_type"              json:"population_type"`

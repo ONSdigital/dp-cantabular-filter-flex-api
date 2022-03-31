@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -11,7 +10,6 @@ import (
 )
 
 func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(" ****Code reached here!!*****")
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter-output-id")
 
