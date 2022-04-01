@@ -190,7 +190,6 @@ Scenario: PUT filter outputs successfully with new ID in DB
 
     Then the HTTP status code should be "404"
 
-
 Scenario: Put a filter output with broken mongo db
     Given I am identified as "user@ons.gov.uk"
     
