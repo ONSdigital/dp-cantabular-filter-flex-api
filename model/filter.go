@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	COMPLETED = "completed"
+	Completed = "completed"
+	Submitted = "submitted"
 )
 
 // Filter holds details for a user filter journey
