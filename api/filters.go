@@ -149,10 +149,6 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// State has not been discussed.
-	// Just chosen a reasonable looking one.
-	// TODO: RAISE STATE in a round table.
-	state := "submitted"
 	filterOutput := &model.FilterOutput{
 		FilterID: filter.Dataset.ID,
 		State:    model.Submitted,
