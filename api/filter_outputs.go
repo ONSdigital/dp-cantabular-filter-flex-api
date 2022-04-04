@@ -9,6 +9,28 @@ import (
 	"github.com/pkg/errors"
 )
 
+func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "filter-output-id")
+
+	var FilterOutput model.FilterOutput
+
+	// if not there, print not found.
+	output, err := api.store.GetFilterOutput(ctx, fID)
+	if err != nil {
+		// if not found 404
+		// else 500
+		return err
+	}
+
+	resp := getFilterResponse{
+		output,
+	}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
+
+}
+
 func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter-output-id")
