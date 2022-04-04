@@ -60,12 +60,20 @@ type UpdateFilterResponse struct {
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
-	model.Filter
+	model.JobState
+	model.Downloads
+	model.FilterOutput
+	model.FilterOutputLinks
 }
 
 // putFilterResponse is the response body for PUT /filters/{id}
 type putFilterResponse struct {
 	model.PutFilter
+}
+
+// getFilterResponse is the response body for GET /filter-outputs/{id}
+type getFilterOutputResponse struct {
+	model.FilterOutput
 }
 
 // createFilterOutputRequest is the request body for POST /filters
