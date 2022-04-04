@@ -14,18 +14,36 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter-output-id")
 
-	var FilterOutput model.FilterOutput
+	var filterOutput *model.FilterOutput
 
-	// if not there, print not found.
-	output, err := api.store.GetFilterOutput(ctx, fID)
+	// if not there, print not found. Not sure a 500 is possible from a get?
+	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
-		// if not found 404
-		// else 500
-		return err
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err: errors.Wrap(err, "filter output not found."),
+				logData: log.Data{
+					"id": fID,
+				},
+			},
+		)
+		return
 	}
 
 	resp := getFilterResponse{
-		output,
+		model.JobState{
+			InstanceID: filterOutput.InstanceID,
+			FilterID:   filterOutput.FilterID,
+			// TODO: is this right?
+			DimensionListUrl: fmt.Sprintf("%s/filter-outputs/%s", api.cfg.BindAddr, filterOutput.FilterID),
+			Events:           filterOutput.Events,
+		},
+		filterOutput.Downloads,
+		*filterOutput,
+		filterOutput.Links,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
