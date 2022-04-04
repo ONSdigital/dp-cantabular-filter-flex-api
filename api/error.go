@@ -9,9 +9,11 @@ import (
 
 // Error is the packages error type
 type Error struct {
-	err     error
-	message string
-	logData map[string]interface{}
+	err        error
+	message    string
+	logData    map[string]interface{}
+	notFound   bool
+	badRequest bool
 }
 
 // Error satisfies the standard library Go error interface
@@ -40,6 +42,16 @@ func (e Error) Message() string {
 // log data from an error
 func (e Error) LogData() map[string]interface{} {
 	return e.logData
+}
+
+// NotFound satisfies the errNotFound interface
+func (e Error) NotFound() bool {
+	return e.notFound
+}
+
+// BadRequest satisfies the errBadRequest interface
+func (e Error) BadRequest() bool {
+	return e.badRequest
 }
 
 func statusCode(err error) int {

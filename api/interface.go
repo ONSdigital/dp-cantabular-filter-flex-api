@@ -46,6 +46,7 @@ type generator interface {
 
 type cantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
+	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 }
 

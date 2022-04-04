@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
@@ -84,6 +86,16 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(
 		`^I should receive an errors array`,
 		c.iShouldReceiveAnErrorsArray,
+	)
+
+	ctx.Step(
+		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
+		c.cantabularSearchReturnsTheseDimensions,
+	)
+
+	ctx.Step(
+		`^Cantabular responds with an error$`,
+		c.cantabularRespondsWithAnError,
 	)
 }
 
@@ -259,7 +271,7 @@ func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 	}
 
 	if err := c.insertFilters(filters); err != nil {
-		return err
+		return errors.Wrap(err, "error inserting filters")
 	}
 
 	return nil
@@ -282,6 +294,37 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 	}
 
 	return nil
+}
+
+// cantabularSearchReturnsTheseDimensions sets up a stub response for the `SearchDimensions` method.
+func (c *Component) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
+	var response cantabular.GetDimensionsResponse
+	if err := json.Unmarshal([]byte(docs.Content), &response); err != nil {
+		return errors.Wrap(err, "unable to unmarshal cantabular search response")
+	}
+
+	c.MockCantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+		if req.Dataset == datasetID && req.Text == dimension {
+			return &response, nil
+		}
+
+		return &cantabular.GetDimensionsResponse{
+			Dataset: gql.DatasetVariables{
+				Variables: gql.Variables{
+					Search: gql.Search{
+						Edges: []gql.Edge{},
+					},
+				},
+			},
+		}, nil
+	}
+
+	return nil
+}
+
+// cantabularSearchRespondsWithAnError sets up a generic error response for the
+func (c *Component) cantabularRespondsWithAnError() {
+	c.MockCantabularClient.OptionsHappy = false
 }
 
 // insertFilters loops through the provided filters and inserts them into the database.

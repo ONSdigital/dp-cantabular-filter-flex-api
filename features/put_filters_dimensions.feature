@@ -105,22 +105,64 @@ Feature: Updating a filter's dimensions
       "type": "flexible"
     }
     """
+    And Cantabular returns these dimensions for the dataset "Example" and search term "Country":
+    """
+    {
+      "dataset": {
+          "variables": {
+              "search": {
+                  "edges": [
+                      {
+                          "node": {
+                              "name": "country",
+                              "label": "Country",
+                              "mapFrom": [
+                                  {
+                                      "edges": [
+                                          {
+                                              "node": {
+                                                  "label": "City",
+                                                  "name": "city"
+                                              }
+                                          }
+                                      ],
+                                      "totalCount": 1
+                                  }
+                              ]
+                          }
+                      }
+                  ]
+              }
+          }
+      }
+    }
+    """
 
   Scenario: Replacing a filter dimension (returns the dimension)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/City"
     """
     {
       "name": "Country",
-      "dimension_url": "http://api.localhost:23200/v1/code-lists/country",
       "is_area_type": true
     }
     """
     Then I should receive the following JSON response:
     """
     {
-      "name": "Country",
-      "options": [],
-      "is_area_type": true
+        "name": "Country",
+        "links": {
+          "filter": {
+            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+            "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+          },
+          "options": {
+            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/Country/options"
+          },
+          "self": {
+            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/Country",
+            "id": "Country"
+          }
+        }
     }
     """
     And the HTTP status code should be "200"
@@ -200,7 +242,7 @@ Feature: Updating a filter's dimensions
     Then I should receive an errors array
     And the HTTP status code should be "400"
 
-  Scenario: An invalid JSON body (does not update the dimension)
+  Scenario: An invalid JSON body (doesn't update the filter)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/City"
     """
     {
@@ -258,7 +300,6 @@ Feature: Updating a filter's dimensions
     """
     {
       "name": "Country",
-      "dimension_url": "http://api.localhost:23200/v1/code-lists/country",
       "is_area_type": true
     }
     """
@@ -271,7 +312,6 @@ Feature: Updating a filter's dimensions
     """
     {
       "name": "Country",
-      "dimension_url": "http://api.localhost:23200/v1/code-lists/country",
       "is_area_type": true
     }
     """
@@ -321,11 +361,10 @@ Feature: Updating a filter's dimensions
     """
 
   Scenario: The filter doesn't exist in the database
-    And I PUT "/filters/not-found/dimensions/City"
+    When I PUT "/filters/not-found/dimensions/City"
     """
     {
       "name": "Country",
-      "dimension_url": "http://api.localhost:23200/v1/code-lists/country",
       "is_area_type": true
     }
     """
@@ -333,13 +372,35 @@ Feature: Updating a filter's dimensions
     And the HTTP status code should be "400"
 
   Scenario: The dimension doesn't exist in the database
-    And I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/Sex"
+    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/Sex"
     """
     {
       "name": "Country",
-      "dimension_url": "http://api.localhost:23200/v1/code-lists/country",
       "is_area_type": true
     }
     """
     Then I should receive an errors array
     Then the HTTP status code should be "404"
+
+  Scenario: The dimension doesn't exist in Cantabular
+    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/City"
+    """
+    {
+      "name": "Fake",
+      "is_area_type": false
+    }
+    """
+    Then I should receive an errors array
+    Then the HTTP status code should be "404"
+
+  Scenario: Searching Cantabular results in an error
+    When Cantabular responds with an error
+    And I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/City"
+    """
+    {
+      "name": "Country",
+      "is_area_type": true
+    }
+    """
+    Then I should receive an errors array
+    Then the HTTP status code should be "500"

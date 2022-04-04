@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
+
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -128,9 +129,8 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 	filter, err := c.GetFilter(ctx, filterID)
 	if err != nil {
 		return "", &er{
-			err:        errors.Wrap(err, "unable to fetch filter"),
-			badRequest: true,
-			logData:    logData,
+			err:     errors.Wrap(err, "unable to fetch filter"),
+			logData: logData,
 		}
 	}
 

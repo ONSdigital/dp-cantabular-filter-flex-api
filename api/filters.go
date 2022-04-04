@@ -423,11 +423,11 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		"dimension_name": dimensionName,
 	}
 
-	updatedDimension := model.Dimension{
+	dim := model.Dimension{
 		Options: []string{},
 	}
 
-	if err := api.ParseRequest(r.Body, &updatedDimension); err != nil {
+	if err := api.ParseRequest(r.Body, &dim); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -440,12 +440,27 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),
+	// so instead of validating it against the existing Version, we check to see if the dimension exists in Cantabular.
+	if err := api.validateCantabularDimensionExists(ctx, filterID, dim.Name); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "error searching for dimension"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	var eTag string
 	if reqETag := api.getETag(r); reqETag != eTagAny {
 		eTag = reqETag
 	}
 
-	newETag, err := api.store.UpdateFilterDimension(ctx, filterID, dimensionName, updatedDimension, eTag)
+	newETag, err := api.store.UpdateFilterDimension(ctx, filterID, dimensionName, dim, eTag)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -459,12 +474,12 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseDimension := dimensionItem{}
-	responseDimension.fromDimension(updatedDimension, api.cfg.FilterAPIURL, filterID)
+	resp := updateFilterDimensionResponse{}
+	resp.fromDimension(dim, api.cfg.FilterAPIURL, filterID)
 
-	w.Header().Set("ETag", newETag)
+	w.Header().Set(eTagHeader, newETag)
 
-	api.respond.JSON(ctx, w, http.StatusOK, responseDimension)
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
@@ -653,6 +668,37 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 	}
 
 	return true
+}
+
+// validateCantabularDimensionExists checks that dimension exists in Cantabular by searching for it.
+// If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
+func (api *API) validateCantabularDimensionExists(ctx context.Context, filterID, dimensionName string) error {
+	filter, err := api.store.GetFilter(ctx, filterID)
+	if err != nil {
+		return Error{
+			err:        errors.Wrap(err, "error retrieving filter"),
+			message:    "failed to get filter dimensions",
+			badRequest: true,
+		}
+	}
+
+	foundDimensions, err := api.ctblr.SearchDimensions(ctx, cantabular.SearchDimensionsRequest{
+		Dataset: filter.PopulationType,
+		Text:    dimensionName,
+	})
+	if err != nil {
+		return errors.Wrap(err, "error in cantabular response")
+	}
+
+	if len(foundDimensions.Dataset.Variables.Search.Edges) == 0 {
+		return Error{
+			err:      errors.New("no dimensions in response"),
+			notFound: true,
+			logData:  log.Data{"found_dimensions": foundDimensions},
+		}
+	}
+
+	return nil
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
