@@ -9,6 +9,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// GetFilterOutput
+func (c *Client) GetFilterOutput(ctx context.Context, filterID string) (*model.FilterOutput, error) {
+	var filterOutput model.FilterOutput
+
+	coll := c.collections.filterOutputs
+
+	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, filterOutput); err != nil {
+		// represents not found
+		return nil, err
+	}
+
+	return &filterOutput, nil
+}
+
 // CreateFilterOutput creates a new FilterOutputs in the CantabularFilters collection
 func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
 	id, err := c.generate.UUID()
