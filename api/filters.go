@@ -155,7 +155,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	state := "submitted"
 	filterOutput := &model.FilterOutput{
 		FilterID: filter.Dataset.ID,
-		State:    &state,
+		State:    model.Submitted,
 	}
 
 	err = api.store.CreateFilterOutput(ctx, filterOutput)

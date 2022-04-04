@@ -11,3 +11,7 @@ type errConflict interface {
 type errUnavailable interface {
 	Unavailable() bool
 }
+
+type errForbidden interface {
+	Forbidden() bool
+}

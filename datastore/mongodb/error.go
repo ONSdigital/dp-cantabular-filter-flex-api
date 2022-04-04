@@ -7,6 +7,7 @@ type er struct {
 	notFound    bool
 	conflict    bool
 	unavailable bool
+	forbidden   bool
 }
 
 // Error satisfies the standard library Go error interface
@@ -44,4 +45,10 @@ func (e *er) Conflict() bool {
 // to recall metadata about the error thrown
 func (e *er) Unavailable() bool {
 	return e.unavailable
+}
+
+// Forbidden satisfies the errForbidden interface and allows other packages
+// to recall metadata about the error thrown
+func (e *er) Forbidden() bool {
+	return e.forbidden
 }

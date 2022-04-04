@@ -22,7 +22,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.7.2
 	go.mongodb.org/mongo-driver v1.8.4
-	gopkg.in/avro.v0 v0.0.0-20171217001914-a730b5802183
 )
 
 require (

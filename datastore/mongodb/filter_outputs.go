@@ -32,13 +32,46 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 
 	col := c.collections.filterOutputs
 
-	searchCondition := bson.M{"id": f.ID}
-	update := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
+	var docs []model.FilterOutput
+	sc := bson.M{"id": f.ID}
 
-	var result *mongodb.CollectionUpdateResult
 	var err error
-	if result, err = c.conn.Collection(col.name).Update(ctx, searchCondition, update); err != nil {
-		return errors.Wrap(err, "failed to update filter outputs")
+	var num int
+
+	if num, err = c.conn.Collection(col.name).Find(ctx, sc, &docs, mongodb.Limit(1)); err != nil {
+		return errors.Wrap(err, "failed to update filter output")
+	}
+	if num < 1 {
+		return &er{
+			err:      errors.Errorf("failed to find filter output"),
+			notFound: true,
+		}
+	}
+
+	//a record with stat 'completed' can't be updated further
+	if docs[0].State == model.Completed {
+		return &er{
+			err:       errors.Errorf(`filter output is already in "completed" state`),
+			forbidden: true,
+		}
+	}
+
+	updates := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
+
+	var rec *mongodb.CollectionUpdateResult
+
+	if rec, err = c.conn.Collection(col.name).Update(ctx, sc, updates); err != nil {
+		return errors.Wrap(err, "failed to update filter output")
+	}
+
+	//This should not happen unless the recored is being removed btween the first find and the update.
+	//Check if the update failed sue to search condition.
+	//Update returns no error but the result's MatchedCount has to be checked for number of updated records
+	if rec.MatchedCount < 1 {
+		return &er{
+			err:      errors.Errorf("failed to find filter output"),
+			notFound: true,
+		}
 	}
 
 	//check for the condition when the search fails. In this case there is no error returned by update API
