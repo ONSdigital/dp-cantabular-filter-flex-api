@@ -87,17 +87,6 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 			notFound: true,
 		}
 	}
-
-	//check for the condition when the search fails. In this case there is no error returned by update API
-	//but the result's MatchedCount returns the count of matched documents
-	if result.MatchedCount < 1 {
-		println("Record not found... Searched ID: ", "`", f.ID, "`")
-		err := &er{
-			err: errors.Wrap(err, "failed to find filter output"),
-		}
-		err.notFound = true
-		return err
-	}
 	/* Do we need to handle the error case when for any reson there are more than one record with
 	same filter output id
 	else if result.ModifiedCount > 1 {
