@@ -283,7 +283,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp addFilterDimensionResponse
-	resp.dimensionItem.fromDimension(req.Dimension, "host", fID)
+	resp.dimensionItem.fromDimension(req.Dimension, api.cfg.FilterAPIURL, fID)
 
 	filter, err = api.store.GetFilter(ctx, fID)
 	if err != nil {
@@ -375,7 +375,7 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var items dimensionItems
-	items.fromDimensions(dims, "host", fID)
+	items.fromDimensions(dims, api.cfg.FilterAPIURL, fID)
 
 	resp := getFilterDimensionsResponse{
 		Items: items,

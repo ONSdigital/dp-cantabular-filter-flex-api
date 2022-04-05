@@ -112,14 +112,14 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "geography",
           "links": {
             "filter": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
               "id": "94310d8d-72d6-492a-bc30-27584627edb1"
             },
             "options": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
             },
             "self": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "geography"
             }
           }
@@ -128,14 +128,14 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "siblings",
           "links": {
             "filter": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
               "id": "94310d8d-72d6-492a-bc30-27584627edb1"
             },
             "options": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
             },
             "self": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings"
             }
           }
@@ -168,14 +168,14 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "links": {
         "filter": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
           "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
         },
         "self": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
       }
@@ -203,14 +203,14 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "links": {
         "filter": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
           "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
         },
         "self": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
       }
@@ -236,14 +236,14 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "links": {
         "filter": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
           "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
         },
         "self": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
       }
@@ -261,14 +261,14 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "links": {
         "filter": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
           "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
         },
         "self": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
       }
@@ -286,14 +286,14 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "links": {
         "filter": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
           "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
         },
         "self": {
-          "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
       }
@@ -313,14 +313,14 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "geography",
           "links": {
             "filter": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
               "id": "94310d8d-72d6-492a-bc30-27584627edb1"
             },
             "options": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
             },
             "self": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "geography"
             }
           }
@@ -346,14 +346,14 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "siblings",
           "links": {
             "filter": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
               "id": "94310d8d-72d6-492a-bc30-27584627edb1"
             },
             "options": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
             },
             "self": {
-              "href": "host/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings"
             }
           }
