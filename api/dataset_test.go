@@ -153,7 +153,7 @@ func TestInvalidParams(t *testing.T) {
 		So(ret, ShouldBeNil)
 	})
 
-	Convey("When GetVersionDimensions is called with an invalid dataset id then  an error is returned", t, func() {
+	Convey("When GetVersionDimensions is called with an invalid dataset id then an error is returned", t, func() {
 		api, ctrl, _, datasetAPIMock := initTest(t)
 		defer ctrl.Finish()
 
