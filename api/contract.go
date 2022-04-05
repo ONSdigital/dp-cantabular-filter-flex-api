@@ -77,6 +77,23 @@ type updateFilterOutputRequest struct {
 	Downloads model.Downloads `json:"downloads"`
 }
 
+func (r *updateFilterOutputRequest) Valid() error {
+	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // createFilterOutputRequest is the request body for POST /filters
 type createFilterOutputRequest struct {
 	model.FilterOutput
