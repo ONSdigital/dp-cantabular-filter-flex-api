@@ -53,16 +53,6 @@ type createFilterResponse struct {
 	model.Filter
 }
 
-// updateFilter Response is the response body for POST /filters/{id}/submit
-// made public because needed for integration tests.
-type UpdateFilterResponse struct {
-	model.JobState
-	Dataset        model.Dataset     `json:"dataset"`
-	Links          model.Links       `json:"links"`
-	PopulationType string            `json:"population_type"`
-	Dimensions     []model.Dimension `json:"dimensions"`
-}
-
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
 	model.Filter
@@ -75,20 +65,18 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-<<<<<<< HEAD
 // createFilterOutputResponse is the response body for POST /filters-output
 type createFilterOutputResponse struct {
 	model.FilterOutput
 }
 
-// filterOutputResponse is the response body for PUT /filters-outputs
-type filterOutputResponse struct {
-	model.FilterOutput
-	Links model.FilterOutputLinks `json:"links"`
+// createFilterOutputResponse is the response body for POST /filters-output
+type updateFilterOutputRequest struct {
+	ID        string          `json:"id"`
+	State     string          `json:"state"`
+	Downloads model.Downloads `json:"downloads"`
 }
 
-=======
->>>>>>> develop
 // createFilterOutputRequest is the request body for POST /filters
 type createFilterOutputRequest struct {
 	model.FilterOutput
@@ -170,6 +158,15 @@ type dimensionItemLinks struct{
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
 	Self    model.Link `json:"self"`
+}
+
+type submitFilterResponse struct{
+	InstanceID     string            `json:"instance_id"`
+	FilterID       string            `json:"filter_id"`
+	Events         []model.Event     `json:"events"`
+	Dataset        model.Dataset     `json:"dataset"`
+	Links          model.FilterLinks `json:"links"`
+	PopulationType string            `json:"population_type"`
 }
 
 // getDatasetJsonObservationsResponse is the response body for GET /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json

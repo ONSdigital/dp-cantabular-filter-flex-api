@@ -1,21 +1,18 @@
 package steps
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-kafka/v3/avro"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
 
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
-
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -68,51 +65,16 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
 
-	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`, c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart)
+	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`,
+		c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart,
+	)
 
-	ctx.Step(`^I should receive the following time ignored JSON response:$`, c.iShouldReceiveTheFollowingTimeIgnoredJSONResponse)
-
-	ctx.Step(`^I have these filter outputs:$`, c.iHaveTheseFilterOutputs)
-
-}
-
-/*
-   The POST api now returns a Jobstate with a time component in it.
-   This results in failed tests as example is not current.
-   This custom JSON response parser is just to ensure time is ignored
-   when comparing requests.
-
-   open to suggestions on better way to handle
-*/
-func (c *Component) iShouldReceiveTheFollowingTimeIgnoredJSONResponse(arg1 *godog.DocString) error {
-	now := time.Now()
-
-	actual := new(bytes.Buffer)
-	actual.ReadFrom(c.ApiFeature.HttpResponse.Body)
-
-	var actualUpdateResponse api.UpdateFilterResponse
-	var expectedUpdateResponse api.UpdateFilterResponse
-
-	if err := json.Unmarshal([]byte(actual.String()), &actualUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal ACTUAL response.")
-	}
-
-	if err := json.Unmarshal([]byte(arg1.Content), &expectedUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal EXPECTED")
-	}
-
-	// naive setting because as per method, it should always be set.
-	actualUpdateResponse.Events[0].Timestamp = now
-	expectedUpdateResponse.Events[0].Timestamp = now
-
-	if !reflect.DeepEqual(actualUpdateResponse, expectedUpdateResponse) {
-		return errors.New("Structs are not equal")
-	}
-	return nil
+	ctx.Step(`^I have these filter outputs:$`,
+		c.iHaveTheseFilterOutputs,
+	)
 }
 
 func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
-
 	select {
 	case <-time.After(c.waitEventTimeout):
 		return nil
@@ -123,22 +85,8 @@ func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCata
 			return errors.New("upstream channel closed")
 		}
 
-		var e api.ExportStart
-		var exportStart = `{
-  "type": "record",
-  "name": "cantabular-export-start",
-  "fields": [
-    {"name": "instance_id", "type": "string", "default": ""},
-    {"name": "dataset_id",  "type": "string", "default": ""},
-    {"name": "edition",     "type": "string", "default": ""},
-    {"name": "version",     "type": "string", "default": ""},
-    {"name": "filter_id",   "type":"string",  "default": ""}
-  ]
-}`
-
-		var s = &avro.Schema{
-			Definition: exportStart,
-		}
+		var e event.ExportStart
+		s := schema.ExportStart
 
 		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
 			msg.Commit()

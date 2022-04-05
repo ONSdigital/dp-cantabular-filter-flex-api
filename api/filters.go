@@ -7,9 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
@@ -123,13 +125,12 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
-		// error 500
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusInternalServerError,
+			statusCode(err),
 			Error{
-				err:     errors.Wrap(err, "filter does not exist"),
+				err:     errors.Wrap(err, "failed to get filter"),
 				message: "failed to get filter",
 				logData: logData,
 			},
@@ -146,12 +147,11 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		State:    model.Submitted,
 	}
 
-	err = api.store.CreateFilterOutput(ctx, filterOutput)
-	if err != nil {
+	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusInternalServerError,
+			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "failed to create filter output"),
 				message: "filter output was not submitted",
@@ -166,16 +166,16 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	// naively converting for now.
 	datasetVersion := strconv.Itoa(filter.Dataset.Version)
 
-	exportEvent := ExportStart{
+	exportEvent := event.ExportStart{
 		InstanceID: filter.InstanceID,
 		DatasetID:  filter.Dataset.ID,
 		Edition:    filter.Dataset.Edition,
 		Version:    datasetVersion,
-		Filter_ID:  filterID,
+		FilterID:   filterID,
 	}
-	// send the export event through Kafka
-	if err := api.ProduceCSVCreateEvent(&exportEvent); err != nil {
 
+	// send the export event through Kafka
+	if err := api.produceExportStartEvent(&exportEvent); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -189,33 +189,22 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timeNow := time.Now()
-
 	/*
 	   Note that this respose is different to swagger
 	   as discussed with Fran
 	*/
-	resp := UpdateFilterResponse{
-		model.JobState{
-			InstanceID:       filter.InstanceID,
-			FilterID:         filterID,
-			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, filterID),
-			Events: []model.Event{
-				{
-					Timestamp: timeNow,
-					Name:      "cantabular-export-start",
-				},
+	resp := submitFilterResponse{
+		InstanceID: filter.InstanceID,
+		FilterID:   filterID,
+		Events:     []model.Event{
+			{
+				Timestamp: api.generate.Timestamp(),
+				Name:      "cantabular-export-start",
 			},
 		},
-
-		model.Dataset{
-			ID:      filter.Dataset.ID,
-			Edition: filter.Dataset.Edition,
-			Version: filter.Dataset.Version,
-		},
-		filter.Links,
-		filter.PopulationType,
-		filter.Dimensions,
+		Dataset:        filter.Dataset,
+		Links:          filter.Links,
+		PopulationType: filter.PopulationType,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)

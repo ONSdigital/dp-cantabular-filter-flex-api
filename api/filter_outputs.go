@@ -13,7 +13,7 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter-output-id")
 
-	var req createFilterOutputRequest
+	var req updateFilterOutputRequest
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
@@ -41,9 +41,10 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to create filter outputs"),
+			errors.Wrap(err, "failed to update filter output"),
 		)
 		return
 	}
+
 	api.respond.StatusCode(w, http.StatusOK)
 }
