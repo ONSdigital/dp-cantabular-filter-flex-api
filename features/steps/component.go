@@ -54,10 +54,8 @@ type Component struct {
 	store             service.Datastore
 	g                 service.Generator
 	shutdownInitiated bool
-	postedJSON        string
-
-	consumer         kafka.IConsumerGroup
-	waitEventTimeout time.Duration
+	consumer          kafka.IConsumerGroup
+	waitEventTimeout  time.Duration
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -95,7 +93,6 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
-
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
@@ -104,7 +101,7 @@ func (c *Component) Init() (http.Handler, error) {
 	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
 
 	var err error
-	ctx := context.Background()
+
 	kafkaConfig := config.KafkaConfig{
 		Addr:                      []string{"kafka-1:9092"},
 		ConsumerMinBrokersHealthy: 1,
@@ -125,7 +122,7 @@ func (c *Component) Init() (http.Handler, error) {
 
 	kafkaOffset := kafka.OffsetOldest
 	if c.consumer, err = kafka.NewConsumerGroup(
-		ctx,
+		c.ctx,
 		&kafka.ConsumerGroupConfig{
 			BrokerAddrs:       kafkaConfig.Addr,
 			Topic:             kafkaConfig.ExportStartTopic,
@@ -203,7 +200,6 @@ func (c *Component) startService(ctx context.Context) {
 
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
-
 	wg := sync.WaitGroup{}
 
 	// for future tests?

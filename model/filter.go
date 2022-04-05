@@ -41,6 +41,10 @@ type FilterOutputLinks struct {
 	FilterBlueprint Link `json:"filter_blueprint"`
 }
 
+type SubmitFilterLinks struct {
+	Dimensions Link `bson:"dimensions" json:"dimensions"`
+}
+
 type Link struct {
 	HREF string `bson:"href"           json:"href"`
 	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
