@@ -119,6 +119,7 @@ func (c *Component) Init() (http.Handler, error) {
 		ExportStartGroup:          "cantabular-export-start-group",
 		TLSProtocolFlag:           false,
 	}
+	
 
 	kafkaOffset := kafka.OffsetOldest
 	if c.consumer, err = kafka.NewConsumerGroup(
@@ -139,6 +140,9 @@ func (c *Component) Init() (http.Handler, error) {
 	if err := c.consumer.Start(); err != nil {
 		return nil, fmt.Errorf("error starting kafka consumer: %w", err)
 	}
+
+	// start kafka logging go-routines
+	c.consumer.LogErrors(c.ctx)
 
 	// Create service and initialise it
 	c.svc = service.New()
@@ -207,9 +211,9 @@ func (c *Component) Close() {
 		log.Error(c.ctx, "error draining topic", err)
 	}
 
-	if err := c.consumer.Close(c.ctx); err != nil {
+	/*if err := c.consumer.Close(c.ctx); err != nil {
 		log.Error(c.ctx, "error closing kafka consumer", err)
-	}
+	}*/
 
 	if !c.shutdownInitiated {
 		c.shutdownInitiated = true
