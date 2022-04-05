@@ -53,6 +53,8 @@ func statusCode(err error) int {
 		return http.StatusNotFound
 	case dperrors.Conflict(err):
 		return http.StatusConflict
+	case dperrors.Forbidden(err):
+		return http.StatusForbidden
 	default:
 		return http.StatusInternalServerError
 	}

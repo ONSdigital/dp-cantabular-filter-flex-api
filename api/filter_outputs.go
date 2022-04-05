@@ -45,10 +45,5 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	resp := createFilterOutputResponse{
-		f,
-	}
-
-	api.respond.JSON(ctx, w, http.StatusOK, resp)
+	api.respond.StatusCode(w, http.StatusOK)
 }

@@ -113,6 +113,114 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
+func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	filterID := chi.URLParam(r, "id")
+	logData := log.Data{
+		"filter_id": filterID,
+	}
+
+	filter, err := api.store.GetFilter(ctx, filterID)
+	if err != nil {
+		// error 500
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "filter does not exist"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+
+	}
+
+	// State has not been discussed.
+	// Just chosen a reasonable looking one.
+	// TODO: RAISE STATE in a round table.
+	filterOutput := &model.FilterOutput{
+		FilterID: filter.Dataset.ID,
+		State:    model.Submitted,
+	}
+
+	err = api.store.CreateFilterOutput(ctx, filterOutput)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "failed to create filter output"),
+				message: "filter output was not submitted",
+				logData: logData,
+			},
+		)
+		return
+
+	}
+
+	// schema mismatch between avro and model type.
+	// naively converting for now.
+	datasetVersion := strconv.Itoa(filter.Dataset.Version)
+
+	exportEvent := ExportStart{
+		InstanceID: filter.InstanceID,
+		DatasetID:  filter.Dataset.ID,
+		Edition:    filter.Dataset.Edition,
+		Version:    datasetVersion,
+		Filter_ID:  filterID,
+	}
+	// send the export event through Kafka
+	if err := api.ProduceCSVCreateEvent(&exportEvent); err != nil {
+
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "failed to create csv event"),
+				message: "csv create event was not submitted",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	timeNow := time.Now()
+
+	/*
+	   Note that this respose is different to swagger
+	   as discussed with Fran
+	*/
+	resp := UpdateFilterResponse{
+		model.JobState{
+			InstanceID:       filter.InstanceID,
+			FilterID:         filterID,
+			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, filterID),
+			Events: []model.Event{
+				{
+					Timestamp: timeNow,
+					Name:      "cantabular-export-start",
+				},
+			},
+		},
+
+		model.Dataset{
+			ID:      filter.Dataset.ID,
+			Edition: filter.Dataset.Edition,
+			Version: filter.Dataset.Version,
+		},
+		filter.Links,
+		filter.PopulationType,
+		filter.Dimensions,
+	}
+
+	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
+}
+
 func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")

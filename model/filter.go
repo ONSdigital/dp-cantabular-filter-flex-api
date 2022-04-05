@@ -8,6 +8,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const (
+	Completed = "completed"
+	Submitted = "submitted"
+)
+
 // Filter holds details for a user filter journey
 type Filter struct {
 	ID                string              `bson:"filter_id"                    json:"filter_id"`
@@ -39,6 +44,25 @@ type FilterOutputLinks struct {
 type Link struct {
 	HREF string `bson:"href"           json:"href"`
 	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
+}
+
+type FilterOutput struct {
+	ID                string              `bson:"id,omitempty"                 json:"id,omitempty"`
+	FilterID          string              `bson:"filter_id"                    json:"filter_id"`
+	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
+	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
+	Published         bool                `bson:"published"                    json:"published"`
+	State             string              `bson:"state,omitempty"              json:"state,omitempty"`
+	Downloads         Downloads           `bson:"downloads"                    json:"downloads"`
+	Events            []Event             `bson:"events"                       json:"events"`
+	Type              string              `bson:"type"                         json:"type"`
+	PopulationType    string              `bson:"population_type"              json:"population_type"`
+	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
+	Links             FilterOutputLinks   `bson:"links"                        json:"links"`
+	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions"`
+	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
+	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
+	ETag              string              `bson:"etag"                         json:"-"`
 }
 
 type Downloads struct {

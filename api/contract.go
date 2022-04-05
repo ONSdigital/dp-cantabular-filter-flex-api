@@ -53,6 +53,16 @@ type createFilterResponse struct {
 	model.Filter
 }
 
+// updateFilter Response is the response body for POST /filters/{id}/submit
+// made public because needed for integration tests.
+type UpdateFilterResponse struct {
+	model.JobState
+	Dataset        model.Dataset     `json:"dataset"`
+	Links          model.Links       `json:"links"`
+	PopulationType string            `json:"population_type"`
+	Dimensions     []model.Dimension `json:"dimensions"`
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
 	model.Filter
@@ -65,6 +75,7 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
+<<<<<<< HEAD
 // createFilterOutputResponse is the response body for POST /filters-output
 type createFilterOutputResponse struct {
 	model.FilterOutput
@@ -76,6 +87,8 @@ type filterOutputResponse struct {
 	Links model.FilterOutputLinks `json:"links"`
 }
 
+=======
+>>>>>>> develop
 // createFilterOutputRequest is the request body for POST /filters
 type createFilterOutputRequest struct {
 	model.FilterOutput
@@ -157,4 +170,37 @@ type dimensionItemLinks struct{
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
 	Self    model.Link `json:"self"`
+}
+
+// getDatasetJsonObservationsResponse is the response body for GET /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json
+type getDatasetJsonObservationsResponse struct {
+	Dimensions        []getDatasetJsonResponseDimension `json:"dimensions"`
+	Links             getDatasetJsonResponseLinks       `json:"links"`
+	Observations      []int                             `json:"observations"`
+	TotalObservations int                               `json:"total_observations"`
+}
+
+type getDatasetJsonResponseDimension struct {
+	DimensionName string                                  `json:"dimension_name"`
+	Options       []getDatasetJsonResponseDimensionOption `json:"options"`
+}
+
+type getDatasetJsonResponseLinks struct {
+	DatasetMetadata getDatasetJsonResponseLink        `json:"dataset_metadata"`
+	Self            getDatasetJsonResponseLink        `json:"self"`
+	Version         getDatasetJsonResponseVersionLink `json:"version"`
+}
+
+type getDatasetJsonResponseDimensionOption struct {
+	Href string `json:"href"`
+	Id   string `json:"id"`
+}
+
+type getDatasetJsonResponseLink struct {
+	Href string `json:"href"`
+}
+
+type getDatasetJsonResponseVersionLink struct {
+	Href    string `json:"href"`
+	Version string `json:"version"`
 }
