@@ -253,10 +253,14 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 	return mongoClient, nil
 }
 
+//keep adding new handler functions for which the mongo needs to fail
 func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
+		},
+		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
+			return errors.New("failed to add event")
 		},
 	}
 	return &mongoClient, nil

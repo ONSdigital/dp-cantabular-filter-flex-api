@@ -1,4 +1,4 @@
-Feature: Put Filter Outputs Private Endpoints Enabled
+Feature: Put Filter Outputs Private Endpoints Not Enabled
 
   Background:
     Given private endpoints are enabled
@@ -8,8 +8,6 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     [
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",
-        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
-        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
         "state": "published",
         "downloads": 
         {
@@ -49,8 +47,6 @@ Feature: Put Filter Outputs Private Endpoints Enabled
       },
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb2",
-        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil2",
-        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst2",
         "state": "completed",
         "downloads": 
         {
@@ -187,7 +183,14 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     }    
     """
 
-    Then the HTTP status code should be "404"
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": ["failed to update filter output: failed to find filter output: filter output not found for 94310d8d-72d6-492a-bc30-27584627new1"]
+    }
+    """
+    And the HTTP status code should be "404"
+
 
   Scenario: Update a filter output with broken mongo db
     Given I am identified as "user@ons.gov.uk"
@@ -278,7 +281,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     When I PUT "/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb2"
     """
     {
-        "state": "string",
+        "state": "published",
         "downloads": 
         {
             "xls": 
@@ -370,7 +373,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
       "errors": [
-        "failed to parse request: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
+        "invalid request body: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
       ]
     }
     """

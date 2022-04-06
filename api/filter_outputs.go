@@ -21,7 +21,7 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 			w,
 			http.StatusBadRequest,
 			Error{
-				err: errors.Wrap(err, "failed to parse request"),
+				err: errors.Wrap(err, "invalid request body"),
 				logData: log.Data{
 					"id": fID,
 				},
@@ -54,7 +54,7 @@ func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter_output_id")
 
-	var req createEventRequest
+	var req addFilterOutputEventRequest
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
@@ -62,7 +62,7 @@ func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 			w,
 			http.StatusBadRequest,
 			Error{
-				err: errors.Wrap(err, "failed to parse request"),
+				err: errors.Wrap(err, "invalid request body"),
 				logData: log.Data{
 					"id": fID,
 				},
@@ -71,20 +71,15 @@ func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f := model.Event{
-		Timestamp: req.Timestamp,
-		Name:      req.Name,
-	}
-
-	if err := api.store.AddFilterOutputEvent(ctx, fID, &f); err != nil {
+	if err := api.store.AddFilterOutputEvent(ctx, fID, &req.Event); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
 			statusCode(err),
-			errors.Wrap(err, "failed to update filter outputs event"),
+			err,
 		)
 		return
 	}
 
-	api.respond.JSON(ctx, w, http.StatusOK, nil)
+	api.respond.StatusCode(w, http.StatusCreated)
 }

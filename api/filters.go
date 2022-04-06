@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -196,9 +196,9 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	resp := submitFilterResponse{
 		InstanceID: filter.InstanceID,
 		FilterID:   filterID,
-		Events:     []model.Event{
+		Events: []model.Event{
 			{
-				Timestamp: api.generate.Timestamp(),
+				Timestamp: api.generate.Timestamp().Format(time.RFC3339),
 				Name:      "cantabular-export-start",
 			},
 		},
@@ -418,12 +418,10 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	time, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
-
 	resp := putFilterResponse{
 		Events: []model.Event{
 			{
-				Timestamp: time,
+				Timestamp: "2016-07-17T08:38:25.316+000",
 				Name:      "cantabular-export-start",
 			},
 		},

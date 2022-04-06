@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
 
 	"github.com/cucumber/godog"
@@ -47,8 +47,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 
 	ctx.Step(
-		`^Mongo datastore fails for update filter output`,
-		c.MongoDatastoreFailsForUpdateFilterOutput,
+		`^Mongo datastore fails`,
+		c.MongoDatastoreFails,
 	)
 
 	ctx.Step(`^an ETag is returned`,
@@ -109,7 +109,7 @@ func (c *Component) anETagIsReturned() error {
 	return nil
 }
 
-func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+func (c *Component) MongoDatastoreFails() error {
 	var err error
 	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
 	if err != nil {

@@ -66,28 +66,12 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-// createFilterOutputResponse is the response body for POST /filters-output
-type createFilterOutputResponse struct {
-	model.FilterOutput
-}
-
-// createFilterOutputResponse is the response body for POST /filters-output
+// updateFilterOutputRequest is the request body for POST /filters
 type updateFilterOutputRequest struct {
-	ID        string          `json:"id"`
-	State     string          `json:"state"`
-	Downloads model.Downloads `json:"downloads"`
-}
-
-type eventRequest struct {
 	model.FilterOutput
 }
 
-// createFilterOutputRequest is the request body for POST /filters
-type createFilterOutputRequest struct {
-	model.FilterOutput
-}
-
-type createEventRequest struct {
+type addFilterOutputEventRequest struct {
 	model.Event
 }
 
