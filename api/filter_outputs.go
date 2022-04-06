@@ -59,7 +59,6 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(" ****Code reached here!!*****")
 	ctx := r.Context()
 	fID := chi.URLParam(r, "filter-output-id")
 

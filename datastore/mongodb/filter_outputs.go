@@ -16,7 +16,6 @@ func (c *Client) GetFilterOutput(ctx context.Context, filterID string) (*model.F
 	coll := c.collections.filterOutputs
 
 	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, &filterOutput); err != nil {
-		// represents not found
 		return nil, err
 	}
 
@@ -87,11 +86,6 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 			notFound: true,
 		}
 	}
-	/* Do we need to handle the error case when for any reson there are more than one record with
-	same filter output id
-	else if result.ModifiedCount > 1 {
-		// return errors.
-	}*/
 
 	return nil
 }
