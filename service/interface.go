@@ -52,6 +52,7 @@ type Datastore interface {
 	GetFilter(context.Context, string) (*model.Filter, error)
 	UpdateFilterOutput(context.Context, *model.FilterOutput) error
 	CreateFilterOutput(context.Context, *model.FilterOutput) error
+	GetFilterOutput(context.Context, string) (*model.FilterOutput, error)
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
 	AddFilterDimension(ctx context.Context, s string, dimension model.Dimension) error
 	Checker(context.Context, *healthcheck.CheckState) error

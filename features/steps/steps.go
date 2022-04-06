@@ -54,6 +54,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
 
+	// this is the same as above, but added for clearer step definition
+	ctx.Step(
+		`^Mongo datastore is failing`,
+		c.MongoDatastoreIsFailing,
+	)
+
 	ctx.Step(`^an ETag is returned`,
 		c.anETagIsReturned,
 	)
@@ -192,6 +198,16 @@ func (c *Component) anETagIsReturned() error {
 }
 
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+	var err error
+	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	if err != nil {
+		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Component) MongoDatastoreIsFailing() error {
 	var err error
 	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
 	if err != nil {

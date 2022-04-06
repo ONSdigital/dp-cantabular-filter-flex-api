@@ -258,6 +258,9 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
 		},
+		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
+			return nil, errors.New("mongo client has failed")
+		},
 	}
 	return &mongoClient, nil
 }
