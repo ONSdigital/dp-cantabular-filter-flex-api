@@ -60,10 +60,7 @@ type UpdateFilterResponse struct {
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
 type getFilterResponse struct {
-	model.JobState
-	model.Downloads
-	model.FilterOutput
-	model.FilterOutputLinks
+	model.Filter
 }
 
 // putFilterResponse is the response body for PUT /filters/{id}
@@ -73,7 +70,10 @@ type putFilterResponse struct {
 
 // getFilterResponse is the response body for GET /filter-outputs/{id}
 type getFilterOutputResponse struct {
-	model.FilterOutput
+	model.JobState
+	Links     model.FilterOutputLinks `json:"links"`
+	Downloads model.Downloads         `json:"downloads"`
+	State     string                  `json:"state"`
 }
 
 // createFilterOutputRequest is the request body for POST /filters

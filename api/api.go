@@ -60,7 +60,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	api.Router.Get("/flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
-	api.Router.Get("filter-outputs/{filter-output-id}", api.getFilterOutput)
+	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -79,7 +79,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filters/{id}/submit", api.submitFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
-	r.Get("filter-outputs/{filter-output-id}", api.getFilterOutput)
+	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 	r.Put("/filter-outputs/{filter-output-id}", api.updateFilterOutput)
 	api.Router.Mount("/", r)
 }

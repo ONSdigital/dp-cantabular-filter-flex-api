@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -16,15 +17,23 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 	var filterOutput *model.FilterOutput
 
-	// if not there, print not found. Not sure a 500 is possible from a get?
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
+
+		status := http.StatusNotFound
+		message := "filter output not found"
+
+		if !strings.HasSuffix(err.Error(), "no documents in result") {
+			status = http.StatusInternalServerError
+			message = "internal service error"
+		}
+
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusNotFound,
+			status,
 			Error{
-				err: errors.Wrap(err, "filter output not found."),
+				err: errors.Wrap(err, message),
 				logData: log.Data{
 					"id": fID,
 				},
@@ -33,17 +42,16 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := getFilterResponse{
+	resp := getFilterOutputResponse{
 		model.JobState{
-			InstanceID: filterOutput.InstanceID,
-			FilterID:   filterOutput.FilterID,
-			// TODO: is this right?
+			InstanceID:       filterOutput.InstanceID,
+			FilterID:         filterOutput.FilterID,
 			DimensionListUrl: fmt.Sprintf("%s/filter-outputs/%s", api.cfg.BindAddr, filterOutput.FilterID),
 			Events:           filterOutput.Events,
 		},
-		filterOutput.Downloads,
-		*filterOutput,
 		filterOutput.Links,
+		filterOutput.Downloads,
+		filterOutput.State,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
