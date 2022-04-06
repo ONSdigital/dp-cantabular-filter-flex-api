@@ -115,7 +115,7 @@ func TestCreateFilterOutputsRequestValid(t *testing.T) {
 			model.FilterOutput{
 				FilterID: "12344576",
 				State:    state,
-				Downloads: &model.Downloads{
+				Downloads: model.Downloads{
 					CSV:  &blankInfo,
 					CSVW: new(model.FileInfo),
 					TXT:  new(model.FileInfo),
