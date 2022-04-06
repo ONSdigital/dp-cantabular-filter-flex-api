@@ -15,7 +15,7 @@ func (c *Client) GetFilterOutput(ctx context.Context, filterID string) (*model.F
 
 	coll := c.collections.filterOutputs
 
-	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, filterOutput); err != nil {
+	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, &filterOutput); err != nil {
 		// represents not found
 		return nil, err
 	}
