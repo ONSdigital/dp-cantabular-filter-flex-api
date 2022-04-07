@@ -14,7 +14,6 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 	fID := chi.URLParam(r, "filter-output-id")
 
 	var req updateFilterOutputRequest
-	log.Info(ctx, "DEBUG_1")
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
@@ -31,7 +30,6 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info(ctx, "DEBUG_2")
 	f := model.FilterOutput{
 		ID:        fID,
 		State:     req.State,
@@ -47,8 +45,6 @@ func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	log.Info(ctx, "DEBUG_3")
 
 	api.respond.StatusCode(w, http.StatusOK)
 }

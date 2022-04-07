@@ -1,10 +1,11 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+
+	"github.com/pkg/errors"
 )
 
 // paginationResponse represents pagination data as returned to the client.
@@ -79,38 +80,16 @@ type updateFilterOutputRequest struct {
 
 func (r *updateFilterOutputRequest) Valid() error {
 	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'csv' field not fully populated")
 	}
 	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'csvw' field not fully populated")
 	}
 	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'txt' field not fully populated")
 	}
 	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// createFilterOutputRequest is the request body for POST /filters
-type createFilterOutputRequest struct {
-	model.FilterOutput
-}
-
-func (r *createFilterOutputRequest) Valid() error {
-	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
-		return err
-	}
-	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
-		return err
-	}
-	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
-		return err
-	}
-	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'xls' field not fully populated")
 	}
 
 	return nil

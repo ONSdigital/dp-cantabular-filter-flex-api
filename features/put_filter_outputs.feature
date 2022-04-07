@@ -370,7 +370,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
       "errors": [
-        "failed to parse request: invalid request: \"Public\" is empty in input"
+        "failed to parse request: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
       ]
     }
     """

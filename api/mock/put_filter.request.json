@@ -10,7 +10,6 @@
 				"0",
 				"1",
 			],
-			"dimension_url": "http://dimension.url/city",
 			"is_area_type": true
 		},{
 			"name": "Number of siblings (3 mappings)",
@@ -18,7 +17,6 @@
 				"0",
 				"3+"
 			],
-			"dimension_url": "http://dimension.url/siblings",
 			"is_area_type": false
 		}
 	]
