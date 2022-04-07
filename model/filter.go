@@ -101,15 +101,15 @@ func (fi *FileInfo) IsNotFullyPopulated() error {
 	}
 
 	if len(strings.Trim(fi.Private, cutset)) == 0 {
-		return errors.New(`"Private" is empty in input`)
+		return errors.New(`"private" is empty in input`)
 	}
 
 	if len(strings.Trim(fi.Public, cutset)) == 0 {
-		return errors.New(`"Public" is empty in input`)
+		return errors.New(`"public" is empty in input`)
 	}
 
 	if len(strings.Trim(fi.Size, cutset)) == 0 {
-		return errors.New(`"Size" is empty in input`)
+		return errors.New(`"size" is empty in input`)
 	}
 
 	return nil
