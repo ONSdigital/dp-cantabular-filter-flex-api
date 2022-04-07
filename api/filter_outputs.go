@@ -19,7 +19,6 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
-
 		status := http.StatusNotFound
 		message := "filter output not found"
 

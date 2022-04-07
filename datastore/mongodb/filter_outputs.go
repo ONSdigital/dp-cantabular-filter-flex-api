@@ -42,7 +42,6 @@ func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 
 // UpdateFilterOutput creates/updates a FilterOutputs in the CantabularFilters collection
 func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
-
 	col := c.collections.filterOutputs
 
 	var docs []model.FilterOutput
