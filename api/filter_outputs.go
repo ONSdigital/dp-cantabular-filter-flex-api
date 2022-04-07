@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -19,20 +18,12 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
-		status := http.StatusNotFound
-		message := "filter output not found"
-
-		if !strings.HasSuffix(err.Error(), "no documents in result") {
-			status = http.StatusInternalServerError
-			message = "internal service error"
-		}
-
 		api.respond.Error(
 			ctx,
 			w,
-			status,
+			statusCode(err),
 			Error{
-				err: errors.Wrap(err, message),
+				err: errors.Wrap(err, "failed to get filter output"),
 				logData: log.Data{
 					"id": fID,
 				},

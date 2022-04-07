@@ -172,11 +172,11 @@ Feature: Get Filter Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
-      "errors": ["filter output not found: mongo: no documents in result"]
+      "errors": ["failed to get filter output: mongo: no documents in result"]
     }
     """
 
-    # And the HTTP status code should be "404"
+    And the HTTP status code should be "404"
 
   Scenario: Mongo Connection is failing
     Given Mongo datastore is failing
@@ -184,7 +184,7 @@ Feature: Get Filter Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
-      "errors": ["internal service error: mongo client has failed"]
+      "errors": ["failed to get filter output: mongo client has failed"]
     }
     """
     And the HTTP status code should be "500"

@@ -16,6 +16,12 @@ func (c *Client) GetFilterOutput(ctx context.Context, filterID string) (*model.F
 	coll := c.collections.filterOutputs
 
 	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, &filterOutput); err != nil {
+		err := &er{
+			err: err,
+		}
+		if errors.Is(err, mongodb.ErrNoDocumentFound) {
+			err.notFound = true
+		}
 		return nil, err
 	}
 
