@@ -61,8 +61,7 @@ Feature: Get Filter Private Endpoints Not Enabled
             "version": {
               "href": "test",
               "id": "test"
-            }
-                }
+            }}
       },
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb2",
