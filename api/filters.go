@@ -131,7 +131,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "failed to get filter"),
-				message: "failed to get filter",
+				message: "failed to submit filter: failed to get existing filter",
 				logData: logData,
 			},
 		)
@@ -142,47 +142,46 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	// State has not been discussed.
 	// Just chosen a reasonable looking one.
 	// TODO: RAISE STATE in a round table.
-	filterOutput := &model.FilterOutput{
+	filterOutput := model.FilterOutput {
 		FilterID: filter.Dataset.ID,
 		State:    model.Submitted,
 	}
 
-	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
+	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
 			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "failed to create filter output"),
-				message: "filter output was not submitted",
+				message: "error submitting filter",
 				logData: logData,
 			},
 		)
 		return
-
 	}
 
 	// schema mismatch between avro and model type.
 	// naively converting for now.
-	datasetVersion := strconv.Itoa(filter.Dataset.Version)
+	version := strconv.Itoa(filter.Dataset.Version)
 
-	exportEvent := event.ExportStart{
-		InstanceID: filter.InstanceID,
-		DatasetID:  filter.Dataset.ID,
-		Edition:    filter.Dataset.Edition,
-		Version:    datasetVersion,
-		FilterID:   filterID,
+	e := event.ExportStart {
+		InstanceID:     filter.InstanceID,
+		DatasetID:      filter.Dataset.ID,
+		Edition:        filter.Dataset.Edition,
+		Version:        version,
+		FilterOutputID: filterOutput.ID,
 	}
 
 	// send the export event through Kafka
-	if err := api.produceExportStartEvent(&exportEvent); err != nil {
+	if err := api.produceExportStartEvent(&e); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
 			http.StatusInternalServerError,
 			Error{
-				err:     errors.Wrap(err, "failed to create csv event"),
-				message: "csv create event was not submitted",
+				err:     errors.Wrap(err, "failed to create export start event"),
+				message: "error submitting filter",
 				logData: logData,
 			},
 		)
@@ -194,9 +193,12 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	   as discussed with Fran
 	*/
 	resp := submitFilterResponse{
-		InstanceID: filter.InstanceID,
-		FilterID:   filterID,
-		Events:     []model.Event{
+		InstanceID:     filter.InstanceID,
+		FilterOutputID: filterOutput.ID,
+		// TODO: apparently events are only relevant for filter outputs and
+		// AFAIK are not related to kafka events. Also do we really want to expose
+		// the details of our Kafka topic names etc to the public?
+		Events:         []model.Event{
 			{
 				Timestamp: api.generate.Timestamp(),
 				Name:      "cantabular-export-start",
@@ -380,7 +382,11 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp addFilterDimensionResponse
-	resp.dimensionItem.fromDimension(req.Dimension, api.cfg.FilterAPIURL, fID)
+	resp.dimensionItem.fromDimension(
+		req.Dimension,
+		api.cfg.FilterAPIURL,
+		fID,
+	)
 
 	filter, err = api.store.GetFilter(ctx, fID)
 	if err != nil {

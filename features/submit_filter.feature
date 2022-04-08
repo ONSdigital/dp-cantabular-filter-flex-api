@@ -109,8 +109,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
-      "instance_id":"TEST-INSTANCE-ID",
-      "filter_id":  "TEST-FILTER-ID",
+      "instance_id":      "TEST-INSTANCE-ID",
+      "filter_output_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "events":[
         {
           "timestamp": "2022-01-26T12:27:04.783936865Z",
@@ -141,5 +141,5 @@ Feature: Submit Filter Private Endpoints Not Enabled
     And the HTTP status code should be "202"
 
     And one event with the following fields are in the produced kafka topic catabular-export-start:
-      | InstanceID        | DatasetID            | Edition          | Version          | FilterID       |
-      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1                | TEST-FILTER-ID |
+      | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       |
+      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 |
