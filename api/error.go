@@ -27,7 +27,7 @@ func (e Error) Unwrap() error {
 	return e.err
 }
 
-// Message satisfies the messanger interface which is used to specify
+// Message satisfies the messager interface which is used to specify
 // a response to be sent to the caller in place of the error text for a
 // given error. This is useful when you don't want sensitive information
 // or implementation details being exposed to the caller which could be

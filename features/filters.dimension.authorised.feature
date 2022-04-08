@@ -4,7 +4,7 @@ Feature: Filter Outputs Private Endpoints Enabled
     Given private endpoints are enabled
     And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
       """
-           {
+      {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
         "dimensions": [
@@ -17,7 +17,7 @@ Feature: Filter Outputs Private Endpoints Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "City"
+            "name": "geography"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -26,9 +26,9 @@ Feature: Filter Outputs Private Endpoints Enabled
               "options": {},
               "version": {}
             },
-            "href": "http://api.localhost:23200/v1/code-lists/siblings",
-            "id": "siblings",
-            "name": "Number of siblings (3 mappings)"
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
           }
         ],
         "edition": "2021",
@@ -67,27 +67,24 @@ Feature: Filter Outputs Private Endpoints Enabled
             "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
           }
         },
-        "events": null,
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
           {
-            "name": "Number of siblings (3 mappings)",
+            "name": "siblings",
             "options": [
               "0-3",
               "4-7",
               "7+"
             ],
-            "dimension_url": "http://dimension.url/siblings",
             "is_area_type": false
           },
           {
-            "name": "City",
+            "name": "geography",
             "options": [
               "Cardiff",
               "London",
               "Swansea"
             ],
-            "dimension_url": "http://dimension.url/city",
             "is_area_type": true
           }
         ],
@@ -112,24 +109,36 @@ Feature: Filter Outputs Private Endpoints Enabled
     {
       "items": [
         {
-          "name": "City",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "dimension_url": "http://dimension.url/city",
-          "is_area_type": true
+          "name": "geography",
+          "links": {
+            "filter": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+            },
+            "self": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+              "id": "geography"
+            }
+          }
         },
         {
-          "name": "Number of siblings (3 mappings)",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "dimension_url": "http://dimension.url/siblings",
-          "is_area_type": false
+          "name": "siblings",
+          "links": {
+            "filter": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+            },
+            "self": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+              "id": "siblings"
+            }
+          }
         }
       ],
       "count": 2,
@@ -143,42 +152,153 @@ Feature: Filter Outputs Private Endpoints Enabled
   Scenario: Add a filter dimension successfully
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
-    When I add a new dimension to an existing filter
+
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+      "name": "siblings",
+      "is_area_type": false,
+      "options": ["4-7", "7+"]
+    }
+    """
     Then the HTTP status code should be "201"
-    And I receive the dimension's body back in the body of the response
+    Then I should receive the following JSON response:
+    """
+    {
+      "name": "siblings",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "id": "siblings"
+        }
+      }
+    }
+    """
     And an ETag is returned
+
 
   Scenario: Add a filter dimension with no options successfully
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
-    When I add a new dimension with no options to an existing filter
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+      "name": "siblings",
+      "is_area_type": false
+    }
+    """
+
     Then the HTTP status code should be "201"
-    And I receive the dimension's body back with an empty 'options' slice
+
+    And I should receive the following JSON response:
+    """
+    {
+      "name": "siblings",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "id": "siblings"
+        }
+      }
+    }
+    """
     And an ETag is returned
 
   Scenario: Add a filter dimension but request is malformed
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
-    When I try to add a malformed dimension to an existing filter
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    Not valid JSON
+    """
     Then the HTTP status code should be "400"
 
   Scenario: Add a filter dimension but the filter is not found
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
-    When I try to add a new dimension to a non-existent filter
+    When I POST "/filters/not-valid-filter-id/dimensions"
+    """
+    {
+      "name": "siblings",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "id": "siblings"
+        }
+      }
+    }
+    """
     Then the HTTP status code should be "404"
 
   Scenario: Add a filter dimension but the filter's dimensions have been modified since I retrieved it
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
-    When I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them
+    And I provide If-Match header "invalid-etag"
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+      "name": "siblings",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "id": "siblings"
+        }
+      }
+    }
+    """
     Then the HTTP status code should be "409"
 
   Scenario: Add a filter dimension but something goes wrong on the server
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
     Given the client for the dataset API failed and is returning errors
-    When I try to add a new dimension to an existing filter
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+      "name": "siblings",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+          "id": "siblings"
+        }
+      }
+    }
+    """
     Then the HTTP status code should be "500"
 
   Scenario: Get paginated filter dimensions successfully (limit)
@@ -190,14 +310,20 @@ Feature: Filter Outputs Private Endpoints Enabled
     {
       "items": [
         {
-          "name": "City",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "dimension_url": "http://dimension.url/city",
-          "is_area_type": true
+          "name": "geography",
+          "links": {
+            "filter": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+            },
+            "self": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+              "id": "geography"
+            }
+          }
         }
       ],
       "count": 1,
@@ -217,14 +343,20 @@ Feature: Filter Outputs Private Endpoints Enabled
     {
       "items": [
         {
-          "name": "Number of siblings (3 mappings)",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "dimension_url": "http://dimension.url/siblings",
-          "is_area_type": false
+          "name": "siblings",
+          "links": {
+            "filter": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+              "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings/options"
+            },
+            "self": {
+              "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
+              "id": "siblings"
+            }
+          }
         }
       ],
       "count": 1,

@@ -2,20 +2,19 @@ package api
 
 import (
 	"context"
-	"crypto/sha1"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/pkg/errors"
 )
@@ -72,7 +71,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := model.Filter{
-		Links: model.Links{
+		Links: model.FilterLinks{
 			Version: model.Link{
 				HREF: api.generate.URL(
 					api.cfg.DatasetAPIURL,
@@ -92,7 +91,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		PopulationType:    req.PopulationType,
 		Type:              flexible,
 		Published:         v.State == published,
-		Events:            nil, // TODO: Not sure what to
 		DisclosureControl: nil, // populate for these fields yet
 	}
 
@@ -109,17 +107,10 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := createFilterResponse{
-		model.JobState{
-			InstanceID:       f.InstanceID,
-			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, f.ID),
-			FilterID:         f.ID,
-			Events:           f.Events,
-		},
-		f.Links,
-		f.Dataset,
-		f.PopulationType,
-	}
+	// don't return dimensions in response
+	f.Dimensions = nil
+
+	resp := createFilterResponse{f}
 
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
@@ -134,13 +125,12 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
-		// error 500
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusInternalServerError,
+			statusCode(err),
 			Error{
-				err:     errors.Wrap(err, "filter does not exist"),
+				err:     errors.Wrap(err, "failed to get filter"),
 				message: "failed to get filter",
 				logData: logData,
 			},
@@ -154,12 +144,11 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		State:    model.Submitted,
 	}
 
-	err = api.store.CreateFilterOutput(ctx, filterOutput)
-	if err != nil {
+	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusInternalServerError,
+			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "failed to create filter output"),
 				message: "filter output was not submitted",
@@ -174,16 +163,16 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	// naively converting for now.
 	datasetVersion := strconv.Itoa(filter.Dataset.Version)
 
-	exportEvent := ExportStart{
+	exportEvent := event.ExportStart{
 		InstanceID: filter.InstanceID,
 		DatasetID:  filter.Dataset.ID,
 		Edition:    filter.Dataset.Edition,
 		Version:    datasetVersion,
-		Filter_ID:  filterID,
+		FilterID:   filterID,
 	}
-	// send the export event through Kafka
-	if err := api.ProduceCSVCreateEvent(&exportEvent); err != nil {
 
+	// send the export event through Kafka
+	if err := api.produceExportStartEvent(&exportEvent); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -197,33 +186,22 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	timeNow := time.Now()
-
 	/*
 	   Note that this respose is different to swagger
 	   as discussed with Fran
 	*/
-	resp := UpdateFilterResponse{
-		model.JobState{
-			InstanceID:       filter.InstanceID,
-			FilterID:         filterID,
-			DimensionListUrl: fmt.Sprintf("%s/filters/%s/dimensions", api.cfg.BindAddr, filterID),
-			Events: []model.Event{
-				{
-					Timestamp: timeNow,
-					Name:      "cantabular-export-start",
-				},
+	resp := submitFilterResponse{
+		InstanceID: filter.InstanceID,
+		FilterID:   filterID,
+		Events:     []model.Event{
+			{
+				Timestamp: api.generate.Timestamp(),
+				Name:      "cantabular-export-start",
 			},
 		},
-
-		model.Dataset{
-			ID:      filter.Dataset.ID,
-			Edition: filter.Dataset.Edition,
-			Version: filter.Dataset.Version,
-		},
-		filter.Links,
-		filter.PopulationType,
-		filter.Dimensions,
+		Dataset:        filter.Dataset,
+		Links:          filter.Links,
+		PopulationType: filter.PopulationType,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
@@ -254,6 +232,20 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !f.Published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	if eTag := api.getETag(r); eTag != eTagAny {
 		if eTag != f.ETag {
 			api.respond.Error(
@@ -272,19 +264,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !f.Published && !dprequest.IsCallerPresent(ctx) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusNotFound,
-			Error{
-				err:     errors.New("unauthenticated request on unpublished dataset"),
-				message: "failed to get filter",
-				logData: logData,
-			},
-		)
-		return
-	}
+	// don't return dimensions in response
+	f.Dimensions = nil
 
 	resp := getFilterResponse{*f}
 
@@ -295,11 +276,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
-	newDimension := model.Dimension{
-		Options: make([]string, 0),
-	}
+	var req addFilterDimensionRequest
 
-	if err := api.ParseRequest(r.Body, &newDimension); err != nil {
+	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -310,7 +289,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logData := log.Data{
-		"request": newDimension,
+		"request": req,
 		"id":      fID,
 	}
 
@@ -323,34 +302,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get filter"),
 				message: "failed to get filter",
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	hashedFilterDimensions, err := api.hashFilterDimensions(ctx, fID)
-	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusInternalServerError,
-			Error{
-				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
-				logData: logData,
-			},
-		)
-		return
-	}
-
-	ifMatch := r.Header.Get("If-Match") // e.g. `"asdf", "qwer", "1234"`
-	if ifMatch != "" && ifMatch != eTagAny && !strings.Contains(ifMatch, hashedFilterDimensions) {
-		api.respond.Error(
-			ctx,
-			w,
-			http.StatusConflict,
-			Error{
-				err:     errors.Wrap(err, "ETag does not match"),
 				logData: logData,
 			},
 		)
@@ -381,11 +332,38 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !api.isValidDatasetDimensions(w, ctx, logData, v, []model.Dimension{newDimension}, filter.PopulationType) {
+	if !api.isValidDatasetDimensions(w, ctx, logData, v, []model.Dimension{req.Dimension}, filter.PopulationType) {
 		return
 	}
 
-	if err := api.store.AddFilterDimension(ctx, fID, newDimension); err != nil {
+	h, err := filter.HashDimensions()
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusInternalServerError,
+			Error{
+				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if eTag := api.getETag(r); eTag != eTagAny && !strings.Contains(eTag, h) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusConflict,
+			Error{
+				err:     errors.Wrap(err, "ETag does not match"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if err := api.store.AddFilterDimension(ctx, fID, req.Dimension); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -397,10 +375,26 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	resp := addFilterDimensionResponse{
-		Dimension: newDimension,
+
+	var resp addFilterDimensionResponse
+	resp.dimensionItem.fromDimension(req.Dimension, api.cfg.FilterAPIURL, fID)
+
+	filter, err = api.store.GetFilter(ctx, fID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get updated filter"),
+				message: "failed to get updated filter",
+				logData: logData,
+			},
+		)
+		return
 	}
-	fdBytes, err := api.hashFilterDimensions(ctx, filter.ID)
+
+	b, err := filter.HashDimensions()
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -413,31 +407,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	w.Header().Set("ETag", fdBytes)
+
+	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
-}
-
-func (api *API) hashFilterDimensions(ctx context.Context, fID string) (string, error) {
-	filter, err := api.store.GetFilter(ctx, fID)
-	if err != nil {
-		return "", err
-	}
-
-	h := sha1.New()
-
-	dimensions := struct {
-		items []model.Dimension
-	}{
-		items: filter.Dimensions,
-	}
-	fdBytes, err := bson.Marshal(dimensions)
-	if err != nil {
-		return "", err
-	}
-	if _, err := h.Write(fdBytes); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
@@ -446,20 +418,18 @@ func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	time, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
 
 	resp := putFilterResponse{
-		model.PutFilter{
-			Events: []model.Event{
-				{
-					Timestamp: time,
-					Name:      "cantabular-export-start",
-				},
+		Events: []model.Event{
+			{
+				Timestamp: time,
+				Name:      "cantabular-export-start",
 			},
-			Dataset: model.Dataset{
-				ID:      "string",
-				Edition: "string",
-				Version: 0,
-			},
-			PopulationType: "string",
 		},
+		Dataset: model.Dataset{
+			ID:      "string",
+			Edition: "string",
+			Version: 0,
+		},
+		PopulationType: "string",
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
@@ -471,16 +441,19 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 
 	logData := log.Data{"id": fID}
 
-	limit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit, logData)
+	limit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit)
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusBadRequest, err)
+		api.respond.Error(ctx, w, http.StatusBadRequest, &Error{
+			err:     err,
+			logData: logData,
+		})
 		return
 	}
 
 	logData["limit"] = limit
 	logData["offset"] = offset
 
-	dimensions, totalCount, err := api.store.GetFilterDimensions(ctx, fID, limit, offset)
+	dims, totalCount, err := api.store.GetFilterDimensions(ctx, fID, limit, offset)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -495,12 +468,15 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var items dimensionItems
+	items.fromDimensions(dims, api.cfg.FilterAPIURL, fID)
+
 	resp := getFilterDimensionsResponse{
-		Items: dimensions,
+		Items: items,
 		paginationResponse: paginationResponse{
 			Limit:      limit,
 			Offset:     offset,
-			Count:      len(dimensions),
+			Count:      len(dims),
 			TotalCount: totalCount,
 		},
 	}
@@ -551,6 +527,7 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 		)
 		return false
 	}
+
 	return true
 }
 

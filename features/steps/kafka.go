@@ -10,12 +10,6 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-/*
-
-   Functions for managing Kafka topics and Producers
-
-*/
-
 func (c *Component) drainTopic(ctx context.Context, topic, group string, wg *sync.WaitGroup) error {
 	msgs := []kafka.Message{}
 

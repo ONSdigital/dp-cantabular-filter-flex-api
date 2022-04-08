@@ -16,7 +16,22 @@ var csvCreated = `{
   ]
 }`
 
-// CSVCreated the Avro schema for CSV exported messages.
+var exportStart = `{
+  "type": "record",
+  "name": "cantabular-export-start",
+  "fields": [
+    {"name": "instance_id", "type": "string", "default": ""},
+    {"name": "dataset_id",  "type": "string", "default": ""},
+    {"name": "edition",     "type": "string", "default": ""},
+    {"name": "version",     "type": "string", "default": ""},
+    {"name": "filter_id",   "type":"string",  "default": ""}
+  ]
+}`
+
 var CSVCreated = &avro.Schema{
 	Definition: csvCreated,
+}
+
+var ExportStart = &avro.Schema{
+	Definition: exportStart,
 }

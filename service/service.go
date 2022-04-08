@@ -53,9 +53,9 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("could not instantiate healthcheck: %w", err)
 	}
 
+
 	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
 		return fmt.Errorf("Could not initialise Kafka producer: %w", err)
-
 	}
 
 	svc.cantabularClient = GetCantabularClient(cfg)
@@ -138,6 +138,7 @@ func (svc *Service) Close(ctx context.Context) error {
 		if err := svc.Producer.Close(ctx); err != nil {
 			log.Info(ctx, "failed to shut down kafka producer")
 		}
+
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)

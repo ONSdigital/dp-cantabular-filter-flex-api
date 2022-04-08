@@ -1,21 +1,18 @@
 package steps
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-kafka/v3/avro"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
 
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
-
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -65,38 +62,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 
 	ctx.Step(
-		`^I (try to )?add a new dimension to an existing filter$`,
-		c.iAddANewDimensionToAnExistingFilter,
-	)
-
-	ctx.Step(
-		`^I (try to )?add a new dimension with no options to an existing filter$`,
-		c.iAddANewDimensionWithoutOptionsToAnExistingFilter,
-	)
-
-	ctx.Step(
-		`^I receive the dimension\'s body back in the body of the response$`,
-		c.iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse,
-	)
-
-	ctx.Step(
-		`^I receive the dimension\'s body back with an empty \'options\' slice$`,
-		c.iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse,
-	)
-
-	ctx.Step(
-		`^I try to add a malformed dimension to an existing filter$`,
-		c.iTryToAddAMalformedDimensionToAnExistingFilter,
-	)
-
-	ctx.Step(
-		`^I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them$`,
-		c.iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem,
-	)
-
-	ctx.Step(
-		`^I try to add a new dimension to a non-existent filter$`,
-		c.iTryToAddANewDimensionToANonexistentFilter,
+		`^I provide If-Match header "([^"]*)"$`,
+		c.iProvideIfMatchHeader,
 	)
 
 	ctx.Step(
@@ -104,51 +71,16 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
 
-	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`, c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart)
+	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`,
+		c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart,
+	)
 
-	ctx.Step(`^I should receive the following time ignored JSON response:$`, c.iShouldReceiveTheFollowingTimeIgnoredJSONResponse)
-
-	ctx.Step(`^I have these filter outputs:$`, c.iHaveTheseFilterOutputs)
-
-}
-
-/*
-   The POST api now returns a Jobstate with a time component in it.
-   This results in failed tests as example is not current.
-   This custom JSON response parser is just to ensure time is ignored
-   when comparing requests.
-
-   open to suggestions on better way to handle
-*/
-func (c *Component) iShouldReceiveTheFollowingTimeIgnoredJSONResponse(arg1 *godog.DocString) error {
-	now := time.Now()
-
-	actual := new(bytes.Buffer)
-	actual.ReadFrom(c.ApiFeature.HttpResponse.Body)
-
-	var actualUpdateResponse api.UpdateFilterResponse
-	var expectedUpdateResponse api.UpdateFilterResponse
-
-	if err := json.Unmarshal([]byte(actual.String()), &actualUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal ACTUAL response.")
-	}
-
-	if err := json.Unmarshal([]byte(arg1.Content), &expectedUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal EXPECTED")
-	}
-
-	// naive setting because as per method, it should always be set.
-	actualUpdateResponse.Events[0].Timestamp = now
-	expectedUpdateResponse.Events[0].Timestamp = now
-
-	if !reflect.DeepEqual(actualUpdateResponse, expectedUpdateResponse) {
-		return errors.New("Structs are not equal")
-	}
-	return nil
+	ctx.Step(`^I have these filter outputs:$`,
+		c.iHaveTheseFilterOutputs,
+	)
 }
 
 func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
-
 	select {
 	case <-time.After(c.waitEventTimeout):
 		return nil
@@ -159,22 +91,8 @@ func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCata
 			return errors.New("upstream channel closed")
 		}
 
-		var e api.ExportStart
-		var exportStart = `{
-  "type": "record",
-  "name": "cantabular-export-start",
-  "fields": [
-    {"name": "instance_id", "type": "string", "default": ""},
-    {"name": "dataset_id",  "type": "string", "default": ""},
-    {"name": "edition",     "type": "string", "default": ""},
-    {"name": "version",     "type": "string", "default": ""},
-    {"name": "filter_id",   "type":"string",  "default": ""}
-  ]
-}`
-
-		var s = &avro.Schema{
-			Definition: exportStart,
-		}
+		var e event.ExportStart
+		s := schema.ExportStart
 
 		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
 			msg.Commit()
@@ -286,68 +204,9 @@ func (c *Component) theFollowingVersionDocumentIsAvailable(datasetID, edition, v
 	return nil
 }
 
-const example_dimension = `{
-	"name": "Number of siblings (3 mappings)",
-	"is_area_type": false,
-	"options": ["4-7", "7+"]
-}`
-
-func (c *Component) iAddANewDimensionToAnExistingFilter() error {
-	c.postedJSON = example_dimension
-
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: c.postedJSON},
-	)
-}
-
-func (c *Component) iAddANewDimensionWithoutOptionsToAnExistingFilter() error {
-	c.postedJSON = `{
-		"name": "Number of siblings (3 mappings)"
-	}`
-
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: c.postedJSON},
-	)
-}
-
-func (c *Component) iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse() error {
-	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: c.postedJSON})
-}
-
-func (c *Component) iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse() error {
-	var want = `{
-		"name": "Number of siblings (3 mappings)",
-		"is_area_type": false,
-		"options": []
-	}`
-	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: want})
-}
-
-func (c *Component) iTryToAddAMalformedDimensionToAnExistingFilter() error {
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: "not valid JSON"},
-	)
-}
-
-func (c *Component) iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem() error {
-	staleEtag := "a-stale-etag" // this would normally be a SHA-1 hash representing an older copy of the dimensions slice
-	json := example_dimension
-	c.ApiFeature.ISetTheHeaderTo("If-Match", staleEtag)
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: json},
-	)
-}
-
-func (c *Component) iTryToAddANewDimensionToANonexistentFilter() error {
-	json := example_dimension
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-000000000000/dimensions",
-		&godog.DocString{Content: json},
-	)
+func (c *Component) iProvideIfMatchHeader(eTag string) error {
+	c.ApiFeature.ISetTheHeaderTo("If-Match", eTag)
+	return nil
 }
 
 func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error {
@@ -355,12 +214,7 @@ func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error 
 	c.DatasetAPI.NewHandler().
 		Get("/datasets/cantabular-example-1/editions/2021/versions/1").
 		Reply(http.StatusInternalServerError)
-
-	json := example_dimension
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: json},
-	)
+	return nil
 }
 
 func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {

@@ -16,67 +16,38 @@ const (
 // Filter holds details for a user filter journey
 type Filter struct {
 	ID                string              `bson:"filter_id"                    json:"filter_id"`
-	Links             Links               `bson:"links"                        json:"links"`
-	FilterOutput      *FilterOutput       `bson:"filter_output,omitempty"      json:"filter_output,omitempty"`
-	Events            []Event             `bson:"events"                       json:"events"`
-	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
-	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
-	ETag              string              `bson:"etag"                         json:"-"`
 	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
-	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions"`
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
 	Published         bool                `bson:"published"                    json:"published"`
 	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
 	Type              string              `bson:"type"                         json:"type"`
 	PopulationType    string              `bson:"population_type"              json:"population_type"`
+	Links             FilterLinks         `bson:"links"                        json:"links"`
+	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions,omitempty"`
+	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
+	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
+	ETag              string              `bson:"etag"                         json:"-"`
 }
 
-//PutFilter holds details for PUT filter response
-type PutFilter struct {
-	Events         []Event `bson:"events"                       json:"events"`
-	Dataset        Dataset `bson:"dataset"                      json:"dataset"`
-	PopulationType string  `bson:"population_type"              json:"population_type"`
-}
-
-type JobState struct {
-	InstanceID       string  `json:"instance_id"`
-	DimensionListUrl string  `json:"dimension_list_url"`
-	FilterID         string  `json:"filter_id"`
-	Events           []Event `json:"events"`
-}
-
-type Links struct {
-	Version Link `bson:"version" json:"version"`
-	Self    Link `bson:"self"    json:"self"`
+type FilterLinks struct {
+	Version    Link `bson:"version"    json:"version"`
+	Self       Link `bson:"self"       json:"self"`
+	Dimensions Link `bson:"dimensions" json:"dimensions"`
 }
 
 type FilterOutputLinks struct {
-	Links
+	Version         Link `bson:"version" json:"version"`
+	Self            Link `bson:"self"    json:"self"`
 	FilterBlueprint Link `json:"filter_blueprint"`
+}
+
+type SubmitFilterLinks struct {
+	Dimensions Link `bson:"dimensions" json:"dimensions"`
 }
 
 type Link struct {
 	HREF string `bson:"href"           json:"href"`
 	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
-}
-
-type FilterOutput struct {
-	ID                string              `bson:"id,omitempty"                 json:"id,omitempty"`
-	FilterID          string              `bson:"filter_id"                    json:"filter_id"`
-	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
-	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
-	Published         bool                `bson:"published"                    json:"published"`
-	State             string              `bson:"state,omitempty"              json:"state,omitempty"`
-	Downloads         Downloads           `bson:"downloads"                    json:"downloads"`
-	Events            []Event             `bson:"events"                       json:"events"`
-	Type              string              `bson:"type"                         json:"type"`
-	PopulationType    string              `bson:"population_type"              json:"population_type"`
-	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
-	Links             FilterOutputLinks   `bson:"links"                        json:"links"`
-	Dimensions        []Dimension         `bson:"dimensions"                   json:"dimensions"`
-	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
-	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
-	ETag              string              `bson:"etag"                         json:"-"`
 }
 
 type Downloads struct {
@@ -102,7 +73,6 @@ type Event struct {
 type Dimension struct {
 	Name         string   `bson:"name"          json:"name"`
 	Options      []string `bson:"options"       json:"options"`
-	DimensionURL string   `bson:"dimension_url" json:"dimension_url,omitempty"`
 	IsAreaType   bool     `bson:"is_area_type"  json:"is_area_type"`
 }
 
@@ -131,15 +101,15 @@ func (fi *FileInfo) IsNotFullyPopulated() error {
 	}
 
 	if len(strings.Trim(fi.Private, cutset)) == 0 {
-		return errors.New(`"Private" is empty in input`)
+		return errors.New(`"private" is empty in input`)
 	}
 
 	if len(strings.Trim(fi.Public, cutset)) == 0 {
-		return errors.New(`"Public" is empty in input`)
+		return errors.New(`"public" is empty in input`)
 	}
 
 	if len(strings.Trim(fi.Size, cutset)) == 0 {
-		return errors.New(`"Size" is empty in input`)
+		return errors.New(`"size" is empty in input`)
 	}
 
 	return nil
