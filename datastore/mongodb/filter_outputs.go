@@ -51,30 +51,52 @@ func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
 	col := c.collections.filterOutputs
 
-	docs, err := c.findFilterOutput(f.ID, ctx)
-	if err != nil {
-		return errors.Wrap(err, "failed to find filter output")
+	var existing model.FilterOutput
+	queryFilter := bson.M{"id": f.ID}
+
+	if err := c.conn.Collection(col.name).FindOne(ctx, queryFilter, &existing); err != nil {
+		err := &er{
+			err: errors.Wrap(err, "failed to find filter output"),
+		}
+		if errors.Is(err, mongodb.ErrNoDocumentFound) {
+			err.notFound = true
+		}
+		return err
 	}
-	//a record with stat 'completed' can't be updated further
-	if docs[0].State == model.Completed {
+
+	// a record with state 'completed' can't be updated further
+	if existing.State == model.Completed {
 		return &er{
 			err:       errors.Errorf(`filter output is already in "completed" state`),
 			forbidden: true,
 		}
 	}
 
-	nv := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
+	fields := bson.M{"state": f.State}
+	if f.Downloads.CSV != nil {
+		fields["downloads.csv"] = f.Downloads.CSV
+	}
+	if f.Downloads.CSVW != nil {
+		fields["downloads.csvw"] = f.Downloads.CSVW
+	}
+	if f.Downloads.TXT != nil {
+		fields["downloads.txt"] = f.Downloads.TXT
+	}
+	if f.Downloads.XLS != nil {
+		fields["downloads.xls"] = f.Downloads.XLS
+	}
 
-	var rec *mongodb.CollectionUpdateResult
-	sc := bson.M{"id": f.ID}
+	update := bson.M{"$set": fields}
 
-	if rec, err = c.conn.Collection(col.name).Update(ctx, sc, nv); err != nil {
+	rec, err := c.conn.Collection(col.name).Update(ctx, queryFilter, update)
+	if err != nil {
 		return errors.Wrap(err, "failed to update filter output")
 	}
 
-	//This should not happen unless the recored is being removed btween the first find and the update.
-	//Check if the update failed sue to search condition.
-	//Update returns no error but the result's MatchedCount has to be checked for number of updated records
+	// This should not happen unless the recored is being removed bteween the
+	// first find and the update. Check if the update failed sue to search condition.
+	// Update returns no error but the result's MatchedCount has to be checked
+	// for number of updated records
 	if rec.MatchedCount < 1 {
 		return &er{
 			err:      errors.Errorf("failed to find filter output"),

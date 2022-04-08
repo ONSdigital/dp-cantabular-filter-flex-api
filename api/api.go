@@ -84,7 +84,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
 
 	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
-	r.Put("/filter-outputs/{filter_output_id}", api.updateFilterOutput)
+	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)
 	r.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
 
 	api.Router.Mount("/", r)

@@ -11,14 +11,6 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         "state": "published",
         "downloads":
         {
-          "xls":
-          {
-            "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
-            "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
-            "size":"6944",
-            "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
-            "skipped":true
-          },
           "csv":
           {
             "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.csv",
@@ -105,6 +97,65 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
               "size":"6944",
               "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
               "skipped":true
+            }
+        }
+    }
+    """
+
+    Then the HTTP status code should be "200"
+
+    And a document in collection "filterOutputs" with key "id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
+    """
+    {
+        "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+        "dataset": {
+          "edition":"",
+          "id":"",
+          "version": {
+            "$numberInt": "0"
+          }
+        },
+        "dimensions": null,
+        "etag": "",
+        "events": null,
+        "filter_id": "",
+        "id": "94310d8d-72d6-492a-bc30-27584627edb1",
+        "instance_id": "",
+        "last_updated": {
+          "$date":{
+            "$numberLong":"-62135596800000"
+          }
+        },
+        "links":{
+          "filterblueprint":{
+            "href":""
+          },
+          "self":{
+            "href":""
+          },
+          "version":{
+            "href":""
+          }
+        },
+        "population_type": "",
+        "published": false,
+        "state": "published",
+        "type": "",
+        "unique_timestamp": {
+          "$timestamp":{
+            "i":0,
+            "t":0
+          }
+        },
+        "downloads":
+        {
+            "xls":
+            {
+              "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
+              "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
+              "size":"6944",
+              "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
+              "skipped":true
             },
             "csv":
             {
@@ -133,8 +184,6 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         }
     }
     """
-
-    Then the HTTP status code should be "200"
 
   Scenario: Update filter output successfully with new ID in DB
     Given I am identified as "user@ons.gov.uk"
@@ -186,7 +235,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
-      "errors": ["failed to update filter output: failed to find filter output: filter output not found for 94310d8d-72d6-492a-bc30-27584627new1"]
+      "errors": ["failed to update filter output"]
     }
     """
     And the HTTP status code should be "404"
@@ -245,7 +294,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
     """
     {
       "errors": [
-        "failed to update filter output: failed to upsert filter"
+        "failed to update filter output"
       ]
     }
     """

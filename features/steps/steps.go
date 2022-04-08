@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -39,10 +38,6 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(
 		`^the maximum pagination limit is set to (\d+)$`,
 		c.theMaximumLimitIsSetTo,
-	)
-	ctx.Step(
-		`^the document in the database for id "([^"]*)" should match:$`,
-		c.theDocumentInTheDatabaseShouldMatch,
 	)
 	ctx.Step(
 		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" should match:$`,
@@ -93,19 +88,17 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I should receive an errors array`,
 		c.iShouldReceiveAnErrorsArray,
 	)
-
 	ctx.Step(
 		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		c.cantabularSearchReturnsTheseDimensions,
 	)
-
 	ctx.Step(
 		`^Cantabular responds with an error$`,
 		c.cantabularRespondsWithAnError,
 	)
-
 	ctx.Step(`^the filter output with the following structure is in the datastore:$`,
-		c.filterOutputIsInDatastore)
+		c.filterOutputIsInDatastore,
+	)
 
 }
 func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) error {
@@ -302,36 +295,7 @@ func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val s
 	}
 
 	if diff := cmp.Diff(expected, result); diff != "" {
-		return fmt.Errorf("-want +got)\n%s\n", diff)
-	}
-
-	return nil
-}
-
-// theDocumentInTheDatabaseShouldMatch checks if the filter in the DB matches the one provided.
-// Timestamps and the ETag are ignored.
-func (c *Component) theDocumentInTheDatabaseShouldMatch(fID string, doc *godog.DocString) error {
-	var expFilter model.Filter
-	if err := json.Unmarshal([]byte(doc.Content), &expFilter); err != nil {
-		return errors.Wrap(err, "failed to unmarshall")
-	}
-
-	ctx := context.Background()
-	col := c.cfg.FiltersCollection
-
-	var response model.Filter
-	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": fID}, &response); err != nil {
-		return errors.Wrap(err, "failed to retrieve filter")
-	}
-
-	// ETags are compared by a separate assertion
-	response.ETag = ""
-	// Don't compare time, since it will be non-deterministic
-	response.LastUpdated = time.Time{}
-	response.UniqueTimestamp = primitive.Timestamp{}
-
-	if !reflect.DeepEqual(expFilter, response) {
-		return fmt.Errorf("Document did not match\nExpected:\n%+v\nGot:\n%+v\n", expFilter, response)
+		return fmt.Errorf("-expected +got)\n%s\n", diff)
 	}
 
 	return nil
