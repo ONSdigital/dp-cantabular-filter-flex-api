@@ -85,7 +85,6 @@ func (c *Client) AddFilterOutputEvent(ctx context.Context, id string, f *model.E
 			notFound: true,
 		}
 	}
-
 	return nil
 }
 
