@@ -177,5 +177,3 @@ Feature: Post Filter Output event Private Endpoints Enabled
 
     Then the HTTP status code should be "500"
   
-
-    
