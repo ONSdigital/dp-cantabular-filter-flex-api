@@ -22,7 +22,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 			w,
 			statusCode(err),
 			Error{
-				err: errors.Wrap(err, "failed to get filter output"),
+				err:     errors.Wrap(err, "failed to get filter output"),
+				message: "failed to get filter output",
 				logData: log.Data{
 					"id": fID,
 				},
