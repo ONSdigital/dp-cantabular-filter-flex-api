@@ -43,7 +43,6 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
-
 }
 
 func (api *API) updateFilterOutput(w http.ResponseWriter, r *http.Request) {
