@@ -33,12 +33,10 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := getFilterOutputResponse{
-		model.JobState{
-			InstanceID:       filterOutput.InstanceID,
-			FilterID:         filterOutput.FilterID,
-			DimensionListUrl: fmt.Sprintf("%s/filter-outputs/%s", api.cfg.BindAddr, filterOutput.FilterID),
-			Events:           filterOutput.Events,
-		},
+		filterOutput.FilterID,
+		filterOutput.InstanceID,
+		fmt.Sprintf("%s/filter-outputs/%s", api.cfg.BindAddr, filterOutput.FilterID),
+		filterOutput.Events,
 		filterOutput.Links,
 		filterOutput.Downloads,
 		filterOutput.State,

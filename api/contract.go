@@ -95,6 +95,17 @@ func (r *updateFilterOutputRequest) Valid() error {
 	return nil
 }
 
+// getFilterOutputResponse is the response body for GET/filter-outputs/{id}
+type getFilterOutputResponse struct {
+	FilterID         string                  `json:"filter_id"`
+	InstanceID       string                  `json:"instance_id"`
+	DimensionListURL string                  `json:"dimension_list_url"`
+	Events           []model.Event           `json:"events"`
+	Links            model.FilterOutputLinks `json:"links"`
+	Downloads        model.Downloads         `json:"downloads"`
+	State            string                  `json:"state"`
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
 	Items dimensionItems `json:"items"`
