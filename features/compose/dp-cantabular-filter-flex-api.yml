@@ -13,9 +13,10 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
-            - /home/jpm/go-modules/onsdigital/dp-component-test:/home/jpm/go-modules/onsdigital/dp-component-test
         ports:
             - 27100:27100
+        depends_on:
+            - kafka-1
         environment:
             BIND_ADDR:                   ":27100"
             SERVICE_AUTH_TOKEN:          "testToken"

@@ -98,9 +98,9 @@ func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCata
 		msg.Release()
 
 		return fmt.Errorf("kafka event received in csv-created topic: %v", e)
-
 	}
 }
+
 func (c *Component) anETagIsReturned() error {
 	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
 	if eTag == "" {
