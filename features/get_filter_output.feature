@@ -11,6 +11,7 @@ Feature: Get Filter Private Endpoints Not Enabled
         "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
         "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
         "state": "published",
+        "published": true,
         "downloads":
         {
           "xls":
@@ -113,11 +114,21 @@ Feature: Get Filter Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
         {
-          "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
-          "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
+        "id": "94310d8d-72d6-492a-bc30-27584627edb1",
+        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
+        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
+        "type": "",
+        "downloads": {},
+        "dimensions": null,
           "state": "published",
           "events": null,
-          "dimension_list_url": ":27100/filter-outputs/94310d8d-72d6-492a-bc30-27584627fil1",
+          "published": true,
+          "dataset": {
+                  "id": "",
+                  "edition": "",
+                  "version": 0
+           },
+           "population_type": "",
           "downloads": {
             "xls": {
               "href": "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -33,13 +32,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := getFilterOutputResponse{
-		filterOutput.FilterID,
-		filterOutput.InstanceID,
-		fmt.Sprintf("%s/filter-outputs/%s", api.cfg.BindAddr, filterOutput.FilterID),
-		filterOutput.Events,
-		filterOutput.Links,
-		filterOutput.Downloads,
-		filterOutput.State,
+		*filterOutput,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
