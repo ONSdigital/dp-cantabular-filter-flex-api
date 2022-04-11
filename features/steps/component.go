@@ -28,10 +28,10 @@ import (
 
 const (
 	ComponentTestGroup    = "test-consumer-group"
-	DrainTopicTimeout     = 1 * time.Second  // maximum time to wait for a topic to be drained
+	DrainTopicTimeout     = 10 * time.Second // maximum time to wait for a topic to be drained
 	DrainTopicMaxMessages = 1000             // maximum number of messages that will be drained from a topic
 	MinioCheckRetries     = 3                // maximum number of retires to validate that a file is present in minio
-	WaitEventTimeout      = 15 * time.Second // maximum time that the component test consumer will wait for a
+	WaitEventTimeout      = 20 * time.Second // maximum time that the component test consumer will wait for a
 )
 
 var (

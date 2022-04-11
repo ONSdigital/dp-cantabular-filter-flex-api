@@ -13,6 +13,15 @@ services:
     image: confluentinc/cp-kafka:6.0.0
     expose:
       - 9092 # exposed port to docker network so that the broker is reachable by other brokers, value needs to match PLAINTEXT port
+      - 9093
+    ports:
+      - "9092:9092"
+      - "9103:9103"
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 5s
+      timeout: 10s
+      retries: 5
     depends_on:
       - zookeeper-1
     environment:
@@ -22,3 +31,15 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  kowl:
+      image: quay.io/cloudhut/kowl:v1.5.0
+      restart: always
+      hostname: kowl
+      volumes:
+      - ./config.yaml:/etc/kowl/config.yaml
+      ports:
+      - "8080:8080"
+      entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+      depends_on:
+        kafka-1:
+          condition: service_healthy
