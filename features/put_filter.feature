@@ -107,7 +107,7 @@ Feature: Put Filter Private Endpoints Not Enabled
     {
       "events": [
         {
-          "timestamp": "2016-07-17T08:38:25.316Z",
+          "timestamp": "2016-07-17T08:38:25.316+000",
           "name": "cantabular-export-start"
         }
       ],

@@ -113,7 +113,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
       "filter_id":  "TEST-FILTER-ID",
       "events":[
         {
-          "timestamp": "2022-01-26T12:27:04.783936865Z",
+          "timestamp": "2022-01-26T12:27:04Z",
           "name": "cantabular-export-start"
         }
       ],

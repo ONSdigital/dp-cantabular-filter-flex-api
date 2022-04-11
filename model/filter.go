@@ -66,8 +66,8 @@ type FileInfo struct {
 }
 
 type Event struct {
-	Timestamp time.Time `bson:"timestamp" json:"timestamp"`
-	Name      string    `bson:"name"      json:"name"`
+	Timestamp string `bson:"timestamp" json:"timestamp"`
+	Name      string `bson:"name"      json:"name"`
 }
 
 type Dimension struct {

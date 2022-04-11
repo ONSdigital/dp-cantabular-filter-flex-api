@@ -119,7 +119,6 @@ func (c *Component) Init() (http.Handler, error) {
 		ExportStartGroup:          "cantabular-export-start-group",
 		TLSProtocolFlag:           false,
 	}
-	
 
 	kafkaOffset := kafka.OffsetOldest
 	if c.consumer, err = kafka.NewConsumerGroup(
@@ -253,6 +252,7 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 	return mongoClient, nil
 }
 
+//keep adding new handler functions for which the mongo needs to fail
 func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
@@ -260,6 +260,9 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 		},
 		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
 			return nil, errors.New("mongo client has failed")
+		},
+		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
+			return errors.New("failed to add event")
 		},
 	}
 	return &mongoClient, nil
