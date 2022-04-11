@@ -13,15 +13,6 @@ services:
     image: confluentinc/cp-kafka:6.0.0
     expose:
       - 9092 # exposed port to docker network so that the broker is reachable by other brokers, value needs to match PLAINTEXT port
-      - 9093
-    ports:
-      - "9092:9092"
-      - "9103:9103"
-    healthcheck:
-      test: nc -z localhost 9092 || exit -1
-      interval: 5s
-      timeout: 10s
-      retries: 5
     depends_on:
       - zookeeper-1
     environment:

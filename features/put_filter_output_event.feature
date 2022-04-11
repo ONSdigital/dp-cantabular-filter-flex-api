@@ -166,7 +166,7 @@ Feature: Post Filter Output event Private Endpoints Enabled
     
     And I am authorised
 
-    And Mongo datastore fails
+    And Mongo datastore fails for update filter output
     When I POST "/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb1/events"
     """
     {

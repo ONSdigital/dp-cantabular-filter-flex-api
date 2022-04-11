@@ -10,9 +10,6 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
-	"github.com/google/go-cmp/cmp"
-	"github.com/rdumont/assistdog"
-
 	"github.com/cucumber/godog"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -82,49 +79,31 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 }
 
-// theseCsvCreatedEventsAreProduced consumes kafka messages that are expected to be produced by the service under test
-// and validates that they match the expected values in the test
-func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart(events *godog.Table) error {
-	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
-	if err != nil {
-		return fmt.Errorf("failed to create slice from godog table: %w", err)
-	}
-
-	var got []*event.ExportStart
-	listen := true
-	for listen {
-		select {
-		case <-time.After(c.waitEventTimeout):
-			listen = false
-		case <-c.consumer.Channels().Closer:
-			return errors.New("closer channel closed")
-		case msg, ok := <-c.consumer.Channels().Upstream:
-			if !ok {
-				return errors.New("upstream channel closed")
-			}
-
-			var e event.ExportStart
-			var s = schema.ExportStart
-
-			if err := s.Unmarshal(msg.GetData(), &e); err != nil {
-				msg.Commit()
-				msg.Release()
-				return fmt.Errorf("error unmarshalling message: %w", err)
-			}
-
-			msg.Commit()
-			msg.Release()
-
-			got = append(got, &e)
+func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
+	select {
+	case <-time.After(c.waitEventTimeout):
+		return nil
+	case <-c.consumer.Channels().Closer:
+		return errors.New("closer channel closed")
+	case msg, ok := <-c.consumer.Channels().Upstream:
+		if !ok {
+			return errors.New("upstream channel closed")
 		}
 
-	}
+		var e event.ExportStart
+		s := schema.ExportStart
 
-	if diff := cmp.Diff(got, expected); diff != "" {
-		return fmt.Errorf("-got +expected)\n%s\n", diff)
-	}
+		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
+			msg.Commit()
+			msg.Release()
+			return fmt.Errorf("error unmarshalling message: %w", err)
+		}
 
-	return nil
+		msg.Commit()
+		msg.Release()
+
+		return fmt.Errorf("kafka event received in csv-created topic: %v", e)
+	}
 }
 
 func (c *Component) anETagIsReturned() error {

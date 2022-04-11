@@ -89,7 +89,6 @@ Feature: Submit Filter Private Endpoints Not Enabled
           "edition": "2021",
           "version": 1
         },
-        "published": false,
         "population_type": "Example",
         "type": "flexible"
       }

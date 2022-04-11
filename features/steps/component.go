@@ -143,7 +143,6 @@ func (c *Component) Init() (http.Handler, error) {
 	// start kafka logging go-routines
 	c.consumer.LogErrors(c.ctx)
 	// maybe an issue here
-	c.consumer.StateWait(kafka.Consuming)
 
 	// Create service and initialise it
 	c.svc = service.New()
