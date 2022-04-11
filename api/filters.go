@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
@@ -478,6 +479,59 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 			TotalCount: totalCount,
 		},
 	}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
+}
+
+func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+	dim := chi.URLParam(r, "dimension")
+
+	logData := log.Data{
+		"id":        fID,
+		"dimension": dim,
+	}
+
+	// Check the filter exists, so we can return a different status code
+	// from if the dimension doesn't exist.
+	if _, err := api.store.GetFilter(ctx, fID); err != nil {
+		status := statusCode(err)
+		if dperrors.NotFound(err) {
+			status = http.StatusBadRequest
+		}
+
+		api.respond.Error(
+			ctx,
+			w,
+			status,
+			Error{
+				err:     errors.Wrap(err, "failed to get filter from store"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	filterDim, err := api.store.GetFilterDimension(ctx, fID, dim)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter dimension from store"),
+				message: "failed to get filter dimension",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	var resp getFilterDimensionResponse
+	resp.dimensionItem.fromDimension(filterDim, api.cfg.FilterAPIURL, fID)
+	resp.IsAreaType = filterDim.IsAreaType
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }

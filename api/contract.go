@@ -152,6 +152,11 @@ func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filter
 	}
 }
 
+type getFilterDimensionResponse struct {
+	dimensionItem
+	IsAreaType bool `json:"is_area_type"`
+}
+
 type dimensionItemLinks struct {
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
