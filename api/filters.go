@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -493,6 +494,24 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 		"dimension": dim,
 	}
 
+	// We decode the dimension name since currently dimensions are stored using their pretty name, e.g.
+	// `Number of Siblings`, and passed in the URL as encoded (e.g. `Number+of+Siblings`). Until this is
+	// changed we need to unescape the dimension before querying.
+	dimName, err := url.QueryUnescape(dim)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to decode dimension name"),
+				message: "failed to decode dimension name",
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	// Check the filter exists, so we can return a different status code
 	// from if the dimension doesn't exist.
 	if _, err := api.store.GetFilter(ctx, fID); err != nil {
@@ -514,7 +533,7 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filterDim, err := api.store.GetFilterDimension(ctx, fID, dim)
+	filterDim, err := api.store.GetFilterDimension(ctx, fID, dimName)
 	if err != nil {
 		api.respond.Error(
 			ctx,
