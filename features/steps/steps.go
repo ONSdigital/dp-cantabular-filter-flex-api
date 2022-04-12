@@ -10,6 +10,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
@@ -87,15 +88,20 @@ func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCata
 		return fmt.Errorf("failed to create slice from godog table: %w", err)
 	}
 
+	consumer, err := GenerateKafkaConsumer(c.ctx)
+	if err != nil {
+		return fmt.Errorf("failed to generate kafka consumer: %w", err)
+	}
+
 	var got []*event.ExportStart
 	listen := true
 	for listen {
 		select {
 		case <-time.After(c.waitEventTimeout):
 			listen = false
-		case <-c.consumer.Channels().Closer:
+		case <-consumer.Channels().Closer:
 			return errors.New("closer channel closed")
-		case msg, ok := <-c.consumer.Channels().Upstream:
+		case msg, ok := <-consumer.Channels().Upstream:
 			if !ok {
 				return errors.New("upstream channel closed")
 			}
@@ -115,6 +121,12 @@ func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCata
 			got = append(got, &e)
 		}
 
+	}
+
+	if err := consumer.Close(c.ctx); err != nil {
+		// just log the error, but do not fail the test
+		// as it is not relevant to this test.
+		log.Error(c.ctx, "error closing kafka consumer", err)
 	}
 
 	if diff := cmp.Diff(got, expected); diff != "" {

@@ -100,48 +100,48 @@ func (c *Component) Init() (http.Handler, error) {
 
 	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
 
-	var err error
+	// var err error
 
-	kafkaConfig := config.KafkaConfig{
-		Addr:                      []string{"kafka-1:9092"},
-		ConsumerMinBrokersHealthy: 1,
-		ProducerMinBrokersHealthy: 1,
-		Version:                   "1.0.2",
-		OffsetOldest:              true,
-		NumWorkers:                1,
-		MaxBytes:                  2000000,
-		SecProtocol:               "",
-		SecCACerts:                "",
-		SecClientKey:              "",
-		SecClientCert:             "",
-		SecSkipVerify:             false,
-		ExportStartTopic:          "cantabular-export-start",
-		ExportStartGroup:          "cantabular-export-start-group",
-		TLSProtocolFlag:           false,
-	}
+	// kafkaConfig := config.KafkaConfig{
+	//	Addr:                      []string{"kafka-1:9092"},
+	//	ConsumerMinBrokersHealthy: 1,
+	//	ProducerMinBrokersHealthy: 1,
+	//	Version:                   "1.0.2",
+	//	OffsetOldest:              true,
+	//	NumWorkers:                1,
+	//	MaxBytes:                  2000000,
+	//	SecProtocol:               "",
+	//	SecCACerts:                "",
+	//	SecClientKey:              "",
+	//	SecClientCert:             "",
+	//	SecSkipVerify:             false,
+	//	ExportStartTopic:          "cantabular-export-start",
+	//	ExportStartGroup:          "cantabular-export-start-group",
+	//	TLSProtocolFlag:           false,
+	// }
 
-	kafkaOffset := kafka.OffsetOldest
-	if c.consumer, err = kafka.NewConsumerGroup(
-		c.ctx,
-		&kafka.ConsumerGroupConfig{
-			BrokerAddrs:       kafkaConfig.Addr,
-			Topic:             kafkaConfig.ExportStartTopic,
-			GroupName:         ComponentTestGroup,
-			MinBrokersHealthy: &(kafkaConfig.ConsumerMinBrokersHealthy),
-			KafkaVersion:      &(kafkaConfig.Version),
-			Offset:            &(kafkaOffset),
-		},
-	); err != nil {
-		return nil, fmt.Errorf("error creating kafka consumer: %w", err)
-	}
+	// kafkaOffset := kafka.OffsetOldest
+	// if c.consumer, err = kafka.NewConsumerGroup(
+	//	c.ctx,
+	//	&kafka.ConsumerGroupConfig{
+	//		BrokerAddrs:       kafkaConfig.Addr,
+	//		Topic:             kafkaConfig.ExportStartTopic,
+	//		GroupName:         ComponentTestGroup,
+	//		MinBrokersHealthy: &(kafkaConfig.ConsumerMinBrokersHealthy),
+	//		KafkaVersion:      &(kafkaConfig.Version),
+	//		Offset:            &(kafkaOffset),
+	//	},
+	// ); err != nil {
+	//	return nil, fmt.Errorf("error creating kafka consumer: %w", err)
+	// }
 
-	// For checking the csv create request
-	if err := c.consumer.Start(); err != nil {
-		return nil, fmt.Errorf("error starting kafka consumer: %w", err)
-	}
+	// // For checking the csv create request
+	// if err := c.consumer.Start(); err != nil {
+	//	return nil, fmt.Errorf("error starting kafka consumer: %w", err)
+	// }
 
-	// start kafka logging go-routines
-	c.consumer.LogErrors(c.ctx)
+	// // start kafka logging go-routines
+	// c.consumer.LogErrors(c.ctx)
 	// maybe an issue here
 
 	// Create service and initialise it
@@ -210,9 +210,9 @@ func (c *Component) startService(ctx context.Context) {
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
 
-	if err := c.consumer.Close(c.ctx); err != nil {
-		log.Error(c.ctx, "error closing kafka consumer", err)
-	}
+	// if err := c.consumer.Close(c.ctx); err != nil {
+	//	log.Error(c.ctx, "error closing kafka consumer", err)
+	// }
 
 	if !c.shutdownInitiated {
 		c.shutdownInitiated = true
