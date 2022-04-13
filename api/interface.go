@@ -31,6 +31,7 @@ type datastore interface {
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
 	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	AddFilterDimension(context.Context, string, model.Dimension) error
+	UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (eTag string, err error)
 }
 
 type validator interface {
@@ -45,6 +46,7 @@ type generator interface {
 
 type cantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
+	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 }
 

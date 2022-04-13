@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/log.go/v2/log"
+
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -108,4 +110,92 @@ func (c *Client) AddFilterDimension(ctx context.Context, fID string, dim model.D
 	}
 
 	return nil
+}
+
+func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+	col := c.collections.filters
+	logData := log.Data{
+		"filter_id":      filterID,
+		"dimension_name": dimensionName,
+	}
+
+	lockID, err := col.lock(ctx, filterID)
+	if err != nil {
+		return "", errors.Wrap(err, "error while locking filters collection")
+	}
+
+	defer col.unlock(ctx, lockID)
+
+	filter, err := c.GetFilter(ctx, filterID)
+	if err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "unable to fetch filter"),
+			logData: logData,
+		}
+	}
+
+	// The Etag is optional, so we check if it's provided before comparing it.
+	if currentETag != "" && currentETag != filter.ETag {
+		logData["expected_etag"] = currentETag
+		logData["actual_etag"] = filter.ETag
+
+		return "", &er{
+			err:      errors.New("conflict: invalid ETag provided or filter has been updated"),
+			conflict: true,
+			logData:  logData,
+		}
+	}
+
+	// Find the dimension in order to replace it in-memory with the old one (rather than just
+	// in the datastore). We need to do this in order to generate an accurate ETag/hash.
+	newDimensionIndex, err := findDimensionIndex(filter, dimensionName)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	filter.Dimensions[newDimensionIndex] = dimension
+
+	if filter.ETag, err = filter.Hash(nil); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to generate eTag"),
+			logData: logData,
+		}
+	}
+
+	selectFilter := bson.M{
+		"filter_id":       filterID,
+		"dimensions.name": dimensionName,
+	}
+
+	updateFilter := bson.M{
+		"$set": bson.M{
+			"etag":         filter.ETag,
+			"dimensions.$": dimension,
+		},
+	}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to update filter dimension"),
+			logData: logData,
+		}
+	}
+
+	return filter.ETag, nil
+}
+
+// findDimensionIndex loops through a dimension, looking for a filter by name, and
+// returns the index of the item in the Dimensions slice.
+func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error) {
+	for i, dim := range filter.Dimensions {
+		if dim.Name == dimensionName {
+			return i, nil
+		}
+	}
+
+	return 0, errors.New("could not find dimension")
 }

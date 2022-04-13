@@ -24,6 +24,13 @@ func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.G
 	return nil, errors.New("invalid dimension options")
 }
 
+func (c *CantabularClient) SearchDimensions(_ context.Context, _ cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	if c.OptionsHappy {
+		return nil, nil
+	}
+	return nil, errors.New("error searching dimensions")
+}
+
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
 }

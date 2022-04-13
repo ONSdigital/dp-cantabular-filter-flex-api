@@ -52,6 +52,9 @@ var _ service.Datastore = &DatastoreMock{}
 // 			GetFilterOutputFunc: func(contextMoqParam context.Context, s string) (*model.FilterOutput, error) {
 // 				panic("mock out the GetFilterOutput method")
 // 			},
+// 			UpdateFilterDimensionFunc: func(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+// 				panic("mock out the UpdateFilterDimension method")
+// 			},
 // 			UpdateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
 // 				panic("mock out the UpdateFilterOutput method")
 // 			},
@@ -91,6 +94,9 @@ type DatastoreMock struct {
 
 	// GetFilterOutputFunc mocks the GetFilterOutput method.
 	GetFilterOutputFunc func(contextMoqParam context.Context, s string) (*model.FilterOutput, error)
+
+	// UpdateFilterDimensionFunc mocks the UpdateFilterDimension method.
+	UpdateFilterDimensionFunc func(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error)
 
 	// UpdateFilterOutputFunc mocks the UpdateFilterOutput method.
 	UpdateFilterOutputFunc func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error
@@ -173,6 +179,19 @@ type DatastoreMock struct {
 			// S is the s argument value.
 			S string
 		}
+		// UpdateFilterDimension holds details about calls to the UpdateFilterDimension method.
+		UpdateFilterDimension []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// FilterID is the filterID argument value.
+			FilterID string
+			// DimensionName is the dimensionName argument value.
+			DimensionName string
+			// Dimension is the dimension argument value.
+			Dimension model.Dimension
+			// CurrentETag is the currentETag argument value.
+			CurrentETag string
+		}
 		// UpdateFilterOutput holds details about calls to the UpdateFilterOutput method.
 		UpdateFilterOutput []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -181,17 +200,18 @@ type DatastoreMock struct {
 			FilterOutput *model.FilterOutput
 		}
 	}
-	lockAddFilterDimension   sync.RWMutex
-	lockAddFilterOutputEvent sync.RWMutex
-	lockChecker              sync.RWMutex
-	lockConn                 sync.RWMutex
-	lockCreateFilter         sync.RWMutex
-	lockCreateFilterOutput   sync.RWMutex
-	lockGetFilter            sync.RWMutex
-	lockGetFilterDimension   sync.RWMutex
-	lockGetFilterDimensions  sync.RWMutex
-	lockGetFilterOutput      sync.RWMutex
-	lockUpdateFilterOutput   sync.RWMutex
+	lockAddFilterDimension    sync.RWMutex
+	lockAddFilterOutputEvent  sync.RWMutex
+	lockChecker               sync.RWMutex
+	lockConn                  sync.RWMutex
+	lockCreateFilter          sync.RWMutex
+	lockCreateFilterOutput    sync.RWMutex
+	lockGetFilter             sync.RWMutex
+	lockGetFilterDimension    sync.RWMutex
+	lockGetFilterDimensions   sync.RWMutex
+	lockGetFilterOutput       sync.RWMutex
+	lockUpdateFilterDimension sync.RWMutex
+	lockUpdateFilterOutput    sync.RWMutex
 }
 
 // AddFilterDimension calls AddFilterDimensionFunc.
@@ -552,6 +572,53 @@ func (mock *DatastoreMock) GetFilterOutputCalls() []struct {
 	mock.lockGetFilterOutput.RLock()
 	calls = mock.calls.GetFilterOutput
 	mock.lockGetFilterOutput.RUnlock()
+	return calls
+}
+
+// UpdateFilterDimension calls UpdateFilterDimensionFunc.
+func (mock *DatastoreMock) UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+	if mock.UpdateFilterDimensionFunc == nil {
+		panic("DatastoreMock.UpdateFilterDimensionFunc: method is nil but Datastore.UpdateFilterDimension was just called")
+	}
+	callInfo := struct {
+		Ctx           context.Context
+		FilterID      string
+		DimensionName string
+		Dimension     model.Dimension
+		CurrentETag   string
+	}{
+		Ctx:           ctx,
+		FilterID:      filterID,
+		DimensionName: dimensionName,
+		Dimension:     dimension,
+		CurrentETag:   currentETag,
+	}
+	mock.lockUpdateFilterDimension.Lock()
+	mock.calls.UpdateFilterDimension = append(mock.calls.UpdateFilterDimension, callInfo)
+	mock.lockUpdateFilterDimension.Unlock()
+	return mock.UpdateFilterDimensionFunc(ctx, filterID, dimensionName, dimension, currentETag)
+}
+
+// UpdateFilterDimensionCalls gets all the calls that were made to UpdateFilterDimension.
+// Check the length with:
+//     len(mockedDatastore.UpdateFilterDimensionCalls())
+func (mock *DatastoreMock) UpdateFilterDimensionCalls() []struct {
+	Ctx           context.Context
+	FilterID      string
+	DimensionName string
+	Dimension     model.Dimension
+	CurrentETag   string
+} {
+	var calls []struct {
+		Ctx           context.Context
+		FilterID      string
+		DimensionName string
+		Dimension     model.Dimension
+		CurrentETag   string
+	}
+	mock.lockUpdateFilterDimension.RLock()
+	calls = mock.calls.UpdateFilterDimension
+	mock.lockUpdateFilterDimension.RUnlock()
 	return calls
 }
 
