@@ -9,8 +9,9 @@ import (
 )
 
 type CantabularClient struct {
-	ErrStatus    int
-	OptionsHappy bool
+	ErrStatus            int
+	OptionsHappy         bool
+	SearchDimensionsFunc func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
@@ -22,6 +23,13 @@ func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.G
 		return nil, nil
 	}
 	return nil, errors.New("invalid dimension options")
+}
+
+func (c *CantabularClient) SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	if c.OptionsHappy {
+		return c.SearchDimensionsFunc(ctx, req)
+	}
+	return nil, errors.New("error while searching dimensions")
 }
 
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {

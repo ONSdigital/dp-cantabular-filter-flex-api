@@ -113,6 +113,11 @@ type addFilterDimensionResponse struct {
 	dimensionItem
 }
 
+// updateFilterDimensionResponse is the response body for PUT /filters/{id}/dimensions/{name}
+type updateFilterDimensionResponse struct {
+	dimensionItem
+}
+
 type dimensionItem struct {
 	Name  string             `json:"name"`
 	Links dimensionItemLinks `json:"links"`

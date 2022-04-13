@@ -59,6 +59,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
 	api.Router.Get("/flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
 	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 }
@@ -80,6 +81,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
 
 	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 	r.Put("/filter-outputs/{filter_output_id}", api.updateFilterOutput)

@@ -42,20 +42,21 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	ApiFeature        *componenttest.APIFeature
-	errorChan         chan error
-	DatasetAPI        *httpfake.HTTPFake
-	svc               *service.Service
-	cfg               *config.Config
-	wg                *sync.WaitGroup
-	signals           chan os.Signal
-	ctx               context.Context
-	HTTPServer        *http.Server
-	store             service.Datastore
-	g                 service.Generator
-	shutdownInitiated bool
-	consumer          kafka.IConsumerGroup
-	waitEventTimeout  time.Duration
+	ApiFeature           *componenttest.APIFeature
+	errorChan            chan error
+	DatasetAPI           *httpfake.HTTPFake
+	MockCantabularClient *mock.CantabularClient
+	svc                  *service.Service
+	cfg                  *config.Config
+	wg                   *sync.WaitGroup
+	signals              chan os.Signal
+	ctx                  context.Context
+	HTTPServer           *http.Server
+	store                service.Datastore
+	g                    service.Generator
+	shutdownInitiated    bool
+	consumer             kafka.IConsumerGroup
+	waitEventTimeout     time.Duration
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -79,12 +80,15 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 	}
 
 	return &Component{
-		errorChan:        make(chan error),
-		wg:               &sync.WaitGroup{},
-		ctx:              ctx,
-		HTTPServer:       &http.Server{},
-		cfg:              cfg,
-		DatasetAPI:       httpfake.New(httpfake.WithTesting(t)),
+		errorChan:  make(chan error),
+		wg:         &sync.WaitGroup{},
+		ctx:        ctx,
+		HTTPServer: &http.Server{},
+		cfg:        cfg,
+		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
+		MockCantabularClient: &mock.CantabularClient{
+			OptionsHappy: true,
+		},
 		store:            mongoClient,
 		g:                g,
 		waitEventTimeout: WaitEventTimeout,
@@ -122,10 +126,8 @@ func (c *Component) setInitialiserMock() {
 		}
 	}
 
-	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
-		return &mock.CantabularClient{
-			OptionsHappy: true,
-		}
+	service.GetCantabularClient = func(_ *config.Config) service.CantabularClient {
+		return c.MockCantabularClient
 	}
 
 	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
