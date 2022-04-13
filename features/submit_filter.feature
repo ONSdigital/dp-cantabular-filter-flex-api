@@ -139,6 +139,6 @@ Feature: Submit Filter Private Endpoints Not Enabled
     """
     And the HTTP status code should be "202"
 
-    And one event with the following fields are in the produced kafka topic catabular-export-start:
+    And the following Export Start events are produced:
       | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       |
       | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 |

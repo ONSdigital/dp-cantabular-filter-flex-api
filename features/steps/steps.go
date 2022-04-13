@@ -77,8 +77,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^the client for the dataset API failed and is returning errors$`,
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
-	ctx.Step(`^one event with the following fields are in the produced kafka topic cantabular-export-start:$`,
-		c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart,
+	ctx.Step(`^the following Export Start events are produced:$`,
+		c.theFollowingExportStartEventsAreProduced,
 	)
 	ctx.Step(`^I have these filter outputs:$`,
 		c.iHaveTheseFilterOutputs,
@@ -119,7 +119,7 @@ func (c *Component) iShouldReceiveAnErrorsArray() error {
 	return nil
 }
 
-func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart(events *godog.Table) error {
+func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table) error {
 	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
 	if err != nil {
 		return fmt.Errorf("failed to create slice from godog table: %w", err)
