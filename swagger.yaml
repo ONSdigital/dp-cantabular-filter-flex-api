@@ -343,7 +343,7 @@ paths:
         200:
           description: "A Dimension within a filter was returned"
           schema:
-            $ref: '#/definitions/DimensionItem'
+            $ref: '#/definitions/DimensionItemWithArea'
           headers:
             ETag:
               type: string
@@ -994,6 +994,13 @@ definitions:
         type: string
       links:
         $ref: "#/definitions/DimensionItemLinks"
+  DimensionItemWithArea:
+    allOf:
+      - $ref: "#/definitions/DimensionItem"
+      - type: object
+        properties:
+          is_area_type:
+            type: boolean
   DimensionItems:
     type: array
     items:
