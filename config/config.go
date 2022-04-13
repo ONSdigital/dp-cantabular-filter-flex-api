@@ -7,6 +7,9 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// KafkaTLSProtocolFlag informs service to use TLS protocol for kafka
+const KafkaTLSProtocolFlag = "TLS"
+
 // Config represents service configuration for dp-cantabular-filter-flex-api
 type Config struct {
 	BindAddr                     string        `envconfig:"BIND_ADDR"`
@@ -19,7 +22,7 @@ type Config struct {
 	CantabularURL                string        `envconfig:"CANTABULAR_URL"`
 	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
 	DatasetAPIURL                string        `envconfig:"DATASET_API_URL"`
-	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"` 
+	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"`
 	FiltersCollection            string        `envconfig:"FILTERS_COLLECTION"`
 	FilterOutputsCollection      string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
 	EnablePrivateEndpoints       bool          `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`

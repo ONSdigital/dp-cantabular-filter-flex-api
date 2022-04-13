@@ -149,6 +149,44 @@ Feature: Filter Outputs Private Endpoints Enabled
     """
     And the HTTP status code should be "200"
 
+  Scenario: Get a specific filter dimension successfully
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
+    When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
+    Then I should receive the following JSON response:
+    """
+    {
+      "name": "geography",
+      "is_area_type": true,
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+          "id": "geography"
+        }
+      }
+    }
+    """
+    And the HTTP status code should be "200"
+
+  Scenario: Get a specific filter dimension when the filter is not present
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
+    When I GET "/filters/00000000-0000-0000-0000-000000000000/dimensions/geography"
+    Then the HTTP status code should be "400"
+
+  Scenario: Get a specific filter dimension when the dimension is not present
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
+    When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/other"
+    Then the HTTP status code should be "404"
+
   Scenario: Add a filter dimension successfully
     Given I am identified as "user@ons.gov.uk"
     And I am authorised

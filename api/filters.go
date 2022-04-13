@@ -3,12 +3,14 @@ package api
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -139,10 +141,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// State has not been discussed.
-	// Just chosen a reasonable looking one.
-	// TODO: RAISE STATE in a round table.
-	filterOutput := model.FilterOutput {
+	filterOutput := model.FilterOutput{
 		FilterID: filter.Dataset.ID,
 		State:    model.Submitted,
 	}
@@ -200,7 +199,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		// the details of our Kafka topic names etc to the public?
 		Events:         []model.Event{
 			{
-				Timestamp: api.generate.Timestamp(),
+				Timestamp: api.generate.Timestamp().Format(time.RFC3339),
 				Name:      "cantabular-export-start",
 			},
 		},
@@ -424,12 +423,10 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	time, _ := time.Parse(time.RFC3339, "2016-07-17T08:38:25.316Z")
-
 	resp := putFilterResponse{
 		Events: []model.Event{
 			{
-				Timestamp: time,
+				Timestamp: "2016-07-17T08:38:25.316+000",
 				Name:      "cantabular-export-start",
 			},
 		},
@@ -489,6 +486,77 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 			TotalCount: totalCount,
 		},
 	}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
+}
+
+func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fID := chi.URLParam(r, "id")
+	dim := chi.URLParam(r, "dimension")
+
+	logData := log.Data{
+		"id":        fID,
+		"dimension": dim,
+	}
+
+	// We decode the dimension name since currently dimensions are stored using their pretty name, e.g.
+	// `Number of Siblings`, and passed in the URL as encoded (e.g. `Number+of+Siblings`). Until this is
+	// changed we need to unescape the dimension before querying.
+	dimName, err := url.QueryUnescape(dim)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to decode dimension name"),
+				message: "failed to decode dimension name",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	// Check the filter exists, so we can return a different status code
+	// from if the dimension doesn't exist.
+	if _, err := api.store.GetFilter(ctx, fID); err != nil {
+		status := statusCode(err)
+		if dperrors.NotFound(err) {
+			status = http.StatusBadRequest
+		}
+
+		api.respond.Error(
+			ctx,
+			w,
+			status,
+			Error{
+				err:     errors.Wrap(err, "failed to get filter from store"),
+				message: "failed to get filter",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	filterDim, err := api.store.GetFilterDimension(ctx, fID, dimName)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get filter dimension from store"),
+				message: "failed to get filter dimension",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	var resp getFilterDimensionResponse
+	resp.dimensionItem.fromDimension(filterDim, api.cfg.FilterAPIURL, fID)
+	resp.IsAreaType = filterDim.IsAreaType
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }

@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
-
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
+	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
+	"github.com/rdumont/assistdog"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -51,6 +53,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
 
+	// this is the same as above, but added for clearer step definition
+	ctx.Step(
+		`^Mongo datastore is failing`,
+		c.MongoDatastoreIsFailing,
+	)
+
 	ctx.Step(`^an ETag is returned`,
 		c.anETagIsReturned,
 	)
@@ -65,7 +73,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
 
-	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`,
+	ctx.Step(`^one event with the following fields are in the produced kafka topic cantabular-export-start:$`,
 		c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart,
 	)
 
@@ -74,31 +82,57 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 }
 
-func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
-	select {
-	case <-time.After(c.waitEventTimeout):
-		return nil
-	case <-c.consumer.Channels().Closer:
-		return errors.New("closer channel closed")
-	case msg, ok := <-c.consumer.Channels().Upstream:
-		if !ok {
-			return errors.New("upstream channel closed")
-		}
+func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart(events *godog.Table) error {
+	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
+	if err != nil {
+		return fmt.Errorf("failed to create slice from godog table: %w", err)
+	}
 
-		var e event.ExportStart
-		s := schema.ExportStart
+	consumer, err := GenerateKafkaConsumer(c.ctx)
+	if err != nil {
+		return fmt.Errorf("failed to generate kafka consumer: %w", err)
+	}
 
-		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
+	var got []*event.ExportStart
+	listen := true
+	for listen {
+		select {
+		case <-time.After(c.waitEventTimeout):
+			listen = false
+		case <-consumer.Channels().Closer:
+			return errors.New("closer channel closed")
+		case msg, ok := <-consumer.Channels().Upstream:
+			if !ok {
+				return errors.New("upstream channel closed")
+			}
+
+			var e event.ExportStart
+			var s = schema.ExportStart
+
+			if err := s.Unmarshal(msg.GetData(), &e); err != nil {
+				msg.Commit()
+				msg.Release()
+				return fmt.Errorf("error unmarshalling message: %w", err)
+			}
+
 			msg.Commit()
 			msg.Release()
-			return fmt.Errorf("error unmarshalling message: %w", err)
+
+			got = append(got, &e)
 		}
 
-		msg.Commit()
-		msg.Release()
-
-		return fmt.Errorf("kafka event received in csv-created topic: %v", e)
 	}
+
+	if err := consumer.Close(c.ctx); err != nil {
+		// just log the error, but do not fail the test
+		// as it is not relevant to this test.
+		log.Error(c.ctx, "error closing kafka consumer", err)
+	}
+
+	if diff := cmp.Diff(got, expected); diff != "" {
+		return fmt.Errorf("-got +expected)\n%s\n", diff)
+	}
+	return nil
 }
 
 func (c *Component) anETagIsReturned() error {
@@ -110,6 +144,16 @@ func (c *Component) anETagIsReturned() error {
 }
 
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+	var err error
+	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	if err != nil {
+		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Component) MongoDatastoreIsFailing() error {
 	var err error
 	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
 	if err != nil {

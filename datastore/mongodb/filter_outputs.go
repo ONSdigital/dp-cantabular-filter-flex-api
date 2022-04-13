@@ -9,6 +9,25 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// GetFilterOutput
+func (c *Client) GetFilterOutput(ctx context.Context, filterID string) (*model.FilterOutput, error) {
+	var filterOutput model.FilterOutput
+
+	coll := c.collections.filterOutputs
+
+	if err := c.conn.Collection(coll.name).FindOne(ctx, bson.M{"id": filterID}, &filterOutput); err != nil {
+		err := &er{
+			err: err,
+		}
+		if errors.Is(err, mongodb.ErrNoDocumentFound) {
+			err.notFound = true
+		}
+		return nil, err
+	}
+
+	return &filterOutput, nil
+}
+
 // CreateFilterOutput creates a new FilterOutputs in the CantabularFilters collection
 func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
 	id, err := c.generate.UUID()
@@ -31,22 +50,10 @@ func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) error {
 	col := c.collections.filterOutputs
 
-	var docs []model.FilterOutput
-	sc := bson.M{"id": f.ID}
-
-	var err error
-	var num int
-
-	if num, err = c.conn.Collection(col.name).Find(ctx, sc, &docs, mongodb.Limit(1)); err != nil {
-		return errors.Wrap(err, "failed to update filter output")
+	docs, err := c.findFilterOutput(f.ID, ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to find filter output")
 	}
-	if num < 1 {
-		return &er{
-			err:      errors.Errorf("failed to find filter output"),
-			notFound: true,
-		}
-	}
-
 	//a record with stat 'completed' can't be updated further
 	if docs[0].State == model.Completed {
 		return &er{
@@ -55,11 +62,12 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 		}
 	}
 
-	updates := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
+	nv := bson.M{"$set": bson.M{"state": f.State, "downloads": f.Downloads}}
 
 	var rec *mongodb.CollectionUpdateResult
+	sc := bson.M{"id": f.ID}
 
-	if rec, err = c.conn.Collection(col.name).Update(ctx, sc, updates); err != nil {
+	if rec, err = c.conn.Collection(col.name).Update(ctx, sc, nv); err != nil {
 		return errors.Wrap(err, "failed to update filter output")
 	}
 
@@ -74,4 +82,45 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	}
 
 	return nil
+}
+
+//AddFilterOutputEvent will append to the existing list of events in the filter output
+func (c *Client) AddFilterOutputEvent(ctx context.Context, id string, f *model.Event) error {
+	col := c.collections.filterOutputs
+
+	ne := map[string]model.Event{
+		"events": *f,
+	}
+
+	var rec *mongodb.CollectionUpdateResult
+	var err error
+	if rec, err = c.conn.Collection(col.name).Update(ctx, bson.M{"id": id}, bson.M{"$push": ne}); err != nil {
+		return errors.Wrap(err, "failed to add event to filter output")
+	}
+
+	if rec.MatchedCount != 1 {
+		return &er{
+			err:      errors.Errorf("filter output not found"),
+			notFound: true,
+		}
+	}
+	return nil
+}
+
+func (c *Client) findFilterOutput(fId string, ctx context.Context) ([]model.FilterOutput, error) {
+	col := c.collections.filterOutputs
+	var docs []model.FilterOutput
+	sc := bson.M{"id": fId}
+	var err error
+	var num int
+	if num, err = c.conn.Collection(col.name).Find(ctx, sc, &docs, mongodb.Limit(1)); err != nil {
+		return nil, errors.Wrapf(err, "failed to find filter output for %s", fId)
+	}
+	if num < 1 {
+		return nil, &er{
+			err:      errors.Errorf("filter output not found for %s", fId),
+			notFound: true,
+		}
+	}
+	return docs, nil
 }

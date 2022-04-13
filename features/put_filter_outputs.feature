@@ -1,4 +1,4 @@
-Feature: Put Filter Outputs Private Endpoints Enabled
+Feature: Put Filter Outputs Private Endpoints Not Enabled
 
   Background:
     Given private endpoints are enabled
@@ -8,12 +8,10 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     [
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",
-        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
-        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
         "state": "published",
-        "downloads": 
+        "downloads":
         {
-          "xls": 
+          "xls":
           {
             "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
             "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -49,10 +47,8 @@ Feature: Put Filter Outputs Private Endpoints Enabled
       },
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb2",
-        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil2",
-        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst2",
         "state": "completed",
-        "downloads": 
+        "downloads":
         {
           "xls":
           {
@@ -62,7 +58,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
             "private": "string",
             "skipped": true
           },
-          "csv": 
+          "csv":
           {
             "href": "string",
             "size": "string",
@@ -70,7 +66,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
             "private": "string",
             "skipped": true
           },
-          "csvw": 
+          "csvw":
           {
             "href": "string",
             "size": "string",
@@ -78,7 +74,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
             "private": "string",
             "skipped": true
           },
-          "txt": 
+          "txt":
           {
             "href": "string",
             "size": "string",
@@ -100,9 +96,9 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
         "state": "published",
-        "downloads": 
+        "downloads":
         {
-            "xls": 
+            "xls":
             {
               "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
               "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -135,7 +131,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
               "skipped": true
             }
         }
-    }    
+    }
     """
 
     Then the HTTP status code should be "200"
@@ -149,9 +145,9 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
         "state": "published",
-        "downloads": 
+        "downloads":
         {
-            "xls": 
+            "xls":
             {
               "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
               "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -184,10 +180,17 @@ Feature: Put Filter Outputs Private Endpoints Enabled
               "skipped": true
             }
         }
-    }    
+    }
     """
 
-    Then the HTTP status code should be "404"
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": ["failed to update filter output: failed to find filter output: filter output not found for 94310d8d-72d6-492a-bc30-27584627new1"]
+    }
+    """
+    And the HTTP status code should be "404"
+
 
   Scenario: Update a filter output with broken mongo db
     Given I am identified as "user@ons.gov.uk"
@@ -200,9 +203,9 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
         "state": "published",
-        "downloads": 
+        "downloads":
         {
-            "xls": 
+            "xls":
             {
               "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
               "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -235,7 +238,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
               "skipped": true
             }
         }
-    }    
+    }
     """
 
     Then I should receive the following JSON response:
@@ -278,10 +281,10 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     When I PUT "/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb2"
     """
     {
-        "state": "string",
-        "downloads": 
+        "state": "published",
+        "downloads":
         {
-            "xls": 
+            "xls":
             {
               "href" : "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
               "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -314,23 +317,23 @@ Feature: Put Filter Outputs Private Endpoints Enabled
               "skipped": true
             }
         }
-    }   
+    }
     """
 
     Then the HTTP status code should be "403"
 
   Scenario: Updating a filter output with one empty field in request body
     Given I am identified as "user@ons.gov.uk"
-    
+
     And I am authorised
 
     When I PUT "/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb1"
     """
     {
         "state": "string",
-        "downloads": 
+        "downloads":
         {
-            "xls": 
+            "xls":
             {
               "href": "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
               "private": "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
@@ -370,7 +373,7 @@ Feature: Put Filter Outputs Private Endpoints Enabled
     """
     {
       "errors": [
-        "failed to parse request: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
+        "invalid request body: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
       ]
     }
     """

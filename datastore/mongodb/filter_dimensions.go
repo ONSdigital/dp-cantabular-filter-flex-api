@@ -70,6 +70,32 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 	return result.Dimensions, result.TotalCount, nil
 }
 
+// GetFilterDimension gets a specific dimensions for a Filter in the CantabularFilters collection
+func (c *Client) GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error) {
+	col := c.collections.filters
+
+	pipeline := mongo.Pipeline{
+		bson.D{{"$match", bson.D{{"filter_id", fID}}}},
+		bson.D{{"$unwind", "$dimensions"}},
+		bson.D{{"$match", bson.D{{"dimensions.name", dimName}}}},
+		bson.D{{"$replaceRoot", bson.D{{"newRoot", "$dimensions"}}}},
+	}
+
+	var results []model.Dimension
+	if err := c.conn.Collection(col.name).Aggregate(ctx, pipeline, &results); err != nil {
+		return model.Dimension{}, errors.Wrap(err, "failed to get filter dimension")
+	}
+
+	if len(results) == 0 {
+		return model.Dimension{}, &er{
+			err:      errors.New("failed to find filter dimension"),
+			notFound: true,
+		}
+	}
+
+	return results[0], nil
+}
+
 func (c *Client) AddFilterDimension(ctx context.Context, fID string, dim model.Dimension) error {
 	col := c.collections.filters
 

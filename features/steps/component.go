@@ -28,10 +28,10 @@ import (
 
 const (
 	ComponentTestGroup    = "test-consumer-group"
-	DrainTopicTimeout     = 1 * time.Second  // maximum time to wait for a topic to be drained
+	DrainTopicTimeout     = 10 * time.Second // maximum time to wait for a topic to be drained
 	DrainTopicMaxMessages = 1000             // maximum number of messages that will be drained from a topic
 	MinioCheckRetries     = 3                // maximum number of retires to validate that a file is present in minio
-	WaitEventTimeout      = 15 * time.Second // maximum time that the component test consumer will wait for a
+	WaitEventTimeout      = 10 * time.Second // maximum time that the component test consumer will wait for a
 )
 
 var (
@@ -100,50 +100,6 @@ func (c *Component) Init() (http.Handler, error) {
 
 	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
 
-	var err error
-
-	kafkaConfig := config.KafkaConfig{
-		Addr:                      []string{"kafka-1:9092"},
-		ConsumerMinBrokersHealthy: 1,
-		ProducerMinBrokersHealthy: 1,
-		Version:                   "1.0.2",
-		OffsetOldest:              true,
-		NumWorkers:                1,
-		MaxBytes:                  2000000,
-		SecProtocol:               "",
-		SecCACerts:                "",
-		SecClientKey:              "",
-		SecClientCert:             "",
-		SecSkipVerify:             false,
-		ExportStartTopic:          "cantabular-export-start",
-		ExportStartGroup:          "cantabular-export-start-group",
-		TLSProtocolFlag:           false,
-	}
-	
-
-	kafkaOffset := kafka.OffsetOldest
-	if c.consumer, err = kafka.NewConsumerGroup(
-		c.ctx,
-		&kafka.ConsumerGroupConfig{
-			BrokerAddrs:       kafkaConfig.Addr,
-			Topic:             kafkaConfig.ExportStartTopic,
-			GroupName:         ComponentTestGroup,
-			MinBrokersHealthy: &(kafkaConfig.ConsumerMinBrokersHealthy),
-			KafkaVersion:      &(kafkaConfig.Version),
-			Offset:            &(kafkaOffset),
-		},
-	); err != nil {
-		return nil, fmt.Errorf("error creating kafka consumer: %w", err)
-	}
-
-	// For checking the csv create request
-	if err := c.consumer.Start(); err != nil {
-		return nil, fmt.Errorf("error starting kafka consumer: %w", err)
-	}
-
-	// start kafka logging go-routines
-	c.consumer.LogErrors(c.ctx)
-
 	// Create service and initialise it
 	c.svc = service.New()
 	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
@@ -185,6 +141,11 @@ func (c *Component) startService(ctx context.Context) {
 	defer c.wg.Done()
 	c.svc.Start(ctx, c.errorChan)
 
+	wg := sync.WaitGroup{}
+	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
+		log.Error(c.ctx, "error draining topic", err)
+	}
+
 	select {
 	case err := <-c.errorChan:
 		err = fmt.Errorf("service error received: %w", err)
@@ -204,16 +165,6 @@ func (c *Component) startService(ctx context.Context) {
 
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
-	wg := sync.WaitGroup{}
-
-	// for future tests?
-	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
-		log.Error(c.ctx, "error draining topic", err)
-	}
-
-	/*if err := c.consumer.Close(c.ctx); err != nil {
-		log.Error(c.ctx, "error closing kafka consumer", err)
-	}*/
 
 	if !c.shutdownInitiated {
 		c.shutdownInitiated = true
@@ -253,10 +204,17 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 	return mongoClient, nil
 }
 
+//keep adding new handler functions for which the mongo needs to fail
 func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
+		},
+		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
+			return nil, errors.New("mongo client has failed")
+		},
+		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
+			return errors.New("failed to add event")
 		},
 	}
 	return &mongoClient, nil

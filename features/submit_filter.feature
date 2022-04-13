@@ -89,7 +89,6 @@ Feature: Submit Filter Private Endpoints Not Enabled
           "edition": "2021",
           "version": 1
         },
-        "published": false,
         "population_type": "Example",
         "type": "flexible"
       }
@@ -113,7 +112,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
       "filter_output_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "events":[
         {
-          "timestamp": "2022-01-26T12:27:04.783936865Z",
+          "timestamp": "2022-01-26T12:27:04Z",
           "name": "cantabular-export-start"
         }
       ],

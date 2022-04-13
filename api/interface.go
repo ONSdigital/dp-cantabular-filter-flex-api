@@ -25,8 +25,11 @@ type datastore interface {
 	CreateFilter(context.Context, *model.Filter) error
 	GetFilter(context.Context, string) (*model.Filter, error)
 	CreateFilterOutput(context.Context, *model.FilterOutput) error
+	GetFilterOutput(context.Context, string) (*model.FilterOutput, error)
 	UpdateFilterOutput(context.Context, *model.FilterOutput) error
+	AddFilterOutputEvent(context.Context, string, *model.Event) error
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
+	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	AddFilterDimension(context.Context, string, model.Dimension) error
 }
 

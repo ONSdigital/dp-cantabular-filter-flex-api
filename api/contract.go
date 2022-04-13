@@ -66,16 +66,13 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-// createFilterOutputResponse is the response body for POST /filters-output
-type createFilterOutputResponse struct {
+// updateFilterOutputRequest is the request body for POST /filters
+type updateFilterOutputRequest struct {
 	model.FilterOutput
 }
 
-// createFilterOutputResponse is the response body for POST /filters-output
-type updateFilterOutputRequest struct {
-	ID        string          `json:"id"`
-	State     string          `json:"state"`
-	Downloads model.Downloads `json:"downloads"`
+type addFilterOutputEventRequest struct {
+	model.Event
 }
 
 func (r *updateFilterOutputRequest) Valid() error {
@@ -95,6 +92,11 @@ func (r *updateFilterOutputRequest) Valid() error {
 	return nil
 }
 
+// getFilterOutputResponse is the response body for GET/filter-outputs/{id}
+type getFilterOutputResponse struct {
+	model.FilterOutput
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
 	Items dimensionItems `json:"items"`
@@ -111,8 +113,8 @@ type addFilterDimensionResponse struct {
 	dimensionItem
 }
 
-type dimensionItem struct{
-	Name string              `json:"name"`
+type dimensionItem struct {
+	Name  string             `json:"name"`
 	Links dimensionItemLinks `json:"links"`
 }
 
@@ -120,15 +122,15 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
 
-	d.Name  = dim.Name
+	d.Name = dim.Name
 	d.Links = dimensionItemLinks{
-		Self:    model.Link{
+		Self: model.Link{
 			HREF: dimURL,
-			ID: dim.Name,
+			ID:   dim.Name,
 		},
-		Filter:  model.Link{
+		Filter: model.Link{
 			HREF: filterURL,
-			ID: filterID,
+			ID:   filterID,
 		},
 		Options: model.Link{
 			HREF: dimURL + "/options",
@@ -140,23 +142,28 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 type dimensionItems []dimensionItem
 
 func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filterID string) {
-	if len(dims) == 0{
+	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
-	for _, dim := range dims{
+	for _, dim := range dims {
 		var item dimensionItem
 		item.fromDimension(dim, host, filterID)
 		*items = append(*items, item)
 	}
 }
 
-type dimensionItemLinks struct{
+type getFilterDimensionResponse struct {
+	dimensionItem
+	IsAreaType bool `json:"is_area_type"`
+}
+
+type dimensionItemLinks struct {
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
 	Self    model.Link `json:"self"`
 }
 
-type submitFilterResponse struct{
+type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterOutputID string            `json:"filter_output_id"`
 	Events         []model.Event     `json:"events"`
