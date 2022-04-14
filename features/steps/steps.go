@@ -80,8 +80,20 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I have these filter outputs:$`,
 		c.iHaveTheseFilterOutputs,
 	)
+	ctx.Step(`^the filter output with the id "([^"]*)" is in the datastore`,
+		c.filterOutputIsInDatastore)
 }
 
+func (c *Component) filterOutputIsInDatastore(id string) error {
+
+	_, err := c.store.GetFilterOutput(c.ctx, id)
+	if err != nil {
+		return fmt.Errorf("Error encountered while retrieving filter output.")
+	}
+
+	return nil
+
+}
 func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart(events *godog.Table) error {
 	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
 	if err != nil {
