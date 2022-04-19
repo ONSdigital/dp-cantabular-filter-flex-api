@@ -97,6 +97,20 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Cantabular responds with an error$`,
 		c.cantabularRespondsWithAnError,
 	)
+
+	ctx.Step(`^the filter output with the id "([^"]*)" is in the datastore`,
+		c.filterOutputIsInDatastore)
+
+}
+func (c *Component) filterOutputIsInDatastore(id string) error {
+
+	_, err := c.store.GetFilterOutput(c.ctx, id)
+	if err != nil {
+		return fmt.Errorf("Error encountered while retrieving filter output.")
+	}
+
+	return nil
+
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
