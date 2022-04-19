@@ -141,7 +141,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filterOutput := model.FilterOutput{
-		FilterID: filter.Dataset.ID,
+		FilterID: filter.ID,
 		State:    model.Submitted,
 	}
 
@@ -163,7 +163,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	// naively converting for now.
 	version := strconv.Itoa(filter.Dataset.Version)
 
-	e := event.ExportStart {
+	e := event.ExportStart{
 		InstanceID:     filter.InstanceID,
 		DatasetID:      filter.Dataset.ID,
 		Edition:        filter.Dataset.Edition,
@@ -196,7 +196,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		// TODO: apparently events are only relevant for filter outputs and
 		// AFAIK are not related to kafka events. Also do we really want to expose
 		// the details of our Kafka topic names etc to the public?
-		Events:         []model.Event{
+		Events: []model.Event{
 			{
 				Timestamp: api.generate.Timestamp().Format(time.RFC3339),
 				Name:      "cantabular-export-start",
