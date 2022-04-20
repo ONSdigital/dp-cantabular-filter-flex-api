@@ -121,7 +121,7 @@ Feature: Filters Private Endpoints Enabled
 
     And the HTTP status code should be "201"
 
-    And the document in the database for id "94310d8d-72d6-492a-bc30-27584627edb1" should be:
+    And the document in the database for id "94310d8d-72d6-492a-bc30-27584627edb1" should match:
     """
     {
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
@@ -138,7 +138,9 @@ Feature: Filters Private Endpoints Enabled
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
-          "name": "Number of siblings (3 mappings)",
+          "name": "siblings",
+          "id": "siblings_3",
+          "label": "Number of siblings (3 mappings)",
           "options": [
             "0-3",
             "4-7",
@@ -148,7 +150,9 @@ Feature: Filters Private Endpoints Enabled
           "is_area_type":  false
         },
         {
-          "name": "City",
+          "name": "geography",
+          "id": "city",
+          "label": "City",
           "options": [
             "Cardiff",
             "London",

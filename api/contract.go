@@ -44,6 +44,14 @@ func (r *createFilterRequest) Valid() error {
 		if len(d.Name) == 0 {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
+
+		if len(d.ID) != 0 {
+			return fmt.Errorf("unexpected field id provided for: %s", d.Name)
+		}
+
+		if len(d.Label) != 0 {
+			return fmt.Errorf("unexpected field label provided for: %s", d.Name)
+		}
 	}
 
 	return nil

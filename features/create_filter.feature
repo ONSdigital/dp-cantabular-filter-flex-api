@@ -137,7 +137,6 @@ Feature: Filters Private Endpoints Not Enabled
           "is_area_type": true
         }
       ]
-
     }
     """
 
@@ -171,6 +170,58 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "201"
 
+    And the document in the database for id "94310d8d-72d6-492a-bc30-27584627edb1" should match:
+    """
+    {
+      "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "links": {
+        "version": {
+          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "id": "1"
+        },
+        "self": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+        }
+      },
+      "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+      "dataset": {
+        "id": "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "dimensions": [
+        {
+          "name": "siblings",
+          "id": "siblings_3",
+          "label": "Number of siblings (3 mappings)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },
+        {
+          "name": "geography",
+          "id": "city",
+          "label": "City",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ],
+      "population_type": "Example",
+      "published": true,
+      "type": "flexible"
+    }
+    """
+
   Scenario: Creating a new filter unauthenticated on unpublished version
 
     When I POST "/filters"
@@ -201,7 +252,6 @@ Feature: Filters Private Endpoints Not Enabled
           "is_area_type": true
         }
       ]
-
     }
     """
 
@@ -216,7 +266,7 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "404"
 
-Scenario: Creating a new filter bad request body
+  Scenario: Creating a new filter bad request body
 
     When I POST "/filters"
     """
@@ -232,6 +282,85 @@ Scenario: Creating a new filter bad request body
       ]
     }
     """
+
+    And the HTTP status code should be "400"
+
+  Scenario: Creating a new filter (invalid request, passing id)
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "id": "siblings_3",
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "id": "city",
+          "label": "City",
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive an errors array
+
+    And the HTTP status code should be "400"
+
+  Scenario: Creating a new filter (invalid request, passing label)
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "label": "Number of Siblings (3 mappings)",
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "label": "City",
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive an errors array
 
     And the HTTP status code should be "400"
 

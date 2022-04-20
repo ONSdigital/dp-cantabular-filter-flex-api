@@ -83,7 +83,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 				ID: strconv.Itoa(v.Version),
 			},
 		},
-		Dimensions:        req.Dimensions,
+		Dimensions:        hydrateDimensions(req.Dimensions, v.Dimensions),
 		UniqueTimestamp:   api.generate.UniqueTimestamp(),
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
@@ -771,4 +771,23 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 		}
 	}
 	return nil
+}
+
+// hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.
+func hydrateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) []model.Dimension {
+	type record struct{ id, label string }
+
+	lookup := make(map[string]record)
+	for _, dim := range dims {
+		lookup[dim.Name] = record{id: dim.ID, label: dim.Label}
+	}
+
+	var hydrated []model.Dimension
+	for _, dim := range filterDims {
+		dim.ID = lookup[dim.Name].id
+		dim.Label = lookup[dim.Name].label
+		hydrated = append(hydrated, dim)
+	}
+
+	return hydrated
 }
