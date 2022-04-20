@@ -108,14 +108,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
-      "instance_id":      "TEST-INSTANCE-ID",
-      "filter_output_id": "94310d8d-72d6-492a-bc30-27584627edb1",
-      "events":[
-        {
-          "timestamp": "2022-01-26T12:27:04Z",
-          "name": "cantabular-export-start"
-        }
-      ],
+      "instance_id":"TEST-INSTANCE-ID",
+      "filter_output_id":  "94310d8d-72d6-492a-bc30-27584627edb1",
       "dataset":{
         "id":"cantabular-example-1",
         "edition":"2021",

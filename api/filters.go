@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -140,12 +139,14 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	filterOutput := model.FilterOutput{
-		FilterID: filter.ID,
-		State:    model.Submitted,
+	filterOutput := &model.FilterOutput{
+		FilterID:   filter.ID,
+		State:      model.Submitted,
+		Events:     []model.Event{},
+		Dimensions: []model.Dimension{},
 	}
 
-	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
+	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -186,22 +187,9 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*
-	   Note that this respose is different to swagger
-	   as discussed with Fran
-	*/
 	resp := submitFilterResponse{
 		InstanceID:     filter.InstanceID,
 		FilterOutputID: filterOutput.ID,
-		// TODO: apparently events are only relevant for filter outputs and
-		// AFAIK are not related to kafka events. Also do we really want to expose
-		// the details of our Kafka topic names etc to the public?
-		Events: []model.Event{
-			{
-				Timestamp: api.generate.Timestamp().Format(time.RFC3339),
-				Name:      "cantabular-export-start",
-			},
-		},
 		Dataset:        filter.Dataset,
 		Links:          filter.Links,
 		PopulationType: filter.PopulationType,

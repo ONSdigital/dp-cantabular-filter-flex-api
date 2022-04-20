@@ -171,7 +171,6 @@ type dimensionItemLinks struct {
 type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterOutputID string            `json:"filter_output_id"`
-	Events         []model.Event     `json:"events"`
 	Dataset        model.Dataset     `json:"dataset"`
 	Links          model.FilterLinks `json:"links"`
 	PopulationType string            `json:"population_type"`
