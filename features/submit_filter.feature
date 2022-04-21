@@ -132,7 +132,56 @@ Feature: Submit Filter Private Endpoints Not Enabled
 
     """
     And the HTTP status code should be "202"
-    And the filter output with the id "94310d8d-72d6-492a-bc30-27584627edb1" is in the datastore
+    And the filter output with the following structure is in the datastore:
+    """
+    {
+      "id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "filter_id": "TEST-FILTER-ID",
+      "state": "submitted",
+      "dataset": {
+        "id": "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "links": {
+        "version": {
+          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "id": "1"
+        },
+        "self": {
+          "href": "http://mockhost:9999/filter-outputs",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "filter_blueprint": {
+          "href": "http://mockhost:9999/filters",
+          "id": "TEST-FILTER-ID"
+        }
+      },
+      "published": true,
+      "events": [],
+      "downloads": {},
+      "dimensions": [
+        {
+          "name": "Number of siblings (3 mappings)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },
+        {
+          "name": "City",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
     And the following Export Start events are produced:
       | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       |
       | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 |

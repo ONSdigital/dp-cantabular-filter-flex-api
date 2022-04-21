@@ -98,19 +98,27 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.cantabularRespondsWithAnError,
 	)
 
-	ctx.Step(`^the filter output with the id "([^"]*)" is in the datastore`,
+	ctx.Step(`^the filter output with the following structure is in the datastore:$`,
 		c.filterOutputIsInDatastore)
 
 }
-func (c *Component) filterOutputIsInDatastore(id string) error {
+func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) error {
+	var expected model.FilterOutput
 
-	_, err := c.store.GetFilterOutput(c.ctx, id)
+	err := json.Unmarshal([]byte(expectedOutput.Content), &expected)
 	if err != nil {
-		return fmt.Errorf("Error encountered while retrieving filter output.")
+		return errors.Wrap(err, "failed to unmarshall provided filterOutput")
 	}
 
-	return nil
+	actual, err := c.store.GetFilterOutput(c.ctx, expected.ID)
+	if err != nil {
+		return fmt.Errorf("Error encountered while retrieving filter output: %w", err)
+	}
 
+	if diff := cmp.Diff(actual, &expected); diff != "" {
+		return fmt.Errorf("-got +expected)\n%s\n", diff)
+	}
+	return nil
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into

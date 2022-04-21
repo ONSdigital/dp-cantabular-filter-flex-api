@@ -141,7 +141,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	filterOutput := api.generateFilterOutput(filter)
 
-	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
+	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
