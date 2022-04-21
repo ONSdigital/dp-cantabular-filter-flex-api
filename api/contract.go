@@ -1,17 +1,26 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+
+	"github.com/pkg/errors"
 )
+
+// paginationResponse represents pagination data as returned to the client.
+type paginationResponse struct {
+	Limit      int `json:"limit"`
+	Offset     int `json:"offset"`
+	Count      int `json:"count"`
+	TotalCount int `json:"total_count"`
+}
 
 // createFilterRequest is the request body for POST /filters
 type createFilterRequest struct {
-	PopulationType string            `bson:"population_type" json:"population_type"`
-	Dimensions     []model.Dimension `bson:"dimensions"      json:"dimensions"`
-	Dataset        *model.Dataset    `bson:"dataset"         json:"dataset"`
+	PopulationType string            `json:"population_type"`
+	Dimensions     []model.Dimension `json:"dimensions"`
+	Dataset        *model.Dataset    `json:"dataset"`
 }
 
 func (r *createFilterRequest) Valid() error {
@@ -42,20 +51,7 @@ func (r *createFilterRequest) Valid() error {
 
 // createFilterResponse is the response body for POST /filters
 type createFilterResponse struct {
-	model.JobState
-	Links          model.Links   `json:"links"`
-	Dataset        model.Dataset `json:"dataset"`
-	PopulationType string        `json:"population_type"`
-}
-
-// updateFilter Response is the response body for POST /filters/{id}/submit
-// made public because needed for integration tests.
-type UpdateFilterResponse struct {
-	model.JobState
-	Dataset        model.Dataset     `json:"dataset"`
-	Links          model.Links       `json:"links"`
-	PopulationType string            `json:"population_type"`
-	Dimensions     []model.Dimension `json:"dimensions"`
+	model.Filter
 }
 
 // getFilterDimensionsResponse is the response body for GET /filters/{id}
@@ -65,60 +61,119 @@ type getFilterResponse struct {
 
 // putFilterResponse is the response body for PUT /filters/{id}
 type putFilterResponse struct {
-	model.PutFilter
+	Events         []model.Event `json:"events"`
+	Dataset        model.Dataset `json:"dataset"`
+	PopulationType string        `json:"population_type"`
 }
 
-// createFilterOutputResponse is the response body for POST /filters-output
-type createFilterOutputResponse struct {
+// updateFilterOutputRequest is the request body for POST /filters
+type updateFilterOutputRequest struct {
 	model.FilterOutput
 }
 
-// filterOutputResponse is the response body for PUT /filters-outputs
-type filterOutputResponse struct {
-	model.FilterOutput
-	model.JobState
-	Links model.FilterOutputLinks `json:"links"`
+type addFilterOutputEventRequest struct {
+	model.Event
 }
 
-// createFilterOutputRequest is the request body for POST /filters
-type createFilterOutputRequest struct {
-	model.FilterOutput
-}
-
-func (r *createFilterOutputRequest) Valid() error {
+func (r *updateFilterOutputRequest) Valid() error {
 	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'csv' field not fully populated")
 	}
 	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'csvw' field not fully populated")
 	}
 	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'txt' field not fully populated")
 	}
 	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
-		return err
+		return errors.Wrap(err, "'xls' field not fully populated")
 	}
 
 	return nil
 }
 
+// getFilterOutputResponse is the response body for GET/filter-outputs/{id}
+type getFilterOutputResponse struct {
+	model.FilterOutput
+}
+
 // getFilterDimensionsResponse is the response body for GET /filters/{id}/dimensions
 type getFilterDimensionsResponse struct {
-	Items []model.Dimension `json:"items"`
+	Items dimensionItems `json:"items"`
 	paginationResponse
 }
 
-// paginationResponse represents pagination data as returned to the client.
-type paginationResponse struct {
-	Limit      int `json:"limit"`
-	Offset     int `json:"offset"`
-	Count      int `json:"count"`
-	TotalCount int `json:"total_count"`
+// addFilterDimensionRequest is the request body for POST /filters/{id}/dimensions
+type addFilterDimensionRequest struct {
+	model.Dimension
 }
 
 // addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
 type addFilterDimensionResponse struct {
-	model.Dimension
+	dimensionItem
+}
+
+// updateFilterDimensionResponse is the response body for PUT /filters/{id}/dimensions/{name}
+type updateFilterDimensionResponse struct {
+	dimensionItem
+}
+
+type dimensionItem struct {
+	Name  string             `json:"name"`
+	Links dimensionItemLinks `json:"links"`
+}
+
+func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
+	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
+	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
+
+	d.Name = dim.Name
+	d.Links = dimensionItemLinks{
+		Self: model.Link{
+			HREF: dimURL,
+			ID:   dim.Name,
+		},
+		Filter: model.Link{
+			HREF: filterURL,
+			ID:   filterID,
+		},
+		Options: model.Link{
+			HREF: dimURL + "/options",
+		},
+	}
+
+}
+
+type dimensionItems []dimensionItem
+
+func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filterID string) {
+	if len(dims) == 0 {
+		*items = dimensionItems{}
+	}
+	for _, dim := range dims {
+		var item dimensionItem
+		item.fromDimension(dim, host, filterID)
+		*items = append(*items, item)
+	}
+}
+
+type getFilterDimensionResponse struct {
+	dimensionItem
+	IsAreaType bool `json:"is_area_type"`
+}
+
+type dimensionItemLinks struct {
+	Filter  model.Link `json:"filter"`
+	Options model.Link `json:"options"`
+	Self    model.Link `json:"self"`
+}
+
+type submitFilterResponse struct {
+	InstanceID     string            `json:"instance_id"`
+	FilterOutputID string            `json:"filter_output_id"`
+	Dataset        model.Dataset     `json:"dataset"`
+	Links          model.FilterLinks `json:"links"`
+	PopulationType string            `json:"population_type"`
 }
 
 // getDatasetJsonObservationsResponse is the response body for GET /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json

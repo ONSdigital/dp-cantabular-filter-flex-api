@@ -9,8 +9,9 @@ import (
 )
 
 type CantabularClient struct {
-	ErrStatus    int
-	OptionsHappy bool
+	ErrStatus            int
+	OptionsHappy         bool
+	SearchDimensionsFunc func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
@@ -30,6 +31,13 @@ func (c *CantabularClient) StaticDatasetQuery(context.Context, cantabular.Static
 
 func (c *CantabularClient) GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error) {
 	return nil, errors.New("invalid geography query")
+}
+
+func (c *CantabularClient) SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	if c.OptionsHappy {
+		return c.SearchDimensionsFunc(ctx, req)
+	}
+	return nil, errors.New("error while searching dimensions")
 }
 
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {

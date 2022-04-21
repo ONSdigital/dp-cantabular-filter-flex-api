@@ -1,0 +1,8 @@
+{
+	"name": "City",
+	"options": [
+		"0",
+		"1"
+	],
+	"is_area_type": true
+}

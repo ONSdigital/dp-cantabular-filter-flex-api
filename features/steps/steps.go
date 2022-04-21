@@ -1,20 +1,23 @@
 package steps
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-kafka/v3/avro"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/cucumber/godog"
+	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
+	"github.com/rdumont/assistdog"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -47,141 +50,142 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I have these filters:$`,
 		c.iHaveTheseFilters,
 	)
-
+	ctx.Step(
+		`^I have this filter with an ETag of "([^"]*)":$`,
+		c.iHaveThisFilterWithETag,
+	)
 	ctx.Step(
 		`^Mongo datastore fails for update filter output`,
 		c.MongoDatastoreFailsForUpdateFilterOutput,
 	)
-
+	// this is the same as above, but added for clearer step definition
+	ctx.Step(
+		`^Mongo datastore is failing`,
+		c.MongoDatastoreIsFailing,
+	)
 	ctx.Step(`^an ETag is returned`,
 		c.anETagIsReturned,
 	)
-
-	ctx.Step(
-		`^I (try to )?add a new dimension to an existing filter$`,
-		c.iAddANewDimensionToAnExistingFilter,
+	ctx.Step(`^the ETag is a hash of the filter "([^"]*)"`,
+		c.theETagIsAHashOfTheFilter,
 	)
-
 	ctx.Step(
-		`^I (try to )?add a new dimension with no options to an existing filter$`,
-		c.iAddANewDimensionWithoutOptionsToAnExistingFilter,
+		`^I provide If-Match header "([^"]*)"$`,
+		c.iProvideIfMatchHeader,
 	)
-
-	ctx.Step(
-		`^I receive the dimension\'s body back in the body of the response$`,
-		c.iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse,
-	)
-
-	ctx.Step(
-		`^I receive the dimension\'s body back with an empty \'options\' slice$`,
-		c.iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse,
-	)
-
-	ctx.Step(
-		`^I try to add a malformed dimension to an existing filter$`,
-		c.iTryToAddAMalformedDimensionToAnExistingFilter,
-	)
-
-	ctx.Step(
-		`^I try to add a new dimension to a filter which has dimensions which were modified since I retrieved them$`,
-		c.iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem,
-	)
-
-	ctx.Step(
-		`^I try to add a new dimension to a non-existent filter$`,
-		c.iTryToAddANewDimensionToANonexistentFilter,
-	)
-
 	ctx.Step(
 		`^the client for the dataset API failed and is returning errors$`,
 		c.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
+	ctx.Step(`^the following Export Start events are produced:$`,
+		c.theFollowingExportStartEventsAreProduced,
+	)
+	ctx.Step(`^I have these filter outputs:$`,
+		c.iHaveTheseFilterOutputs,
+	)
+	ctx.Step(
+		`^I should receive an errors array`,
+		c.iShouldReceiveAnErrorsArray,
+	)
 
-	ctx.Step(`^one event with the following fields are in the produced kafka topic catabular-export-start:$`, c.oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart)
+	ctx.Step(
+		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
+		c.cantabularSearchReturnsTheseDimensions,
+	)
 
-	ctx.Step(`^I should receive the following time ignored JSON response:$`, c.iShouldReceiveTheFollowingTimeIgnoredJSONResponse)
+	ctx.Step(
+		`^Cantabular responds with an error$`,
+		c.cantabularRespondsWithAnError,
+	)
 
-	ctx.Step(`^I have these filter outputs:$`, c.iHaveTheseFilterOutputs)
+	ctx.Step(`^the filter output with the id "([^"]*)" is in the datastore`,
+		c.filterOutputIsInDatastore)
+
+}
+func (c *Component) filterOutputIsInDatastore(id string) error {
+
+	_, err := c.store.GetFilterOutput(c.ctx, id)
+	if err != nil {
+		return fmt.Errorf("Error encountered while retrieving filter output.")
+	}
+
+	return nil
 
 }
 
-/*
-   The POST api now returns a Jobstate with a time component in it.
-   This results in failed tests as example is not current.
-   This custom JSON response parser is just to ensure time is ignored
-   when comparing requests.
+// iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
+// an error response, and contains at least one error.
+func (c *Component) iShouldReceiveAnErrorsArray() error {
+	responseBody := c.ApiFeature.HttpResponse.Body
 
-   open to suggestions on better way to handle
-*/
-func (c *Component) iShouldReceiveTheFollowingTimeIgnoredJSONResponse(arg1 *godog.DocString) error {
-	now := time.Now()
-
-	actual := new(bytes.Buffer)
-	actual.ReadFrom(c.ApiFeature.HttpResponse.Body)
-
-	var actualUpdateResponse api.UpdateFilterResponse
-	var expectedUpdateResponse api.UpdateFilterResponse
-
-	if err := json.Unmarshal([]byte(actual.String()), &actualUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal ACTUAL response.")
+	var errorResponse struct {
+		Errors []string `json:"errors"`
 	}
 
-	if err := json.Unmarshal([]byte(arg1.Content), &expectedUpdateResponse); err != nil {
-		return errors.New("Failed to unmarshal EXPECTED")
+	if err := json.NewDecoder(responseBody).Decode(&errorResponse); err != nil {
+		return fmt.Errorf("failed to decode error response from body: %w", err)
 	}
 
-	// naive setting because as per method, it should always be set.
-	actualUpdateResponse.Events[0].Timestamp = now
-	expectedUpdateResponse.Events[0].Timestamp = now
+	if len(errorResponse.Errors) == 0 {
+		return errors.New("expected at least one error in response")
+	}
 
-	if !reflect.DeepEqual(actualUpdateResponse, expectedUpdateResponse) {
-		return errors.New("Structs are not equal")
+	return nil
+}
+
+func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table) error {
+	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
+	if err != nil {
+		return fmt.Errorf("failed to create slice from godog table: %w", err)
+	}
+
+	consumer, err := GenerateKafkaConsumer(c.ctx)
+	if err != nil {
+		return fmt.Errorf("failed to generate kafka consumer: %w", err)
+	}
+
+	var got []*event.ExportStart
+	listen := true
+	for listen {
+		select {
+		case <-time.After(c.waitEventTimeout):
+			listen = false
+		case <-consumer.Channels().Closer:
+			return errors.New("closer channel closed")
+		case msg, ok := <-consumer.Channels().Upstream:
+			if !ok {
+				return errors.New("upstream channel closed")
+			}
+
+			var e event.ExportStart
+			var s = schema.ExportStart
+
+			if err := s.Unmarshal(msg.GetData(), &e); err != nil {
+				msg.Commit()
+				msg.Release()
+				return fmt.Errorf("error unmarshalling message: %w", err)
+			}
+
+			msg.Commit()
+			msg.Release()
+
+			got = append(got, &e)
+		}
+
+	}
+
+	if err := consumer.Close(c.ctx); err != nil {
+		// just log the error, but do not fail the test
+		// as it is not relevant to this test.
+		log.Error(c.ctx, "error closing kafka consumer", err)
+	}
+
+	if diff := cmp.Diff(got, expected); diff != "" {
+		return fmt.Errorf("-got +expected)\n%s\n", diff)
 	}
 	return nil
 }
 
-func (c *Component) oneEventWithTheFollowingFieldsAreInTheProducedKafkaTopicCatabularexportstart() error {
-
-	select {
-	case <-time.After(c.waitEventTimeout):
-		return nil
-	case <-c.consumer.Channels().Closer:
-		return errors.New("closer channel closed")
-	case msg, ok := <-c.consumer.Channels().Upstream:
-		if !ok {
-			return errors.New("upstream channel closed")
-		}
-
-		var e api.ExportStart
-		var exportStart = `{
-  "type": "record",
-  "name": "cantabular-export-start",
-  "fields": [
-    {"name": "instance_id", "type": "string", "default": ""},
-    {"name": "dataset_id",  "type": "string", "default": ""},
-    {"name": "edition",     "type": "string", "default": ""},
-    {"name": "version",     "type": "string", "default": ""},
-    {"name": "filter_id",   "type":"string",  "default": ""}
-  ]
-}`
-
-		var s = &avro.Schema{
-			Definition: exportStart,
-		}
-
-		if err := s.Unmarshal(msg.GetData(), &e); err != nil {
-			msg.Commit()
-			msg.Release()
-			return fmt.Errorf("error unmarshalling message: %w", err)
-		}
-
-		msg.Commit()
-		msg.Release()
-
-		return fmt.Errorf("kafka event received in csv-created topic: %v", e)
-
-	}
-}
 func (c *Component) anETagIsReturned() error {
 	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
 	if eTag == "" {
@@ -190,7 +194,49 @@ func (c *Component) anETagIsReturned() error {
 	return nil
 }
 
+// theETagIsAHashOfTheFilter checks that the returned ETag header (and stored ETag field)
+// are a hash of a filter. Used to validate that the ETag was updated after a mutation.
+func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
+	eTag := c.ApiFeature.HttpResponse.Header.Get("ETag")
+	if eTag == "" {
+		return errors.New("expected ETag")
+	}
+
+	ctx := context.Background()
+	col := c.cfg.FiltersCollection
+
+	var response model.Filter
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": filterID}, &response); err != nil {
+		return errors.Wrap(err, "failed to retrieve filter")
+	}
+
+	hash, err := response.Hash(nil)
+	if err != nil {
+		return errors.Wrap(err, "unable to hash stored filter")
+	}
+
+	if eTag != hash {
+		return errors.Wrapf(err, "ETag header did not match, expected %s, got %s", hash, eTag)
+	}
+
+	if eTag != response.ETag {
+		return fmt.Errorf("ETag on stored filter did not match, expected %s, got %s", hash, eTag)
+	}
+
+	return nil
+}
+
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
+	var err error
+	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	if err != nil {
+		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Component) MongoDatastoreIsFailing() error {
 	var err error
 	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
 	if err != nil {
@@ -231,7 +277,6 @@ func (c *Component) theMaximumLimitIsSetTo(val int) error {
 }
 
 func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
-	ctx := context.Background()
 	var filters []model.Filter
 
 	err := json.Unmarshal([]byte(docs.Content), &filters)
@@ -239,11 +284,71 @@ func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 		return errors.Wrap(err, "failed to unmarshall")
 	}
 
+	if err := c.insertFilters(filters); err != nil {
+		return errors.Wrap(err, "error inserting filters")
+	}
+
+	return nil
+}
+
+// iHaveThisFilterWithETag inserts the provided filter into the database,
+// setting the ETag to the provided stub value.
+func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) error {
+	var filter model.Filter
+
+	err := json.Unmarshal([]byte(docs.Content), &filter)
+	if err != nil {
+		return errors.Wrap(err, "failed to unmarshal")
+	}
+
+	filter.ETag = eTag
+
+	if err := c.insertFilters([]model.Filter{filter}); err != nil {
+		return errors.Wrap(err, "failed to insert filter with ETag")
+	}
+
+	return nil
+}
+
+// cantabularSearchReturnsTheseDimensions sets up a stub response for the `SearchDimensions` method.
+func (c *Component) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
+	var response cantabular.GetDimensionsResponse
+	if err := json.Unmarshal([]byte(docs.Content), &response); err != nil {
+		return errors.Wrap(err, "unable to unmarshal cantabular search response")
+	}
+
+	c.MockCantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+		if req.Dataset == datasetID && req.Text == dimension {
+			return &response, nil
+		}
+
+		return &cantabular.GetDimensionsResponse{
+			Dataset: gql.DatasetVariables{
+				Variables: gql.Variables{
+					Search: gql.Search{
+						Edges: []gql.Edge{},
+					},
+				},
+			},
+		}, nil
+	}
+
+	return nil
+}
+
+// cantabularSearchRespondsWithAnError sets up a generic error response for the
+func (c *Component) cantabularRespondsWithAnError() {
+	c.MockCantabularClient.OptionsHappy = false
+}
+
+// insertFilters loops through the provided filters and inserts them into the database.
+func (c *Component) insertFilters(filters []model.Filter) error {
+	ctx := context.Background()
 	store := c.store
 	col := c.cfg.FiltersCollection
 
-	for _, f := range filters {
-		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
+	for _, filter := range filters {
+		if _, err := store.Conn().Collection(col).UpsertById(ctx, filter.ID, bson.M{"$set": filter}); err != nil {
 			return errors.Wrap(err, "failed to upsert filter")
 		}
 	}
@@ -269,68 +374,9 @@ func (c *Component) theFollowingVersionDocumentIsAvailable(datasetID, edition, v
 	return nil
 }
 
-const example_dimension = `{
-	"name": "Number of siblings (3 mappings)",
-	"is_area_type": false,
-	"options": ["4-7", "7+"]
-}`
-
-func (c *Component) iAddANewDimensionToAnExistingFilter() error {
-	c.postedJSON = example_dimension
-
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: c.postedJSON},
-	)
-}
-
-func (c *Component) iAddANewDimensionWithoutOptionsToAnExistingFilter() error {
-	c.postedJSON = `{
-		"name": "Number of siblings (3 mappings)"
-	}`
-
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: c.postedJSON},
-	)
-}
-
-func (c *Component) iReceiveTheDimensionsBodyBackInTheBodyOfTheResponse() error {
-	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: c.postedJSON})
-}
-
-func (c *Component) iReceiveTheDimensionWithEmptyOptionsSliceBackInTheBodyOfTheResponse() error {
-	var want = `{
-		"name": "Number of siblings (3 mappings)",
-		"is_area_type": false,
-		"options": []
-	}`
-	return c.ApiFeature.IShouldReceiveTheFollowingJSONResponse(&godog.DocString{Content: want})
-}
-
-func (c *Component) iTryToAddAMalformedDimensionToAnExistingFilter() error {
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: "not valid JSON"},
-	)
-}
-
-func (c *Component) iTryToAddANewDimensionToAFilterWhichHasDimensionsWhichWereModifiedSinceIRetrievedThem() error {
-	staleEtag := "a-stale-etag" // this would normally be a SHA-1 hash representing an older copy of the dimensions slice
-	json := example_dimension
-	c.ApiFeature.ISetTheHeaderTo("If-Match", staleEtag)
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: json},
-	)
-}
-
-func (c *Component) iTryToAddANewDimensionToANonexistentFilter() error {
-	json := example_dimension
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-000000000000/dimensions",
-		&godog.DocString{Content: json},
-	)
+func (c *Component) iProvideIfMatchHeader(eTag string) error {
+	c.ApiFeature.ISetTheHeaderTo("If-Match", eTag)
+	return nil
 }
 
 func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error {
@@ -338,12 +384,7 @@ func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error 
 	c.DatasetAPI.NewHandler().
 		Get("/datasets/cantabular-example-1/editions/2021/versions/1").
 		Reply(http.StatusInternalServerError)
-
-	json := example_dimension
-	return c.ApiFeature.IPostToWithBody(
-		"/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
-		&godog.DocString{Content: json},
-	)
+	return nil
 }
 
 func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
@@ -356,11 +397,11 @@ func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 	}
 
 	store := c.store
-	col := c.cfg.FiltersCollection
+	col := c.cfg.FilterOutputsCollection
 
 	for _, f := range filterOutputs {
 		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
-			return errors.Wrap(err, "failed to upsert filter")
+			return errors.Wrap(err, "failed to upsert filter output")
 		}
 	}
 

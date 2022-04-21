@@ -4,19 +4,18 @@ import (
 	"github.com/ONSdigital/dp-kafka/v3/avro"
 )
 
-var csvCreated = `{
+var exportStart = `{
   "type": "record",
-  "name": "cantabular-csv-created",
+  "name": "cantabular-export-start",
   "fields": [
-    {"name": "instance_id", "type": "string", "default": ""},
-    {"name": "dataset_id", "type": "string", "default": ""},
-    {"name": "edition", "type": "string", "default": ""},
-    {"name": "version", "type": "string", "default": ""},
-    {"name": "row_count", "type": "int", "default": 0}
+    {"name": "instance_id",      "type": "string", "default": ""},
+    {"name": "dataset_id",       "type": "string", "default": ""},
+    {"name": "edition",          "type": "string", "default": ""},
+    {"name": "version",          "type": "string", "default": ""},
+    {"name": "filter_output_id", "type": "string", "default": ""}
   ]
 }`
 
-// CSVCreated the Avro schema for CSV exported messages.
-var CSVCreated = &avro.Schema{
-	Definition: csvCreated,
+var ExportStart = &avro.Schema{
+	Definition: exportStart,
 }

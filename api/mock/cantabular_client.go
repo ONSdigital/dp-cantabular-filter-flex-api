@@ -32,6 +32,13 @@ func (c *CantabularClient) GetGeographyDimensions(context.Context, string) (*can
 	return nil, errors.New("invalid geography query")
 }
 
+func (c *CantabularClient) SearchDimensions(_ context.Context, _ cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	if c.OptionsHappy {
+		return nil, nil
+	}
+	return nil, errors.New("error searching dimensions")
+}
+
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
 }

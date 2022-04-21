@@ -52,8 +52,12 @@ type Datastore interface {
 	GetFilter(context.Context, string) (*model.Filter, error)
 	UpdateFilterOutput(context.Context, *model.FilterOutput) error
 	CreateFilterOutput(context.Context, *model.FilterOutput) error
+	GetFilterOutput(context.Context, string) (*model.FilterOutput, error)
+	AddFilterOutputEvent(context.Context, string, *model.Event) error
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
+	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	AddFilterDimension(ctx context.Context, s string, dimension model.Dimension) error
+	UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (eTag string, err error)
 	Checker(context.Context, *healthcheck.CheckState) error
 	Conn() *mongo.MongoConnection
 }
@@ -71,6 +75,7 @@ type CantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
 	StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
 	GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error)
+	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 	Checker(context.Context, *healthcheck.CheckState) error
 	CheckerAPIExt(context.Context, *healthcheck.CheckState) error

@@ -120,12 +120,13 @@ func TestInit(t *testing.T) {
 				So(svc.HealthCheck, ShouldResemble, hcMock)
 
 				Convey("Then all checks are registered", func() {
-					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 5)
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 6)
 					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Cantabular server")
 					So(hcMock.AddAndGetCheckCalls()[1].Name, ShouldResemble, "Cantabular API Extension")
 					So(hcMock.AddAndGetCheckCalls()[2].Name, ShouldResemble, "Dataset API client")
 					So(hcMock.AddAndGetCheckCalls()[3].Name, ShouldResemble, "Datastore")
 					So(hcMock.AddAndGetCheckCalls()[4].Name, ShouldResemble, "Zebedee")
+					So(hcMock.AddAndGetCheckCalls()[5].Name, ShouldResemble, "Kafka")
 				})
 			})
 		})

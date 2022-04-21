@@ -12,15 +12,16 @@ require (
 	github.com/ONSdigital/dp-kafka/v3 v3.3.1
 	github.com/ONSdigital/dp-mongodb/v3 v3.0.0-beta.9
 	github.com/ONSdigital/dp-net v1.4.1
-	github.com/ONSdigital/dp-net/v2 v2.4.0-beta
-	github.com/ONSdigital/log.go/v2 v2.2.0
-	github.com/cucumber/godog v0.12.5
+	github.com/ONSdigital/dp-net/v2 v2.2.0
+	github.com/ONSdigital/log.go/v2 v2.1.0
+	github.com/cucumber/godog v0.12.4
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/golang/mock v1.6.0
+	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/maxcnunes/httpfake v1.2.4
 	github.com/pkg/errors v0.9.1
+	github.com/rdumont/assistdog v0.0.0-20201106100018-168b06230d14
 	github.com/smartystreets/goconvey v1.7.2
 	go.mongodb.org/mongo-driver v1.8.4
 )
@@ -87,6 +88,5 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220328115105-d36c6a25d886 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

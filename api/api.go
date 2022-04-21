@@ -21,7 +21,7 @@ type API struct {
 	store          datastore
 	respond        responder
 	generate       generator
-	Producer       kafka.IProducer
+	producer       kafka.IProducer
 	identityClient *identity.Client
 	datasets       datasetAPIClient
 	ctblr          cantabularClient
@@ -29,7 +29,7 @@ type API struct {
 }
 
 // New creates and initialises a new API
-func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, producer kafka.IProducer) *API {
+func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -39,8 +39,7 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		identityClient: idc,
 		datasets:       ds,
 		ctblr:          c,
-
-		Producer: producer,
+		producer:       p,
 	}
 
 	if cfg.EnablePrivateEndpoints {
@@ -58,8 +57,11 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Put("/filters/{id}", api.putFilter)
 	api.Router.Post("/filters/{id}/submit", api.submitFilter)
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
 	api.Router.Get("/flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
+	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -77,7 +79,13 @@ func (api *API) enablePrivateEndpoints() {
 	r.Put("/filters/{id}", api.putFilter)
 	r.Post("/filters/{id}/submit", api.submitFilter)
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
-	r.Put("/filter-outputs/{filter-output-id}", api.updateFilterOutput)
+	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+
+	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
+	r.Put("/filter-outputs/{filter_output_id}", api.updateFilterOutput)
+	r.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
+
 	api.Router.Mount("/", r)
 }

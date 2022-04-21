@@ -9,9 +9,11 @@ import (
 
 // Error is the packages error type
 type Error struct {
-	err     error
-	message string
-	logData map[string]interface{}
+	err        error
+	message    string
+	logData    map[string]interface{}
+	notFound   bool
+	badRequest bool
 }
 
 // Error satisfies the standard library Go error interface
@@ -27,7 +29,7 @@ func (e Error) Unwrap() error {
 	return e.err
 }
 
-// Message satisfies the messanger interface which is used to specify
+// Message satisfies the messager interface which is used to specify
 // a response to be sent to the caller in place of the error text for a
 // given error. This is useful when you don't want sensitive information
 // or implementation details being exposed to the caller which could be
@@ -42,6 +44,16 @@ func (e Error) LogData() map[string]interface{} {
 	return e.logData
 }
 
+// NotFound satisfies the errNotFound interface
+func (e Error) NotFound() bool {
+	return e.notFound
+}
+
+// BadRequest satisfies the errBadRequest interface
+func (e Error) BadRequest() bool {
+	return e.badRequest
+}
+
 func statusCode(err error) int {
 	var serr coder
 	switch {
@@ -51,8 +63,12 @@ func statusCode(err error) int {
 		return http.StatusServiceUnavailable
 	case dperrors.NotFound(err):
 		return http.StatusNotFound
+	case dperrors.BadRequest(err):
+		return http.StatusBadRequest
 	case dperrors.Conflict(err):
 		return http.StatusConflict
+	case dperrors.Forbidden(err):
+		return http.StatusForbidden
 	default:
 		return http.StatusInternalServerError
 	}
