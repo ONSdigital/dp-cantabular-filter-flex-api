@@ -57,6 +57,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("Could not initialise Kafka producer: %w", err)
 	}
 
+	svc.Producer.LogErrors(ctx)
+
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
 	svc.generator = GetGenerator()
