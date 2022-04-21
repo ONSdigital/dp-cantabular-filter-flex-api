@@ -72,6 +72,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
         "dimensions": [
           {
             "name": "siblings",
+            "id": "siblings_3",
+            "label": "Number of siblings (3 mappings)",
             "options": [
               "0-3",
               "4-7",
@@ -81,6 +83,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           },
           {
             "name": "geography",
+            "id": "city",
+            "label": "City",
             "options": [
               "Cardiff",
               "London",
@@ -109,6 +113,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "items": [
         {
           "name": "geography",
+          "id": "city",
+          "label": "City",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -119,12 +125,14 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
             },
             "self": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
-              "id": "geography"
+              "id": "city"
             }
           }
         },
         {
           "name": "siblings",
+          "id": "siblings_3",
+          "label": "Number of siblings (3 mappings)",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -135,7 +143,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
             },
             "self": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
-              "id": "siblings"
+              "id": "siblings_3"
             }
           }
         }
@@ -154,6 +162,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     {
       "name": "geography",
+      "id": "city",
+      "label": "City",
       "is_area_type": true,
       "links": {
         "filter": {
@@ -165,7 +175,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
         },
         "self": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
-          "id": "geography"
+          "id": "city"
         }
       }
     }
@@ -193,7 +203,9 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {
+      "id": "siblings_3",
       "name": "siblings",
+      "label": "Number of siblings (3 mappings)",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -204,7 +216,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
         },
         "self": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
-          "id": "siblings"
+          "id": "siblings_3"
         }
       }
     }
@@ -226,7 +238,9 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     And I should receive the following JSON response:
     """
     {
+      "id": "siblings_3",
       "name": "siblings",
+      "label": "Number of siblings (3 mappings)",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -237,7 +251,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
         },
         "self": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
-          "id": "siblings"
+          "id": "siblings_3"
         }
       }
     }
@@ -329,6 +343,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "items": [
         {
           "name": "geography",
+          "id": "city",
+          "label": "City",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -339,7 +355,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
             },
             "self": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
-              "id": "geography"
+              "id": "city"
             }
           }
         }
@@ -360,6 +376,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "items": [
         {
           "name": "siblings",
+          "id": "siblings_3",
+          "label": "Number of siblings (3 mappings)",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -370,7 +388,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
             },
             "self": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
-              "id": "siblings"
+              "id": "siblings_3"
             }
           }
         }

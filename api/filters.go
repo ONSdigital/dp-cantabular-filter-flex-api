@@ -371,7 +371,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.store.AddFilterDimension(ctx, fID, req.Dimension); err != nil {
+	dim := hydrateDimensions([]model.Dimension{req.Dimension}, v.Dimensions)[0]
+
+	if err := api.store.AddFilterDimension(ctx, fID, dim); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -386,7 +388,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var resp addFilterDimensionResponse
 	resp.dimensionItem.fromDimension(
-		req.Dimension,
+		dim,
 		api.cfg.FilterAPIURL,
 		fID,
 	)

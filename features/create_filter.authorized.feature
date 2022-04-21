@@ -132,6 +132,9 @@ Feature: Filters Private Endpoints Enabled
         },
         "self": {
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
       "events": null,
@@ -163,11 +166,12 @@ Feature: Filters Private Endpoints Enabled
         }
       ],
       "dataset": {
-        "id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
+        "id":      "cantabular-example-1",
         "edition": "2021",
         "version": 1
       },
-      "published":       true,
+      "published": true,
+      "type": "flexible",
       "population_type": "Example"
     }
     """
