@@ -36,6 +36,7 @@ func (c *Client) CreateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	}
 
 	f.ID = id.String()
+	f.Links.Self.ID = id.String()
 
 	col := c.collections.filterOutputs
 

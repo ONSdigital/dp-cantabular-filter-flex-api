@@ -139,12 +139,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	filterOutput := &model.FilterOutput{
-		FilterID:   filter.ID,
-		State:      model.Submitted,
-		Events:     []model.Event{},
-		Dimensions: []model.Dimension{},
-	}
+	filterOutput := api.generateFilterOutput(filter)
 
 	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
 		api.respond.Error(
