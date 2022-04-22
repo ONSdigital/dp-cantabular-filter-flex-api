@@ -139,6 +139,7 @@ Feature: Filters Private Endpoints Enabled
         }
       },
       "etag": "e70f6470a26c2379b591b34e47e50321879abcbc",
+      "etag":"1c2d4d9bf4220bcf2c3f7ab14df94ad91b58c071",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -154,8 +155,10 @@ Feature: Filters Private Endpoints Enabled
         },
         {
           "name": "geography",
+
           "id": "city",
-          "label": "City",
+          "label": "City
+
           "options": [
             "Cardiff",
             "London",
@@ -166,6 +169,7 @@ Feature: Filters Private Endpoints Enabled
       ],
       "dataset": {
         "id": "cantabular-example-1",
+        "id":      "cantabular-example-1",
         "edition": "2021",
         "version": {
           "$numberInt":"1"
@@ -174,6 +178,9 @@ Feature: Filters Private Endpoints Enabled
       "published": true,
       "type": "flexible",
       "population_type": "Example",
+      "published":       true,
+      "population_type": "Example",
+      "type":"flexible",
       "unique_timestamp":{
         "$timestamp":{
           "i":1,

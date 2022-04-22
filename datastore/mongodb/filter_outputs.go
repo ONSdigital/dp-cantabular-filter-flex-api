@@ -129,21 +129,3 @@ func (c *Client) AddFilterOutputEvent(ctx context.Context, id string, f *model.E
 	}
 	return nil
 }
-
-func (c *Client) findFilterOutput(fId string, ctx context.Context) ([]model.FilterOutput, error) {
-	col := c.collections.filterOutputs
-	var docs []model.FilterOutput
-	sc := bson.M{"id": fId}
-	var err error
-	var num int
-	if num, err = c.conn.Collection(col.name).Find(ctx, sc, &docs, mongodb.Limit(1)); err != nil {
-		return nil, errors.Wrapf(err, "failed to find filter output for %s", fId)
-	}
-	if num < 1 {
-		return nil, &er{
-			err:      errors.Errorf("filter output not found for %s", fId),
-			notFound: true,
-		}
-	}
-	return docs, nil
-}

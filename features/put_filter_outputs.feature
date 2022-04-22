@@ -9,6 +9,50 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",
         "state": "published",
+        "dataset": {
+          "edition":"2021",
+          "id":"cantabular-flexible-example",
+          "version": 1
+        },
+        "dimensions": [
+          {
+            "name": "silbings",
+            "options": [
+              "0-3",
+              "4-7",
+              "7+"
+            ],
+            "is_area_type": false
+          },
+          {
+            "name": "geography",
+            "options": [
+              "Cardiff",
+              "London",
+              "Swansea"
+            ],
+            "is_area_type": true
+          }
+        ],
+        "etag": "testEtag",
+        "events": null,
+        "filter_id": "74310d8d-72d6-492a-bc30-27584627edb3",
+        "id": "94310d8d-72d6-492a-bc30-27584627edb1",
+        "instance_id": "7de30d8d-72d62-412a-bc30-27584627ede4",
+        "links":{
+          "filter_blueprint":{
+            "href":":27100/filters/74310d8d-72d6-492a-bc30-27584627edb3"
+          },
+          "self":{
+            "href":":27100/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb1"
+          },
+          "version":{
+            "href":":27100/datasets/cantabular-flexible-example/editions/2021/versions/1"
+          }
+        },
+        "population_type": "Example",
+        "published": true,
+        "type": "flexible",
         "downloads":
         {
           "csv":
@@ -109,18 +153,38 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
     {
         "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
         "dataset": {
-          "edition":"",
-          "id":"",
+          "edition":"2021",
+          "id":"cantabular-flexible-example",
           "version": {
-            "$numberInt": "0"
+            "$numberInt": "1"
           }
         },
-        "dimensions": null,
+        "dimensions": [
+          {
+            "name": "silbings",
+            "options": [
+              "0-3",
+              "4-7",
+              "7+"
+            ],
+            "is_area_type": false
+          },
+          {
+            "name": "geography",
+            "options": [
+              "Cardiff",
+              "London",
+              "Swansea"
+            ],
+            "is_area_type": true
+          }
+        ],
         "etag": "",
+        "state": "published",
         "events": null,
-        "filter_id": "",
+        "filter_id": "74310d8d-72d6-492a-bc30-27584627edb3",
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",
-        "instance_id": "",
+        "instance_id": "7de30d8d-72d62-412a-bc30-27584627ede4",
         "last_updated": {
           "$date":{
             "$numberLong":"-62135596800000"
@@ -128,19 +192,18 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         },
         "links":{
           "filterblueprint":{
-            "href":""
+            "href":":27100/filters/74310d8d-72d6-492a-bc30-27584627edb3"
           },
           "self":{
-            "href":""
+            "href":":27100/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb1"
           },
           "version":{
-            "href":""
+            "href":":27100/datasets/cantabular-flexible-example/editions/2021/versions/1"
           }
         },
-        "population_type": "",
-        "published": false,
-        "state": "published",
-        "type": "",
+        "population_type": "Example",
+        "published": true,
+        "type": "flexible",
         "unique_timestamp": {
           "$timestamp":{
             "i":0,
