@@ -139,7 +139,28 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	filterOutput := api.generateFilterOutput(filter)
+	filterOutput := model.FilterOutput{
+		// id created by mongo client
+		FilterID:  filter.ID,
+		State:     model.Submitted,
+		Dataset:   filter.Dataset,
+		Downloads: model.Downloads{},
+		Events:    []model.Event{},
+		Links: model.FilterOutputLinks{
+			Version: filter.Links.Version,
+			Self: model.Link{
+				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filter-outputs"),
+				// uuid created by mongo client, will set there.
+				ID: "",
+			},
+			FilterBlueprint: model.Link{
+				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filters"),
+				ID:   filter.ID,
+			},
+		},
+		Published:  filter.Published,
+		Dimensions: filter.Dimensions,
+	}
 
 	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
 		api.respond.Error(
