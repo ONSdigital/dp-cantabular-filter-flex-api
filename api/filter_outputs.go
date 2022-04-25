@@ -61,9 +61,11 @@ func (api *API) putFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := model.FilterOutput{
-		ID:        fID,
-		State:     req.State,
-		Downloads: req.Downloads,
+		ID:              fID,
+		State:           req.State,
+		Downloads:       req.Downloads,
+		LastUpdated:     api.generate.Timestamp(),
+		UniqueTimestamp: api.generate.UniqueTimestamp(),
 	}
 
 	if err := api.store.UpdateFilterOutput(ctx, &f); err != nil {

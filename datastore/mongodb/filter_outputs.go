@@ -55,13 +55,10 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	queryFilter := bson.M{"id": f.ID}
 
 	if err := c.conn.Collection(col.name).FindOne(ctx, queryFilter, &existing); err != nil {
-		err := &er{
-			err: errors.Wrap(err, "failed to find filter output"),
+		return &er{
+			err:      errors.Wrap(err, "failed to find filter output"),
+			notFound: errors.Is(err, mongodb.ErrNoDocumentFound),
 		}
-		if errors.Is(err, mongodb.ErrNoDocumentFound) {
-			err.notFound = true
-		}
-		return err
 	}
 
 	// a record with state 'completed' can't be updated further
@@ -87,6 +84,12 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	}
 
 	update := bson.M{"$set": fields}
+
+	lockID, err := col.lock(ctx, f.ID)
+	if err != nil {
+		return err
+	}
+	defer col.unlock(ctx, lockID)
 
 	rec, err := c.conn.Collection(col.name).Update(ctx, queryFilter, update)
 	if err != nil {

@@ -74,7 +74,7 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-// putFilterOutputRequest is the request body for POST /filters
+// putFilterOutputRequest is the request body for PUT /filters
 type putFilterOutputRequest struct {
 	State     string          `json:"state"`
 	Downloads model.Downloads `json:"downloads"`
