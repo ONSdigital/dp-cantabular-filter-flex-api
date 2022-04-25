@@ -189,7 +189,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send the export event through Kafka
-	if err := api.produceExportStartEvent(&e); err != nil {
+	if err := api.produceExportStartEvent(e); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
