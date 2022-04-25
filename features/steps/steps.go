@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -19,6 +20,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -39,8 +41,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theMaximumLimitIsSetTo,
 	)
 	ctx.Step(
-		`^the document in the database for id "([^"]*)" should be:$`,
-		c.theDocumentInTheDatabaseShouldBe,
+		`^the document in the database for id "([^"]*)" should match:$`,
+		c.theDocumentInTheDatabaseShouldMatch,
+	)
+	ctx.Step(
+		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" should match:$`,
+		c.aDocumentInCollectionWithKeyValueShouldMatch,
 	)
 	ctx.Step(
 		`^the following version document with dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
@@ -273,9 +279,61 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 	return nil
 }
 
-func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocString) error {
-	// TODO: implement step for verifying documents stored in Mongo. No prior
-	// art of this being done properly in ONS yet so save to be done in future ticket
+func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val string, doc *godog.DocString) error {
+	ctx := context.Background()
+	var expected, result interface{}
+
+	if err := json.Unmarshal([]byte(doc.Content), &expected); err != nil {
+		return errors.Wrap(err, "failed to unmarshal expected document")
+	}
+
+	var bdoc primitive.D
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{key: val}, &bdoc); err != nil {
+		return errors.Wrap(err, "failed to retrieve document")
+	}
+
+	b, err := bson.MarshalExtJSON(bdoc, true, true)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal bson document")
+	}
+
+	if err := json.Unmarshal(b, &result); err != nil {
+		return errors.Wrap(err, "failed to unmarshal result")
+	}
+
+	if diff := cmp.Diff(expected, result); diff != "" {
+		return fmt.Errorf("-want +got)\n%s\n", diff)
+	}
+
+	return nil
+}
+
+// theDocumentInTheDatabaseShouldMatch checks if the filter in the DB matches the one provided.
+// Timestamps and the ETag are ignored.
+func (c *Component) theDocumentInTheDatabaseShouldMatch(fID string, doc *godog.DocString) error {
+	var expFilter model.Filter
+	if err := json.Unmarshal([]byte(doc.Content), &expFilter); err != nil {
+		return errors.Wrap(err, "failed to unmarshall")
+	}
+
+	ctx := context.Background()
+	col := c.cfg.FiltersCollection
+
+	var response model.Filter
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": fID}, &response); err != nil {
+		return errors.Wrap(err, "failed to retrieve filter")
+	}
+
+	// ETags are compared by a separate assertion
+	response.ETag = ""
+	// Don't compare time, since it will be non-deterministic
+	response.LastUpdated = time.Time{}
+	response.UniqueTimestamp = primitive.Timestamp{}
+
+	if !reflect.DeepEqual(expFilter, response) {
+		return fmt.Errorf("Document did not match\nExpected:\n%+v\nGot:\n%+v\n", expFilter, response)
+	}
+
 	return nil
 }
 
@@ -310,6 +368,8 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 	}
 
 	filter.ETag = eTag
+	filter.LastUpdated = c.g.Timestamp()
+	filter.UniqueTimestamp = c.g.UniqueTimestamp()
 
 	if err := c.insertFilters([]model.Filter{filter}); err != nil {
 		return errors.Wrap(err, "failed to insert filter with ETag")
