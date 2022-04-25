@@ -170,9 +170,10 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "201"
 
-    And the document in the database for id "94310d8d-72d6-492a-bc30-27584627edb1" should match:
+    And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
     """
     {
+      "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
@@ -186,11 +187,14 @@ Feature: Filters Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
+      "etag": "e70f6470a26c2379b591b34e47e50321879abcbc",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": {
+          "$numberInt":"1"
+        }
       },
       "dimensions": [
         {
@@ -218,7 +222,18 @@ Feature: Filters Private Endpoints Not Enabled
       ],
       "population_type": "Example",
       "published": true,
-      "type": "flexible"
+      "type": "flexible",
+      "unique_timestamp":{
+        "$timestamp":{
+          "i":1,
+          "t":1.643200024e+09
+        }
+      },
+      "last_updated":{
+        "$date":{
+          "$numberLong":"1643200024783"
+        }
+      }
     }
     """
 

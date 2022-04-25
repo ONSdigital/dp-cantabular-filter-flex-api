@@ -174,6 +174,7 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 	updateFilter := bson.M{
 		"$set": bson.M{
 			"etag":         filter.ETag,
+			"last_updated": c.generate.Timestamp(),
 			"dimensions.$": dimension,
 		},
 	}
