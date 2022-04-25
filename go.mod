@@ -9,14 +9,14 @@ require (
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.7.0
 	github.com/ONSdigital/dp-healthcheck v1.3.0
-	github.com/ONSdigital/dp-kafka/v3 v3.3.1
+	github.com/ONSdigital/dp-kafka/v3 v3.3.2
 	github.com/ONSdigital/dp-mongodb/v3 v3.0.0-beta.9
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.2.0
 	github.com/ONSdigital/log.go/v2 v2.1.0
 	github.com/cucumber/godog v0.12.4
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/google/go-cmp v0.5.6
+	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/maxcnunes/httpfake v1.2.4
@@ -31,7 +31,7 @@ require (
 	github.com/ONSdigital/dp-mongodb-in-memory v1.3.0 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
-	github.com/Shopify/sarama v1.30.1 // indirect
+	github.com/Shopify/sarama v1.32.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.27 // indirect
 	github.com/chromedp/cdproto v0.0.0-20220321060548-7bc2623472b3 // indirect
 	github.com/chromedp/chromedp v0.8.0 // indirect
