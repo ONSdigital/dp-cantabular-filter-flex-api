@@ -31,8 +31,7 @@ type Config struct {
 	ServiceAuthToken             string        `envconfig:"SERVICE_AUTH_TOKEN"`
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
 	Mongo                        mongo.MongoDriverConfig
-
-	KafkaConfig KafkaConfig
+	KafkaConfig                  KafkaConfig
 }
 
 type KafkaConfig struct {
@@ -48,11 +47,9 @@ type KafkaConfig struct {
 	SecClientKey              string   `envconfig:"KAFKA_SEC_CLIENT_KEY"                  json:"-"`
 	SecClientCert             string   `envconfig:"KAFKA_SEC_CLIENT_CERT"`
 	SecSkipVerify             bool     `envconfig:"KAFKA_SEC_SKIP_VERIFY"`
-
-	ExportStartTopic string `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
-	ExportStartGroup string `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START`
-
-	TLSProtocolFlag bool `envconfig:"TLS_PROTOCOL_FLAG"`
+	ExportStartTopic          string   `envconfig:"KAFKA_TOPIC_CANTABULAR_EXPORT_START"`
+	ExportStartGroup          string   `envconfig:"KAFKA_GROUP_CANTABULAR_EXPORT_START"`
+	TLSProtocolFlag           bool     `envconfig:"TLS_PROTOCOL_FLAG"`
 }
 
 var cfg *Config
