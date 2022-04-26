@@ -96,8 +96,8 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 		return errors.Wrap(err, "failed to update filter output")
 	}
 
-	// This should not happen unless the recored is being removed bteween the
-	// first find and the update. Check if the update failed sue to search condition.
+	// This should not happen unless the recored is being removed between the
+	// first find and the update. Check if the update failed due to search condition.
 	// Update returns no error but the result's MatchedCount has to be checked
 	// for number of updated records
 	if rec.MatchedCount < 1 {
@@ -110,7 +110,7 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	return nil
 }
 
-//AddFilterOutputEvent will append to the existing list of events in the filter output
+// AddFilterOutputEvent will append to the existing list of events in the filter output
 func (c *Client) AddFilterOutputEvent(ctx context.Context, id string, f *model.Event) error {
 	col := c.collections.filterOutputs
 
