@@ -179,7 +179,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
           ],
           "is_area_type": true
         }
-      ]
+      ],
+      "type": "flexible"
     }
     """
     And the following Export Start events are produced:
