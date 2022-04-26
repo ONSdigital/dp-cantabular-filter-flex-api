@@ -161,6 +161,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		},
 		Published:  filter.Published,
 		Dimensions: filter.Dimensions,
+		Type:       filter.Type,
 	}
 
 	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
