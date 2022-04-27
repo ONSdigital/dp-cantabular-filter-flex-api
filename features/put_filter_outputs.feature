@@ -17,6 +17,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         "dimensions": [
           {
             "name": "silbings",
+            "id": "siblings_3",
+            "label": "Number Of Siblings (3 Mappings)",
             "options": [
               "0-3",
               "4-7",
@@ -26,6 +28,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
           },
           {
             "name": "geography",
+            "id": "city",
+            "label": "City",
             "options": [
               "Cardiff",
               "London",
@@ -153,8 +157,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
     {
         "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
         "dataset": {
-          "edition":"2021",
-          "id":"cantabular-flexible-example",
+          "edition": "2021",
+          "id": "cantabular-flexible-example",
           "version": {
             "$numberInt": "1"
           }
@@ -162,6 +166,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         "dimensions": [
           {
             "name": "silbings",
+            "id": "siblings_3",
+            "label": "Number Of Siblings (3 Mappings)",
             "options": [
               "0-3",
               "4-7",
@@ -171,6 +177,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
           },
           {
             "name": "geography",
+            "id": "city",
+            "label": "City",
             "options": [
               "Cardiff",
               "London",

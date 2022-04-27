@@ -277,7 +277,7 @@ func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val s
 	var expected, result interface{}
 
 	if err := json.Unmarshal([]byte(doc.Content), &expected); err != nil {
-		return errors.Wrap(err, "failed to unmarshal expected document")
+		return errors.Wrap(err, fmt.Sprintf("failed to unmarshal expected document len: %d", len([]byte(doc.Content))))
 	}
 
 	var bdoc primitive.D
