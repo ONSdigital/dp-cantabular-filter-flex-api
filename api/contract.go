@@ -74,27 +74,36 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-// updateFilterOutputRequest is the request body for POST /filters
-type updateFilterOutputRequest struct {
-	model.FilterOutput
+// putFilterOutputRequest is the request body for PUT /filters
+type putFilterOutputRequest struct {
+	State     string          `json:"state"`
+	Downloads model.Downloads `json:"downloads"`
 }
 
 type addFilterOutputEventRequest struct {
 	model.Event
 }
 
-func (r *updateFilterOutputRequest) Valid() error {
-	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'csv' field not fully populated")
+func (r *putFilterOutputRequest) Valid() error {
+	if r.Downloads.CSV != nil {
+		if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'csv' field not fully populated")
+		}
 	}
-	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'csvw' field not fully populated")
+	if r.Downloads.CSVW != nil {
+		if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'csvw' field not fully populated")
+		}
 	}
-	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'txt' field not fully populated")
+	if r.Downloads.TXT != nil {
+		if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'txt' field not fully populated")
+		}
 	}
-	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'xls' field not fully populated")
+	if r.Downloads.XLS != nil {
+		if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'xls' field not fully populated")
+		}
 	}
 
 	return nil

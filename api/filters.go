@@ -387,13 +387,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var resp addFilterDimensionResponse
-	resp.dimensionItem.fromDimension(
-		dim,
-		api.cfg.FilterAPIURL,
-		fID,
-	)
-
 	filter, err = api.store.GetFilter(ctx, fID)
 	if err != nil {
 		api.respond.Error(
@@ -422,6 +415,13 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
+	var resp addFilterDimensionResponse
+	resp.dimensionItem.fromDimension(
+		dim,
+		api.cfg.FilterAPIURL,
+		fID,
+	)
 
 	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)

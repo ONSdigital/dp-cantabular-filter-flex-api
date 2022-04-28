@@ -24,3 +24,18 @@ type FilterOutput struct {
 	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
 	ETag              string              `bson:"etag"                         json:"-"`
 }
+
+type Downloads struct {
+	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
+	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
+	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`
+	XLS  *FileInfo `bson:"xls,omitempty"   json:"xls,omitempty"`
+}
+
+type FileInfo struct {
+	HREF    string `bson:"href"    json:"href"`
+	Size    string `bson:"size"    json:"size"`
+	Public  string `bson:"public"  json:"public"`
+	Private string `bson:"private" json:"private"`
+	Skipped bool   `bson:"skipped" json:"skipped"`
+}
