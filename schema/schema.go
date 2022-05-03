@@ -12,7 +12,8 @@ var exportStart = `{
     {"name": "dataset_id",       "type": "string", "default": ""},
     {"name": "edition",          "type": "string", "default": ""},
     {"name": "version",          "type": "string", "default": ""},
-    {"name": "filter_output_id", "type": "string", "default": ""}
+    {"name": "filter_output_id", "type": "string", "default": ""},
+    {"name": "dimensions_id",    "type": "string", "default": ""}
   ]
 }`
 

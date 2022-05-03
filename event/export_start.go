@@ -13,4 +13,5 @@ type ExportStart struct {
 	Edition        string `avro:"edition"`
 	Version        string `avro:"version"`
 	FilterOutputID string `avro:"filter_output_id"`
+	DimensionsID   string `avro:"dimensions_id"`
 }

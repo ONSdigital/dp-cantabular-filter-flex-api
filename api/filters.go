@@ -178,16 +178,24 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var dID string
+	for _, d := range filter.Dimensions {
+		if dID != "" {
+			dID = dID + "," + d.Name
+		} else {
+			dID = d.Name
+		}
+	}
 	// schema mismatch between avro and model type.
 	// naively converting for now.
 	version := strconv.Itoa(filter.Dataset.Version)
-
 	e := event.ExportStart{
 		InstanceID:     filter.InstanceID,
 		DatasetID:      filter.Dataset.ID,
 		Edition:        filter.Dataset.Edition,
 		Version:        version,
 		FilterOutputID: filterOutput.ID,
+		DimensionsID:   dID,
 	}
 
 	// send the export event through Kafka
