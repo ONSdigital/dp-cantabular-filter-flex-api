@@ -1,0 +1,14 @@
+{
+    "state": "published",
+    "downloads": 
+    {
+        "txt":
+        {
+          "href" : "datasets/cantabular-flexible-example/editions/2021/versions/1.txt",
+          "private" : "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.txt",
+          "public" : "https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.txt",
+          "size" : "53000000",
+          "skipped": true
+        }
+    }
+}

@@ -103,6 +103,13 @@ parameters:
     required: true
     description: A dimension to filter the dataset
     in: body
+  dimensionUpdate:
+    name: dimension
+    schema:
+      $ref: '#/definitions/DimensionUpdate'
+    required: true
+    description: A dimension to update on the filter
+    in: body
   patch_options:
     required: true
     name: patch
@@ -360,7 +367,7 @@ paths:
       summary: "Update a dimension"
       description: "Update the filter by updating a selected dimension"
       parameters:
-      - $ref: '#/parameters/dimension'
+      - $ref: '#/parameters/dimensionUpdate'
       - $ref: '#/parameters/if_match'
       responses:
         200:
@@ -638,6 +645,22 @@ definitions:
       name:
         type: string
         description: "The name of the dimension to filter on"
+      is_area_type:
+        type: boolean
+        description: Indicates if the dimension is an area type
+      options:
+        type: array
+        items:
+          type: string
+  DimensionUpdate:
+    type: object
+    description: "A dimension to update on a dataset."
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        example: city
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
@@ -956,6 +979,10 @@ definitions:
   DimensionItem:
     properties:
       name:
+        type: string
+      id:
+        type: string
+      label:
         type: string
       links:
         $ref: "#/definitions/DimensionItemLinks"

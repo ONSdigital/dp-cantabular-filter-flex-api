@@ -56,13 +56,10 @@ func (c *Client) GetFilter(ctx context.Context, fID string) (*model.Filter, erro
 	var f model.Filter
 
 	if err = c.conn.Collection(col.name).FindOne(ctx, bson.M{"filter_id": fID}, &f); err != nil {
-		err := &er{
-			err: errors.Wrap(err, "failed to find filter"),
+		return nil, &er{
+			err:      errors.Wrap(err, "failed to find filter"),
+			notFound: errors.Is(err, mongodb.ErrNoDocumentFound),
 		}
-		if errors.Is(err, mongodb.ErrNoDocumentFound) {
-			err.notFound = true
-		}
-		return nil, err
 	}
 
 	return &f, nil

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
@@ -83,7 +84,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 				ID: strconv.Itoa(v.Version),
 			},
 		},
-		Dimensions:        req.Dimensions,
+		Dimensions:        hydrateDimensions(req.Dimensions, v.Dimensions),
 		UniqueTimestamp:   api.generate.UniqueTimestamp(),
 		LastUpdated:       api.generate.Timestamp(),
 		Dataset:           *req.Dataset,
@@ -139,14 +140,31 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	filterOutput := &model.FilterOutput{
-		FilterID:   filter.ID,
-		State:      model.Submitted,
-		Events:     []model.Event{},
-		Dimensions: []model.Dimension{},
+	filterOutput := model.FilterOutput{
+		// id created by mongo client
+		FilterID:  filter.ID,
+		State:     model.Submitted,
+		Dataset:   filter.Dataset,
+		Downloads: model.Downloads{},
+		Events:    []model.Event{},
+		Links: model.FilterOutputLinks{
+			Version: filter.Links.Version,
+			Self: model.Link{
+				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filter-outputs"),
+				// uuid created by mongo client, will set there.
+				ID: "",
+			},
+			FilterBlueprint: model.Link{
+				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filters"),
+				ID:   filter.ID,
+			},
+		},
+		Published:  filter.Published,
+		Dimensions: filter.Dimensions,
+		Type:       filter.Type,
 	}
 
-	if err = api.store.CreateFilterOutput(ctx, filterOutput); err != nil {
+	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -173,7 +191,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send the export event through Kafka
-	if err := api.produceExportStartEvent(&e); err != nil {
+	if err := api.produceExportStartEvent(e); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -354,7 +372,9 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.store.AddFilterDimension(ctx, fID, req.Dimension); err != nil {
+	dim := hydrateDimensions([]model.Dimension{req.Dimension}, v.Dimensions)[0]
+
+	if err := api.store.AddFilterDimension(ctx, fID, dim); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -366,13 +386,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	var resp addFilterDimensionResponse
-	resp.dimensionItem.fromDimension(
-		req.Dimension,
-		api.cfg.FilterAPIURL,
-		fID,
-	)
 
 	filter, err = api.store.GetFilter(ctx, fID)
 	if err != nil {
@@ -403,6 +416,13 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var resp addFilterDimensionResponse
+	resp.dimensionItem.fromDimension(
+		dim,
+		api.cfg.FilterAPIURL,
+		fID,
+	)
+
 	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
@@ -417,11 +437,14 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		"dimension_name": dimensionName,
 	}
 
-	dim := model.Dimension{
-		Options: []string{},
+	req := updateFilterDimensionRequest{
+		Dimension: model.Dimension{
+			Name:    dimensionName,
+			Options: []string{},
+		},
 	}
 
-	if err := api.ParseRequest(r.Body, &dim); err != nil {
+	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -436,7 +459,8 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),
 	// so instead of validating it against the existing Version, we check to see if the dimension exists in Cantabular.
-	if err := api.validateCantabularDimensionExists(ctx, filterID, dim.Name); err != nil {
+	node, err := api.getCantabularDimension(ctx, filterID, req.ID)
+	if err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -449,12 +473,15 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ID/name is provided by the request, but the label is provided by Cantabular.
+	req.Label = node.Label
+
 	var eTag string
 	if reqETag := api.getETag(r); reqETag != eTagAny {
 		eTag = reqETag
 	}
 
-	newETag, err := api.store.UpdateFilterDimension(ctx, filterID, dimensionName, dim, eTag)
+	newETag, err := api.store.UpdateFilterDimension(ctx, filterID, dimensionName, req.Dimension, eTag)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -469,7 +496,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := updateFilterDimensionResponse{}
-	resp.fromDimension(dim, api.cfg.FilterAPIURL, filterID)
+	resp.fromDimension(req.Dimension, api.cfg.FilterAPIURL, filterID)
 
 	w.Header().Set(eTagHeader, newETag)
 
@@ -664,12 +691,12 @@ func (api *API) isValidDatasetDimensions(w http.ResponseWriter, ctx context.Cont
 	return true
 }
 
-// validateCantabularDimensionExists checks that dimension exists in Cantabular by searching for it.
+// getCantabularDimension checks that dimension exists in Cantabular by searching for it.
 // If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
-func (api *API) validateCantabularDimensionExists(ctx context.Context, filterID, dimensionName string) error {
+func (api *API) getCantabularDimension(ctx context.Context, filterID, dimensionName string) (*gql.Node, error) {
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
-		return Error{
+		return nil, Error{
 			err:        errors.Wrap(err, "error retrieving filter"),
 			message:    "failed to get filter dimensions",
 			badRequest: true,
@@ -681,18 +708,18 @@ func (api *API) validateCantabularDimensionExists(ctx context.Context, filterID,
 		Text:    dimensionName,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error in cantabular response")
+		return nil, errors.Wrap(err, "error in cantabular response")
 	}
 
 	if len(foundDimensions.Dataset.Variables.Search.Edges) == 0 {
-		return Error{
+		return nil, Error{
 			err:      errors.New("no dimensions in response"),
 			notFound: true,
 			logData:  log.Data{"found_dimensions": foundDimensions},
 		}
 	}
 
-	return nil
+	return &foundDimensions.Dataset.Variables.Search.Edges[0].Node, nil
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
@@ -755,4 +782,23 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 		}
 	}
 	return nil
+}
+
+// hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.
+func hydrateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) []model.Dimension {
+	type record struct{ id, label string }
+
+	lookup := make(map[string]record)
+	for _, dim := range dims {
+		lookup[dim.Name] = record{id: dim.ID, label: dim.Label}
+	}
+
+	var hydrated []model.Dimension
+	for _, dim := range filterDims {
+		dim.ID = lookup[dim.Name].id
+		dim.Label = lookup[dim.Name].label
+		hydrated = append(hydrated, dim)
+	}
+
+	return hydrated
 }

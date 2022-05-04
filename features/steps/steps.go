@@ -19,6 +19,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -39,8 +40,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theMaximumLimitIsSetTo,
 	)
 	ctx.Step(
-		`^the document in the database for id "([^"]*)" should be:$`,
-		c.theDocumentInTheDatabaseShouldBe,
+		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" should match:$`,
+		c.aDocumentInCollectionWithKeyValueShouldMatch,
 	)
 	ctx.Step(
 		`^the following version document with dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
@@ -87,30 +88,36 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^I should receive an errors array`,
 		c.iShouldReceiveAnErrorsArray,
 	)
-
 	ctx.Step(
 		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		c.cantabularSearchReturnsTheseDimensions,
 	)
-
 	ctx.Step(
 		`^Cantabular responds with an error$`,
 		c.cantabularRespondsWithAnError,
 	)
-
-	ctx.Step(`^the filter output with the id "([^"]*)" is in the datastore`,
-		c.filterOutputIsInDatastore)
+	ctx.Step(`^the filter output with the following structure is in the datastore:$`,
+		c.filterOutputIsInDatastore,
+	)
 
 }
-func (c *Component) filterOutputIsInDatastore(id string) error {
+func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) error {
+	var expected model.FilterOutput
 
-	_, err := c.store.GetFilterOutput(c.ctx, id)
+	err := json.Unmarshal([]byte(expectedOutput.Content), &expected)
 	if err != nil {
-		return fmt.Errorf("Error encountered while retrieving filter output.")
+		return errors.Wrap(err, "failed to unmarshall provided filterOutput")
 	}
 
-	return nil
+	actual, err := c.store.GetFilterOutput(c.ctx, expected.ID)
+	if err != nil {
+		return fmt.Errorf("Error encountered while retrieving filter output: %w", err)
+	}
 
+	if diff := cmp.Diff(actual, &expected); diff != "" {
+		return fmt.Errorf("-got +expected)\n%s\n", diff)
+	}
+	return nil
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
@@ -180,8 +187,8 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		log.Error(c.ctx, "error closing kafka consumer", err)
 	}
 
-	if diff := cmp.Diff(got, expected); diff != "" {
-		return fmt.Errorf("-got +expected)\n%s\n", diff)
+	if diff := cmp.Diff(expected, got); diff != "" {
+		return fmt.Errorf("+got -expected)\n%s\n", diff)
 	}
 	return nil
 }
@@ -265,9 +272,32 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 	return nil
 }
 
-func (c *Component) theDocumentInTheDatabaseShouldBe(id string, doc *godog.DocString) error {
-	// TODO: implement step for verifying documents stored in Mongo. No prior
-	// art of this being done properly in ONS yet so save to be done in future ticket
+func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val string, doc *godog.DocString) error {
+	ctx := context.Background()
+	var expected, result interface{}
+
+	if err := json.Unmarshal([]byte(doc.Content), &expected); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("failed to unmarshal expected document len: %d", len([]byte(doc.Content))))
+	}
+
+	var bdoc primitive.D
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{key: val}, &bdoc); err != nil {
+		return errors.Wrap(err, "failed to retrieve document")
+	}
+
+	b, err := bson.MarshalExtJSON(bdoc, true, true)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal bson document")
+	}
+
+	if err := json.Unmarshal(b, &result); err != nil {
+		return errors.Wrap(err, "failed to unmarshal result")
+	}
+
+	if diff := cmp.Diff(expected, result); diff != "" {
+		return fmt.Errorf("-expected +got)\n%s\n", diff)
+	}
+
 	return nil
 }
 
@@ -302,6 +332,8 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 	}
 
 	filter.ETag = eTag
+	filter.LastUpdated = c.g.Timestamp()
+	filter.UniqueTimestamp = c.g.UniqueTimestamp()
 
 	if err := c.insertFilters([]model.Filter{filter}); err != nil {
 		return errors.Wrap(err, "failed to insert filter with ETag")

@@ -44,6 +44,14 @@ func (r *createFilterRequest) Valid() error {
 		if len(d.Name) == 0 {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
+
+		if len(d.ID) != 0 {
+			return fmt.Errorf("unexpected field id provided for: %s", d.Name)
+		}
+
+		if len(d.Label) != 0 {
+			return fmt.Errorf("unexpected field label provided for: %s", d.Name)
+		}
 	}
 
 	return nil
@@ -66,27 +74,36 @@ type putFilterResponse struct {
 	PopulationType string        `json:"population_type"`
 }
 
-// updateFilterOutputRequest is the request body for POST /filters
-type updateFilterOutputRequest struct {
-	model.FilterOutput
+// putFilterOutputRequest is the request body for PUT /filters
+type putFilterOutputRequest struct {
+	State     string          `json:"state"`
+	Downloads model.Downloads `json:"downloads"`
 }
 
 type addFilterOutputEventRequest struct {
 	model.Event
 }
 
-func (r *updateFilterOutputRequest) Valid() error {
-	if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'csv' field not fully populated")
+func (r *putFilterOutputRequest) Valid() error {
+	if r.Downloads.CSV != nil {
+		if err := r.Downloads.CSV.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'csv' field not fully populated")
+		}
 	}
-	if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'csvw' field not fully populated")
+	if r.Downloads.CSVW != nil {
+		if err := r.Downloads.CSVW.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'csvw' field not fully populated")
+		}
 	}
-	if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'txt' field not fully populated")
+	if r.Downloads.TXT != nil {
+		if err := r.Downloads.TXT.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'txt' field not fully populated")
+		}
 	}
-	if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
-		return errors.Wrap(err, "'xls' field not fully populated")
+	if r.Downloads.XLS != nil {
+		if err := r.Downloads.XLS.IsNotFullyPopulated(); err != nil {
+			return errors.Wrap(err, "'xls' field not fully populated")
+		}
 	}
 
 	return nil
@@ -113,13 +130,28 @@ type addFilterDimensionResponse struct {
 	dimensionItem
 }
 
+// updateFilterDimensionResponse is the request body for PUT /filters/{id}/dimensions/{name}
+type updateFilterDimensionRequest struct {
+	model.Dimension
+}
+
+func (u *updateFilterDimensionRequest) Valid() error {
+	if len(u.ID) == 0 {
+		return errors.New("missing field: [id]")
+	}
+
+	return nil
+}
+
 // updateFilterDimensionResponse is the response body for PUT /filters/{id}/dimensions/{name}
 type updateFilterDimensionResponse struct {
 	dimensionItem
 }
 
 type dimensionItem struct {
+	ID    string             `json:"id"`
 	Name  string             `json:"name"`
+	Label string             `json:"label"`
 	Links dimensionItemLinks `json:"links"`
 }
 
@@ -127,11 +159,13 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
 
+	d.ID = dim.ID
 	d.Name = dim.Name
+	d.Label = dim.Label
 	d.Links = dimensionItemLinks{
 		Self: model.Link{
 			HREF: dimURL,
-			ID:   dim.Name,
+			ID:   dim.ID,
 		},
 		Filter: model.Link{
 			HREF: filterURL,
