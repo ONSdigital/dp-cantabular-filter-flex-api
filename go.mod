@@ -16,6 +16,7 @@ require (
 	github.com/ONSdigital/log.go/v2 v2.1.0
 	github.com/cucumber/godog v0.12.4
 	github.com/go-chi/chi/v5 v5.0.7
+	github.com/golang/mock v1.4.4
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0

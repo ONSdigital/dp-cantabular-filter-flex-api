@@ -2,13 +2,15 @@ package api
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
+	"github.com/pkg/errors"
 )
 
 type optionsMap map[string]map[string]dataset.Option
@@ -18,6 +20,9 @@ type datasetParams struct {
 	edition            string
 	version            string
 	basedOn            string
+	datasetLink        dataset.Link
+	versionLink        dataset.Link
+	metadataLink       dataset.Link
 	unsortedDimensions []string
 	options            optionsMap // dimension -> option -> option item
 }
@@ -34,15 +39,28 @@ func (api *API) getDatasetJSON(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) getDefaultDatasetJSON(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	params, err := api.getDatasetParams(ctx, r)
-
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusNotFound, err)
+		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to get dataset params"))
 		return
+	}
+
+	logData := log.Data{
+		"id":      params.id,
+		"edition": params.edition,
+		"version": params.version,
 	}
 
 	geoDimensions, err := api.getGeographyTypes(ctx, params.basedOn)
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusInternalServerError, err)
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get geography types"),
+				logData: logData,
+			},
+		)
 		return
 	}
 
@@ -54,57 +72,87 @@ func (api *API) getDefaultDatasetJSON(ctx context.Context, w http.ResponseWriter
 	}
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
-
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusInternalServerError, err)
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to run query"),
+				logData: logData,
+			},
+		)
 		return
 	}
 
-	response, err := api.toGetDatasetJsonResponse(params.options, queryResult)
-
+	response, err := api.toGetDatasetJsonResponse(params, queryResult)
 	if err != nil {
-		api.respond.Error(ctx, w, http.StatusBadRequest, err)
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to generate response"),
+				logData: logData,
+			},
+		)
 		return
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, response)
 }
 
-func (api *API) getGeographyDatsetJSON(ctx context.Context, r *http.Request) (*getDatasetJsonObservationsResponse, error) {
-	return &getDatasetJsonObservationsResponse{}, nil
+func (api *API) getGeographyDatsetJSON(ctx context.Context, r *http.Request) (*getDatasetJSONResponse, error) {
+	return &getDatasetJSONResponse{}, nil
 }
 
-func (api *API) toGetDatasetJsonResponse(dimensionMap optionsMap, query *cantabular.StaticDatasetQuery) (*getDatasetJsonObservationsResponse, error) {
-	var dimensions []getDatasetJsonResponseDimension
+func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*getDatasetJSONResponse, error) {
+	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		if _, ok := dimensionMap[dimension.Variable.Name]; !ok {
+		if _, ok := params.options[dimension.Variable.Name]; !ok {
 			return nil, errors.New("dimension mismatch")
 		}
 
-		var options []getDatasetJsonResponseDimensionOption
+		var options []model.Link
 
 		for _, option := range dimension.Categories {
-			if _, ok := dimensionMap[dimension.Variable.Name][option.Label]; !ok {
+			if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
 				return nil, errors.New("option mismatch")
 			}
 
-			option := getDatasetJsonResponseDimensionOption{
-				Href: dimensionMap[dimension.Variable.Name][option.Label].Links.Code.URL,
-				Id:   option.Label,
+			option := model.Link{
+				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
+				ID:   option.Label,
 			}
 
 			options = append(options, option)
 		}
 
-		dimensions = append(dimensions, getDatasetJsonResponseDimension{
+		dimensions = append(dimensions, DatasetJSONDimension{
 			DimensionName: dimension.Variable.Name,
 			Options:       options,
 		})
 	}
 
-	getDatasetJsonResponse := getDatasetJsonObservationsResponse{
+	datasetLinks := DatasetJSONLinks{
+		DatasetMetadata: model.Link{
+			HREF: params.metadataLink.URL,
+			ID:   params.metadataLink.ID,
+		},
+		Self: model.Link{
+			HREF: params.datasetLink.URL,
+			ID:   params.datasetLink.ID,
+		},
+		Version: model.Link{
+			HREF: params.versionLink.URL,
+			ID:   params.versionLink.ID,
+		},
+	}
+
+	getDatasetJsonResponse := getDatasetJSONResponse{
 		Dimensions:        dimensions,
+		Links:             datasetLinks,
 		Observations:      query.Dataset.Table.Values,
 		TotalObservations: len(query.Dataset.Table.Values),
 	}
@@ -133,30 +181,42 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	}
 
 	datasetItem, err := api.datasets.GetDatasetCurrentAndNext(ctx, "", "", "", params.id)
-
 	if err != nil {
 		return nil, err
 	}
 
+	params.datasetLink = datasetItem.Links.Self
 	params.basedOn = datasetItem.IsBasedOn.ID
 
 	if datasetItem.DatasetDetails.Type != "cantabular_flexible_table" {
 		return nil, errors.New("invalid dataset type")
 	}
 
-	dimensions, err := api.datasets.GetVersionDimensions(ctx, "", "", "", params.id, params.edition, params.version)
+	versionItem, err := api.datasets.GetVersion(ctx, "", "", "", "", params.id, params.edition, params.version)
+	if err != nil {
+		return nil, err
+	}
 
+	params.versionLink = versionItem.Links.Self
+
+	metadata, err := api.datasets.GetVersionMetadata(ctx, "", "", "", params.id, params.edition, params.version)
+	if err != nil {
+		return nil, err
+	}
+
+	params.metadataLink = metadata.Version.Links.Self
+
+	dimensions, err := api.datasets.GetVersionDimensions(ctx, "", "", "", params.id, params.edition, params.version)
 	if err != nil {
 		return nil, err
 	}
 
 	if dimensions.Items.Len() == 0 {
-		return nil, errors.New("invalid dimensions length")
+		return nil, errors.New("invalid dimensions length of zero")
 	}
 
 	for _, dimension := range dimensions.Items {
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", "", "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
-
 		if err != nil {
 			return nil, err
 		}
@@ -177,7 +237,6 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]stri
 	var geoDimensions []string
 
 	res, err := api.ctblr.GetGeographyDimensions(ctx, datasetId)
-
 	if err != nil {
 		return nil, err
 	}
@@ -191,8 +250,8 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]stri
 
 func (api *API) sortGeography(geoDimensions []string, dimensions []string) ([]string, bool) {
 	foundGeography := false
-	sortedDimensions := []string{}
-	nonGeoDimensions := []string{}
+	var sortedDimensions []string
+	var nonGeoDimensions []string
 
 	for _, item := range dimensions {
 		isGeography := false

@@ -76,6 +76,18 @@ func (mr *MockresponderMockRecorder) JSON(arg0, arg1, arg2, arg3 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JSON", reflect.TypeOf((*Mockresponder)(nil).JSON), arg0, arg1, arg2, arg3)
 }
 
+// StatusCode mocks base method.
+func (m *Mockresponder) StatusCode(arg0 http.ResponseWriter, arg1 int) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "StatusCode", arg0, arg1)
+}
+
+// StatusCode indicates an expected call of StatusCode.
+func (mr *MockresponderMockRecorder) StatusCode(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StatusCode", reflect.TypeOf((*Mockresponder)(nil).StatusCode), arg0, arg1)
+}
+
 // Mockdatastore is a mock of datastore interface.
 type Mockdatastore struct {
 	ctrl     *gomock.Controller
@@ -111,6 +123,20 @@ func (m *Mockdatastore) AddFilterDimension(arg0 context.Context, arg1 string, ar
 func (mr *MockdatastoreMockRecorder) AddFilterDimension(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFilterDimension", reflect.TypeOf((*Mockdatastore)(nil).AddFilterDimension), arg0, arg1, arg2)
+}
+
+// AddFilterOutputEvent mocks base method.
+func (m *Mockdatastore) AddFilterOutputEvent(arg0 context.Context, arg1 string, arg2 *model.Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFilterOutputEvent", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddFilterOutputEvent indicates an expected call of AddFilterOutputEvent.
+func (mr *MockdatastoreMockRecorder) AddFilterOutputEvent(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFilterOutputEvent", reflect.TypeOf((*Mockdatastore)(nil).AddFilterOutputEvent), arg0, arg1, arg2)
 }
 
 // CreateFilter mocks base method.
@@ -156,6 +182,21 @@ func (mr *MockdatastoreMockRecorder) GetFilter(arg0, arg1 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilter", reflect.TypeOf((*Mockdatastore)(nil).GetFilter), arg0, arg1)
 }
 
+// GetFilterDimension mocks base method.
+func (m *Mockdatastore) GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFilterDimension", ctx, fID, dimName)
+	ret0, _ := ret[0].(model.Dimension)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFilterDimension indicates an expected call of GetFilterDimension.
+func (mr *MockdatastoreMockRecorder) GetFilterDimension(ctx, fID, dimName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterDimension", reflect.TypeOf((*Mockdatastore)(nil).GetFilterDimension), ctx, fID, dimName)
+}
+
 // GetFilterDimensions mocks base method.
 func (m *Mockdatastore) GetFilterDimensions(arg0 context.Context, arg1 string, arg2, arg3 int) ([]model.Dimension, int, error) {
 	m.ctrl.T.Helper()
@@ -170,6 +211,36 @@ func (m *Mockdatastore) GetFilterDimensions(arg0 context.Context, arg1 string, a
 func (mr *MockdatastoreMockRecorder) GetFilterDimensions(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterDimensions", reflect.TypeOf((*Mockdatastore)(nil).GetFilterDimensions), arg0, arg1, arg2, arg3)
+}
+
+// GetFilterOutput mocks base method.
+func (m *Mockdatastore) GetFilterOutput(arg0 context.Context, arg1 string) (*model.FilterOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFilterOutput", arg0, arg1)
+	ret0, _ := ret[0].(*model.FilterOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFilterOutput indicates an expected call of GetFilterOutput.
+func (mr *MockdatastoreMockRecorder) GetFilterOutput(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterOutput", reflect.TypeOf((*Mockdatastore)(nil).GetFilterOutput), arg0, arg1)
+}
+
+// UpdateFilterDimension mocks base method.
+func (m *Mockdatastore) UpdateFilterDimension(ctx context.Context, filterID, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateFilterDimension", ctx, filterID, dimensionName, dimension, currentETag)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateFilterDimension indicates an expected call of UpdateFilterDimension.
+func (mr *MockdatastoreMockRecorder) UpdateFilterDimension(ctx, filterID, dimensionName, dimension, currentETag interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFilterDimension", reflect.TypeOf((*Mockdatastore)(nil).UpdateFilterDimension), ctx, filterID, dimensionName, dimension, currentETag)
 }
 
 // UpdateFilterOutput mocks base method.
@@ -346,6 +417,21 @@ func (mr *MockcantabularClientMockRecorder) GetGeographyDimensions(arg0, arg1 in
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensions", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensions), arg0, arg1)
 }
 
+// SearchDimensions mocks base method.
+func (m *MockcantabularClient) SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchDimensions", ctx, req)
+	ret0, _ := ret[0].(*cantabular.GetDimensionsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchDimensions indicates an expected call of SearchDimensions.
+func (mr *MockcantabularClientMockRecorder) SearchDimensions(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchDimensions", reflect.TypeOf((*MockcantabularClient)(nil).SearchDimensions), ctx, req)
+}
+
 // StaticDatasetQuery mocks base method.
 func (m *MockcantabularClient) StaticDatasetQuery(arg0 context.Context, arg1 cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {
 	m.ctrl.T.Helper()
@@ -456,6 +542,21 @@ func (m *MockdatasetAPIClient) GetVersionDimensions(ctx context.Context, userAut
 func (mr *MockdatasetAPIClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+}
+
+// GetVersionMetadata mocks base method.
+func (m *MockdatasetAPIClient) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVersionMetadata", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
+	ret0, _ := ret[0].(dataset.Metadata)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetVersionMetadata indicates an expected call of GetVersionMetadata.
+func (mr *MockdatasetAPIClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // Mockcoder is a mock of coder interface.

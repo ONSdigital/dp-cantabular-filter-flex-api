@@ -60,7 +60,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
-	api.Router.Get("/flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
 	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 }
 
