@@ -125,7 +125,7 @@ func TestInvalidDatasetId(t *testing.T) {
 		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, expectedError)
+		So(err.Error(), ShouldEqual, "failed to get dataset: "+expectedError.Error())
 		So(ret, ShouldBeNil)
 	})
 }
@@ -146,7 +146,7 @@ func TestGetVersion(t *testing.T) {
 		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, expectedError)
+		So(err.Error(), ShouldEqual, "failed to get version: "+expectedError.Error())
 		So(ret, ShouldBeNil)
 	})
 }
@@ -168,7 +168,7 @@ func TestGetVersionMetadata(t *testing.T) {
 		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, expectedError)
+		So(err.Error(), ShouldEqual, "failed to get metadata: "+expectedError.Error())
 		So(ret, ShouldBeNil)
 	})
 }
@@ -191,7 +191,7 @@ func TestGetVersionDimensions(t *testing.T) {
 		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, expectedError)
+		So(err.Error(), ShouldEqual, "failed to get dimensions: "+expectedError.Error())
 		So(ret, ShouldBeNil)
 	})
 
@@ -236,7 +236,7 @@ func TestGetOptions(t *testing.T) {
 		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, expectedError)
+		So(err.Error(), ShouldEqual, "failed to get options: "+expectedError.Error())
 		So(ret, ShouldBeNil)
 	})
 }

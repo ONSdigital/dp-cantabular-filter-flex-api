@@ -182,7 +182,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	datasetItem, err := api.datasets.GetDatasetCurrentAndNext(ctx, "", "", "", params.id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get dataset")
 	}
 
 	params.datasetLink = datasetItem.Links.Self
@@ -194,21 +194,21 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	versionItem, err := api.datasets.GetVersion(ctx, "", "", "", "", params.id, params.edition, params.version)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get version")
 	}
 
 	params.versionLink = versionItem.Links.Self
 
 	metadata, err := api.datasets.GetVersionMetadata(ctx, "", "", "", params.id, params.edition, params.version)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get metadata")
 	}
 
 	params.metadataLink = metadata.Version.Links.Self
 
 	dimensions, err := api.datasets.GetVersionDimensions(ctx, "", "", "", params.id, params.edition, params.version)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get dimensions")
 	}
 
 	if dimensions.Items.Len() == 0 {
@@ -218,7 +218,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	for _, dimension := range dimensions.Items {
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", "", "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to get options")
 		}
 
 		params.options[dimension.Links.CodeList.ID] = make(map[string]dataset.Option)
@@ -238,7 +238,7 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]stri
 
 	res, err := api.ctblr.GetGeographyDimensions(ctx, datasetId)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
 
 	for _, dimension := range res.Dataset.RuleBase.IsSourceOf.Edges {
