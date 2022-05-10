@@ -18,7 +18,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "City"
+            "name": "geography"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -27,9 +27,9 @@ Feature: Filters Private Endpoints Not Enabled
               "options": {},
               "version": {}
             },
-            "href": "http://api.localhost:23200/v1/code-lists/siblings",
-            "id": "siblings",
-            "name": "Number of siblings (3 mappings)"
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
           }
         ],
         "edition": "2021",
@@ -70,7 +70,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "City"
+            "name": "geography"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -79,9 +79,9 @@ Feature: Filters Private Endpoints Not Enabled
               "options": {},
               "version": {}
             },
-            "href": "http://api.localhost:23200/v1/code-lists/siblings",
-            "id": "siblings",
-            "name": "Number of siblings (3 mappings)"
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
           }
         ],
         "edition": "2021",
@@ -120,26 +120,23 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "Number of siblings (3 mappings)",
+          "name": "siblings",
           "options": [
             "0-3",
             "4-7",
             "7+"
           ],
-          "dimension_url": "http://dimension.url/siblings",
           "is_area_type": false
         },{
-          "name": "City",
+          "name": "geography",
           "options": [
             "Cardiff",
             "London",
             "Swansea"
           ],
-          "dimension_url": "http://dimension.url/city",
           "is_area_type": true
         }
       ]
-
     }
     """
 
@@ -154,21 +151,91 @@ Feature: Filters Private Endpoints Not Enabled
         },
         "self": {
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "events": null,
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
-      "dimension_list_url":":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions",
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
         "version": 1
       },
-      "population_type": "Example"
+      "population_type": "Example",
+      "published": true,
+      "type": "flexible"
     }
     """
 
     And the HTTP status code should be "201"
+
+    And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
+    """
+    {
+      "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "links": {
+        "version": {
+          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "id": "1"
+        },
+        "self": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+        }
+      },
+      "etag": "e70f6470a26c2379b591b34e47e50321879abcbc",
+      "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+      "dataset": {
+        "id": "cantabular-example-1",
+        "edition": "2021",
+        "version": {
+          "$numberInt":"1"
+        }
+      },
+      "dimensions": [
+        {
+          "name": "siblings",
+          "id": "siblings_3",
+          "label": "Number of siblings (3 mappings)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },
+        {
+          "name": "geography",
+          "id": "city",
+          "label": "City",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ],
+      "population_type": "Example",
+      "published": true,
+      "type": "flexible",
+      "unique_timestamp":{
+        "$timestamp":{
+          "i":1,
+          "t":1.643200024e+09
+        }
+      },
+      "last_updated":{
+        "$date":{
+          "$numberLong":"1643200024783"
+        }
+      }
+    }
+    """
 
   Scenario: Creating a new filter unauthenticated on unpublished version
 
@@ -183,26 +250,23 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "Number of siblings (3 mappings)",
+          "name": "siblings",
           "options": [
             "0-3",
             "4-7",
             "7+"
           ],
-          "dimension_url": "http://dimension.url/siblings",
           "is_area_type": false
         },{
-          "name": "City",
+          "name": "geography",
           "options": [
             "Cardiff",
             "London",
             "Swansea"
           ],
-          "dimension_url": "http://dimension.url/city",
           "is_area_type": true
         }
       ]
-
     }
     """
 
@@ -217,7 +281,7 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "404"
 
-Scenario: Creating a new filter bad request body
+  Scenario: Creating a new filter bad request body
 
     When I POST "/filters"
     """
@@ -236,6 +300,85 @@ Scenario: Creating a new filter bad request body
 
     And the HTTP status code should be "400"
 
+  Scenario: Creating a new filter (invalid request, passing id)
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "id": "siblings_3",
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "id": "city",
+          "label": "City",
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive an errors array
+
+    And the HTTP status code should be "400"
+
+  Scenario: Creating a new filter (invalid request, passing label)
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "label": "Number of Siblings (3 mappings)",
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "label": "City",
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive an errors array
+
+    And the HTTP status code should be "400"
+
   Scenario: Creating a new invalid request
 
     When I POST "/filters"
@@ -249,13 +392,12 @@ Scenario: Creating a new filter bad request body
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "Number Of Siblings (3 categories)",
+          "name": "siblings",
           "options": [
             "0-3",
             "4-7",
             "7+"
           ],
-          "dimension_url": "http://dimension.url/siblings",
           "is_area_type": false
         }
       ]

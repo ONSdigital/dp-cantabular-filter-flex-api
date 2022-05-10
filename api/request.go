@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	eTagHeader = "If-Match"
+	ifMatchHeader = "If-Match"
+	eTagHeader = "ETag"
 	eTagAny    = "*"
 )
 
@@ -55,7 +56,7 @@ func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 }
 
 func (api *API) getETag(r *http.Request) string {
-	if eTag := r.Header.Get(eTagHeader); eTag != "" {
+	if eTag := r.Header.Get(ifMatchHeader); eTag != "" {
 		return eTag
 	}
 	return eTagAny

@@ -37,3 +37,22 @@ func Unavailable(err error) bool {
 
 	return false
 }
+
+func Forbidden(err error) bool {
+	var e errForbidden
+
+	if errors.As(err, &e) {
+		return e.Forbidden()
+	}
+	return false
+}
+
+func BadRequest(err error) bool {
+	var e errBadRequest
+
+	if errors.As(err, &e) {
+		return e.BadRequest()
+	}
+
+	return false
+}

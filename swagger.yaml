@@ -20,6 +20,18 @@ tags:
 schemes:
   - http
 parameters:
+  dataset_id:
+    name: dataset_id
+    description: "Id that represents a dataset"
+    in: path
+    required: true
+    type: string
+  edition:
+    name: edition
+    description: "An edition of a dataset"
+    in: path
+    required: true
+    type: string
   filter_id:
     name: id
     type: string
@@ -32,6 +44,12 @@ parameters:
     required: true
     description: The unique filter output ID for a customised dataset
     in: path
+  geography:
+    description: "The name of the geography dimension that is being flexed, e.g. ward"
+    name: geography
+    in: query
+    required: false
+    type: string
   page_limit:
     name: limit
     description: >-
@@ -72,6 +90,12 @@ parameters:
     required: true
     description: The single option for a dimension
     in: path
+  version:
+    name: version
+    description: "A version of a dataset"
+    in: path
+    required: true
+    type: string
   dimension:
     name: dimension
     schema:
@@ -79,12 +103,12 @@ parameters:
     required: true
     description: A dimension to filter the dataset
     in: body
-  dimension_options:
-    name: dimension_options
+  dimensionUpdate:
+    name: dimension
     schema:
-      $ref: '#/definitions/DimensionOptions'
+      $ref: '#/definitions/DimensionUpdate'
     required: true
-    description: Dimensions and options to filter the dataset
+    description: A dimension to update on the filter
     in: body
   patch_options:
     required: true
@@ -134,13 +158,6 @@ parameters:
       or '*' to skip the version check
     in: header
     type: string
-  filter_submit:
-    name: filter_submit
-    schema:
-      $ref: '#/definitions/SubmitFilter'
-    required: true
-    description: Model of the fields required to start the results generation process.
-    in: body
 securityDefinitions:
   InternalAPIKey:
     name: internal-token
@@ -163,9 +180,9 @@ paths:
         200:
           description: "The filter output was found and document is returned"
           schema:
-            $ref: '#/definitions/FilterOutputResponse'
+            $ref: '#/definitions/GetFilterOutputResponse'
         404:
-           $ref: '#/responses/FilterOutputNotFound'
+          $ref: '#/responses/FilterOutputNotFound'
         500:
           $ref: '#/responses/InternalError'
     put:
@@ -206,7 +223,7 @@ paths:
         '201':
           description: filter was created
           schema:
-            $ref: '#/definitions/NewFilterResponse'
+            $ref: '#/definitions/CreateFilterResponse'
           headers:
             ETag:
               type: string
@@ -230,7 +247,7 @@ paths:
         '200':
           description: The filter was found and document is returned
           schema:
-            $ref: '#/definitions/NewFilterResponse'
+            $ref: '#/definitions/GetFilterResponse'
           headers:
             ETag:
               type: string
@@ -245,7 +262,6 @@ paths:
       summary: "Update a filter"
       description: "Update the filter by providing new properties, submit a filter for processing by setting query parameter `submitted` to `true`"
       parameters:
-      - $ref: '#/parameters/submitted'
       - $ref: '#/parameters/update_filter'
       - $ref: '#/parameters/if_match'
       responses:
@@ -282,7 +298,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Dimension'
+              $ref: '#/definitions/GetFilterDimensionsResponse'
           headers:
             ETag:
               type: string
@@ -334,7 +350,7 @@ paths:
         200:
           description: "A Dimension within a filter was returned"
           schema:
-            $ref: '#/definitions/Dimension'
+            $ref: '#/definitions/DimensionItemWithArea'
           headers:
             ETag:
               type: string
@@ -343,6 +359,31 @@ paths:
           description: "Filter was not found"
         404:
           description: "Dimension name was not found"
+        500:
+          $ref: '#/responses/InternalError'
+    put:
+      tags:
+      - "Public"
+      summary: "Update a dimension"
+      description: "Update the filter by updating a selected dimension"
+      parameters:
+      - $ref: '#/parameters/dimensionUpdate'
+      - $ref: '#/parameters/if_match'
+      responses:
+        200:
+          description: "The dimension has been updated"
+          schema:
+            $ref: '#/definitions/DimensionItem'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Invalid request body, filter does not exist, or If-Match header not provided"
+        404:
+          description: "Dimension was not found"
+        409:
+          description: '#/responses/FilterConflict'
         500:
           $ref: '#/responses/InternalError'
     patch:
@@ -438,8 +479,36 @@ paths:
         '202':
           description: Query was submitted successfully
           schema:
-           $ref: '#/definitions/UpdateFilterResponse'
+           $ref: '#/definitions/SubmitFilterResponse'
         '500':
+          $ref: '#/responses/InternalError'
+  /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json:
+    get:
+      tags:
+      - "Public"
+      summary: "Get observations for a census dataset"
+      description: "Get observations for a census datase, with capability to flex and filter the data to the users need.  If no geography, dimension, or options parameters are supplied then observations for the default geography are returned."
+      parameters:
+        - $ref: '#/parameters/dataset_id'
+        - $ref: '#/parameters/edition'
+        - $ref: '#/parameters/version'
+      responses:
+        200:
+          description: "Json object containing all metadata for a version"
+          schema:
+            $ref: '#/definitions/GetDatasetJSONObservationsResponse'
+        400:
+          description: |
+            Invalid request, reasons can be one of the following:
+              * query parameters contain incorrect dimensions
+        404:
+          description: |
+            Resource not found, reasons can be one of the following:
+              * dataset id was incorrect
+              * edition was incorrect
+              * version was incorrect
+              * observations not found for selected query paramaters
+        500:
           $ref: '#/responses/InternalError'
 responses:
   FilterNotFound:
@@ -467,7 +536,9 @@ definitions:
             type: array
             description: A list of dimensions in the filter job
             items:
-              $ref: '#/definitions/DimensionOptions'
+              type: array
+              items:
+                $ref: "#/definitions/Dimension"
           population_type:
             type: string
             description: The population type the information is selected from.
@@ -476,78 +547,25 @@ definitions:
       A model used to update filters. Dimensions are optional, while downloads
       and events are for internal use only.
     allOf:
-      - $ref: '#/definitions/JobState'
       - type: object
         properties:
           dataset:
-            readOnly: false
-            type: object
-            description: A dataset to filter on
-            properties:
-              id:
-                type: string
-                description: The unique identifier of a dataset
-              edition:
-                type: string
-                description: An edition of a dataset
-              version:
-                type: integer
-                description: A version of a dataset
+            $ref: "#/definitions/Dataset"
+          events:
+            type: array
+            items:
+              $ref: "#/definitions/Event"
           population_type:
             type: string
             description: The population type the information is selected from.
-  FilterResponse:
+  GetFilterResponse:
     description: A model for the response body when updating a filter
     allOf:
-      - $ref: '#/definitions/JobState'
-      - type: object
-        properties:
-          unique_timestamp:
-            type: string
-            description: The time the filter was created
-            example: 2016-07-17T08:38:25.316+0000
-            format: string
-          last_updated:
-            type: string
-            description: The time the filter was last updated
-            example: 2016-07-17T08:38:25.316+0000
-            format: string
-          etag:
-            type: string
-            description: Identifier for the specific version of this filter
-          instance_id:
-            type: string
-            description: The instance id related to this dataset, edition, and version
-            example: c0cb806d-5306-407e-8c29-cb995da730f6
-          dimensions:
-            $ref: '#/definitions/DimensionOptions'
-          dataset:
-            $ref: '#/definitions/Dataset'
-          links:
-            type: object
-            properties:
-              filter_output:
-                $ref: '#/definitions/Downloads'
-          published:
-            type: boolean
-            example: true
-            description: Indicates if this filter belongs to a published dataset or not
-          disclosurecontrol:
-            $ref: '#/definitions/DisclosureControl'
-          cantabular_blob:
-            type: string
-            description: The Cantabular blob the information is selected from.
-  NewFilterResponse:
+      - $ref: '#/definitions/Filter'
+  CreateFilterResponse:
     description: "A model for the response body when creating a new filter"
     allOf:
-    - $ref: '#/definitions/JobState'
-    - type: object
-      properties:
-        dataset:
-          $ref: '#/definitions/Dataset'
-        population_type:
-          type: string
-          description: The population type the information is selected from.
+      - $ref: '#/definitions/Filter'
   UpdateOutputRequest:
     description: >-
       A model used to update filter outputs. Only the downloads list and state
@@ -573,25 +591,29 @@ definitions:
           information
       downloads:
         $ref: '#/definitions/Downloads'
-  JobState:
-    description: |
-      A description of a job to generate a customised dataset
-    type: object
-    required:
-      - instance_id
+  Filter:
     properties:
-      filter_id:
-        readOnly: true
+      filter_id: 
         type: string
-        description: A unique id for this resource
-      dimension_list_url:
-        readOnly: true
+        description: id of filter
+      instance_id:
         type: string
-        description: "A url that lists all dimensions currently set for filter"
+        description: id of instance filter is based on
+      dataset:
+        $ref: "#/definitions/Dataset"
+      published:
+        type: boolean
+        description: is dataset published or not
+      disclosure_control:
+        $ref: "#/definitions/DisclosureControl"
+      type:
+        type: string
+        description: type of filter(e.g. flexible)
+      population_type:
+        type: string
+        description: census dataset/blob filter is based on
       links:
-        $ref: '#/definitions/FilterLinks'
-      events:
-        $ref: '#/definitions/Events'
+        $ref: "#/definitions/FilterLinks"
   Dataset:
     readOnly: false
     type: object
@@ -623,55 +645,29 @@ definitions:
       name:
         type: string
         description: "The name of the dimension to filter on"
-      dimension_url:
-        type: string
-        description: "A link to the filtered options within the dimension"
-        items:
-          type: string
-          example: "/filters/00001/dimensions/age"
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
-  DimensionOptions:
-    description: "A dimension to filter on a dataset. Information on a dimension can be
-      gathered using the `Dataset API`"
-    type: object
-    properties:
-      count:
-        description: "The number of dimension options returned"
-        readOnly: true
-        type: integer
-      items:
-        type: array
-        items:
-          $ref: '#/definitions/DimensionOptionsResponse'
-      limit:
-        description: "The number of dimension options requested"
-        type: integer
-      offset:
-        description: "The first row of dimension options to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
-        type: integer
-      total_count:
-        description: "The total number of dimension options"
-        readOnly: true
-        type: integer
-  DimensionOptionsResponse:
-    type: object
-    description: >-
-      A dimension to filter on a dataset. Information on a dimension can be
-      gathered using the `Dataset API`
-    properties:
-      name:
-        type: string
-        description: The name of the dimension to filter on
       options:
         type: array
-        description: A list of options for dimension to filter on a dataset
         items:
           type: string
+  DimensionUpdate:
+    type: object
+    description: "A dimension to update on a dataset."
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        example: city
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
+      options:
+        type: array
+        items:
+          type: string
   Downloads:
     type: object
     description: >
@@ -726,6 +722,43 @@ definitions:
         type: boolean
         description: A flag to indicate the file will not be generated due to size
   FilterLinks:
+    description: A list of links related to this resource
+    readOnly: true
+    type: object
+    properties:
+      version:
+        type: object
+        properties:
+          href:
+            description: A URL to the version being filtered
+            example: >-
+              http://localhost:8080/datasets/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC/editions/2017/version/1
+            type: string
+          id:
+            description: An ID of the version being filtered
+            example: 1
+            type: string
+      self:
+        type: object
+        properties:
+          href:
+            description: A URL to the filter
+            example: >-
+              http://localhost:8080/filters/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC
+            type: string
+          id:
+            description: An ID of the version being filtered
+            example: "DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
+            type: string
+      dimensions:
+        type: object
+        properties:
+          href:
+            description: A URL to the dimensions list
+            example: >-
+              http://localhost:8080/filters/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC/dimensions
+            type: string
+  FilterOutputLinks:
     description: A list of links related to this resource
     readOnly: true
     type: object
@@ -813,57 +846,50 @@ definitions:
       blocked_count:
         type: integer
         description: The count of blocked options
-  SubmitFilter:
-    type: object
-    description: The information required to start the filter process
+  FilterOutput:
     properties:
+      id:
+        type: string
       filter_id:
         type: string
-        description: The unique identifier given to this filter job
-        example: 92a6cc27-c684-4523-b794-4b974f9f7413
-        format: string
-      dimension_options:
-        $ref: '#/definitions/DimensionOptions'
+      instance_id:
+        type: string
+      dataset:
+        $ref: "#/definitions/Dataset"
+      published:
+        type: boolean
+      state:
+        description: "This describes the status of the filter."
+        enum:
+          - "completed"
+          - "created"
+        type: string
+      downloads:
+        $ref: '#/definitions/Downloads'
+      events:
+        type: array
+        items:
+          $ref: "#/definitions/Event"
+      type:
+        type: string
       population_type:
         type: string
-        description: The population type that the data should be queried from
-        example: Teaching-Dataset
-        format: string
-  FilterOutputResponse:
+      disclosure_control:
+        $ref: "#/definitions/DisclosureControl"
+      links:
+        $ref: "#/definitions/FilterOutputLinks"
+      dimensions:
+        type: array
+        items:
+          $ref: "#/definitions/Dimension"
+  GetFilterOutputResponse:
     description: "A model for the response body when retrieving a filter output"
     allOf:
-      - type: object
-        properties:
-          downloads:
-            $ref: '#/definitions/Downloads'
-          state:
-            description: "This describes the status of the filter."
-            enum:
-              - "completed"
-              - "created"
-            type: string
-      - type: object
-        properties:
-          links:
-            allOf:
-              - $ref: '#/definitions/FilterLinks'
-              - type: object
-                properties:
-                  filter_blueprint:
-                    properties:
-                      href:
-                        description: "A URL to the filter blueprint"
-                        example: "http://localhost:8080/filters/DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
-                        type: string
-                      id:
-                        description: "An ID of the filter blueprint"
-                        example: "DE3BC0B6-D6C4-4E20-917E-95D7EA8C91DC"
-                        type: string
-      - $ref: '#/definitions/JobState'
+      - $ref: "#/definitions/FilterOutput"
   UpdateFilterResponse:
     description: "A model for the response body when updating a filter"
     allOf:
-    - $ref: '#/definitions/JobState'
+    - $ref: '#/definitions/Filter'
     - type: object
       properties:
         dataset:
@@ -883,4 +909,144 @@ definitions:
                   description: "An ID of the created filter output document"
                   example: "95c4669b-3ae9-4ba7-b690-87e890a1c543"
                   type: string
-
+  GetDatasetJSONObservationsResponse:
+    description: "An object containing information on a list of observations for a given version of a census dataset"
+    type: object
+    properties:
+      dimensions:
+        description: "A list of dimensions for the given query"
+        type: array 
+        items:
+          type: object
+          description: "Each element is a dimension and will represent a query parameter in the request unless the query parameter is equal to a wildcard value (*)"
+          properties:
+            name:
+              description: "The name of the dimension"
+            options:
+              type: array
+              items:
+                description: "A list of links to the corresponding dimension codes for the given `dimension_options`"
+                type: object
+                properties:
+                  href:
+                    description: "A link to the corresponding dimension code for the given `dimension_option`"
+                    type: string
+                    example: "http://localhost:8080/codelists/AB12CD34/codes/K02000001"
+                  id:
+                    description: "The id of the corresponding dimension code for the given `dimension_option`"
+                    type: string
+      links:
+        $ref: '#/definitions/ObservationLinks'
+      observations:
+        description: "A list of observations found when filtering on query parameters"
+        type: array
+        items:
+         type: integer
+      total_observations:
+        description: "The number of observations found"
+        type: integer
+  PaginationResponse:
+    properties:
+      limit:
+        type: number
+        description: maximum number of items returned
+      offset:
+        type: number
+        description: index of first item returned
+      count:
+        type: number
+        description: number of items returned
+      total_count:
+        type: number
+        description: total number of items available
+  ObservationLinks:
+    description: "A list of links related to this observation resource"
+    readOnly: true
+    type: object
+    properties:
+      dataset_metadata:
+        $ref: '#/definitions/MetadataLink'
+      self:
+        $ref: '#/definitions/SelfLink'
+      version:
+        $ref: '#/definitions/VersionLink'
+  MetadataLink:
+    description: "The version metadata that is associated with this resource"
+    type: object
+    properties:
+      href:
+        description: "A URL for the version metadata this resource relates to"
+        type: string
+  SelfLink:
+    description: "A link to this resource"
+    readOnly: true
+    type: object
+    properties:
+      href:
+        description: "A URL to this resource"
+        type: string
+  VersionLink:
+    description: "The dataset version this resource belongs to"
+    type: object
+    properties:
+      href:
+        description: "A URL to the version this resource relates to"
+        type: string
+      id:
+        description: "The version number this resource relates to"
+        type: string
+  Link:
+    properties:
+      href:
+        type: string
+        description: "link to resource"
+      id:
+        type: string
+        description: "id of resource"
+  DimensionItemLinks:
+    properties:
+      self:
+        $ref: "#/definitions/Link"
+      options:
+        $ref: "#/definitions/Link"
+      filter:
+        $ref: "#/definitions/Link"
+  DimensionItem:
+    properties:
+      name:
+        type: string
+      id:
+        type: string
+      label:
+        type: string
+      links:
+        $ref: "#/definitions/DimensionItemLinks"
+  DimensionItemWithArea:
+    allOf:
+      - $ref: "#/definitions/DimensionItem"
+      - type: object
+        properties:
+          is_area_type:
+            type: boolean
+  DimensionItems:
+    type: array
+    items:
+      $ref: "#/definitions/DimensionItem"
+  GetFilterDimensionsResponse:
+    allOf:
+      - $ref: "#/definitions/PaginationResponse"
+      - properties:
+          items:
+            $ref: "#/definitions/DimensionItems"
+  SubmitFilterResponse:
+    properties:
+      instance_id:
+        type: string
+      filter_id:
+        type: string
+      dataset:
+        $ref: "#/definitions/Dataset"
+      links:
+        $ref: "#/definitions/FilterLinks"
+      population_type:
+        type: string

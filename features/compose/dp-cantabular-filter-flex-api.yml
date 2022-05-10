@@ -5,22 +5,26 @@ services:
             context: ../../../dp-cantabular-filter-flex-api
             dockerfile: Dockerfile.local
         command:
-            - go 
-            - test 
-            - -cover 
+            - go
+            - test
+            - -cover
             - -race
-            - -coverpkg=github.com/ONSdigital/dp-cantabular-filter-flex-api/... 
+            - -coverpkg=github.com/ONSdigital/dp-cantabular-filter-flex-api/...
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
         ports:
             - 27100:27100
+        depends_on:
+            - kafka-1
         environment:
-            BIND_ADDR:                          ":27100"
-            SERVICE_AUTH_TOKEN:                 "testToken"
-            COMPONENT_TEST_USE_LOG_FILE:        "${COMPONENT_TEST_USE_LOG_FILE-false}"
+            BIND_ADDR:                   ":27100"
+            SERVICE_AUTH_TOKEN:          "testToken"
+            COMPONENT_TEST_USE_LOG_FILE: "${COMPONENT_TEST_USE_LOG_FILE-false}"
             CANTABULAR_URL:              "http://dp-cantabular-server:8491"
             ENABLE_PRIVATE_ENDPOINTS:    "false"
             ENABLE_PERMISSIONS_AUTH:     "false"
             ZEBEDEE_URL:                 "http://zebedee:8082"
             MONGODB_BIND_ADDR:           "mongodb:27017"
+            KAFKA_ADDR:                  "kafka-1:9092"
+            KAFKA_PRODUCER_MIN_BROKERS_HEALTHY: 1

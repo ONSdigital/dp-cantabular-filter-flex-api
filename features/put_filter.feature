@@ -13,6 +13,9 @@ Feature: Put Filter Private Endpoints Not Enabled
             "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
             "id": "1"
           },
+          "dimensions": {
+            "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          },
           "self": {
             "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
           }
@@ -27,7 +30,6 @@ Feature: Put Filter Private Endpoints Not Enabled
               "4-7",
               "7+"
             ],
-            "dimension_url": "http://dimension.url/siblings",
             "is_area_type": false
           },
           {
@@ -37,7 +39,6 @@ Feature: Put Filter Private Endpoints Not Enabled
               "London",
               "Swansea"
             ],
-            "dimension_url": "http://dimension.url/city",
             "is_area_type": true
           }
         ],
@@ -57,11 +58,13 @@ Feature: Put Filter Private Endpoints Not Enabled
             "href": "http://mockhost:9999/datasets/cantabular-example-unpublished/editions/2021/version/1",
             "id": "1"
           },
+          "dimensions": {
+            "href": ":27100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions"
+          },
           "self": {
             "href": ":27100/filters/83210d8d-72d6-492a-bc30-27584627abc2"
           }
         },
-        "events": null,
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
           {
@@ -71,7 +74,6 @@ Feature: Put Filter Private Endpoints Not Enabled
               "4-7",
               "7+"
             ],
-            "dimension_url": "http://dimension.url/siblings",
             "is_area_type": false
           },
           {
@@ -81,7 +83,6 @@ Feature: Put Filter Private Endpoints Not Enabled
               "London",
               "Swansea"
             ],
-            "dimension_url": "http://dimension.url/city",
             "is_area_type": true
           }
         ],
@@ -106,7 +107,7 @@ Feature: Put Filter Private Endpoints Not Enabled
     {
       "events": [
         {
-          "timestamp": "2016-07-17T08:38:25.316Z",
+          "timestamp": "2016-07-17T08:38:25.316+000",
           "name": "cantabular-export-start"
         }
       ],

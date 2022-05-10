@@ -22,13 +22,16 @@ import (
 	servicemock "github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
+	kafka "github.com/ONSdigital/dp-kafka/v3"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const (
-	DrainTopicTimeout     = 1 * time.Second // maximum time to wait for a topic to be drained
-	DrainTopicMaxMessages = 1000            // maximum number of messages that will be drained from a topic
-	MinioCheckRetries     = 3               // maximum number of retires to validate that a file is present in minio
+	ComponentTestGroup    = "test-consumer-group"
+	DrainTopicTimeout     = 10 * time.Second // maximum time to wait for a topic to be drained
+	DrainTopicMaxMessages = 1000             // maximum number of messages that will be drained from a topic
+	MinioCheckRetries     = 3                // maximum number of retires to validate that a file is present in minio
+	WaitEventTimeout      = 10 * time.Second // maximum time that the component test consumer will wait for a
 )
 
 var (
@@ -39,19 +42,21 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	ApiFeature        *componenttest.APIFeature
-	errorChan         chan error
-	DatasetAPI        *httpfake.HTTPFake
-	svc               *service.Service
-	cfg               *config.Config
-	wg                *sync.WaitGroup
-	signals           chan os.Signal
-	ctx               context.Context
-	HTTPServer        *http.Server
-	store             service.Datastore
-	g                 service.Generator
-	shutdownInitiated bool
-	postedJSON        string
+	ApiFeature           *componenttest.APIFeature
+	errorChan            chan error
+	DatasetAPI           *httpfake.HTTPFake
+	MockCantabularClient *mock.CantabularClient
+	svc                  *service.Service
+	cfg                  *config.Config
+	wg                   *sync.WaitGroup
+	signals              chan os.Signal
+	ctx                  context.Context
+	HTTPServer           *http.Server
+	store                service.Datastore
+	g                    service.Generator
+	shutdownInitiated    bool
+	consumer             kafka.IConsumerGroup
+	waitEventTimeout     time.Duration
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -81,14 +86,17 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		HTTPServer: &http.Server{},
 		cfg:        cfg,
 		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
-		store:      mongoClient,
-		g:          g,
+		MockCantabularClient: &mock.CantabularClient{
+			OptionsHappy: true,
+		},
+		store:            mongoClient,
+		g:                g,
+		waitEventTimeout: WaitEventTimeout,
 	}, nil
 }
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
 func (c *Component) Init() (http.Handler, error) {
-
 	c.signals = make(chan os.Signal, 1)
 	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
 
@@ -118,10 +126,8 @@ func (c *Component) setInitialiserMock() {
 		}
 	}
 
-	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
-		return &mock.CantabularClient{
-			OptionsHappy: true,
-		}
+	service.GetCantabularClient = func(_ *config.Config) service.CantabularClient {
+		return c.MockCantabularClient
 	}
 
 	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
@@ -136,6 +142,11 @@ func (c *Component) setInitialiserMock() {
 func (c *Component) startService(ctx context.Context) {
 	defer c.wg.Done()
 	c.svc.Start(ctx, c.errorChan)
+
+	wg := sync.WaitGroup{}
+	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
+		log.Error(c.ctx, "error draining topic", err)
+	}
 
 	select {
 	case err := <-c.errorChan:
@@ -156,7 +167,7 @@ func (c *Component) startService(ctx context.Context) {
 
 // Close kills the application under test, and then it shuts down the testing producer.
 func (c *Component) Close() {
-	// kill application
+
 	if !c.shutdownInitiated {
 		c.shutdownInitiated = true
 		c.signals <- os.Interrupt
@@ -195,10 +206,17 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 	return mongoClient, nil
 }
 
+//keep adding new handler functions for which the mongo needs to fail
 func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
+		},
+		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
+			return nil, errors.New("mongo client has failed")
+		},
+		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
+			return errors.New("failed to add event")
 		},
 	}
 	return &mongoClient, nil

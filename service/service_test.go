@@ -9,9 +9,10 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
+	service "github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	"github.com/ONSdigital/dp-kafka/v3/kafkatest"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -119,12 +120,13 @@ func TestInit(t *testing.T) {
 				So(svc.HealthCheck, ShouldResemble, hcMock)
 
 				Convey("Then all checks are registered", func() {
-					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 5)
+					So(hcMock.AddAndGetCheckCalls(), ShouldHaveLength, 6)
 					So(hcMock.AddAndGetCheckCalls()[0].Name, ShouldResemble, "Cantabular server")
 					So(hcMock.AddAndGetCheckCalls()[1].Name, ShouldResemble, "Cantabular API Extension")
 					So(hcMock.AddAndGetCheckCalls()[2].Name, ShouldResemble, "Dataset API client")
 					So(hcMock.AddAndGetCheckCalls()[3].Name, ShouldResemble, "Datastore")
 					So(hcMock.AddAndGetCheckCalls()[4].Name, ShouldResemble, "Zebedee")
+					So(hcMock.AddAndGetCheckCalls()[5].Name, ShouldResemble, "Kafka")
 				})
 			})
 		})
@@ -203,12 +205,16 @@ func TestClose(t *testing.T) {
 			},
 		}
 
+		producerMock := &kafkatest.IProducerMock{
+			CloseFunc: func(ctx context.Context) error { return nil },
+		}
+
 		svc := &service.Service{
 			Cfg:         cfg,
 			Server:      serverMock,
 			HealthCheck: hcMock,
+			Producer:    producerMock,
 		}
-
 		Convey("Closing the service results in all the dependencies being closed in the expected order", func() {
 			err := svc.Close(context.Background())
 			So(err, ShouldBeNil)
@@ -226,34 +232,6 @@ func TestClose(t *testing.T) {
 			So(hcMock.StopCalls(), ShouldHaveLength, 1)
 			So(serverMock.ShutdownCalls(), ShouldHaveLength, 1)
 		})
-		/*
-		   TODO - figure out if this has been added to the boilerplate code or been removed from the csv exporter,
-		   such that, do we need to make this work here
 
-		   		Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {
-		   			cfg.GracefulShutdownTimeout = 1 * time.Millisecond
-		   			timeoutServerMock := &mock.HTTPServerMock{
-		   				ListenAndServeFunc: func() error { return nil },
-		   				ShutdownFunc: func(ctx context.Context) error {
-		   					time.Sleep(2 * time.Millisecond)
-		   					return nil
-		   				},
-		   			}
-
-		   			svcList := service.NewServiceList(nil)
-		   			svcList.HealthCheck = true
-		   			svc := service.Service{
-		   				Config:      cfg,
-		   				ServiceList: svcList,
-		   				Server:      timeoutServerMock,
-		   				HealthCheck: hcMock,
-		   			}
-
-		   			err = svc.Close(context.Background())
-		   			So(err, ShouldNotBeNil)
-		   			So(err.Error(), ShouldResemble, "context deadline exceeded")
-		   			So(len(hcMock.StopCalls()), ShouldEqual, 1)
-		   			So(len(timeoutServerMock.ShutdownCalls()), ShouldEqual, 1)
-		   		})*/
 	})
 }

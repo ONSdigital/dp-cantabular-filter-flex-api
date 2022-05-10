@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	kafka "github.com/ONSdigital/dp-kafka/v3"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -24,6 +25,7 @@ type Service struct {
 	Api              *api.API
 	responder        Responder
 	store            Datastore
+	Producer         kafka.IProducer
 	generator        Generator
 	cantabularClient CantabularClient
 	datasetAPIClient DatasetAPIClient
@@ -50,6 +52,12 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	if svc.HealthCheck, err = GetHealthCheck(cfg, buildTime, gitCommit, version); err != nil {
 		return fmt.Errorf("could not instantiate healthcheck: %w", err)
 	}
+
+	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
+		return fmt.Errorf("Could not initialise Kafka producer: %w", err)
+	}
+
+	svc.Producer.LogErrors(ctx)
 
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
@@ -79,6 +87,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.store,
 		svc.datasetAPIClient,
 		svc.cantabularClient,
+		svc.Producer,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 
@@ -127,6 +136,10 @@ func (svc *Service) Close(ctx context.Context) error {
 		}
 
 		// TODO: Close other dependencies, in the expected order
+		if err := svc.Producer.Close(ctx); err != nil {
+			log.Info(ctx, "failed to shut down kafka producer")
+		}
+
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)
@@ -179,6 +192,9 @@ func (svc *Service) registerCheckers() error {
 
 	if _, err := svc.HealthCheck.AddAndGetCheck("Zebedee", svc.identityClient.Checker); err != nil {
 		return fmt.Errorf("error adding check for datastore: %w", err)
+	}
+	if _, err := svc.HealthCheck.AddAndGetCheck("Kafka", svc.Producer.Checker); err != nil {
+		return fmt.Errorf("error adding check for Kafka producer: %w", err)
 	}
 
 	return nil
