@@ -24,6 +24,14 @@ func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.G
 	return nil, errors.New("invalid dimension options")
 }
 
+func (c *CantabularClient) StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {
+	return nil, errors.New("invalid dataset query")
+}
+
+func (c *CantabularClient) GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error) {
+	return nil, errors.New("invalid geography query")
+}
+
 func (c *CantabularClient) SearchDimensions(_ context.Context, _ cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
 	if c.OptionsHappy {
 		return nil, nil

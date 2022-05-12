@@ -482,12 +482,12 @@ paths:
            $ref: '#/definitions/SubmitFilterResponse'
         '500':
           $ref: '#/responses/InternalError'
-  /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json:
+  /datasets/{dataset_id}/editions/{edition}/versions/{version}/json:
     get:
       tags:
       - "Public"
       summary: "Get observations for a census dataset"
-      description: "Get observations for a census datase, with capability to flex and filter the data to the users need.  If no geography, dimension, or options parameters are supplied then observations for the default geography are returned."
+      description: "Get observations for a census dataset, with capability to flex and filter the data to the users need.  If no geography, dimension, or options parameters are supplied then observations for the default geography are returned."
       parameters:
         - $ref: '#/parameters/dataset_id'
         - $ref: '#/parameters/edition'
@@ -496,7 +496,7 @@ paths:
         200:
           description: "Json object containing all metadata for a version"
           schema:
-            $ref: '#/definitions/GetDatasetJSONObservationsResponse'
+            $ref: '#/definitions/GetDatasetJSONResponse'
         400:
           description: |
             Invalid request, reasons can be one of the following:
@@ -909,7 +909,7 @@ definitions:
                   description: "An ID of the created filter output document"
                   example: "95c4669b-3ae9-4ba7-b690-87e890a1c543"
                   type: string
-  GetDatasetJSONObservationsResponse:
+  GetDatasetJSONResponse:
     description: "An object containing information on a list of observations for a given version of a census dataset"
     type: object
     properties:
@@ -926,17 +926,18 @@ definitions:
               type: array
               items:
                 description: "A list of links to the corresponding dimension codes for the given `dimension_options`"
-                type: object
-                properties:
-                  href:
-                    description: "A link to the corresponding dimension code for the given `dimension_option`"
-                    type: string
-                    example: "http://localhost:8080/codelists/AB12CD34/codes/K02000001"
-                  id:
-                    description: "The id of the corresponding dimension code for the given `dimension_option`"
-                    type: string
+                $ref: '#/definitions/Link'
       links:
-        $ref: '#/definitions/ObservationLinks'
+        description: "A list of links related to this observation resource"
+        readOnly: true
+        type: object
+        properties:
+          dataset_metadata:
+            $ref: '#/definitions/Link'
+          self:
+            $ref: '#/definitions/Link'
+          version:
+            $ref: '#/definitions/Link'
       observations:
         description: "A list of observations found when filtering on query parameters"
         type: array
@@ -959,42 +960,6 @@ definitions:
       total_count:
         type: number
         description: total number of items available
-  ObservationLinks:
-    description: "A list of links related to this observation resource"
-    readOnly: true
-    type: object
-    properties:
-      dataset_metadata:
-        $ref: '#/definitions/MetadataLink'
-      self:
-        $ref: '#/definitions/SelfLink'
-      version:
-        $ref: '#/definitions/VersionLink'
-  MetadataLink:
-    description: "The version metadata that is associated with this resource"
-    type: object
-    properties:
-      href:
-        description: "A URL for the version metadata this resource relates to"
-        type: string
-  SelfLink:
-    description: "A link to this resource"
-    readOnly: true
-    type: object
-    properties:
-      href:
-        description: "A URL to this resource"
-        type: string
-  VersionLink:
-    description: "The dataset version this resource belongs to"
-    type: object
-    properties:
-      href:
-        description: "A URL to the version this resource relates to"
-        type: string
-      id:
-        description: "The version number this resource relates to"
-        type: string
   Link:
     properties:
       href:

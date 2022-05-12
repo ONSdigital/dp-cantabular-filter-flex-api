@@ -210,35 +210,21 @@ type submitFilterResponse struct {
 	PopulationType string            `json:"population_type"`
 }
 
-// getDatasetJsonObservationsResponse is the response body for GET /flex/datasets/{dataset_id}/editions/{edition}/versions/{version}/json
-type getDatasetJsonObservationsResponse struct {
-	Dimensions        []getDatasetJsonResponseDimension `json:"dimensions"`
-	Links             getDatasetJsonResponseLinks       `json:"links"`
-	Observations      []int                             `json:"observations"`
-	TotalObservations int                               `json:"total_observations"`
+// getDatasetJSONResponse is the response body for GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/json
+type getDatasetJSONResponse struct {
+	Dimensions        []DatasetJSONDimension `json:"dimensions"`
+	Links             DatasetJSONLinks       `json:"links"`
+	Observations      []int                  `json:"observations"`
+	TotalObservations int                    `json:"total_observations"`
 }
 
-type getDatasetJsonResponseDimension struct {
-	DimensionName string                                  `json:"dimension_name"`
-	Options       []getDatasetJsonResponseDimensionOption `json:"options"`
+type DatasetJSONDimension struct {
+	DimensionName string       `json:"dimension_name"`
+	Options       []model.Link `json:"options"`
 }
 
-type getDatasetJsonResponseLinks struct {
-	DatasetMetadata getDatasetJsonResponseLink        `json:"dataset_metadata"`
-	Self            getDatasetJsonResponseLink        `json:"self"`
-	Version         getDatasetJsonResponseVersionLink `json:"version"`
-}
-
-type getDatasetJsonResponseDimensionOption struct {
-	Href string `json:"href"`
-	Id   string `json:"id"`
-}
-
-type getDatasetJsonResponseLink struct {
-	Href string `json:"href"`
-}
-
-type getDatasetJsonResponseVersionLink struct {
-	Href    string `json:"href"`
-	Version string `json:"version"`
+type DatasetJSONLinks struct {
+	DatasetMetadata model.Link `json:"dataset_metadata"`
+	Self            model.Link `json:"self"`
+	Version         model.Link `json:"version"`
 }

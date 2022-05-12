@@ -30,6 +30,8 @@ type Config struct {
 	CantabularHealthcheckEnabled bool          `envconfig:"CANTABULAR_HEALTHCHECK_ENABLED"`
 	ServiceAuthToken             string        `envconfig:"SERVICE_AUTH_TOKEN"`
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
+	DatasetOptionsWorkers        int           `envconfig:"DATASET_OPTIONS_WORKERS"`
+	DatasetOptionsBatchSize      int           `envconfig:"DATASET_OPTIONS_BATCH_SIZE"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
 }
@@ -80,6 +82,8 @@ func Get() (*Config, error) {
 		CantabularHealthcheckEnabled: false,
 		ServiceAuthToken:             "",
 		ZebedeeURL:                   "http://localhost:8082",
+		DatasetOptionsWorkers:        2,
+		DatasetOptionsBatchSize:      20,
 		Mongo: mongo.MongoDriverConfig{
 			ClusterEndpoint: "localhost:27017",
 			Username:        "",

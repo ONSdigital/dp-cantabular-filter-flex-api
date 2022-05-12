@@ -13,6 +13,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// To mock interfaces in this file
+//go:generate mockgen -source=interface.go -destination=mock/mock_interface.go -package=mock github.com/ONSdigital/dp-cantabular-filter-flex-api/api
+
 // responder handles responding to http requests
 type responder interface {
 	JSON(context.Context, http.ResponseWriter, int, interface{})
@@ -46,12 +49,18 @@ type generator interface {
 
 type cantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
+	StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
+	GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error)
 	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 }
 
 type datasetAPIClient interface {
 	GetVersion(ctx context.Context, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version string) (dataset.Version, error)
+	GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error)
+	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (dataset.Options, error)
+	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.Dataset, error)
+	GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error)
 }
 
 type coder interface {
