@@ -28,7 +28,7 @@ func (c *CantabularClient) StaticDatasetQuery(context.Context, cantabular.Static
 	return nil, errors.New("invalid dataset query")
 }
 
-func (c *CantabularClient) GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error) {
+func (c *CantabularClient) GetGeographyDimensions(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
 	return nil, errors.New("invalid geography query")
 }
 

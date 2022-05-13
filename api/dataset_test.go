@@ -93,14 +93,16 @@ func TestInvalidGeography(t *testing.T) {
 
 		datasetResponse := getValidDatasetResponse()
 		versionDimensionsResponse := getValidDimensionsResponse()
-
+		geographDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
+			Dataset: datasetResponse.IsBasedOn.ID,
+		}
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetDatasetCurrentAndNext(p.ctx, "", "", "", p.datasetId).Return(datasetResponse, nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(getValidVersionResponse(), nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersionDimensions(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(versionDimensionsResponse, nil).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionDimensionsResponse.Items[0].Name, optionsBatch, optionsWorker).Return(getValidOptionsResponse(), nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, datasetResponse.IsBasedOn.ID).Return(nil, expectedError).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographDimensionsRequest).Return(nil, expectedError).Times(1),
 		)
 
 		api.getDatasetJSON(p.response, p.request)
@@ -257,13 +259,17 @@ func TestStaticDatasetQuery(t *testing.T) {
 			Variables: []string{dimensionsResponse.Items[0].Links.CodeList.ID},
 		}
 
+		geographDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
+			Dataset: datasetResponse.IsBasedOn.ID,
+		}
+
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetDatasetCurrentAndNext(p.ctx, "", "", "", p.datasetId).Return(datasetResponse, nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(getValidVersionResponse(), nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
 			datasetAPIMock.EXPECT().GetVersionDimensions(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(dimensionsResponse, nil).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, dimensionsResponse.Items[0].Name, optionsBatch, optionsWorker).Return(getValidOptionsResponse(), nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, datasetResponse.IsBasedOn.ID).Return(getValidGeoResponse(), nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
 			ctblrMock.EXPECT().StaticDatasetQuery(p.ctx, datasetRequest).Return(nil, expectedError).Times(1),
 		)
 
