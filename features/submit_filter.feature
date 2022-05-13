@@ -22,7 +22,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
         "instance_id": "TEST-INSTANCE-ID",
         "dimensions": [
           {
-            "name": "Number of siblings (3 mappings)",
+            "name": "siblings_3",
             "options": [
               "0-3",
               "4-7",
@@ -31,7 +31,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
             "is_area_type": false
           },
           {
-            "name": "City",
+            "name": "city",
             "options": [
               "Cardiff",
               "London",
@@ -66,7 +66,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
           {
-            "name": "Number of siblings (3 mappings)",
+            "name": "siblings_3",
             "options": [
               "0-3",
               "4-7",
@@ -75,7 +75,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
             "is_area_type": false
           },
           {
-            "name": "City",
+            "name": "city",
             "options": [
               "Cardiff",
               "London",
@@ -162,7 +162,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
       "downloads": {},
       "dimensions": [
         {
-          "name": "Number of siblings (3 mappings)",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -171,7 +171,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
           "is_area_type": false
         },
         {
-          "name": "City",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -180,9 +180,10 @@ Feature: Submit Filter Private Endpoints Not Enabled
           "is_area_type": true
         }
       ],
-      "type": "flexible"
+      "type": "flexible",
+      "population_type": "Example"
     }
     """
     And the following Export Start events are produced:
-      | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       |
-      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 |
+      | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       | DimensionIDs |
+      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 | siblings_3,city|

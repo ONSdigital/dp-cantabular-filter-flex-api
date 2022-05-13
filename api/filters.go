@@ -159,9 +159,10 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 				ID:   filter.ID,
 			},
 		},
-		Published:  filter.Published,
-		Dimensions: filter.Dimensions,
-		Type:       filter.Type,
+		Published:      filter.Published,
+		Dimensions:     filter.Dimensions,
+		Type:           filter.Type,
+		PopulationType: filter.PopulationType,
 	}
 
 	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
@@ -178,12 +179,12 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var dID string
+	var dIDs string
 	for _, d := range filter.Dimensions {
-		if dID != "" {
-			dID = dID + "," + d.Name
+		if dIDs != "" {
+			dIDs = dIDs + "," + d.Name
 		} else {
-			dID = d.Name
+			dIDs = d.Name
 		}
 	}
 	// schema mismatch between avro and model type.
@@ -195,7 +196,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		Edition:        filter.Dataset.Edition,
 		Version:        version,
 		FilterOutputID: filterOutput.ID,
-		DimensionsID:   dID,
+		DimensionIDs:   dIDs,
 	}
 
 	// send the export event through Kafka

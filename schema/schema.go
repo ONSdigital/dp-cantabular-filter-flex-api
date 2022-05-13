@@ -13,7 +13,7 @@ var exportStart = `{
     {"name": "edition",          "type": "string", "default": ""},
     {"name": "version",          "type": "string", "default": ""},
     {"name": "filter_output_id", "type": "string", "default": ""},
-    {"name": "dimensions_id",    "type": "string", "default": ""}
+    {"name": "dimension_ids",    "type": "string", "default": ""}
   ]
 }`
 
