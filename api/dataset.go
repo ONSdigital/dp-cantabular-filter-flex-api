@@ -236,7 +236,11 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]string, error) {
 	var geoDimensions []string
 
-	res, err := api.ctblr.GetGeographyDimensions(ctx, datasetId)
+	request := cantabular.GetGeographyDimensionsRequest{
+		Dataset: datasetId,
+	}
+
+	res, err := api.ctblr.GetGeographyDimensions(ctx, request)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
