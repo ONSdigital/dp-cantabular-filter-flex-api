@@ -179,13 +179,9 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var dIDs string
+	var dim []string
 	for _, d := range filter.Dimensions {
-		if dIDs != "" {
-			dIDs = dIDs + "," + d.Name
-		} else {
-			dIDs = d.Name
-		}
+		dim = append(dim, d.Name)
 	}
 	// schema mismatch between avro and model type.
 	// naively converting for now.
@@ -196,7 +192,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		Edition:        filter.Dataset.Edition,
 		Version:        version,
 		FilterOutputID: filterOutput.ID,
-		DimensionIDs:   dIDs,
+		Dimensions:     dim,
 	}
 
 	// send the export event through Kafka
@@ -738,7 +734,6 @@ func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID
 	}
-
 	var incorrect []string
 	for _, fd := range filterDims {
 		if _, ok := dimensions[fd.Name]; !ok {
