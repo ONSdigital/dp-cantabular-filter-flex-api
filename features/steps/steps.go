@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -140,8 +141,23 @@ func (c *Component) iShouldReceiveAnErrorsArray() error {
 	return nil
 }
 
+//we are passing the string array as [xxxx,yyyy,zzz]
+//this is required to support array being used in kafka messages
+func arrayParser(raw string) (interface{}, error) {
+	//remove the starting and trailing brackets
+	str := strings.Trim(raw, "[]")
+	if str == "" {
+		return []string{}, nil
+	}
+
+	strArray := strings.Split(str, ",")
+	return strArray, nil
+}
+
 func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table) error {
-	expected, err := assistdog.NewDefault().CreateSlice(new(event.ExportStart), events)
+	assist := assistdog.NewDefault()
+	assist.RegisterParser([]string{}, arrayParser)
+	expected, err := assist.CreateSlice(new(event.ExportStart), events)
 	if err != nil {
 		return fmt.Errorf("failed to create slice from godog table: %w", err)
 	}
@@ -186,7 +202,6 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		// as it is not relevant to this test.
 		log.Error(c.ctx, "error closing kafka consumer", err)
 	}
-
 	if diff := cmp.Diff(expected, got); diff != "" {
 		return fmt.Errorf("+got -expected)\n%s\n", diff)
 	}

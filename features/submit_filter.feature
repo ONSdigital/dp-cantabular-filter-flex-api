@@ -185,5 +185,5 @@ Feature: Submit Filter Private Endpoints Not Enabled
     }
     """
     And the following Export Start events are produced:
-      | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       | DimensionIDs |
-      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 | siblings_3,city|
+      | InstanceID        | DatasetID            | Edition          | Version | FilterOutputID                       | Dimensions |
+      | TEST-INSTANCE-ID  | cantabular-example-1 | 2021             | 1       | 94310d8d-72d6-492a-bc30-27584627edb1 | [siblings_3,city]|
