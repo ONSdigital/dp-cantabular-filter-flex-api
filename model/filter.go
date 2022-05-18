@@ -87,12 +87,8 @@ func (fi *FileInfo) IsNotFullyPopulated() error {
 		return errors.New(`"HREF" is empty in input`)
 	}
 
-	if len(strings.Trim(fi.Private, cutset)) == 0 {
-		return errors.New(`"private" is empty in input`)
-	}
-
-	if len(strings.Trim(fi.Public, cutset)) == 0 {
-		return errors.New(`"public" is empty in input`)
+	if len(strings.Trim(fi.Private, cutset)) == 0 && len(strings.Trim(fi.Public, cutset)) == 0 {
+		return errors.New(`"public" or "private" must be populated`)
 	}
 
 	if len(strings.Trim(fi.Size, cutset)) == 0 {
