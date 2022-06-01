@@ -35,9 +35,9 @@ const (
 )
 
 var (
-	BuildTime string = "1625046891"
-	GitCommit string = "7434fe334d9f51b7239f978094ea29d10ac33b16"
-	Version   string = ""
+	BuildTime = "1625046891"
+	GitCommit = "7434fe334d9f51b7239f978094ea29d10ac33b16"
+	Version   = ""
 )
 
 type Component struct {
@@ -216,8 +216,8 @@ func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 	return mongoClient, nil
 }
 
-//keep adding new handler functions for which the mongo needs to fail
-func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
+// GetFailingMongo returns a mongo that fails - keep adding new handler functions for whatever mongo operation needs to fail
+func GetFailingMongo() (service.Datastore, error) {
 	mongoClient := servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
