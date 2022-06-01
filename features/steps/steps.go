@@ -24,6 +24,8 @@ import (
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
+	c.ApiFeature.RegisterSteps(ctx)
+
 	ctx.Step(
 		`^the service starts`,
 		c.theServiceStarts,

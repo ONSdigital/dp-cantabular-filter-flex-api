@@ -79,7 +79,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
 	}
 
-	return &Component{
+	component := &Component{
 		errorChan:  make(chan error),
 		wg:         &sync.WaitGroup{},
 		ctx:        ctx,
@@ -92,7 +92,12 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		store:            mongoClient,
 		g:                g,
 		waitEventTimeout: WaitEventTimeout,
-	}, nil
+	}
+
+	if _, err = component.Init(); err != nil {
+		return nil, err
+	}
+	return component, nil
 }
 
 // Init initialises the server, the mocks and waits for the dependencies to be ready
@@ -105,6 +110,7 @@ func (c *Component) Init() (http.Handler, error) {
 	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
 
 	// Create service and initialise it
+	c.setInitialiserMock()
 	c.svc = service.New()
 	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
 		return nil, fmt.Errorf("failed to initialise service: %w", err)
@@ -183,10 +189,14 @@ func (c *Component) Close() {
 // Note that the service under test should not be started yet
 // to prevent race conditions if it tries to call un-initialised dependencies (steps)
 func (c *Component) Reset() error {
-	c.setInitialiserMock()
-	c.DatasetAPI.Reset()
+	var err error
 
-	if _, err := c.Init(); err != nil {
+	c.DatasetAPI.Reset()
+	c.ApiFeature.Reset()
+	if c.store, err = GetWorkingMongo(c.ctx, c.cfg, c.g); err != nil {
+		return fmt.Errorf("failed to initialise component: %w", err)
+	}
+	if _, err = c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)
 	}
 
