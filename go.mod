@@ -1,8 +1,12 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.17
+go 1.18
 
-replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.24+incompatible
+// The following replacements are for module versions that have know vulnerabilities (from nancy sleuth)
+replace (
+	github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
+	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.9.1
+)
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.135.0
