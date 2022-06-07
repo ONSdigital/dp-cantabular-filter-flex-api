@@ -403,7 +403,7 @@ func (mr *MockcantabularClientMockRecorder) GetDimensionOptions(arg0, arg1 inter
 }
 
 // GetGeographyDimensions mocks base method.
-func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1 string) (*cantabular.GetGeographyDimensionsResponse, error) {
+func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1 cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetGeographyDimensions", arg0, arg1)
 	ret0, _ := ret[0].(*cantabular.GetGeographyDimensionsResponse)

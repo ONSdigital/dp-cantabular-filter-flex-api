@@ -159,9 +159,10 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 				ID:   filter.ID,
 			},
 		},
-		Published:  filter.Published,
-		Dimensions: filter.Dimensions,
-		Type:       filter.Type,
+		Published:      filter.Published,
+		Dimensions:     filter.Dimensions,
+		Type:           filter.Type,
+		PopulationType: filter.PopulationType,
 	}
 
 	if err = api.store.CreateFilterOutput(ctx, &filterOutput); err != nil {
@@ -178,16 +179,20 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var dim []string
+	for _, d := range filter.Dimensions {
+		dim = append(dim, d.Name)
+	}
 	// schema mismatch between avro and model type.
 	// naively converting for now.
 	version := strconv.Itoa(filter.Dataset.Version)
-
 	e := event.ExportStart{
 		InstanceID:     filter.InstanceID,
 		DatasetID:      filter.Dataset.ID,
 		Edition:        filter.Dataset.Edition,
 		Version:        version,
 		FilterOutputID: filterOutput.ID,
+		Dimensions:     dim,
 	}
 
 	// send the export event through Kafka
@@ -729,7 +734,6 @@ func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID
 	}
-
 	var incorrect []string
 	for _, fd := range filterDims {
 		if _, ok := dimensions[fd.Name]; !ok {

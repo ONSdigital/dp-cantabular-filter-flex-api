@@ -74,7 +74,7 @@ type Generator interface {
 type CantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
 	StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
-	GetGeographyDimensions(context.Context, string) (*cantabular.GetGeographyDimensionsResponse, error)
+	GetGeographyDimensions(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error)
 	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 	Checker(context.Context, *healthcheck.CheckState) error

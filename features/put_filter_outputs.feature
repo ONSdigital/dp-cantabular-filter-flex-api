@@ -480,7 +480,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
             "txt":
             {
               "href": "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.txt",
-              "private": "http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.txt",
+              "private": "",
               "public": "",
               "size": "530",
               "skipped": true
@@ -493,7 +493,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
     """
     {
       "errors": [
-        "invalid request body: invalid request: 'txt' field not fully populated: \"public\" is empty in input"
+        "invalid request body: invalid request: 'txt' field not fully populated: \"public\" or \"private\" must be populated"
       ]
     }
     """

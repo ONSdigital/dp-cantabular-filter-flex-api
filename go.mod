@@ -1,41 +1,42 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.17
+go 1.18
 
-replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.24+incompatible
+// The following replacement is for module versions that have known vulnerabilities (from nancy sleuth)
+replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.120.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.135.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.7.0
 	github.com/ONSdigital/dp-healthcheck v1.3.0
 	github.com/ONSdigital/dp-kafka/v3 v3.3.2
-	github.com/ONSdigital/dp-mongodb/v3 v3.0.0-beta.9
+	github.com/ONSdigital/dp-mongodb/v3 v3.0.2
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.4.0
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/golang/mock v1.4.4
-	github.com/google/go-cmp v0.5.7
+	github.com/golang/mock v1.6.0
+	github.com/google/go-cmp v0.5.8
 	github.com/google/uuid v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/maxcnunes/httpfake v1.2.4
 	github.com/pkg/errors v0.9.1
 	github.com/rdumont/assistdog v0.0.0-20201106100018-168b06230d14
 	github.com/smartystreets/goconvey v1.7.2
-	go.mongodb.org/mongo-driver v1.9.0
+	go.mongodb.org/mongo-driver v1.9.1
 )
 
 require (
 	github.com/ONSdigital/dp-api-clients-go v1.43.0 // indirect
-	github.com/ONSdigital/dp-mongodb-in-memory v1.3.0 // indirect
+	github.com/ONSdigital/dp-mongodb-in-memory v1.3.1 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
-	github.com/Shopify/sarama v1.32.0 // indirect
-	github.com/aws/aws-sdk-go v1.43.45 // indirect
-	github.com/chromedp/cdproto v0.0.0-20220421002605-e483954745f2 // indirect
-	github.com/chromedp/chromedp v0.8.0 // indirect
+	github.com/Shopify/sarama v1.33.0 // indirect
+	github.com/aws/aws-sdk-go v1.44.14 // indirect
+	github.com/chromedp/cdproto v0.0.0-20220515234810-83d799542a04 // indirect
+	github.com/chromedp/chromedp v0.8.1 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
@@ -51,10 +52,12 @@ require (
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/gopherjs/gopherjs v0.0.0-20220104163920-15ed2e8cf2bd // indirect
+	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-memdb v1.3.2 // indirect
+	github.com/hashicorp/go-memdb v1.3.3 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f // indirect
@@ -67,7 +70,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/justinas/alice v1.2.0 // indirect
-	github.com/klauspost/compress v1.15.1 // indirect
+	github.com/klauspost/compress v1.15.4 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -75,19 +78,19 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a // indirect
-	github.com/smartystreets/assertions v1.2.1 // indirect
+	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/square/mongo-lock v0.0.0-20201208161834-4db518ed7fb2 // indirect
+	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7 // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220421235706-1d1ef9303861 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/crypto v0.0.0-20220513210258-46612604a0f9 // indirect
+	golang.org/x/net v0.0.0-20220513224357-95641704303c // indirect
+	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
+	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.0-20220512140231-539c8e751b99 // indirect
 )
