@@ -441,6 +441,91 @@ paths:
           description: '#/responses/FilterConflict'
         500:
           $ref: '#/responses/InternalError'
+  /filters/{id}/dimensions/{name}/options:
+    parameters:
+      - $ref: '#/parameters/filter_id'
+      - $ref: '#/parameters/name'
+      - $ref: '#/parameters/page_limit'
+      - $ref: '#/parameters/offset'
+    get:
+      tags:
+      - "Public"
+      - "Private"
+      summary: "Get all options for a filtered dimension"
+      description: "Get a list of all options which will be used to filter the dimension"
+      responses:
+        200:
+          description: "A list of all options for a dimension was returned"
+          schema:
+              $ref: '#/definitions/OptionsResponse'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Filter was not found"
+        404:
+          description: "Dimension name was not found"
+        500:
+          $ref: '#/responses/InternalError'
+  /filters/{id}/dimensions/{name}/options/{option}:
+    parameters:
+      - $ref: '#/parameters/filter_id'
+      - $ref: '#/parameters/name'
+      - $ref: '#/parameters/option'
+    post:
+      tags:
+      - "Public"
+      - "Private"
+      summary: "Add an option to a filtered dimension"
+      description: "Add an option to a filtered dimension"
+      parameters:
+        - $ref: '#/parameters/if_match'
+      responses:
+        201:
+          description: "Option was added"
+          schema:
+            $ref: '#/definitions/AddOptionResponse'
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: "Filter was not found"
+        404:
+          description: " Dimension name was not found"
+        409:
+          description: '#/responses/FilterConflict'
+        422:
+          description: "Unprocessable entity - instance has been removed"
+        500:
+          $ref: '#/responses/InternalError'
+    delete:
+      tags:
+      - "Public"
+      - "Private"
+      summary: "Remove an option from a filtered dimension"
+      description: "Remove a single option from a dimension"
+      parameters:
+        - $ref: '#/parameters/if_match'
+      responses:
+        204:
+          description: "Option was removed"
+          headers:
+            ETag:
+              type: string
+              description: "Defines a unique filter resource version"
+        400:
+          description: |
+            This error code could be one or more of:
+            * Filter was not found
+            * Dimension name was not found
+        404:
+          description: "Dimension option was not found"
+        409:
+          description: '#/responses/FilterConflict'
+        500:
+          $ref: '#/responses/InternalError'
   /filter-outputs/{filter_output_id}/events:
     parameters:
       - $ref: '#/parameters/filter_output_id'
@@ -1015,3 +1100,64 @@ definitions:
         $ref: "#/definitions/FilterLinks"
       population_type:
         type: string
+  AddOptionResponse:
+    description: "A list of links related to this resource"
+    readOnly: true
+    type: object
+    properties:
+      option:
+        type: string
+        description: "The option added to the dimension for this filter"
+        example: "cpih1dim1T10000"
+      self:
+        type: object
+        properties:
+          href:
+            description: "A URL to the options for this filter"
+            example: "http://localhost:8080/filters/bd67930a-2856-44b3-a87a-e9e5fb832324/dimensions/aggregate/options/cpih1dim1T10000"
+            type: string
+          id:
+            description: "The ID of the option"
+            example: "cpih1dim1T10000"
+            type: string
+      filter:
+        type: object
+        properties:
+          href:
+            description: "A URL to the filter"
+            example: "http://localhost:8080/filters/bd67930a-2856-44b3-a87a-e9e5fb832324"
+            type: string
+          id:
+            description: "The ID of the filter"
+            example: "bd67930a-2856-44b3-a87a-e9e5fb832324"
+            type: string
+      dimension:
+        type: object
+        properties:
+          href:
+            description: "A URL to the selected dimension this option applies to for the filter"
+            example: "http://localhost:8080/filters/bd67930a-2856-44b3-a87a-e9e5fb832324/dimensions/aggregate"
+            type: string
+          id:
+            description: "The ID of the dimension for the filter"
+            example: "aggregate"
+            type: string
+  OptionsResponse:
+    description: "A list of options for the dimension"
+    readOnly: true
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/AddOptionResponse'
+      limit:
+        description: "The number of options requested"
+        type: integer
+      offset:
+        description: "The first row of options to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
+        type: integer
+      total_count:
+        description: "The total number of options"
+        readOnly: true
+        type: integer
