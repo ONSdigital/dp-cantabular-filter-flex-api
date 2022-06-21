@@ -120,5 +120,3 @@ Feature: Put Filter Private Endpoints Not Enabled
     }
     """
     And the HTTP status code should be "200"
-
-  
