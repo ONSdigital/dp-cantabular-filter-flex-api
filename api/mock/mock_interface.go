@@ -197,6 +197,22 @@ func (mr *MockdatastoreMockRecorder) GetFilterDimension(ctx, fID, dimName interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterDimension", reflect.TypeOf((*Mockdatastore)(nil).GetFilterDimension), ctx, fID, dimName)
 }
 
+// GetFilterDimensionOptions mocks base method.
+func (m *Mockdatastore) GetFilterDimensionOptions(arg0 context.Context, arg1, arg2 string, arg3, arg4 int) ([]string, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFilterDimensionOptions", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetFilterDimensionOptions indicates an expected call of GetFilterDimensionOptions.
+func (mr *MockdatastoreMockRecorder) GetFilterDimensionOptions(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterDimensionOptions", reflect.TypeOf((*Mockdatastore)(nil).GetFilterDimensionOptions), arg0, arg1, arg2, arg3, arg4)
+}
+
 // GetFilterDimensions mocks base method.
 func (m *Mockdatastore) GetFilterDimensions(arg0 context.Context, arg1 string, arg2, arg3 int) ([]model.Dimension, int, error) {
 	m.ctrl.T.Helper()

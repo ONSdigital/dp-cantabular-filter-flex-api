@@ -678,7 +678,7 @@ definitions:
         $ref: '#/definitions/Downloads'
   Filter:
     properties:
-      filter_id: 
+      filter_id:
         type: string
         description: id of filter
       instance_id:
@@ -717,7 +717,7 @@ definitions:
     type: object
     description: If the dataset is related to Census, which population-type the dataset is taken from, and the type of dataset
     properties:
-      id: 
+      id:
         type: string
         description: the population-type the dataset is based on
       type:
@@ -1000,7 +1000,7 @@ definitions:
     properties:
       dimensions:
         description: "A list of dimensions for the given query"
-        type: array 
+        type: array
         items:
           type: object
           description: "Each element is a dimension and will represent a query parameter in the request unless the query parameter is equal to a wildcard value (*)"

@@ -46,6 +46,9 @@ var _ service.Datastore = &DatastoreMock{}
 // 			GetFilterDimensionFunc: func(ctx context.Context, fID string, dimName string) (model.Dimension, error) {
 // 				panic("mock out the GetFilterDimension method")
 // 			},
+// 			GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error) {
+// 				panic("mock out the GetFilterDimensionOptions method")
+// 			},
 // 			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error) {
 // 				panic("mock out the GetFilterDimensions method")
 // 			},
@@ -88,6 +91,9 @@ type DatastoreMock struct {
 
 	// GetFilterDimensionFunc mocks the GetFilterDimension method.
 	GetFilterDimensionFunc func(ctx context.Context, fID string, dimName string) (model.Dimension, error)
+
+	// GetFilterDimensionOptionsFunc mocks the GetFilterDimensionOptions method.
+	GetFilterDimensionOptionsFunc func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error)
 
 	// GetFilterDimensionsFunc mocks the GetFilterDimensions method.
 	GetFilterDimensionsFunc func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error)
@@ -161,6 +167,19 @@ type DatastoreMock struct {
 			// DimName is the dimName argument value.
 			DimName string
 		}
+		// GetFilterDimensionOptions holds details about calls to the GetFilterDimensionOptions method.
+		GetFilterDimensionOptions []struct {
+			// ContextMoqParam is the contextMoqParam argument value.
+			ContextMoqParam context.Context
+			// S1 is the s1 argument value.
+			S1 string
+			// S2 is the s2 argument value.
+			S2 string
+			// N1 is the n1 argument value.
+			N1 int
+			// N2 is the n2 argument value.
+			N2 int
+		}
 		// GetFilterDimensions holds details about calls to the GetFilterDimensions method.
 		GetFilterDimensions []struct {
 			// ContextMoqParam is the contextMoqParam argument value.
@@ -200,18 +219,19 @@ type DatastoreMock struct {
 			FilterOutput *model.FilterOutput
 		}
 	}
-	lockAddFilterDimension    sync.RWMutex
-	lockAddFilterOutputEvent  sync.RWMutex
-	lockChecker               sync.RWMutex
-	lockConn                  sync.RWMutex
-	lockCreateFilter          sync.RWMutex
-	lockCreateFilterOutput    sync.RWMutex
-	lockGetFilter             sync.RWMutex
-	lockGetFilterDimension    sync.RWMutex
-	lockGetFilterDimensions   sync.RWMutex
-	lockGetFilterOutput       sync.RWMutex
-	lockUpdateFilterDimension sync.RWMutex
-	lockUpdateFilterOutput    sync.RWMutex
+	lockAddFilterDimension        sync.RWMutex
+	lockAddFilterOutputEvent      sync.RWMutex
+	lockChecker                   sync.RWMutex
+	lockConn                      sync.RWMutex
+	lockCreateFilter              sync.RWMutex
+	lockCreateFilterOutput        sync.RWMutex
+	lockGetFilter                 sync.RWMutex
+	lockGetFilterDimension        sync.RWMutex
+	lockGetFilterDimensionOptions sync.RWMutex
+	lockGetFilterDimensions       sync.RWMutex
+	lockGetFilterOutput           sync.RWMutex
+	lockUpdateFilterDimension     sync.RWMutex
+	lockUpdateFilterOutput        sync.RWMutex
 }
 
 // AddFilterDimension calls AddFilterDimensionFunc.
@@ -494,6 +514,53 @@ func (mock *DatastoreMock) GetFilterDimensionCalls() []struct {
 	mock.lockGetFilterDimension.RLock()
 	calls = mock.calls.GetFilterDimension
 	mock.lockGetFilterDimension.RUnlock()
+	return calls
+}
+
+// GetFilterDimensionOptions calls GetFilterDimensionOptionsFunc.
+func (mock *DatastoreMock) GetFilterDimensionOptions(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error) {
+	if mock.GetFilterDimensionOptionsFunc == nil {
+		panic("DatastoreMock.GetFilterDimensionOptionsFunc: method is nil but Datastore.GetFilterDimensionOptions was just called")
+	}
+	callInfo := struct {
+		ContextMoqParam context.Context
+		S1              string
+		S2              string
+		N1              int
+		N2              int
+	}{
+		ContextMoqParam: contextMoqParam,
+		S1:              s1,
+		S2:              s2,
+		N1:              n1,
+		N2:              n2,
+	}
+	mock.lockGetFilterDimensionOptions.Lock()
+	mock.calls.GetFilterDimensionOptions = append(mock.calls.GetFilterDimensionOptions, callInfo)
+	mock.lockGetFilterDimensionOptions.Unlock()
+	return mock.GetFilterDimensionOptionsFunc(contextMoqParam, s1, s2, n1, n2)
+}
+
+// GetFilterDimensionOptionsCalls gets all the calls that were made to GetFilterDimensionOptions.
+// Check the length with:
+//     len(mockedDatastore.GetFilterDimensionOptionsCalls())
+func (mock *DatastoreMock) GetFilterDimensionOptionsCalls() []struct {
+	ContextMoqParam context.Context
+	S1              string
+	S2              string
+	N1              int
+	N2              int
+} {
+	var calls []struct {
+		ContextMoqParam context.Context
+		S1              string
+		S2              string
+		N1              int
+		N2              int
+	}
+	mock.lockGetFilterDimensionOptions.RLock()
+	calls = mock.calls.GetFilterDimensionOptions
+	mock.lockGetFilterDimensionOptions.RUnlock()
 	return calls
 }
 

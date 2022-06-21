@@ -71,6 +71,9 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 
 	return result.Dimensions, result.TotalCount, nil
 }
+func (c *Client) GetFilterDimensionOutput(filterID string, dimensionName string, offset int) (outputs []string, totalCount int, err error) {
+	return nil, 0, nil
+}
 
 // GetFilterDimension gets a specific dimensions for a Filter in the CantabularFilters collection
 func (c *Client) GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error) {
