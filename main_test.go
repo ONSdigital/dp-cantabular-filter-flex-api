@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io"
 	"log"
@@ -26,8 +27,12 @@ var componentFlag = flag.Bool("component", false, "perform component tests")
 var quietComponentFlag = flag.Bool("quiet-component", false, "perform component tests with dp logging disabled")
 
 type ComponentTest struct {
-	t            *testing.T
-	MongoFeature *cmptest.MongoFeature
+	t *testing.T
+
+	mongoFeature *cmptest.MongoFeature
+	authFeature  *cmptest.AuthorizationFeature
+
+	component *steps.Component
 }
 
 func init() {
@@ -35,55 +40,40 @@ func init() {
 }
 
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
-	authFeature := cmptest.NewAuthorizationFeature()
-	zebedeeURL := authFeature.FakeAuthService.ResolveURL("")
-	mongoAddr := f.MongoFeature.Server.URI()
+	f.authFeature.RegisterSteps(ctx)
+	f.component.RegisterSteps(ctx)
 
-	component, err := steps.NewComponent(f.t, zebedeeURL, mongoAddr)
-	if err != nil {
-		log.Panicf("unable to create component: %s", err)
-	}
-
-	if _, err := component.Init(); err != nil {
-		log.Panicf("unable to initialize component: %s", err)
-	}
-
-	apiFeature := cmptest.NewAPIFeature(component.Init)
-	component.ApiFeature = apiFeature
-	ctx.BeforeScenario(func(*godog.Scenario) {
-		apiFeature.Reset()
-		if err := f.MongoFeature.Reset(); err != nil {
-			log.Panicf("failed to reset mongo feature: %s", err)
+	ctx.After(func(ctx context.Context, scenario *godog.Scenario, err error) (context.Context, error) {
+		f.authFeature.Reset()
+		e := f.component.Reset()
+		if e != nil {
+			log.Printf("failed to reset component: %s", err)
 		}
-		if err := component.Reset(); err != nil {
-			log.Panicf("unable to initialise scenario: %s", err)
-		}
-		authFeature.Reset()
+		return ctx, e
 	})
-
-	ctx.AfterScenario(func(*godog.Scenario, error) {
-		component.Reset()
-		component.Close()
-		authFeature.Close()
-	})
-
-	authFeature.RegisterSteps(ctx)
-	apiFeature.RegisterSteps(ctx)
-	component.RegisterSteps(ctx)
-
 }
 
 func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
-	ctx.BeforeSuite(func() {
-		f.MongoFeature = cmptest.NewMongoFeature(cmptest.MongoOptions{
-			MongoVersion: mongoVersion,
-			DatabaseName: databaseName,
-		})
+	var err error
+
+	f.mongoFeature = cmptest.NewMongoFeature(cmptest.MongoOptions{
+		MongoVersion: mongoVersion,
+		DatabaseName: databaseName,
 	})
+	f.authFeature = cmptest.NewAuthorizationFeature()
+
+	f.component, err = steps.NewComponent(f.t, f.authFeature.FakeAuthService.ResolveURL(""), f.mongoFeature.Server.URI())
+	if err != nil {
+		log.Panicf("unable to create component: %s", err)
+	}
+	f.component.ApiFeature = cmptest.NewAPIFeature(f.component.Init)
+
 	ctx.AfterSuite(func() {
-		if err := f.MongoFeature.Close(); err != nil {
+		if err := f.mongoFeature.Close(); err != nil {
 			log.Printf("failed to close mongo feature: %s", err)
 		}
+		f.authFeature.Close()
+		f.component.Close()
 	})
 }
 

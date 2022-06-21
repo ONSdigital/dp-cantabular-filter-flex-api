@@ -24,6 +24,8 @@ import (
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
+	c.ApiFeature.RegisterSteps(ctx)
+
 	ctx.Step(
 		`^the service starts`,
 		c.theServiceStarts,
@@ -100,8 +102,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the filter output with the following structure is in the datastore:$`,
 		c.filterOutputIsInDatastore,
 	)
-
 }
+
 func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) error {
 	var expected model.FilterOutput
 
@@ -250,7 +252,7 @@ func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
 
 func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
 	var err error
-	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	c.store, err = GetFailingMongo()
 	if err != nil {
 		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
 	}
@@ -260,7 +262,7 @@ func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
 
 func (c *Component) MongoDatastoreIsFailing() error {
 	var err error
-	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
+	c.store, err = GetFailingMongo()
 	if err != nil {
 		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
 	}
