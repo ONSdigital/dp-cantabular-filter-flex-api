@@ -1,6 +1,6 @@
 {
 	"dataset":{
-		"id":      "cantabular-flexible-example",
+		"id":      "cantabular-flexible-default",
 		"edition": "2021",
 		"version": 1
 	},
@@ -10,8 +10,7 @@
 			"name": "geography",
 			"options": [
 				"0",
-				"1",
-				"2"
+				"1"
 			],
 			"is_area_type": true
 		},{

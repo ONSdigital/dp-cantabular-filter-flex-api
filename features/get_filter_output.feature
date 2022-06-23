@@ -113,8 +113,8 @@ Feature: Get Filter Private Endpoints Not Enabled
                   "id": "",
                   "edition": "",
                   "version": 0
-           },
-           "population_type": "",
+          },
+          "population_type": "",
           "downloads": {
             "xls": {
               "href": "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",

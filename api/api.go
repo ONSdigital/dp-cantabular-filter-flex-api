@@ -56,12 +56,17 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Put("/filters/{id}", api.putFilter)
 	api.Router.Post("/filters/{id}/submit", api.submitFilter)
+
 	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
-	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
+
+	api.Router.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
+
 	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
+
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -78,10 +83,13 @@ func (api *API) enablePrivateEndpoints() {
 	r.Get("/filters/{id}", api.getFilter)
 	r.Put("/filters/{id}", api.putFilter)
 	r.Post("/filters/{id}/submit", api.submitFilter)
+
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
 	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+
+	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
 
 	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)

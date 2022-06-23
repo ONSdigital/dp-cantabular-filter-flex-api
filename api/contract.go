@@ -202,6 +202,20 @@ type dimensionItemLinks struct {
 	Self    model.Link `json:"self"`
 }
 
+type addFilterDimensionOptionRequest struct {
+	FilterID, Dimension, Option string
+}
+
+type addFilterDimensionOptionResponse struct {
+	Option string                     `json:"option"`
+	Links  filterDimensionOptionLinks `json:"links`
+}
+
+type filterDimensionOptionLinks struct {
+	Self      model.Link `json:"self"`
+	Filter    model.Link `json:"filter"`
+	Dimension model.Link `json:"dimension"`
+}
 type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterOutputID string            `json:"filter_output_id"`
