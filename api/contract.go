@@ -116,7 +116,7 @@ type AddOptionResponse struct {
 	Dimension model.Link `json:"Dimension"`
 }
 
-// get
+// getDimensionOptionsResponse is the response body for GET /filters/{id}/dimensions/{name}/options
 type GetDimensionOptionsResponse struct {
 	Items []AddOptionResponse `json:"items"`
 	paginationResponse
