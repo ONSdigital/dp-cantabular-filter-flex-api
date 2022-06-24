@@ -61,5 +61,4 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 	}
 
 	return result[0].Options, result[0].TotalCount, nil
-
 }

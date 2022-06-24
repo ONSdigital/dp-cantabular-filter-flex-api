@@ -117,7 +117,7 @@ type AddOptionResponse struct {
 }
 
 // getDimensionOptionsResponse is the response body for GET /filters/{id}/dimensions/{name}/options
-type GetDimensionOptionsResponse struct {
+type GetFilterDimensionOptionsResponse struct {
 	Items []AddOptionResponse `json:"items"`
 	paginationResponse
 }

@@ -22,7 +22,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 			ctx,
 			w,
 			http.StatusBadRequest,
-			errors.Wrap(err, "Bad Request: "),
+			errors.Wrap(err, "Bad Request"),
 		)
 
 	}
@@ -31,7 +31,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 		// define a reasonable default
 		// in light of bad input
 		// also slice not work with 0
-		pageLimit = 10
+		pageLimit = 20
 	}
 
 	var eTag string
@@ -68,7 +68,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	resp := GetDimensionOptionsResponse{
+	resp := GetFilterDimensionOptionsResponse{
 		Items: parseFilterDimensionOptions(options, filterID, dimensionName),
 		paginationResponse: paginationResponse{
 			Limit:      pageLimit,
@@ -80,7 +80,6 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set(eTagHeader, eTag)
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
-
 }
 
 func parseFilterDimensionOptions(options []string, filterID, dimensionName string) []AddOptionResponse {
