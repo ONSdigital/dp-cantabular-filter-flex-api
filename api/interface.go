@@ -32,7 +32,7 @@ type datastore interface {
 	UpdateFilterOutput(context.Context, *model.FilterOutput) error
 	AddFilterOutputEvent(context.Context, string, *model.Event) error
 	GetFilterDimensions(context.Context, string, int, int) ([]model.Dimension, int, error)
-	GetFilterDimensionOptions(context.Context, string, string, int, int) ([]string, int, error)
+	GetFilterDimensionOptions(context.Context, string, string, int, int) ([]string, int, string, error)
 	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	AddFilterDimension(context.Context, string, model.Dimension) error
 	UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (eTag string, err error)

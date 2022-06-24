@@ -218,8 +218,8 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
 			return errors.New("failed to add event")
 		},
-		GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error) {
-			return nil, 0, errors.New("error that should not be returned to user.")
+		GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
+			return nil, 0, "", errors.New("error that should not be returned to user.")
 		},
 	}
 	return &mongoClient, nil

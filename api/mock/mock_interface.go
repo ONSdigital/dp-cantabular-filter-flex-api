@@ -198,13 +198,14 @@ func (mr *MockdatastoreMockRecorder) GetFilterDimension(ctx, fID, dimName interf
 }
 
 // GetFilterDimensionOptions mocks base method.
-func (m *Mockdatastore) GetFilterDimensionOptions(arg0 context.Context, arg1, arg2 string, arg3, arg4 int) ([]string, int, error) {
+func (m *Mockdatastore) GetFilterDimensionOptions(arg0 context.Context, arg1, arg2 string, arg3, arg4 int) ([]string, int, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFilterDimensionOptions", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(int)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret2, _ := ret[2].(string)
+	ret3, _ := ret[3].(error)
+	return ret0, ret1, ret2, ret3
 }
 
 // GetFilterDimensionOptions indicates an expected call of GetFilterDimensionOptions.

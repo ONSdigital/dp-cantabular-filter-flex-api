@@ -109,7 +109,7 @@ func (r *putFilterOutputRequest) Valid() error {
 	return nil
 }
 
-type AddOptionResponse struct {
+type GetFilterDimensionOptionsItem struct {
 	Option    string     `json:"option"`
 	Self      model.Link `json:"self"`
 	Filter    model.Link `json:"filter"`
@@ -117,8 +117,8 @@ type AddOptionResponse struct {
 }
 
 // getDimensionOptionsResponse is the response body for GET /filters/{id}/dimensions/{name}/options
-type GetDimensionOptionsResponse struct {
-	Items []AddOptionResponse `json:"items"`
+type GetFilterDimensionOptionsResponse struct {
+	Items []GetFilterDimensionOptionsItem `json:"items"`
 	paginationResponse
 }
 
