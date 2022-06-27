@@ -223,7 +223,6 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ID/name is provided by the request, but the label is provided by Cantabular.
-	// TODO: WHere is this used/necessary?
 	req.Label = node.Label
 
 	var eTag string
