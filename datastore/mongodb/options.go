@@ -2,7 +2,9 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -61,4 +63,64 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 	}
 
 	return result[0].Options, result[0].TotalCount, nil
+}
+
+// DeleteFilterDimensionOptions deletes all options for a given dimension in a Filter
+// by the time that it gets to here, you should actually have determined that the etag is fine
+func (c *Client) DeleteFilterDimensionOptions(ctx context.Context, filterID, dimensionName string) (string, error) {
+	col := c.collections.filters
+
+	logData := log.Data{
+		"filter_id":      filterID,
+		"dimension_name": dimensionName,
+	}
+
+	filter, err := c.GetFilter(ctx, filterID)
+	if err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "unable to fetch filter"),
+			logData: logData,
+		}
+	}
+
+	// Find the dimension in order to replace it in-memory with the old one (rather than just
+	// in the datastore). We need to do this in order to generate an accurate ETag/hash.
+	dimensionIndex, err := findDimensionIndex(filter, dimensionName)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	filter.Dimensions[dimensionIndex].Options = make([]string, 0)
+
+	if filter.ETag, err = filter.Hash(nil); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to generate eTag"),
+			logData: logData,
+		}
+	}
+
+	selectFilter := bson.M{
+		"filter_id": filterID,
+	}
+
+	updateFilter := bson.M{
+		"$set": bson.M{
+			"etag":         filter.ETag,
+			"last_updated": c.generate.Timestamp(),
+			fmt.Sprintf("dimension.%d.options", dimensionIndex): bson.A{},
+		},
+	}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to update filter dimension"),
+			logData: logData,
+		}
+	}
+
+	return filter.ETag, err
 }
