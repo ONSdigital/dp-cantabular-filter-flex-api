@@ -89,6 +89,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
 	r.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
 	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)

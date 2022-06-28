@@ -30,7 +30,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 		// define a reasonable default
 		// in light of bad input
 		// also slice not work with 0
-		pageLimit = 20
+		pageLimit = DefaultLimit
 	}
 
 	options, totalCount, eTag, err := api.store.GetFilterDimensionOptions(
@@ -51,7 +51,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 			w,
 			code,
 			Error{
-				err:     err,
+				err:     errors.Wrap(err, "failed to get filter dimension options"),
 				message: "failed to get filter dimension option",
 			},
 		)

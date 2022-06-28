@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,13 +11,18 @@ import (
 
 type optionQueryResult struct {
 	Options    []string `bson:"options"`
-	TotalCount int      `bson:"totalOptions"`
+	TotalCount int      `bson:"total_options"`
 	eTag       string   `bson:"etag"`
 }
 
 // GetFilterDimensionOptions gets the options for a dimension that is part of a Filter
 func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimensionName string, limit, offset int) ([]string, int, string, error) {
 	col := c.collections.filters
+
+	logData := log.Data{
+		"filter_id":      filterID,
+		"dimension_name": dimensionName,
+	}
 
 	pipeline := mongo.Pipeline{
 		bson.D{{"$match", bson.D{{"filter_id", filterID}}}},
@@ -32,7 +38,7 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 		bson.D{{"$unwind", bson.D{{"path", "$dimension"}, {"preserveNullAndEmptyArrays", true}}}},
 		bson.D{{"$project", bson.D{
 			{"etag", 1},
-			{"totalOptions", bson.D{{"$cond", bson.D{
+			{"total_options", bson.D{{"$cond", bson.D{
 				{"if", bson.D{{"$gt", bson.A{"$dimension", nil}}}},
 				{"then", bson.D{{"$size", "$dimension.options"}}},
 				{"else", -1}}}}},
@@ -50,8 +56,9 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 	}
 	if len(result) == 0 {
 		return nil, 0, "", &er{
-			err:      errors.Errorf("failed to find filter with ID (%s)", filterID),
+			err:      errors.New("failed to find filter"),
 			notFound: true,
+			logData:  logData,
 		}
 	}
 
@@ -59,7 +66,8 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 
 	if options.TotalCount == -1 {
 		return nil, options.TotalCount, "", &er{
-			err: errors.Errorf("failed to find dimension with name (%s)", dimensionName),
+			err:     errors.New("failed to find dimension"),
+			logData: logData,
 		}
 	}
 
