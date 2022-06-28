@@ -189,6 +189,96 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 	return filter.ETag, nil
 }
 
+func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dimension, option string, currentETag string) (string, error) {
+	col := c.collections.filters
+	logData := log.Data{
+		"filter_id": filterID,
+		"dimension": dimension,
+		"option":    option,
+	}
+
+	lockID, err := col.lock(ctx, filterID)
+	if err != nil {
+		return "", errors.Wrap(err, "error while locking filters collection")
+	}
+
+	defer col.unlock(ctx, lockID)
+
+	filter, err := c.GetFilter(ctx, filterID)
+	if err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "unable to fetch filter"),
+			logData: logData,
+		}
+	}
+
+	if currentETag != "" && currentETag != filter.ETag {
+		logData["expected_etag"] = currentETag
+		logData["actual_etag"] = filter.ETag
+
+		return "", &er{
+			err:      errors.New("conflict: invalid ETag provided or filter has been updated"),
+			conflict: true,
+			logData:  logData,
+		}
+	}
+
+	dimIndex, err := findDimensionIndex(filter, dimension)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension index"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	opts := filter.Dimensions[dimIndex].Options
+
+	optIndex, err := findDimensionOptionIndex(opts, option)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension option index"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	// Remove option from dimension.options while preserving order to generate correct eTag
+	opts = append(opts[:optIndex], opts[optIndex+1:]...)
+	filter.Dimensions[dimIndex].Options = opts
+
+	if filter.ETag, err = filter.Hash(nil); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to generate eTag"),
+			logData: logData,
+		}
+	}
+
+	selectFilter := bson.M{
+		"filter_id":       filterID,
+		"dimensions.name": dimension,
+	}
+
+	updateFilter := bson.M{
+		"$set": bson.M{
+			"etag":         filter.ETag,
+			"last_updated": c.generate.Timestamp(),
+		},
+		"$pull": bson.M{
+			"dimensions.0.options": option,
+		},
+	}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to update filter dimension"),
+			logData: logData,
+		}
+	}
+
+	return filter.ETag, nil
+}
+
 // findDimensionIndex loops through a dimension, looking for a filter by name, and
 // returns the index of the item in the Dimensions slice.
 func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error) {
@@ -199,4 +289,16 @@ func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error)
 	}
 
 	return 0, errors.New("could not find dimension")
+}
+
+// findDimensionIndex loops through a dimension, looking for a filter by name, and
+// returns the index of the item in the Dimensions slice.
+func findDimensionOptionIndex(options []string, optionName string) (int, error) {
+	for i, o := range options {
+		if o == optionName {
+			return i, nil
+		}
+	}
+
+	return 0, errors.New("could not find dimension option")
 }

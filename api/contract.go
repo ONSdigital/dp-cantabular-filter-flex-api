@@ -229,6 +229,11 @@ type filterDimensionOptionLinks struct {
 	Filter    model.Link `json:"filter"`
 	Dimension model.Link `json:"dimension"`
 }
+
+type deleteFilterDimensionOptionRequest struct {
+	FilterID, Dimension, Option string
+}
+
 type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterOutputID string            `json:"filter_output_id"`
