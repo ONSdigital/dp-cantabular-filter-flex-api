@@ -44,6 +44,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" should match:$`,
 		c.aDocumentInCollectionWithKeyValueShouldMatch,
 	)
+
+	ctx.Step(
+		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" has empty "([^"]*)" options`,
+		c.theFilterHasEmptyOptions,
+	)
+
 	ctx.Step(
 		`^the following version document with dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
 		c.theFollowingVersionDocumentIsAvailable,
@@ -287,6 +293,24 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 	return nil
 }
 
+func (c *Component) theFilterHasEmptyOptions(col, key, val, dimensionName string) error {
+
+	ctx := context.Background()
+	var filter model.Filter
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{key: val}, &filter); err != nil {
+		return errors.Wrap(err, "failed to retrieve document")
+	}
+
+	for _, dimension := range filter.Dimensions {
+		if dimension.Name == dimensionName {
+			if len(dimension.Options) == 0 {
+				return nil
+			}
+		}
+	}
+
+	return errors.New("option either not found or is not empty")
+}
 func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val string, doc *godog.DocString) error {
 	ctx := context.Background()
 	var expected, result interface{}
