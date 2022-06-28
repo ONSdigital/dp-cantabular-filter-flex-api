@@ -149,7 +149,6 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 		return
-
 	}
 
 	filterOutput := model.FilterOutput{
@@ -298,6 +297,7 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
+// TODO: what is this unfinished function?
 func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -426,6 +426,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 			message: "failed to validate dimension options for filter",
 		}
 	}
+
 	return nil
 }
 

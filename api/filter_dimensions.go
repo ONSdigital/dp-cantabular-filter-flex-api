@@ -207,6 +207,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),
 	// so instead of validating it against the existing Version, we check to see if the dimension exists in Cantabular.
+	// TODO: this function gets the dimension via a search, not guaranteed to be correct dimension
 	node, err := api.getCantabularDimension(ctx, filterID, req.ID)
 	if err != nil {
 		api.respond.Error(
