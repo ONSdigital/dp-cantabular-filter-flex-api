@@ -96,18 +96,18 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 	})
 
 	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
+		logData["request"] = dReq
 		if api.ctblr.StatusCode(err) >= http.StatusInternalServerError {
 			err = Error{
 				err:     errors.Wrap(err, "failed to query dimension options from Cantabular"),
 				message: "Internal Server Error",
-				logData: log.Data{
-					"request": dReq,
-				},
+				logData: logData,
 			}
 		} else {
 			err = Error{
 				err:     errors.WithStack(err),
 				message: "invalid option for filter",
+				logData: logData,
 			}
 		}
 		api.respond.Error(ctx, w, api.ctblr.StatusCode(err), err)
