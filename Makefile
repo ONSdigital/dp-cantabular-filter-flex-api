@@ -1,3 +1,5 @@
+SHELL=bash
+
 BINPATH ?= build
 
 BUILD_TIME=$(shell date +%s)
@@ -11,7 +13,7 @@ all: audit test build
 
 .PHONY: audit
 audit:
-	go list -m all | nancy sleuth
+	set -o pipefail; go list -m all | nancy sleuth
 
 .PHONY: build
 build:
