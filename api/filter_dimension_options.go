@@ -204,12 +204,10 @@ func (api *API) deleteFilterDimensionOption(w http.ResponseWriter, r *http.Reque
 	var dimension model.Dimension
 	var dimExists bool
 
-	var dimIndex int
-	for i, d := range filter.Dimensions {
+	for _, d := range filter.Dimensions {
 		if d.Name == req.Dimension {
 			dimension = d
 			dimExists = true
-			dimIndex = i
 			break
 		}
 	}
@@ -229,11 +227,9 @@ func (api *API) deleteFilterDimensionOption(w http.ResponseWriter, r *http.Reque
 
 	// Check option exists
 	var optExists bool
-	var optIndex int
-	for i, o := range dimension.Options {
+	for _, o := range dimension.Options {
 		if o == req.Option {
 			optExists = true
-			optIndex = i
 			break
 		}
 	}
@@ -251,22 +247,12 @@ func (api *API) deleteFilterDimensionOption(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Remove option from dimension by replacing option with duplicate of last element in slice, then
-	// chopping the end of the slice (faster than creating a brand new slice in place)
-	opts := filter.Dimensions[dimIndex].Options
-	opts[optIndex] = opts[len(opts)-1]
-	opts = opts[:len(opts)-1]
-	filter.Dimensions[dimIndex].Options = opts
-
-	log.Info(ctx, "DEBUG OPTIONS", log.Data{
-		"opts":     opts,
-		"dim.opts": filter.Dimensions[dimIndex].Options,
-	})
-
 	var eTag string
 	if reqETag := api.getETag(r); reqETag != eTagAny {
 		eTag = reqETag
 	}
+
+	log.Info(ctx, "removing option from filter dimension", logData)
 
 	newETag, err := api.store.RemoveFilterDimensionOption(ctx, req.FilterID, req.Dimension, req.Option, eTag)
 	if err != nil {

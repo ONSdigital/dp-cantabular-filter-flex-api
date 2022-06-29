@@ -213,14 +213,23 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
 		},
-		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
+		GetFilterOutputFunc: func(_ context.Context, _ string) (*model.FilterOutput, error) {
 			return nil, errors.New("mongo client has failed")
 		},
 		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
 			return errors.New("failed to add event")
 		},
-		GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
+		GetFilterDimensionOptionsFunc: func(_ context.Context, _, _ string, _, _ int) ([]string, int, string, error) {
 			return nil, 0, "", errors.New("error that should not be returned to user.")
+		},
+		UpdateFilterDimensionFunc: func(_ context.Context, _, _ string, _ model.Dimension, _ string) (string, error) {
+			return "", errors.New("failed to update filter dimension")
+		},
+		RemoveFilterDimensionOptionFunc: func(_ context.Context, _, _, _, _ string) (string, error) {
+			return "", errors.New("failed to remove filter dimension option")
+		},
+		GetFilterFunc: func(_ context.Context, _ string) (*model.Filter, error) {
+			return nil, errors.New("failed to get filter")
 		},
 	}
 	return &mongoClient, nil

@@ -265,7 +265,7 @@ func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dime
 			"last_updated": c.generate.Timestamp(),
 		},
 		"$pull": bson.M{
-			"dimensions.0.options": option,
+			"dimensions.$.options": option,
 		},
 	}
 
