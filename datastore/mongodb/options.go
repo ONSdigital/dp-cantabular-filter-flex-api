@@ -111,7 +111,7 @@ func (c *Client) DeleteFilterDimensionOptions(ctx context.Context, filterID, dim
 		"$set": bson.M{
 			"etag":         filter.ETag,
 			"last_updated": c.generate.Timestamp(),
-			fmt.Sprintf("dimension.%d.options", dimensionIndex): bson.A{},
+			fmt.Sprintf("dimensions.%d.options", dimensionIndex): bson.A{},
 		},
 	}
 
