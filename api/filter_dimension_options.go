@@ -88,7 +88,9 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Check option is valid
-	var dReq cantabular.GetDimensionOptionsRequest
+	dReq := cantabular.GetDimensionOptionsRequest{
+		Dataset: filter.PopulationType,
+	}
 	dReq.DimensionNames = append(dReq.DimensionNames, dimension.ID)
 	dReq.Filters = append(dReq.Filters, cantabular.Filter{
 		Codes:    []string{req.Option},
