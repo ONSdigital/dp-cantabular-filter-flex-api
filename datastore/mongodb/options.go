@@ -98,7 +98,7 @@ func (c *Client) DeleteFilterDimensionOptions(ctx context.Context, filterID, dim
 	dimensionIndex, err := findDimensionIndex(filter, dimensionName)
 	if err != nil {
 		return "", &er{
-			err:      errors.Wrap(err, "failed to find dimension"),
+			err:      errors.Wrap(err, "failed to find dimension index"),
 			notFound: true,
 			logData:  logData,
 		}

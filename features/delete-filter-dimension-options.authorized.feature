@@ -108,7 +108,7 @@ Feature: Delete Filter Dimension Options
     """
     {
       "errors": [
-      "Failed to delete options: failed to find dimension: could not find dimension"
+      "failed to delete options: failed to find dimension index: could not find dimension"
       ]
     }
     """
