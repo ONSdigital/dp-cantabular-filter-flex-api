@@ -62,9 +62,13 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
 	api.Router.Delete("/filters/{id}/dimensions/{name}/options", api.deleteFilterDimensionOptions)
 	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 
+	api.Router.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
 	api.Router.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
+	api.Router.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
 
 	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
 
@@ -90,6 +94,8 @@ func (api *API) enablePrivateEndpoints() {
 	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
 	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+
+	r.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
 	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
 	r.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
 	r.Delete("/filters/{id}/dimensions/{name}/options", api.deleteFilterDimensionOptions)

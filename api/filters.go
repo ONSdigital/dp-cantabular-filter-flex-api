@@ -443,6 +443,9 @@ func hydrateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimen
 	for _, dim := range filterDims {
 		dim.ID = lookup[dim.Name].id
 		dim.Label = lookup[dim.Name].label
+		if dim.Options == nil {
+			dim.Options = []string{}
+		}
 		hydrated = append(hydrated, dim)
 	}
 
