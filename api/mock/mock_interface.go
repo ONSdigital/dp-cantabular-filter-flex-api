@@ -260,6 +260,21 @@ func (mr *MockdatastoreMockRecorder) GetFilterOutput(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilterOutput", reflect.TypeOf((*Mockdatastore)(nil).GetFilterOutput), arg0, arg1)
 }
 
+// RemoveFilterDimensionOption mocks base method.
+func (m *Mockdatastore) RemoveFilterDimensionOption(ctx context.Context, filterID, dimension, option, currentETag string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveFilterDimensionOption", ctx, filterID, dimension, option, currentETag)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RemoveFilterDimensionOption indicates an expected call of RemoveFilterDimensionOption.
+func (mr *MockdatastoreMockRecorder) RemoveFilterDimensionOption(ctx, filterID, dimension, option, currentETag interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFilterDimensionOption", reflect.TypeOf((*Mockdatastore)(nil).RemoveFilterDimensionOption), ctx, filterID, dimension, option, currentETag)
+}
+
 // UpdateFilterDimension mocks base method.
 func (m *Mockdatastore) UpdateFilterDimension(ctx context.Context, filterID, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
 	m.ctrl.T.Helper()
