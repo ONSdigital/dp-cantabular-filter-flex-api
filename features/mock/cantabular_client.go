@@ -14,6 +14,11 @@ type CantabularClient struct {
 	SearchDimensionsFunc func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 }
 
+func (c *CantabularClient) Reset() {
+	c.ErrStatus = 500
+	c.OptionsHappy = true
+}
+
 func (c *CantabularClient) StatusCode(_ error) int {
 	return c.ErrStatus
 }

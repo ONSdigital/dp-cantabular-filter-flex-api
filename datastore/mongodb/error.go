@@ -8,7 +8,6 @@ type er struct {
 	conflict    bool
 	unavailable bool
 	forbidden   bool
-	badRequest  bool
 }
 
 // Error satisfies the standard library Go error interface
@@ -52,10 +51,4 @@ func (e *er) Unavailable() bool {
 // to recall metadata about the error thrown
 func (e *er) Forbidden() bool {
 	return e.forbidden
-}
-
-// BadRequest satisfies the badRequest interface and allows other packages
-// to recall metadata about the error thrown
-func (e *er) BadRequest() bool {
-	return e.badRequest
 }

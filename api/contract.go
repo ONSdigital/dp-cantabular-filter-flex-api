@@ -109,7 +109,7 @@ func (r *putFilterOutputRequest) Valid() error {
 	return nil
 }
 
-type AddOptionResponse struct {
+type GetFilterDimensionOptionsItem struct {
 	Option    string     `json:"option"`
 	Self      model.Link `json:"self"`
 	Filter    model.Link `json:"filter"`
@@ -118,7 +118,7 @@ type AddOptionResponse struct {
 
 // getDimensionOptionsResponse is the response body for GET /filters/{id}/dimensions/{name}/options
 type GetFilterDimensionOptionsResponse struct {
-	Items []AddOptionResponse `json:"items"`
+	Items []GetFilterDimensionOptionsItem `json:"items"`
 	paginationResponse
 }
 
@@ -215,6 +215,20 @@ type dimensionItemLinks struct {
 	Self    model.Link `json:"self"`
 }
 
+type addFilterDimensionOptionRequest struct {
+	FilterID, Dimension, Option string
+}
+
+type addFilterDimensionOptionResponse struct {
+	Option string                     `json:"option"`
+	Links  filterDimensionOptionLinks `json:"links`
+}
+
+type filterDimensionOptionLinks struct {
+	Self      model.Link `json:"self"`
+	Filter    model.Link `json:"filter"`
+	Dimension model.Link `json:"dimension"`
+}
 type submitFilterResponse struct {
 	InstanceID     string            `json:"instance_id"`
 	FilterOutputID string            `json:"filter_output_id"`

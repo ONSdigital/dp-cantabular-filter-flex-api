@@ -49,7 +49,7 @@ var _ service.Datastore = &DatastoreMock{}
 // 			GetFilterDimensionFunc: func(ctx context.Context, fID string, dimName string) (model.Dimension, error) {
 // 				panic("mock out the GetFilterDimension method")
 // 			},
-// 			GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error) {
+// 			GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
 // 				panic("mock out the GetFilterDimensionOptions method")
 // 			},
 // 			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error) {
@@ -99,7 +99,7 @@ type DatastoreMock struct {
 	GetFilterDimensionFunc func(ctx context.Context, fID string, dimName string) (model.Dimension, error)
 
 	// GetFilterDimensionOptionsFunc mocks the GetFilterDimensionOptions method.
-	GetFilterDimensionOptionsFunc func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error)
+	GetFilterDimensionOptionsFunc func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error)
 
 	// GetFilterDimensionsFunc mocks the GetFilterDimensions method.
 	GetFilterDimensionsFunc func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error)
@@ -573,7 +573,7 @@ func (mock *DatastoreMock) GetFilterDimensionCalls() []struct {
 }
 
 // GetFilterDimensionOptions calls GetFilterDimensionOptionsFunc.
-func (mock *DatastoreMock) GetFilterDimensionOptions(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, error) {
+func (mock *DatastoreMock) GetFilterDimensionOptions(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
 	if mock.GetFilterDimensionOptionsFunc == nil {
 		panic("DatastoreMock.GetFilterDimensionOptionsFunc: method is nil but Datastore.GetFilterDimensionOptions was just called")
 	}

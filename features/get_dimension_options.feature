@@ -106,45 +106,45 @@ Feature: Get Filter Dimension Options Private Endpoints
         {
           "option": "Cardiff",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Cardiff"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "London",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "London"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "Swansea",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Swansea"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         }
@@ -167,45 +167,45 @@ Feature: Get Filter Dimension Options Private Endpoints
         {
           "option": "Cardiff",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Cardiff"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "London",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "London"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "Swansea",
           "self": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Swansea"
           },
           "filter": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         }
@@ -223,7 +223,7 @@ Feature: Get Filter Dimension Options Private Endpoints
      """
      {
      "errors": [
-         "Failed to get options: failed to find filter with ID (notExists)"
+         "failed to get filter dimension option"
      ]
      }
      """
@@ -234,7 +234,7 @@ Feature: Get Filter Dimension Options Private Endpoints
       """
       {
       "errors": [
-        "Failed to get options: failed to find dimension with name (not-exist)"
+         "failed to get filter dimension option"
       ]
       }
       """
@@ -246,7 +246,7 @@ Feature: Get Filter Dimension Options Private Endpoints
      """
      {
      "errors": [
-     "Failed to get options: internal server error"
+         "failed to get filter dimension option"
      ]
      }
      """

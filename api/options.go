@@ -32,15 +32,10 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 		// define a reasonable default
 		// in light of bad input
 		// also slice not work with 0
-		pageLimit = 20
+		pageLimit = DefaultLimit
 	}
 
-	var eTag string
-	if reqETag := api.getETag(r); reqETag != eTagAny {
-		eTag = reqETag
-	}
-
-	options, totalCount, err := api.store.GetFilterDimensionOptions(
+	options, totalCount, eTag, err := api.store.GetFilterDimensionOptions(
 		ctx,
 		filterID,
 		dimensionName,
@@ -48,29 +43,25 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 		offset,
 	)
 	if err != nil {
-		status := statusCode(err)
-		finalErr := errors.New("internal server error")
-
-		if dperrors.NotFound(err) {
-			status = http.StatusNotFound
-			finalErr = err
-		}
-		if dperrors.BadRequest(err) {
-			status = http.StatusBadRequest
-			finalErr = err
+		code := statusCode(err)
+		if totalCount == -1 {
+			code = http.StatusBadRequest
 		}
 
 		api.respond.Error(
 			ctx,
 			w,
-			status,
-			errors.Wrap(finalErr, "Failed to get options"),
+			code,
+			Error{
+				err:     errors.Wrap(err, "failed to get filter dimension options"),
+				message: "failed to get filter dimension option",
+			},
 		)
 		return
 	}
 
 	resp := GetFilterDimensionOptionsResponse{
-		Items: parseFilterDimensionOptions(options, filterID, dimensionName),
+		Items: parseFilterDimensionOptions(options, filterID, dimensionName, api.cfg.FilterAPIURL),
 		paginationResponse: paginationResponse{
 			Limit:      pageLimit,
 			Offset:     offset,
@@ -147,22 +138,22 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	w.Header().Set(eTagHeader, eTag)
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
-func parseFilterDimensionOptions(options []string, filterID, dimensionName string) []AddOptionResponse {
-	responses := make([]AddOptionResponse, 0)
+func parseFilterDimensionOptions(options []string, filterID, dimensionName string, address string) []GetFilterDimensionOptionsItem {
+	responses := make([]GetFilterDimensionOptionsItem, 0)
 
 	for _, option := range options {
-		addOptionResponse := AddOptionResponse{
+		addOptionResponse := GetFilterDimensionOptionsItem{
 			Option: option,
 			Self: model.Link{
-				HREF: "/filters/" + filterID + "/dimensions/" + dimensionName + "/options",
+				HREF: address + "/filters/" + filterID + "/dimensions/" + dimensionName + "/options",
 				ID:   option,
 			},
 			Filter: model.Link{
-				HREF: "/filters/" + filterID,
+				HREF: address + "/filters/" + filterID,
 				ID:   filterID,
 			},
 			Dimension: model.Link{
-				HREF: "/filters/" + filterID + "/dimensions/" + dimensionName,
+				HREF: address + "/filters/" + filterID + "/dimensions/" + dimensionName,
 				ID:   dimensionName,
 			},
 		}
