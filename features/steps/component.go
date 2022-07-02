@@ -3,12 +3,7 @@ package steps
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 	"testing"
 	"time"
 
@@ -34,83 +29,114 @@ const (
 	WaitEventTimeout      = 10 * time.Second // maximum time that the component test consumer will wait for a
 )
 
+const (
+	mongoVersion = "4.4.8"
+	databaseName = "filters"
+)
+
 var (
-	BuildTime string = "1625046891"
-	GitCommit string = "7434fe334d9f51b7239f978094ea29d10ac33b16"
-	Version   string = ""
+	BuildTime = "1625046891"
+	GitCommit = "7434fe334d9f51b7239f978094ea29d10ac33b16"
+	Version   = ""
 )
 
 type Component struct {
 	componenttest.ErrorFeature
-	ApiFeature        *componenttest.APIFeature
-	errorChan         chan error
-	DatasetAPI        *httpfake.HTTPFake
-	CantabularClient  *mock.CantabularClient
-	svc               *service.Service
-	cfg               *config.Config
-	wg                *sync.WaitGroup
-	signals           chan os.Signal
-	ctx               context.Context
-	HTTPServer        *http.Server
-	store             service.Datastore
-	g                 service.Generator
-	shutdownInitiated bool
-	consumer          kafka.IConsumerGroup
-	waitEventTimeout  time.Duration
+	ApiFeature   *componenttest.APIFeature
+	AuthFeature  *componenttest.AuthorizationFeature
+	MongoFeature *componenttest.MongoFeature
+
+	DatasetAPI       *httpfake.HTTPFake
+	CantabularClient *mock.CantabularClient
+
+	HTTPServer *http.Server
+
+	store    service.Datastore
+	consumer kafka.IConsumerGroup
+	g        service.Generator
+
+	svc *service.Service
+
+	waitEventTimeout time.Duration
 }
 
-func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
-	ctx := context.Background()
-	cfg, err := config.Get()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get config: %w", err)
-	}
+func NewComponent(t *testing.T) *Component {
+	component := &Component{
+		ErrorFeature: componenttest.ErrorFeature{TB: t},
+		AuthFeature:  componenttest.NewAuthorizationFeature(),
+		MongoFeature: componenttest.NewMongoFeature(componenttest.MongoOptions{
+			MongoVersion: mongoVersion,
+			DatabaseName: databaseName,
+		}),
 
-	cfg.ZebedeeURL = zebedeeURL
-	cfg.Mongo.ClusterEndpoint = mongoAddr
-	cfg.Mongo.Database = utils.RandomDatabase()
-
-	g := &mock.Generator{
-		URLHost: "http://mockhost:9999",
-	}
-
-	mongoClient, err := GetWorkingMongo(ctx, cfg, g)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
-	}
-
-	return &Component{
-		errorChan:  make(chan error),
-		wg:         &sync.WaitGroup{},
-		ctx:        ctx,
 		HTTPServer: &http.Server{},
-		cfg:        cfg,
 		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
 		CantabularClient: &mock.CantabularClient{
 			OptionsHappy: true,
 		},
-		store:            mongoClient,
-		g:                g,
+		g: &mock.Generator{
+			URLHost: "http://mockhost:9999",
+		},
 		waitEventTimeout: WaitEventTimeout,
-	}, nil
-}
+	}
+	component.ApiFeature = componenttest.NewAPIFeature(component.Router)
 
-// Init initialises the server, the mocks and waits for the dependencies to be ready
-func (c *Component) Init() (http.Handler, error) {
-	c.signals = make(chan os.Signal, 1)
-	signal.Notify(c.signals, os.Interrupt, syscall.SIGTERM)
+	cfg, err := config.Get()
+	if err != nil {
+		t.Fatalf("failed to get config: %s", err)
+	}
+	cfg.ZebedeeURL = component.AuthFeature.FakeAuthService.ResolveURL("")
+	cfg.DatasetAPIURL = component.DatasetAPI.ResolveURL("")
+	cfg.Mongo.ClusterEndpoint = component.MongoFeature.Server.URI()
+	cfg.Mongo.Database = utils.RandomDatabase()
+	component.setWorkingMongo(cfg)
 
-	log.Info(c.ctx, "config used by component tests", log.Data{"cfg": c.cfg})
-
-	c.cfg.DatasetAPIURL = c.DatasetAPI.ResolveURL("")
+	log.Info(context.Background(), "config used by component tests", log.Data{"cfg": cfg})
 
 	// Create service and initialise it
-	c.svc = service.New()
-	if err := c.svc.Init(c.ctx, c.cfg, BuildTime, GitCommit, Version); err != nil {
-		return nil, fmt.Errorf("failed to initialise service: %w", err)
+	component.setInitialiserMock()
+	component.svc = service.New()
+	if err := component.svc.Init(context.Background(), cfg, BuildTime, GitCommit, Version); err != nil {
+		component.ErrorFeature.Fatalf("failed to initialise service: %s", err)
 	}
 
+	return component
+}
+
+// Router returns the component's server router
+func (c *Component) Router() (http.Handler, error) {
 	return c.HTTPServer.Handler, nil
+}
+
+// Reset re-initialises the service under test and the api mocks.
+func (c *Component) Reset() {
+	var err error
+
+	c.svc.Reset()
+
+	c.ApiFeature.Reset()
+	c.AuthFeature.Reset()
+	c.DatasetAPI.Reset()
+	c.CantabularClient.Reset()
+
+	err = c.MongoFeature.Reset()
+	if err != nil {
+		c.ErrorFeature.Fatalf("failed to reset mongo: %s", err)
+	}
+
+	c.svc.Cfg.Mongo.Database = utils.RandomDatabase()
+	c.setWorkingMongo(c.svc.Cfg)
+}
+
+// Close kills the application under test, and then it shuts down the testing producer.
+func (c *Component) Close() {
+	c.AuthFeature.Close()
+	c.DatasetAPI.Close()
+
+	err := c.MongoFeature.Close()
+	if err != nil {
+		c.ErrorFeature.Errorf("error closing Mongo: %s", err)
+	}
 }
 
 func (c *Component) setInitialiserMock() {
@@ -133,83 +159,25 @@ func (c *Component) setInitialiserMock() {
 	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 		return c.store, nil
 	}
-
-	c.cfg.Mongo.Database = utils.RandomDatabase()
 }
 
-// startService starts the service under test and blocks until an error or an os interrupt is received.
-// Then it closes the service (graceful shutdown)
-func (c *Component) startService(ctx context.Context) {
-	defer c.wg.Done()
-	c.svc.Start(ctx, c.errorChan)
+func (c *Component) setWorkingMongo(cfg *config.Config) {
+	var err error
 
-	wg := sync.WaitGroup{}
-	if err := c.drainTopic(c.ctx, c.cfg.KafkaConfig.ExportStartTopic, ComponentTestGroup, &wg); err != nil {
-		log.Error(c.ctx, "error draining topic", err)
-	}
-
-	select {
-	case err := <-c.errorChan:
-		err = fmt.Errorf("service error received: %w", err)
-		defer func() {
-			if err := c.svc.Close(ctx); err != nil {
-				log.Error(ctx, "failed to shutdown service gracefully: %s", err)
-			}
-		}()
-		panic(fmt.Errorf("unexpected error received from errorChan: %w", err))
-	case sig := <-c.signals:
-		log.Info(ctx, "os signal received", log.Data{"signal": sig})
-	}
-	if err := c.svc.Close(ctx); err != nil {
-		panic(fmt.Errorf("failed to shutdiwn gracefully: %w", err))
-	}
-}
-
-// Close kills the application under test, and then it shuts down the testing producer.
-func (c *Component) Close() {
-
-	if !c.shutdownInitiated {
-		c.shutdownInitiated = true
-		c.signals <- os.Interrupt
-
-		// wait for graceful shutdown to finish (or timeout)
-		// TODO we should fix the timeout issue and then uncomment the following line.
-		c.wg.Wait()
-	}
-
-}
-
-// Reset re-initialises the service under test and the api mocks.
-// Note that the service under test should not be started yet
-// to prevent race conditions if it tries to call un-initialised dependencies (steps)
-func (c *Component) Reset() error {
-	c.setInitialiserMock()
-	c.DatasetAPI.Reset()
-	c.CantabularClient.Reset()
-
-	if _, err := c.Init(); err != nil {
-		return fmt.Errorf("failed to initialise component: %w", err)
-	}
-
-	return nil
-}
-
-func GetWorkingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
-	mongoClient, err := mongodb.NewClient(ctx, g, mongodb.Config{
+	c.store, err = mongodb.NewClient(context.Background(), c.g, mongodb.Config{
 		MongoDriverConfig:       cfg.Mongo,
 		FilterFlexAPIURL:        cfg.BindAddr,
 		FiltersCollection:       cfg.FiltersCollection,
 		FilterOutputsCollection: cfg.FilterOutputsCollection,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create new mongo mongoClient: %w", err)
+		c.ErrorFeature.Fatalf("failed to get a working mongo: %s", err)
 	}
-	return mongoClient, nil
 }
 
 //keep adding new handler functions for which the mongo needs to fail
-func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
-	mongoClient := servicemock.DatastoreMock{
+func (c *Component) setFailingMongo() {
+	c.store = &servicemock.DatastoreMock{
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
 		},
@@ -220,8 +188,7 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 			return errors.New("failed to add event")
 		},
 		GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
-			return nil, 0, "", errors.New("error that should not be returned to user.")
+			return nil, 0, "", errors.New("error that should not be returned to user")
 		},
 	}
-	return &mongoClient, nil
 }

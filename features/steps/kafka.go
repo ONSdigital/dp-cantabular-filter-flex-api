@@ -71,10 +71,10 @@ func (c *Component) drainTopic(ctx context.Context, topic, group string, wg *syn
 	drainer, err := kafka.NewConsumerGroup(
 		ctx,
 		&kafka.ConsumerGroupConfig{
-			BrokerAddrs:   c.cfg.KafkaConfig.Addr,
+			BrokerAddrs:   c.svc.Cfg.KafkaConfig.Addr,
 			Topic:         topic,
 			GroupName:     group,
-			KafkaVersion:  &c.cfg.KafkaConfig.Version,
+			KafkaVersion:  &c.svc.Cfg.KafkaConfig.Version,
 			Offset:        &kafkaOffset,
 			BatchSize:     &batchSize,
 			BatchWaitTime: &batchWaitTime,

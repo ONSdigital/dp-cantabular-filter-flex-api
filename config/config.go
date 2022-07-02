@@ -123,3 +123,8 @@ func Get() (*Config, error) {
 
 	return cfg, envconfig.Process("", cfg)
 }
+
+// Reset is intended for testing purposes only, and should not be regarded as part of the standard public api of the package
+func Reset() {
+	cfg = nil
+}

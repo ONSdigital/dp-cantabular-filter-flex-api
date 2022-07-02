@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,6 +27,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var req createFilterRequest
 
+	fmt.Println("here in API::createFilter - about to parse request")
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,

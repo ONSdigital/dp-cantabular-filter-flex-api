@@ -24,13 +24,17 @@ import (
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
+	c.ApiFeature.RegisterSteps(ctx)
+	c.AuthFeature.RegisterSteps(ctx)
+	c.MongoFeature.RegisterSteps(ctx)
+
 	ctx.Step(
-		`^the service starts`,
-		c.theServiceStarts,
+		`^private endpoints are enabled$`,
+		c.privateEndpointsAreEnabled,
 	)
 	ctx.Step(
-		`^private endpoints are enabled`,
-		c.privateEndpointsAreEnabled,
+		`^private endpoints are enabled with permissions checking$`,
+		c.privateEndpointsAreEnabledWithPermissions,
 	)
 	ctx.Step(
 		`^private endpoints are not enabled`,
@@ -110,9 +114,9 @@ func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) e
 		return fmt.Errorf("failed to unmarshall provided filterOutput: %w", err)
 	}
 
-	actual, err := c.store.GetFilterOutput(c.ctx, expected.ID)
+	actual, err := c.store.GetFilterOutput(context.Background(), expected.ID)
 	if err != nil {
-		return fmt.Errorf("Error encountered while retrieving filter output: %w", err)
+		return fmt.Errorf("error encountered while retrieving filter output: %w", err)
 	}
 
 	if diff := cmp.Diff(actual, &expected); diff != "" {
@@ -162,7 +166,7 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		return fmt.Errorf("failed to create slice from godog table: %w", err)
 	}
 
-	consumer, err := GenerateKafkaConsumer(c.ctx)
+	consumer, err := GenerateKafkaConsumer(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to generate kafka consumer: %w", err)
 	}
@@ -197,10 +201,10 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 
 	}
 
-	if err := consumer.Close(c.ctx); err != nil {
+	if err := consumer.Close(context.Background()); err != nil {
 		// just log the error, but do not fail the test
 		// as it is not relevant to this test.
-		log.Error(c.ctx, "error closing kafka consumer", err)
+		log.Error(context.Background(), "error closing kafka consumer", err)
 	}
 	if diff := cmp.Diff(expected, got); diff != "" {
 		return fmt.Errorf("+got -expected)\n%s\n", diff)
@@ -225,7 +229,7 @@ func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
 	}
 
 	ctx := context.Background()
-	col := c.cfg.FiltersCollection
+	col := c.svc.Cfg.FiltersCollection
 
 	var response model.Filter
 	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": filterID}, &response); err != nil {
@@ -248,42 +252,37 @@ func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
 	return nil
 }
 
-func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() error {
-	var err error
-	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
-	if err != nil {
-		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
-	}
-
-	return nil
+func (c *Component) MongoDatastoreFailsForUpdateFilterOutput() {
+	c.setFailingMongo()
 }
 
-func (c *Component) MongoDatastoreIsFailing() error {
-	var err error
-	c.store, err = GetFailingMongo(c.ctx, c.cfg, c.g)
-	if err != nil {
-		return fmt.Errorf("failed to create new mongo mongoClient: %w", err)
-	}
-
-	return nil
-}
-
-// theServiceStarts starts the service under test in a new go-routine
-// note that this step should be called only after all dependencies have been setup,
-// to prevent any race condition, specially during the first healthcheck iteration.
-func (c *Component) theServiceStarts() error {
-	c.wg.Add(1)
-	go c.startService(c.ctx)
-	return nil
+func (c *Component) MongoDatastoreIsFailing() {
+	c.setFailingMongo()
 }
 
 func (c *Component) privateEndpointsAreEnabled() error {
-	c.cfg.EnablePrivateEndpoints = true
+	fmt.Println("in ***Component:privateEndpointsAreEnabled")
+	c.svc.Cfg.EnablePrivateEndpoints = true
+	return nil
+}
+
+func (c *Component) privateEndpointsAreEnabledWithPermissions() error {
+	fmt.Println("in ***Component:privateEndpointsAreEnabledWithPermissions")
+	c.svc.Cfg.EnablePrivateEndpoints = true
+	c.svc.Cfg.EnablePermissionsAuth = true
+	c.svc.Api.Reset()
 	return nil
 }
 
 func (c *Component) privateEndpointsAreNotEnabled() error {
-	c.cfg.EnablePrivateEndpoints = false
+	fmt.Println("in ***Component:privateEndpointsAreNotEnabled")
+	c.svc.Cfg.EnablePrivateEndpoints = false
+	c.svc.Cfg.EnablePermissionsAuth = false
+	return nil
+}
+
+func (c *Component) permissionsCheckingIsNotEnabled() error {
+	c.svc.Cfg.EnablePermissionsAuth = false
 	return nil
 }
 
@@ -317,7 +316,7 @@ func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val s
 }
 
 func (c *Component) theMaximumLimitIsSetTo(val int) error {
-	c.cfg.DefaultMaximumLimit = val
+	c.svc.Cfg.DefaultMaximumLimit = val
 	return nil
 }
 
@@ -392,7 +391,7 @@ func (c *Component) cantabularRespondsWithAnError() {
 func (c *Component) insertFilters(filters []model.Filter) error {
 	ctx := context.Background()
 	store := c.store
-	col := c.cfg.FiltersCollection
+	col := c.svc.Cfg.FiltersCollection
 
 	for _, filter := range filters {
 		if _, err := store.Conn().Collection(col).UpsertById(ctx, filter.ID, bson.M{"$set": filter}); err != nil {
@@ -422,8 +421,7 @@ func (c *Component) theFollowingVersionDocumentIsAvailable(datasetID, edition, v
 }
 
 func (c *Component) iProvideIfMatchHeader(eTag string) error {
-	c.ApiFeature.ISetTheHeaderTo("If-Match", eTag)
-	return nil
+	return c.ApiFeature.ISetTheHeaderTo("If-Match", eTag)
 }
 
 func (c *Component) theClientForTheDatasetAPIFailedAndIsReturningErrors() error {
@@ -444,7 +442,7 @@ func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 	}
 
 	store := c.store
-	col := c.cfg.FilterOutputsCollection
+	col := c.svc.Cfg.FilterOutputsCollection
 
 	for _, f := range filterOutputs {
 		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {

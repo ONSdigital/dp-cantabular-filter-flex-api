@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-authorisation/auth"
-	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -37,6 +36,19 @@ type authHandler interface {
 	Require(auth.Permissions, http.HandlerFunc) http.HandlerFunc
 }
 
+type crap struct{}
+
+func (c *crap) Require(required auth.Permissions, handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Info(r.Context(), "in crap.Require", log.Data{
+			"uri":                  r.URL.Path,
+			"method":               r.Method,
+			"required_permissions": required,
+		})
+		handler.ServeHTTP(w, r)
+	}
+}
+
 // Permissions is the middleware for checking the caller has the required
 // permissions (CRUD) for the given route
 type Permissions struct {
@@ -51,16 +63,18 @@ func NewPermissions(zebedeeURL string, enabled bool) *Permissions {
 		}
 	}
 
-	client := auth.NewPermissionsClient(dphttp.NewClient())
-	verifier := auth.DefaultPermissionsVerifier()
+	return &Permissions{handler: &crap{}}
 
-	return &Permissions{
-		handler: auth.NewHandler(
-			auth.NewPermissionsRequestBuilder(zebedeeURL),
-			client,
-			verifier,
-		),
-	}
+	//client := auth.NewPermissionsClient(dphttp.NewClient())
+	//verifier := auth.DefaultPermissionsVerifier()
+	//
+	//return &Permissions{
+	//	handler: auth.NewHandler(
+	//		auth.NewPermissionsRequestBuilder(zebedeeURL),
+	//		client,
+	//		verifier,
+	//	),
+	//}
 }
 
 // Require is the middleware handler you wrap around each route, providing which

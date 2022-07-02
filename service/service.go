@@ -54,7 +54,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	}
 
 	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
-		return fmt.Errorf("Could not initialise Kafka producer: %w", err)
+		return fmt.Errorf("could not initialise Kafka producer: %w", err)
 	}
 
 	svc.Producer.LogErrors(ctx)
@@ -72,24 +72,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
-	r := chi.NewRouter()
-	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
-	// TODO: Add other(s) to serviceList here
-
 	// Setup the API
-	svc.Api = api.New(
-		ctx,
-		cfg,
-		r,
-		svc.identityClient,
-		svc.responder,
-		svc.generator,
-		svc.store,
-		svc.datasetAPIClient,
-		svc.cantabularClient,
-		svc.Producer,
-	)
-	svc.Server = GetHTTPServer(cfg.BindAddr, r)
+	svc.initAPI(ctx)
+
+	svc.Server = GetHTTPServer(cfg.BindAddr, svc.Api.Router)
 
 	return nil
 }
@@ -139,7 +125,6 @@ func (svc *Service) Close(ctx context.Context) error {
 		if err := svc.Producer.Close(ctx); err != nil {
 			log.Info(ctx, "failed to shut down kafka producer")
 		}
-
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)
@@ -198,4 +183,40 @@ func (svc *Service) registerCheckers() error {
 	}
 
 	return nil
+}
+
+func (svc *Service) initAPI(ctx context.Context) {
+	svc.Api = api.New(
+		ctx,
+		svc.Cfg,
+		func() chi.Router { return svc.initRouter() },
+		svc.identityClient,
+		svc.responder,
+		svc.generator,
+		svc.store,
+		svc.datasetAPIClient,
+		svc.cantabularClient,
+		svc.Producer,
+	)
+}
+
+// initRouter adds the checkers for the service clients to the health check object.
+func (svc *Service) initRouter() *chi.Mux {
+	r := chi.NewRouter()
+	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
+
+	return r
+}
+
+// Reset is intended for testing purposes only, and should not be regarded as part of the standard public api of the package
+func (svc *Service) Reset() {
+	var err error
+
+	config.Reset()
+	svc.Cfg, err = config.Get()
+	if err != nil {
+		panic("error on service reset: " + err.Error())
+	}
+
+	svc.Api.Reset()
 }

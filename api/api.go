@@ -17,6 +17,7 @@ import (
 
 // API provides a struct to wrap the api around
 type API struct {
+	baseRouter     router
 	Router         chi.Router
 	store          datastore
 	respond        responder
@@ -28,10 +29,12 @@ type API struct {
 	cfg            *config.Config
 }
 
+type router func() chi.Router
+
 // New creates and initialises a new API
-func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
+func New(_ context.Context, cfg *config.Config, baseRouter router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
 	api := &API{
-		Router:         r,
+		baseRouter:     baseRouter,
 		respond:        rsp,
 		generate:       g,
 		store:          d,
@@ -42,16 +45,22 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		producer:       p,
 	}
 
-	if cfg.EnablePrivateEndpoints {
-		api.enablePrivateEndpoints()
-	} else {
-		api.enablePublicEndpoints()
-	}
+	api.initRouter()
 
 	return api
 }
 
+func (api *API) initRouter() {
+	if api.cfg.EnablePrivateEndpoints {
+		api.enablePrivateEndpoints()
+	} else {
+		api.enablePublicEndpoints()
+	}
+}
+
 func (api *API) enablePublicEndpoints() {
+	api.Router = api.baseRouter()
+
 	api.Router.Post("/filters", api.createFilter)
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Put("/filters/{id}", api.putFilter)
@@ -71,29 +80,49 @@ func (api *API) enablePublicEndpoints() {
 }
 
 func (api *API) enablePrivateEndpoints() {
-	r := chi.NewRouter()
+	api.Router = chi.NewRouter()
+	api.Router.Use(api.baseRouter().Middlewares()...)
 
-	permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
-	checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
+	api.Router.Use(
+		dphandlers.IdentityWithHTTPClient(api.identityClient),
+		middleware.LogIdentity(),
+		middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth).Require(auth.Permissions{Read: true}))
 
-	r.Use(checkIdentity)
-	r.Use(middleware.LogIdentity())
-	r.Use(permissions.Require(auth.Permissions{Read: true}))
+	api.Router.Post("/filters", api.createFilter)
+	api.Router.Get("/filters/{id}", api.getFilter)
+	api.Router.Put("/filters/{id}", api.putFilter)
+	api.Router.Post("/filters/{id}/submit", api.submitFilter)
 
-	r.Post("/filters", api.createFilter)
-	r.Get("/filters/{id}", api.getFilter)
-	r.Put("/filters/{id}", api.putFilter)
-	r.Post("/filters/{id}/submit", api.submitFilter)
+	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
+	api.Router.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
 
-	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
-	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
-	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
-	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
-	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
-	r.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
-	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
-	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)
-	r.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
+	api.Router.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
+	api.Router.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)
+	api.Router.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
 
-	api.Router.Mount("/", r)
+	for _, p := range api.baseRouter().Routes() {
+		for m, h := range p.Handlers {
+			if m == "*" {
+				api.Router.Handle(p.Pattern, h)
+				continue
+			}
+			api.Router.Method(m, p.Pattern, h)
+		}
+	}
+}
+
+// Reset is intended for testing purposes only, and should not be regarded as part of the standard public api of the package
+func (api *API) Reset() {
+	var err error
+
+	api.cfg, err = config.Get()
+	if err != nil {
+		panic("error on api reset: " + err.Error())
+	}
+
+	api.initRouter()
 }

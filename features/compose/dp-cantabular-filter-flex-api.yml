@@ -22,7 +22,7 @@ services:
             SERVICE_AUTH_TOKEN:          "testToken"
             COMPONENT_TEST_USE_LOG_FILE: "${COMPONENT_TEST_USE_LOG_FILE-false}"
             CANTABULAR_URL:              "http://dp-cantabular-server:8491"
-            ENABLE_PRIVATE_ENDPOINTS:    "false"
+            ENABLE_PRIVATE_ENDPOINTS:    "true"
             ENABLE_PERMISSIONS_AUTH:     "false"
             ZEBEDEE_URL:                 "http://zebedee:8082"
             MONGODB_BIND_ADDR:           "mongodb:27017"
