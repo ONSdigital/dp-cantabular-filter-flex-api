@@ -511,4 +511,3 @@ Feature: Filter Outputs Private Endpoints Enabled
     }
     """
     And the HTTP status code should be "400"
-

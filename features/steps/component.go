@@ -42,21 +42,21 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	ApiFeature           *componenttest.APIFeature
-	errorChan            chan error
-	DatasetAPI           *httpfake.HTTPFake
-	MockCantabularClient *mock.CantabularClient
-	svc                  *service.Service
-	cfg                  *config.Config
-	wg                   *sync.WaitGroup
-	signals              chan os.Signal
-	ctx                  context.Context
-	HTTPServer           *http.Server
-	store                service.Datastore
-	g                    service.Generator
-	shutdownInitiated    bool
-	consumer             kafka.IConsumerGroup
-	waitEventTimeout     time.Duration
+	ApiFeature        *componenttest.APIFeature
+	errorChan         chan error
+	DatasetAPI        *httpfake.HTTPFake
+	CantabularClient  *mock.CantabularClient
+	svc               *service.Service
+	cfg               *config.Config
+	wg                *sync.WaitGroup
+	signals           chan os.Signal
+	ctx               context.Context
+	HTTPServer        *http.Server
+	store             service.Datastore
+	g                 service.Generator
+	shutdownInitiated bool
+	consumer          kafka.IConsumerGroup
+	waitEventTimeout  time.Duration
 }
 
 func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error) {
@@ -86,7 +86,7 @@ func NewComponent(t *testing.T, zebedeeURL, mongoAddr string) (*Component, error
 		HTTPServer: &http.Server{},
 		cfg:        cfg,
 		DatasetAPI: httpfake.New(httpfake.WithTesting(t)),
-		MockCantabularClient: &mock.CantabularClient{
+		CantabularClient: &mock.CantabularClient{
 			OptionsHappy: true,
 		},
 		store:            mongoClient,
@@ -127,7 +127,7 @@ func (c *Component) setInitialiserMock() {
 	}
 
 	service.GetCantabularClient = func(_ *config.Config) service.CantabularClient {
-		return c.MockCantabularClient
+		return c.CantabularClient
 	}
 
 	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
@@ -185,6 +185,7 @@ func (c *Component) Close() {
 func (c *Component) Reset() error {
 	c.setInitialiserMock()
 	c.DatasetAPI.Reset()
+	c.CantabularClient.Reset()
 
 	if _, err := c.Init(); err != nil {
 		return fmt.Errorf("failed to initialise component: %w", err)
@@ -212,11 +213,23 @@ func GetFailingMongo(ctx context.Context, cfg *config.Config, g service.Generato
 		UpdateFilterOutputFunc: func(_ context.Context, _ *model.FilterOutput) error {
 			return errors.New("failed to upsert filter")
 		},
-		GetFilterOutputFunc: func(_ context.Context, s string) (*model.FilterOutput, error) {
+		GetFilterOutputFunc: func(_ context.Context, _ string) (*model.FilterOutput, error) {
 			return nil, errors.New("mongo client has failed")
 		},
 		AddFilterOutputEventFunc: func(_ context.Context, _ string, _ *model.Event) error {
 			return errors.New("failed to add event")
+		},
+		GetFilterDimensionOptionsFunc: func(_ context.Context, _, _ string, _, _ int) ([]string, int, string, error) {
+			return nil, 0, "", errors.New("error that should not be returned to user.")
+		},
+		UpdateFilterDimensionFunc: func(_ context.Context, _, _ string, _ model.Dimension, _ string) (string, error) {
+			return "", errors.New("failed to update filter dimension")
+		},
+		RemoveFilterDimensionOptionFunc: func(_ context.Context, _, _, _, _ string) (string, error) {
+			return "", errors.New("failed to remove filter dimension option")
+		},
+		GetFilterFunc: func(_ context.Context, _ string) (*model.Filter, error) {
+			return nil, errors.New("failed to get filter")
 		},
 	}
 	return &mongoClient, nil

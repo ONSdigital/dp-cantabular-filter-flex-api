@@ -9,12 +9,16 @@ services:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    logging:
+      driver: none
   kafka-1:
     image: confluentinc/cp-kafka:6.0.0
     expose:
       - 9092 # exposed port to docker network so that the broker is reachable by other brokers, value needs to match PLAINTEXT port
     depends_on:
       - zookeeper-1
+    logging:
+      driver: none
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181
       KAFKA_BROKER_ID: 1

@@ -44,6 +44,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" should match:$`,
 		c.aDocumentInCollectionWithKeyValueShouldMatch,
 	)
+
+	ctx.Step(
+		`^a document in collection "([^"]*)" with key "([^"]*)" value "([^"]*)" has empty "([^"]*)" options`,
+		c.theFilterHasEmptyOptions,
+	)
+
 	ctx.Step(
 		`^the following version document with dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
 		c.theFollowingVersionDocumentIsAvailable,
@@ -107,7 +113,7 @@ func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) e
 
 	err := json.Unmarshal([]byte(expectedOutput.Content), &expected)
 	if err != nil {
-		return errors.Wrap(err, "failed to unmarshall provided filterOutput")
+		return fmt.Errorf("failed to unmarshall provided filterOutput: %w", err)
 	}
 
 	actual, err := c.store.GetFilterOutput(c.ctx, expected.ID)
@@ -229,16 +235,16 @@ func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
 
 	var response model.Filter
 	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{"filter_id": filterID}, &response); err != nil {
-		return errors.Wrap(err, "failed to retrieve filter")
+		return fmt.Errorf("failed to retrieve filter: %w", err)
 	}
 
 	hash, err := response.Hash(nil)
 	if err != nil {
-		return errors.Wrap(err, "unable to hash stored filter")
+		return fmt.Errorf("unable to hash stored filter: %w", err)
 	}
 
 	if eTag != hash {
-		return errors.Wrapf(err, "ETag header did not match, expected %s, got %s", hash, eTag)
+		return fmt.Errorf("ETag header did not match, expected %s, got %s", hash, eTag)
 	}
 
 	if eTag != response.ETag {
@@ -287,26 +293,44 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 	return nil
 }
 
+func (c *Component) theFilterHasEmptyOptions(col, key, val, dimensionName string) error {
+
+	ctx := context.Background()
+	var filter model.Filter
+	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{key: val}, &filter); err != nil {
+		return errors.Wrap(err, "failed to retrieve document")
+	}
+
+	for _, dimension := range filter.Dimensions {
+		if dimension.Name == dimensionName {
+			if len(dimension.Options) == 0 {
+				return nil
+			}
+		}
+	}
+
+	return errors.New("option either not found or is not empty")
+}
 func (c *Component) aDocumentInCollectionWithKeyValueShouldMatch(col, key, val string, doc *godog.DocString) error {
 	ctx := context.Background()
 	var expected, result interface{}
 
 	if err := json.Unmarshal([]byte(doc.Content), &expected); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("failed to unmarshal expected document len: %d", len([]byte(doc.Content))))
+		return fmt.Errorf("failed to unmarshal document: %w", err)
 	}
 
 	var bdoc primitive.D
 	if err := c.store.Conn().Collection(col).FindOne(ctx, bson.M{key: val}, &bdoc); err != nil {
-		return errors.Wrap(err, "failed to retrieve document")
+		return fmt.Errorf("failed to retrieve document: %w", err)
 	}
 
 	b, err := bson.MarshalExtJSON(bdoc, true, true)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal bson document")
+		return fmt.Errorf("failed to marshal bson document: %w", err)
 	}
 
 	if err := json.Unmarshal(b, &result); err != nil {
-		return errors.Wrap(err, "failed to unmarshal result")
+		return fmt.Errorf("failed to unmarshal result: %w", err)
 	}
 
 	if diff := cmp.Diff(expected, result); diff != "" {
@@ -326,11 +350,11 @@ func (c *Component) iHaveTheseFilters(docs *godog.DocString) error {
 
 	err := json.Unmarshal([]byte(docs.Content), &filters)
 	if err != nil {
-		return errors.Wrap(err, "failed to unmarshall")
+		return fmt.Errorf("failed to unmarshal filter: %w", err)
 	}
 
 	if err := c.insertFilters(filters); err != nil {
-		return errors.Wrap(err, "error inserting filters")
+		return fmt.Errorf("error inserting filters: %w", err)
 	}
 
 	return nil
@@ -343,7 +367,7 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 
 	err := json.Unmarshal([]byte(docs.Content), &filter)
 	if err != nil {
-		return errors.Wrap(err, "failed to unmarshal")
+		return fmt.Errorf("failed to unmarshal filter: %w", err)
 	}
 
 	filter.ETag = eTag
@@ -351,7 +375,7 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 	filter.UniqueTimestamp = c.g.UniqueTimestamp()
 
 	if err := c.insertFilters([]model.Filter{filter}); err != nil {
-		return errors.Wrap(err, "failed to insert filter with ETag")
+		return fmt.Errorf("failed to insert filter with ETag: %w", err)
 	}
 
 	return nil
@@ -361,10 +385,10 @@ func (c *Component) iHaveThisFilterWithETag(eTag string, docs *godog.DocString) 
 func (c *Component) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
 	var response cantabular.GetDimensionsResponse
 	if err := json.Unmarshal([]byte(docs.Content), &response); err != nil {
-		return errors.Wrap(err, "unable to unmarshal cantabular search response")
+		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	c.MockCantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	c.CantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
 		if req.Dataset == datasetID && req.Text == dimension {
 			return &response, nil
 		}
@@ -385,7 +409,7 @@ func (c *Component) cantabularSearchReturnsTheseDimensions(datasetID, dimension 
 
 // cantabularSearchRespondsWithAnError sets up a generic error response for the
 func (c *Component) cantabularRespondsWithAnError() {
-	c.MockCantabularClient.OptionsHappy = false
+	c.CantabularClient.OptionsHappy = false
 }
 
 // insertFilters loops through the provided filters and inserts them into the database.
@@ -396,7 +420,7 @@ func (c *Component) insertFilters(filters []model.Filter) error {
 
 	for _, filter := range filters {
 		if _, err := store.Conn().Collection(col).UpsertById(ctx, filter.ID, bson.M{"$set": filter}); err != nil {
-			return errors.Wrap(err, "failed to upsert filter")
+			return fmt.Errorf("failed to upsert filter: %w", err)
 		}
 	}
 
@@ -440,7 +464,7 @@ func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 
 	err := json.Unmarshal([]byte(docs.Content), &filterOutputs)
 	if err != nil {
-		return errors.Wrap(err, "failed to unmarshall")
+		return fmt.Errorf("failed to unmarshal filter output: %w", err)
 	}
 
 	store := c.store
@@ -448,7 +472,7 @@ func (c *Component) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 
 	for _, f := range filterOutputs {
 		if _, err = store.Conn().Collection(col).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
-			return errors.Wrap(err, "failed to upsert filter output")
+			return fmt.Errorf("failed to upsert filter output: %w", err)
 		}
 	}
 

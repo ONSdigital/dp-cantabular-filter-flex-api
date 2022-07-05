@@ -1,0 +1,17 @@
+{
+	"dataset":{
+		"id":      "Testing-2021-data-v7",
+		"edition": "2021",
+		"version": 1
+	},
+	"population_type": "dummy_data_households",
+	"dimensions": [
+		{
+			"is_area_type": true,
+			"name": "ladcd"
+		},
+		{
+			"name": "occupancy_rating_bedrooms_5a"
+		}
+	]
+}

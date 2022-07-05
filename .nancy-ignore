@@ -1,3 +1,0 @@
-# The following vulnerability has been deemed ok for the time being. There will be a piece of work to look at alternatives moving forward
-# See: https://ossindex.sonatype.org/vulnerability/sonatype-2021-4899?component-type=golang&component-name=github.com/gorilla/sessions
-sonatype-2021-4899

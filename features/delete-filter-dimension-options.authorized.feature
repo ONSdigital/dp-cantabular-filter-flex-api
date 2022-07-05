@@ -1,8 +1,7 @@
-Feature: Put Filter Private Endpoints Not Enabled
+Feature: Delete Filter Dimension Options
 
   Background:
     Given private endpoints are not enabled
-
     And I have these filters:
     """
     [
@@ -97,26 +96,30 @@ Feature: Put Filter Private Endpoints Not Enabled
       }
     ]
     """
+    Scenario: Delete options successfully
+    When I DELETE "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/City/options"
+    Then the HTTP status code should be "204"
+    And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" has empty "City" options
 
-  Scenario: PUT filter successfully
-    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1"
-    """
-    """
-    Then I should receive the following JSON response:
+    Scenario: Delete Option Dimension Name not found
+    When I DELETE "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/NOT-EXISTS/options"
+    Then the HTTP status code should be "400"
+    And I should receive the following JSON response:
     """
     {
-      "events": [
-        {
-          "timestamp": "2016-07-17T08:38:25.316+000",
-          "name": "cantabular-export-start"
-        }
-      ],
-      "dataset": {
-        "id": "string",
-        "edition": "string",
-        "version": 0
-      },
-      "population_type": "string"
+      "errors": [
+      "failed to delete options: failed to find dimension index: could not find dimension"
+      ]
     }
     """
-    And the HTTP status code should be "200"
+    Scenario: Delete Option Filter ID not found
+    When I DELETE "/filters/NOT-EXISTS/dimensions/City/options"
+    Then the HTTP status code should be "404"
+    And I should receive the following JSON response:
+    """
+    {
+      "errors": [
+      "failed to delete option: filter not found"
+      ]
+    }
+    """
