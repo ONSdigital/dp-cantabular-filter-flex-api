@@ -13,6 +13,36 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func Test_getFilterVariable(t *testing.T) {
+	Convey("Given an array of dimension IDs exists", t, func() {
+		dimIDs := map[string]string{"city": "city"}
+
+		Convey("When I have a dimension with no FilterByParent", func() {
+			d := model.Dimension{
+				Name:           "city",
+				FilterByParent: "",
+			}
+
+			Convey("Then the 'city' should be returned as the filter variable", func() {
+				got := getFilterVariable(dimIDs, d)
+				So(got, ShouldResemble, "city")
+			})
+		})
+
+		Convey("When I have a dimension with a FilterByParent", func() {
+			d := model.Dimension{
+				Name:           "city",
+				FilterByParent: "region",
+			}
+
+			Convey("Then 'region' should be returned as the filter variable", func() {
+				got := getFilterVariable(dimIDs, d)
+				So(got, ShouldResemble, "region")
+			})
+		})
+	})
+}
+
 func TestValidateDimensions(t *testing.T) {
 	var api API
 
