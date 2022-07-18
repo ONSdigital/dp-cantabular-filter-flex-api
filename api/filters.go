@@ -12,6 +12,8 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
+	"go.elastic.co/apm/module/apmhttp/v2"
+	"go.elastic.co/apm/v2"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
@@ -22,8 +24,38 @@ const (
 	published = "published"
 )
 
+/*
+   Trace Notes:
+   middleware is not being used, could not get it to work.
+   Trace Context is manually added to the header
+
+   Other Notes:
+   Trace context could be easily added to the parent, but the dp api clients go
+   library is very verbose.
+
+*/
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+
+	//	ctx := r.Context()
+
+	transactionName := "POST Create Filter"
+	transactionType := "Create a Filter - > call dataset api -> mongo insert filter"
+
+	tx := api.tracer.StartTransaction(
+		transactionName,
+		transactionType,
+	)
+
+	traceContext := tx.TraceContext()
+	defer tx.End()
+
+	ctx := apm.ContextWithTransaction(context.TODO(), tx)
+
+	traceparent := apmhttp.FormatTraceparentHeader(traceContext)
+
+	// add the trace parent to the header, this is the only
+	// way to float the traceContext to services further down the stack.
+	ctx = context.WithValue(ctx, "traceparent", traceparent)
 	var req createFilterRequest
 
 	if err := api.ParseRequest(r.Body, &req); err != nil {
@@ -40,6 +72,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		"request": req,
 	}
 
+	// add trace parent in dp-api-clients lib
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -232,16 +265,35 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)
 }
 
+/*
+   Trace Notes:
+   middleware is not being used, could not get it to work.
+   Trace Context is manually added to the header
+*/
 func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	println("IN GET FILTER")
 	fID := chi.URLParam(r, "id")
 
+	transactionName := "Another Request"
+	transactionType := "api-request"
+
+	tx := api.tracer.StartTransaction(
+		transactionName,
+		transactionType,
+	)
+	traceContext := tx.TraceContext()
+	defer tx.End()
+	ctx := apm.ContextWithTransaction(context.TODO(), tx)
+
+	//	traceparent := apmhttp.FormatTraceparentHeader(traceContext)
+	println(traceContext.Trace.String())
 	logData := log.Data{
 		"filter_id": fID,
 	}
 
 	f, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
+		tx.Outcome = "FAILED - 404"
 		api.respond.Error(
 			ctx,
 			w,
@@ -254,6 +306,7 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 				},
 			},
 		)
+
 		return
 	}
 

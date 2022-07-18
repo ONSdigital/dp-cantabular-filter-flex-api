@@ -7,6 +7,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/pkg/errors"
+	"go.elastic.co/apm/v2"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -50,6 +51,11 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 // GetFilter gets a filter doc from the filters collections
 func (c *Client) GetFilter(ctx context.Context, fID string) (*model.Filter, error) {
 	var err error
+
+	span, _ := apm.StartSpan(ctx, "database call", "test.process")
+
+	span.Action = "getting filter"
+	defer span.End()
 
 	col := c.collections.filters
 

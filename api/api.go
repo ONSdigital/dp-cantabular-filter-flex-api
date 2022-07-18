@@ -2,21 +2,23 @@ package api
 
 import (
 	"context"
+	"net/http"
+
 	// "net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
+	"go.elastic.co/apm/v2"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
-	"github.com/ONSdigital/dp-authorisation/auth"
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/middleware"
-	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 
 	"github.com/go-chi/chi/v5"
 )
 
 // API provides a struct to wrap the api around
 type API struct {
+	tracer *apm.Tracer
+
 	Router         chi.Router
 	store          datastore
 	respond        responder
@@ -42,6 +44,14 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 		producer:       p,
 	}
 
+	tracer, err := apm.NewTracer("cantabular-filter-flex", "some-version")
+	if err != nil {
+		println(err.Error())
+		panic("Tracer err!")
+	}
+
+	api.tracer = tracer
+	print(api.tracer.Stats().SpansSent, "SETNTNNTS-------------------------")
 	if cfg.EnablePrivateEndpoints {
 		api.enablePrivateEndpoints()
 	} else {
@@ -53,6 +63,7 @@ func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Cl
 
 func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
+
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Put("/filters/{id}", api.putFilter)
 	api.Router.Post("/filters/{id}/submit", api.submitFilter)
@@ -78,15 +89,18 @@ func (api *API) enablePublicEndpoints() {
 func (api *API) enablePrivateEndpoints() {
 	r := chi.NewRouter()
 
-	permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
-	checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
+	// permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
+	// checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
 
-	r.Use(checkIdentity)
-	r.Use(middleware.LogIdentity())
-	r.Use(permissions.Require(auth.Permissions{Read: true}))
+	//r.Use(checkIdentity)
+	//r.Use(middleware.LogIdentity())
+
+	// r.Use(permissions.Require(auth.Permissions{Read: true}))
 
 	r.Post("/filters", api.createFilter)
+
 	r.Get("/filters/{id}", api.getFilter)
+
 	r.Put("/filters/{id}", api.putFilter)
 	r.Post("/filters/{id}/submit", api.submitFilter)
 
@@ -103,5 +117,9 @@ func (api *API) enablePrivateEndpoints() {
 	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)
 	r.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
 
-	api.Router.Mount("/", r)
+	err := http.ListenAndServe(":27100", r)
+	if err != nil {
+		panic(err.Error())
+	}
+
 }
