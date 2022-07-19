@@ -733,6 +733,9 @@ definitions:
       is_area_type:
         type: boolean
         description: Indicates if the dimension is an area type
+      filter_by_parent:
+        type: string
+        description: Indicates the dependent variable, one level up, that the dimension should be filtered by
       options:
         type: array
         items:

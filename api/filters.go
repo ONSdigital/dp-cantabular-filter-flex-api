@@ -403,7 +403,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
 				Codes:    d.Options,
-				Variable: dimIDs[d.Name],
+				Variable: dimIDs[getFilterVariable(dimIDs, d)],
 			})
 		}
 	}
@@ -428,6 +428,14 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 	}
 
 	return nil
+}
+
+func getFilterVariable(dimIDs map[string]string, d model.Dimension) string {
+	fVariable := dimIDs[d.Name]
+	if len(d.FilterByParent) != 0 {
+		fVariable = d.FilterByParent
+	}
+	return fVariable
 }
 
 // hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.

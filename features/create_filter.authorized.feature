@@ -85,7 +85,8 @@ Feature: Filters Private Endpoints Enabled
             "London",
             "Swansea"
           ],
-          "is_area_type": true
+          "is_area_type": true,
+          "filter_by_parent": "country"
         }
       ]
     }
@@ -138,7 +139,7 @@ Feature: Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "e70f6470a26c2379b591b34e47e50321879abcbc",
+      "etag":        "23a9465237f56092a95275d5d80ac79f31eff349",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -161,7 +162,8 @@ Feature: Filters Private Endpoints Enabled
             "London",
             "Swansea"
           ],
-          "is_area_type":  true
+          "is_area_type":  true,
+          "filter_by_parent": "country"
         }
       ],
       "dataset": {
