@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -53,7 +54,7 @@ type generator interface {
 type cantabularClient interface {
 	GetDimensionOptions(context.Context, cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error)
 	StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
-	GetGeographyDimensions(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error)
+	GetGeographyDimensionsInBatches(context.Context, string, int, int) (*gql.Dataset, error)
 	SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	StatusCode(error) int
 }

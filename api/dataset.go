@@ -236,16 +236,13 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]string, error) {
 	var geoDimensions []string
 
-	request := cantabular.GetGeographyDimensionsRequest{
-		Dataset: datasetId,
-	}
+	res, err := api.ctblr.GetGeographyDimensionsInBatches(ctx, datasetId, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
 
-	res, err := api.ctblr.GetGeographyDimensions(ctx, request)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
 
-	for _, dimension := range res.Dataset.RuleBase.IsSourceOf.Edges {
+	for _, dimension := range res.RuleBase.IsSourceOf.Edges {
 		geoDimensions = append(geoDimensions, dimension.Node.Name)
 	}
 

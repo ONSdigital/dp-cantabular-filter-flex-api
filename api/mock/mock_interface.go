@@ -11,6 +11,7 @@ import (
 	time "time"
 
 	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	gql "github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	model "github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	gomock "github.com/golang/mock/gomock"
@@ -449,19 +450,19 @@ func (mr *MockcantabularClientMockRecorder) GetDimensionOptions(arg0, arg1 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionOptions", reflect.TypeOf((*MockcantabularClient)(nil).GetDimensionOptions), arg0, arg1)
 }
 
-// GetGeographyDimensions mocks base method.
-func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1 cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
+// GetGeographyDimensionsInBatches mocks base method.
+func (m *MockcantabularClient) GetGeographyDimensionsInBatches(arg0 context.Context, arg1 string, arg2, arg3 int) (*gql.Dataset, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGeographyDimensions", arg0, arg1)
-	ret0, _ := ret[0].(*cantabular.GetGeographyDimensionsResponse)
+	ret := m.ctrl.Call(m, "GetGeographyDimensionsInBatches", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*gql.Dataset)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetGeographyDimensions indicates an expected call of GetGeographyDimensions.
-func (mr *MockcantabularClientMockRecorder) GetGeographyDimensions(arg0, arg1 interface{}) *gomock.Call {
+// GetGeographyDimensionsInBatches indicates an expected call of GetGeographyDimensionsInBatches.
+func (mr *MockcantabularClientMockRecorder) GetGeographyDimensionsInBatches(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensions", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensions), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensionsInBatches", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensionsInBatches), arg0, arg1, arg2, arg3)
 }
 
 // SearchDimensions mocks base method.
