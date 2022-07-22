@@ -11,7 +11,7 @@ import (
 
 func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	fID := chi.URLParam(r, "filter-output-id")
+	fID := chi.URLParam(r, "id")
 
 	var filterOutput *model.FilterOutput
 
@@ -41,7 +41,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) putFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	fID := chi.URLParam(r, "filter_output_id")
+	fID := chi.URLParam(r, "id")
 
 	var req putFilterOutputRequest
 
@@ -90,7 +90,7 @@ func (api *API) putFilterOutput(w http.ResponseWriter, r *http.Request) {
 //createFilterOutputEvent will add a new event to the list of existing events in the filter outputs
 func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	fID := chi.URLParam(r, "filter_output_id")
+	fID := chi.URLParam(r, "id")
 
 	var req addFilterOutputEventRequest
 

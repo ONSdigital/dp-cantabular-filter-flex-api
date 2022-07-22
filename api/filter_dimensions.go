@@ -178,7 +178,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	filterID := chi.URLParam(r, "id")
-	dimensionName := chi.URLParam(r, "name")
+	dimensionName := chi.URLParam(r, "dimension")
 
 	logData := log.Data{
 		"filter_id":      filterID,

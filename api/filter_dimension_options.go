@@ -274,7 +274,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 	ctx := context.Background()
 
 	filterID := chi.URLParam(r, "id")
-	dimensionName := chi.URLParam(r, "name")
+	dimensionName := chi.URLParam(r, "dimension")
 
 	pageLimit, offset, err := getPaginationParams(r.URL, api.cfg.DefaultMaximumLimit)
 	if err != nil {
@@ -338,7 +338,7 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	ctx := context.Background()
 
 	filterID := chi.URLParam(r, "id")
-	dimensionName := chi.URLParam(r, "name")
+	dimensionName := chi.URLParam(r, "dimension")
 
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {

@@ -91,17 +91,18 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filters/{id}/submit", api.submitFilter)
 
 	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
-	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
-	r.Put("/filters/{id}/dimensions/{name}", api.updateFilterDimension)
+	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
+	r.Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
 
-	r.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
+	r.Get("/filters/{id}/dimensions/{dimension}/options", api.getFilterDimensionOptions)
+	r.Delete("/filters/{id}/dimensions/{dimension}/options", api.deleteFilterDimensionOptions)
 	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
-	r.Get("/filters/{id}/dimensions/{name}/options", api.getFilterDimensionOptions)
-	r.Delete("/filters/{id}/dimensions/{name}/options", api.deleteFilterDimensionOptions)
-	r.Get("/filter-outputs/{filter-output-id}", api.getFilterOutput)
-	r.Put("/filter-outputs/{filter_output_id}", api.putFilterOutput)
-	r.Post("/filter-outputs/{filter_output_id}/events", api.addFilterOutputEvent)
+	r.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
+
+	r.Get("/filter-outputs/{id}", api.getFilterOutput)
+	r.Put("/filter-outputs/{id}", api.putFilterOutput)
+	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
 	api.Router.Mount("/", r)
 }
