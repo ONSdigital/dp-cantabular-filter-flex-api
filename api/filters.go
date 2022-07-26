@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	flexible  = "flexible"
-	published = "published"
+	flexible        = "flexible"
+	published       = "published"
+	cantabularTable = "cantabular-table"
 )
 
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +59,20 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get existing Version"),
 				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if v.IsBasedOn.Type == cantabularTable {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.New("dataset is of type cantabular table"),
+				message: "dataset is of invalid type",
 				logData: logData,
 			},
 		)
