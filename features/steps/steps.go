@@ -394,7 +394,7 @@ func (c *Component) cantabularSearchReturnsTheseDimensions(datasetID, dimension 
 		}
 
 		return &cantabular.GetDimensionsResponse{
-			Dataset: gql.DatasetVariables{
+			Dataset: gql.Dataset{
 				Variables: gql.Variables{
 					Search: gql.Search{
 						Edges: []gql.Edge{},

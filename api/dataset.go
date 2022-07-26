@@ -245,8 +245,8 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]stri
 		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
 
-	for _, dimension := range res.Dataset.RuleBase.IsSourceOf.Edges {
-		geoDimensions = append(geoDimensions, dimension.Node.Name)
+	for _, d := range res.Dataset.Variables.Edges {
+		geoDimensions = append(geoDimensions, d.Node.Name)
 	}
 
 	return geoDimensions, nil

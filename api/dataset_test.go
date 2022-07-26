@@ -478,14 +478,12 @@ func getValidOptionsResponse() dataset.Options {
 
 func getValidGeoResponse() *cantabular.GetGeographyDimensionsResponse {
 	return &cantabular.GetGeographyDimensionsResponse{
-		Dataset: gql.DatasetRuleBase{
-			RuleBase: gql.RuleBase{
-				IsSourceOf: gql.Variables{
-					Edges: []gql.Edge{
-						{
-							Node: gql.Node{
-								Name: "NodeName " + uuid.NewString(),
-							},
+		Dataset: gql.Dataset{
+			Variables: gql.Variables{
+				Edges: []gql.Edge{
+					{
+						Node: gql.Node{
+							Name: "NodeName " + uuid.NewString(),
 						},
 					},
 				},
