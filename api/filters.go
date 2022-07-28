@@ -403,7 +403,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
 				Codes:    d.Options,
-				Variable: dimIDs[getFilterVariable(dimIDs, d)],
+				Variable: getFilterVariable(dimIDs, d),
 			})
 		}
 	}
