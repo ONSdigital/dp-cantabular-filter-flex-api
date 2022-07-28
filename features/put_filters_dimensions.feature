@@ -174,6 +174,18 @@ Feature: Updating a filter's dimensions
     """
     And the HTTP status code should be "200"
 
+    Scenario: Replacing a non-goegraphy filter dimension (returns an error)
+    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
+    """
+    {
+      "name": "siblings",
+      "id": "siblings_3",
+      "is_area_type": false
+    }
+    """
+    Then I should receive an errors array
+    And the HTTP status code should be "404"
+
   Scenario: Replacing a filter dimension (updates the ETag)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
     """
