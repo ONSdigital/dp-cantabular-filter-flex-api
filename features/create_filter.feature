@@ -56,12 +56,12 @@ Feature: Filters Private Endpoints Not Enabled
       }
       """
 
-    And the following version document with dataset id "cantabular-table-example", edition "2021" and version "1" is available from dp-dataset-api:
+    And the following version document with dataset id "cantabular_table_example", edition "2021" and version "1" is available from dp-dataset-api:
       """
   {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
-        "is_based_on":{"@type": "cantabular-table"},
+        "is_based_on":{"@type": "cantabular_table"},
         "dimensions": [
           {
             "label": "City",
@@ -474,7 +474,7 @@ Feature: Filters Private Endpoints Not Enabled
     """
       {
       "dataset":{
-          "id":      "cantabular-table-example",
+          "id":      "cantabular_table_example",
           "edition": "2021",
           "version": 1
       },

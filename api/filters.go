@@ -20,7 +20,7 @@ import (
 const (
 	flexible        = "flexible"
 	published       = "published"
-	cantabularTable = "cantabular-table"
+	cantabularTable = "cantabular_table"
 )
 
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.IsBasedOn.Type == cantabularTable {
+	if v.IsBasedOn == nil || v.IsBasedOn.Type == cantabularTable {
 		api.respond.Error(
 			ctx,
 			w,
