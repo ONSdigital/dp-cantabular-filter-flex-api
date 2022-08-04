@@ -8,6 +8,7 @@ Feature: Filters Private Endpoints Not Enabled
       {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "is_based_on":{"@type": "flexible"},
         "dimensions": [
           {
             "label": "City",
@@ -55,11 +56,66 @@ Feature: Filters Private Endpoints Not Enabled
       }
       """
 
+    And the following version document with dataset id "cantabular_table_example", edition "2021" and version "1" is available from dp-dataset-api:
+      """
+  {
+        "alerts": [],
+        "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "is_based_on":{"@type": "cantabular_table"},
+        "dimensions": [
+          {
+            "label": "City",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/city",
+            "id": "city",
+            "name": "geography"
+          },
+          {
+            "label": "Number of siblings (3 mappings)",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
+          }
+        ],
+        "edition": "2021",
+        "id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+        "links": {
+          "dataset": {
+            "href": "http://dp-dataset-api:22000/datasets/cantabular-example-1",
+            "id": "cantabular-example-1"
+          },
+          "dimensions": {},
+          "edition": {
+            "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021",
+            "id": "2021"
+          },
+          "self": {
+            "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1"
+          }
+        },
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "state": "published",
+        "usage_notes": [],
+        "version": 1
+      }
+
+      """
+
     And the following version document with dataset id "cantabular-example-unpublished", edition "2021" and version "1" is available from dp-dataset-api:
       """
       {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "is_based_on":{"@type": "flexible"},
         "dimensions": [
           {
             "label": "City",
@@ -285,8 +341,6 @@ Feature: Filters Private Endpoints Not Enabled
 
     When I POST "/filters"
     """
-    {
-      "ins
     """
 
     Then I should receive the following JSON response:
@@ -414,3 +468,44 @@ Feature: Filters Private Endpoints Not Enabled
     """
 
     And the HTTP status code should be "400"
+
+  Scenario: Do not create a filter based on cantabular blob
+    When I POST "/filters"
+    """
+      {
+      "dataset":{
+          "id":      "cantabular_table_example",
+          "edition": "2021",
+          "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+    Then the HTTP status code should be "400"
+    And I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "dataset is of invalid type"
+      ]
+    }
+    """

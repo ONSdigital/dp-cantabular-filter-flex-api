@@ -157,6 +157,13 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 		}
 	}
 
+	if !filter.Dimensions[newDimensionIndex].IsAreaType {
+		return "", &er{
+			err:     errors.New("non geography variable"),
+			logData: logData,
+		}
+	}
+
 	filter.Dimensions[newDimensionIndex] = dimension
 
 	if filter.ETag, err = filter.Hash(nil); err != nil {

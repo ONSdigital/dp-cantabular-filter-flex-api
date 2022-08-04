@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	flexible  = "flexible"
-	published = "published"
+	flexible        = "flexible"
+	published       = "published"
+	cantabularTable = "cantabular_table"
 )
 
 func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +59,20 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 			Error{
 				err:     errors.Wrap(err, "failed to get existing Version"),
 				message: "failed to get existing dataset information",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if v.IsBasedOn == nil || v.IsBasedOn.Type == cantabularTable {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.New("dataset is of type cantabular table"),
+				message: "dataset is of invalid type",
 				logData: logData,
 			},
 		)
@@ -403,7 +418,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
 				Codes:    d.Options,
-				Variable: dimIDs[getFilterVariable(dimIDs, d)],
+				Variable: getFilterVariable(dimIDs, d),
 			})
 		}
 	}
