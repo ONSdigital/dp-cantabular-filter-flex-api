@@ -54,7 +54,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	}
 
 	if svc.Producer, err = GetKafkaProducer(ctx, cfg); err != nil {
-		return fmt.Errorf("Could not initialise Kafka producer: %w", err)
+		return fmt.Errorf("could not initialise Kafka producer: %w", err)
 	}
 
 	svc.Producer.LogErrors(ctx)
@@ -74,7 +74,6 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	r := chi.NewRouter()
 	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
-	// TODO: Add other(s) to serviceList here
 
 	// Setup the API
 	svc.Api = api.New(

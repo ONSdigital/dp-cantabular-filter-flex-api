@@ -35,7 +35,7 @@ func (g *Generator) Timestamp() time.Time {
 	return t
 }
 
-// Timestamp generates a constant timestamp
+// UniqueTimestamp generates a constant timestamp
 func (g *Generator) UniqueTimestamp() primitive.Timestamp {
 	t, _ := time.Parse(time.RFC3339, TestTimestamp)
 	return primitive.Timestamp{
