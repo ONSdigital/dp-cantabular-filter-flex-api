@@ -108,7 +108,7 @@ Feature: Post Filter Output event Private Endpoints Enabled
 
     Then the HTTP status code should be "201"
   
-  Scenario: Post filter output event successfully with new ID in DB
+  Scenario: Post filter output event unsuccessfully (unknown filter-output)
     Given I am identified as "user@ons.gov.uk"
     
     And I am authorised
@@ -123,8 +123,8 @@ Feature: Post Filter Output event Private Endpoints Enabled
 
     Then the HTTP status code should be "404"
 
-  
-  Scenario: Creating a new filter outputs bad request body
+
+  Scenario: Post filter output event unsuccessfully (one wrong field in request body)
     Given I am identified as "user@ons.gov.uk"
     
     And I am authorised
@@ -146,22 +146,9 @@ Feature: Post Filter Output event Private Endpoints Enabled
     """
 
     And the HTTP status code should be "400"
-    
-  Scenario: Creating a new filter output with one wrong field in request body
-    Given I am identified as "user@ons.gov.uk"
-    
-    And I am authorised
-    When I POST "/filter-outputs/94310d8d-72d6-492a-bc30-27584627edb1/events"
-    """
-    {
-      "timestamp": 2,
-      "name": "cantabular-export-start"
-    }  
-    """
 
-    Then the HTTP status code should be "400"
-     
-  Scenario: Post a filter output event with broken mongo db
+
+  Scenario: Post a filter output event unsuccessfully (broken mongo db)
     Given I am identified as "user@ons.gov.uk"
     
     And I am authorised

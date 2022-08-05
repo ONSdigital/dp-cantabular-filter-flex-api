@@ -197,6 +197,9 @@ Feature: Updating a filter's dimensions
     """
     Then the ETag is a hash of the filter "94310d8d-72d6-492a-bc30-27584627edb1"
 
+    And the HTTP status code should be "200"
+
+
   # It would be good to also validate the options/area type bool were saved correctly, however the endpoint to
   # retrieve a dimension hasn't yet been implemented.
   Scenario: Replacing a filter dimension (updates the filter)
@@ -256,7 +259,7 @@ Feature: Updating a filter's dimensions
       "total_count": 2
     }
     """
-    Then a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
+    And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
     """
     {
       "_id": "94310d8d-72d6-492a-bc30-27584627edb1",
