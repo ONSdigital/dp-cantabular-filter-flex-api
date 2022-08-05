@@ -29,7 +29,7 @@ type API struct {
 }
 
 // New creates and initialises a new API
-func New(ctx context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -77,33 +77,44 @@ func (api *API) enablePublicEndpoints() {
 }
 
 func (api *API) enablePrivateEndpoints() {
-	r := chi.NewRouter()
+	// This is a hack to work around the issue whereby a chi.Router cannot set middleware after a route has been added
+	// Make a copy of the router that has been provided to the constructor of the api, and copy its routes after any
+	// necessary middleware has been added
+	cp := api.Router
+	api.Router = chi.NewRouter()
+	api.Router.Use(cp.Middlewares()...)
 
-	permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
-	checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
+	api.Router.Use(
+		dphandlers.IdentityWithHTTPClient(api.identityClient),
+		middleware.LogIdentity(),
+		middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth).Require(auth.Permissions{Read: true}))
 
-	r.Use(checkIdentity)
-	r.Use(middleware.LogIdentity())
-	r.Use(permissions.Require(auth.Permissions{Read: true}))
+	api.Router.Post("/filters", api.createFilter)
+	api.Router.Get("/filters/{id}", api.getFilter)
+	api.Router.Put("/filters/{id}", api.putFilter)
+	api.Router.Post("/filters/{id}/submit", api.submitFilter)
 
-	r.Post("/filters", api.createFilter)
-	r.Get("/filters/{id}", api.getFilter)
-	r.Put("/filters/{id}", api.putFilter)
-	r.Post("/filters/{id}/submit", api.submitFilter)
+	api.Router.Get("/filters/{id}/dimensions", api.getFilterDimensions)
+	api.Router.Post("/filters/{id}/dimensions", api.addFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
+	api.Router.Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
 
-	r.Get("/filters/{id}/dimensions", api.getFilterDimensions)
-	r.Post("/filters/{id}/dimensions", api.addFilterDimension)
-	r.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
-	r.Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
+	api.Router.Get("/filters/{id}/dimensions/{dimension}/options", api.getFilterDimensionOptions)
+	api.Router.Delete("/filters/{id}/dimensions/{dimension}/options", api.deleteFilterDimensionOptions)
+	api.Router.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
+	api.Router.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
 
-	r.Get("/filters/{id}/dimensions/{dimension}/options", api.getFilterDimensionOptions)
-	r.Delete("/filters/{id}/dimensions/{dimension}/options", api.deleteFilterDimensionOptions)
-	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
-	r.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
+	api.Router.Get("/filter-outputs/{id}", api.getFilterOutput)
+	api.Router.Put("/filter-outputs/{id}", api.putFilterOutput)
+	api.Router.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
-	r.Get("/filter-outputs/{id}", api.getFilterOutput)
-	r.Put("/filter-outputs/{id}", api.putFilterOutput)
-	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
-
-	api.Router.Mount("/", r)
+	for _, p := range cp.Routes() {
+		for m, h := range p.Handlers {
+			if m == "*" {
+				api.Router.Handle(p.Pattern, h)
+				continue
+			}
+			api.Router.Method(m, p.Pattern, h)
+		}
+	}
 }
