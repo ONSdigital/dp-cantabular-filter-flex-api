@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"io"
 	"log"
@@ -12,78 +13,34 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/steps"
-	cmptest "github.com/ONSdigital/dp-component-test"
 	dplogs "github.com/ONSdigital/log.go/v2/log"
 )
 
-const (
-	mongoVersion     = "4.4.8"
-	databaseName     = "filters"
-	componentLogFile = "component-output.txt"
-)
+const componentLogFile = "component-output.txt"
 
 var componentFlag = flag.Bool("component", false, "perform component tests")
 var quietComponentFlag = flag.Bool("quiet-component", false, "perform component tests with dp logging disabled")
 
 type ComponentTest struct {
-	t            *testing.T
-	MongoFeature *cmptest.MongoFeature
+	component *steps.Component
 }
 
 func init() {
 	dplogs.Namespace = "dp-cantabular-filter-flex-api"
 }
 
-func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
-	authFeature := cmptest.NewAuthorizationFeature()
-	zebedeeURL := authFeature.FakeAuthService.ResolveURL("")
-	mongoAddr := f.MongoFeature.Server.URI()
-
-	component, err := steps.NewComponent(f.t, zebedeeURL, mongoAddr)
-	if err != nil {
-		log.Panicf("unable to create component: %s", err)
-	}
-
-	if _, err := component.Init(); err != nil {
-		log.Panicf("unable to initialize component: %s", err)
-	}
-
-	apiFeature := cmptest.NewAPIFeature(component.Init)
-	component.ApiFeature = apiFeature
-	ctx.BeforeScenario(func(*godog.Scenario) {
-		apiFeature.Reset()
-		if err := f.MongoFeature.Reset(); err != nil {
-			log.Panicf("failed to reset mongo feature: %s", err)
-		}
-		if err := component.Reset(); err != nil {
-			log.Panicf("unable to initialise scenario: %s", err)
-		}
-		authFeature.Reset()
+func (ct *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
+	ctx.After(func(ctx context.Context, scenario *godog.Scenario, err error) (context.Context, error) {
+		ct.component.Reset()
+		return ctx, nil
 	})
-
-	ctx.AfterScenario(func(*godog.Scenario, error) {
-		component.Reset()
-		component.Close()
-		authFeature.Close()
-	})
-
-	authFeature.RegisterSteps(ctx)
-	apiFeature.RegisterSteps(ctx)
-	component.RegisterSteps(ctx)
-
 }
 
-func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
-	ctx.BeforeSuite(func() {
-		f.MongoFeature = cmptest.NewMongoFeature(cmptest.MongoOptions{
-			MongoVersion: mongoVersion,
-			DatabaseName: databaseName,
-		})
-	})
+func (ct *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
+	ct.component.RegisterSteps(ctx.ScenarioContext())
+
 	ctx.AfterSuite(func() {
-		if err := f.MongoFeature.Close(); err != nil {
-			log.Printf("failed to close mongo feature: %s", err)
-		}
+		ct.component.Close()
 	})
 }
 
@@ -119,20 +76,20 @@ func TestComponent(t *testing.T) {
 		}
 
 		var opts = godog.Options{
-			Output:   colors.Colored(output),
-			Format:   "pretty",
-			Paths:    flag.Args(),
-			TestingT: t,
+			Output: colors.Colored(output),
+			Format: "pretty",
+			Paths:  flag.Args(),
+			//			TestingT: t,
 		}
 
-		f := &ComponentTest{
-			t: t,
+		ct := &ComponentTest{
+			component: steps.NewComponent(t),
 		}
 
 		status = godog.TestSuite{
 			Name:                 "feature_tests",
-			ScenarioInitializer:  f.InitializeScenario,
-			TestSuiteInitializer: f.InitializeTestSuite,
+			ScenarioInitializer:  ct.InitializeScenario,
+			TestSuiteInitializer: ct.InitializeTestSuite,
 			Options:              &opts,
 		}.Run()
 
