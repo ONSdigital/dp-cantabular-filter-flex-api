@@ -1,7 +1,7 @@
 Feature: Filters Private Endpoints Enabled
 
   Background:
-    Given private endpoints are enabled
+    Given private endpoints are enabled with permissions checking
 
     And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
       """
@@ -57,9 +57,11 @@ Feature: Filters Private Endpoints Enabled
       """
 
   Scenario: Creating a new filter journey when authorized
-    Given I am identified as "user@ons.gov.uk"
+    Given I use an X Florence user token "user token"
 
-    And I am authorised
+    And I am identified as "user@ons.gov.uk"
+
+    And zebedee recognises the user token as valid
 
     When I POST "/filters"
     """
@@ -194,9 +196,11 @@ Feature: Filters Private Endpoints Enabled
     """
 
   Scenario: Creating a new filter journey when not authorized
-    Given I am not identified
+    Given I use an X Florence user token "user token"
 
-    And I am not authorised
+    And I am identified as "user@ons.gov.uk"
+
+    But zebedee does not recognise the user token
 
     When I POST "/filters"
     """
@@ -204,3 +208,25 @@ Feature: Filters Private Endpoints Enabled
     """
 
     Then the HTTP status code should be "401"
+
+  Scenario: Creating a new filter journey when not authenticated
+    Given I use an X Florence user token "bad user token"
+
+    But I am not identified
+
+    When I POST "/filters"
+    """
+    {"foo":"bar"}
+    """
+
+    Then the HTTP status code should be "401"
+
+
+  Scenario: Creating a new filter journey when not authenticated (no token set)
+    When I POST "/filters"
+    """
+    {"foo":"bar"}
+    """
+
+    Then the HTTP status code should be "401"
+
