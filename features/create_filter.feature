@@ -469,6 +469,51 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
+    Scenario: Creating a new invalid request (duplicate dimensions)
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+          "id":      "cantabular-example-1",
+          "edition": "2021",
+          "version": 1
+       },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },
+        {
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        }
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "failed to validate request dimensions: duplicate dimensions chosen: siblings"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "404"  
+
   Scenario: Do not create a filter based on cantabular blob
     When I POST "/filters"
     """
