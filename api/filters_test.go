@@ -88,42 +88,6 @@ func TestValidateDimensions(t *testing.T) {
 		})
 	})
 
-	// Convey("Given a set of filter dimensions with duplicate dimensions", t, func() {
-	// 	existingDims := []dataset.VersionDimension{
-	// 		{
-	// 			Name: "foo",
-	// 			ID:   "foo01",
-	// 		},
-	// 		{
-	// 			Name: "fbar",
-	// 			ID:   "bar01",
-	// 		},
-	// 	}
-
-	// 	filterDims := []model.Dimension{
-	// 		{
-	// 			Name: "foo",
-	// 			Options: []string{
-	// 				"foo_1",
-	// 				"foo_2",
-	// 			},
-	// 		},
-	// 		{
-	// 			Name: "foo",
-	// 			Options: []string{
-	// 				"bar_1",
-	// 				"bar_2",
-	// 			},
-	// 		},
-	// 	}
-
-	// 	Convey("When validateDimensions is called", func() {
-
-	// 		_, err := api.validateDimensions(filterDims, existingDims)
-	// 		So(err, ShouldNotBeNil)
-	// 	})
-	// })
-
 	Convey("Given a set of filter dimensions which include dimensions not found in Version doc", t, func() {
 		existingDims := []dataset.VersionDimension{
 			{
