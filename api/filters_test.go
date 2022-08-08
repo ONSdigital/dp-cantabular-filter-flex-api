@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -161,7 +160,6 @@ func TestValidateDimensions(t *testing.T) {
 
 		Convey("When validateDimensions is called", func() {
 			_, err := api.validateDimensions(filterDims, existingDims)
-			fmt.Println(err)
 			So(err, ShouldNotBeNil)
 		})
 	})
