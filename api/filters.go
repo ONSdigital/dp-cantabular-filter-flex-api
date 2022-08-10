@@ -384,6 +384,21 @@ func (api *API) getCantabularDimension(ctx context.Context, filterID, dimensionN
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
 func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) (map[string]string, error) {
+
+	fDims := make(map[string]bool)
+	for _, fd := range filterDims {
+		if _, ok := fDims[fd.Name]; ok {
+			return nil, Error{
+				err: errors.Errorf("duplicate dimensions chosen: %v", fd.Name),
+				logData: log.Data{
+					"duplicate dimensions chosen": fd.Name,
+				},
+			}
+		} else {
+			fDims[fd.Name] = true
+		}
+	}
+
 	dimensions := make(map[string]string)
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID

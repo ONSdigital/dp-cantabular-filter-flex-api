@@ -128,6 +128,41 @@ func TestValidateDimensions(t *testing.T) {
 			So(err, ShouldNotBeNil)
 		})
 	})
+
+	Convey("Given a set of filter dimensions are duplicate", t, func() {
+		existingDims := []dataset.VersionDimension{
+			{
+				Name: "foo",
+				ID:   "foo01",
+			},
+			{
+				Name: "foo",
+				ID:   "bar01",
+			},
+		}
+
+		filterDims := []model.Dimension{
+			{
+				Name: "foo",
+				Options: []string{
+					"foo_1",
+					"foo_2",
+				},
+			},
+			{
+				Name: "foo",
+				Options: []string{
+					"bar_1",
+					"bar_2",
+				},
+			},
+		}
+
+		Convey("When validateDimensions is called", func() {
+			_, err := api.validateDimensions(filterDims, existingDims)
+			So(err, ShouldNotBeNil)
+		})
+	})
 }
 
 func TestValidateDimensionOptions(t *testing.T) {
