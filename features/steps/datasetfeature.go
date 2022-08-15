@@ -3,6 +3,9 @@ package steps
 import (
 	"fmt"
 	"net/http"
+	"testing"
+
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 
 	"github.com/cucumber/godog"
 	"github.com/maxcnunes/httpfake"
@@ -10,6 +13,13 @@ import (
 
 type DatasetFeature struct {
 	mockDatasetServer *httpfake.HTTPFake
+}
+
+func NewDatasetFeature(t *testing.T, cfg *config.Config) *DatasetFeature {
+	df := &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))}
+	cfg.DatasetAPIURL = df.mockDatasetServer.ResolveURL("")
+
+	return df
 }
 
 func (df *DatasetFeature) Reset() { df.mockDatasetServer.Reset() }
@@ -24,10 +34,6 @@ func (df *DatasetFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^the client for the dataset API failed and is returning errors$`,
 		df.theClientForTheDatasetAPIFailedAndIsReturningErrors,
 	)
-}
-
-func (df *DatasetFeature) datasetDoesSomething() error {
-	return nil
 }
 
 // theFollowingVersionDocumentIsAvailable generates a mocked response for dataset API

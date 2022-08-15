@@ -7,8 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/maxcnunes/httpfake"
-
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
@@ -41,27 +39,26 @@ type Component struct {
 }
 
 func NewComponent(t *testing.T) *Component {
+	cfg, err := config.Get()
+	if err != nil {
+		t.Fatalf("failed to get config: %s", err)
+	}
+
 	component := &Component{
 		ErrorFeature:        componenttest.ErrorFeature{TB: t},
 		AuthServiceInjector: componenttest.NewAuthorizationFeature(),
-		DatasetInjector:     &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))},
-		CantabularInjector:  &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}},
+		DatasetInjector:     NewDatasetFeature(t, cfg),
+		CantabularInjector:  NewCantabularFeature(),
 	}
 	component.APIInjector = componenttest.NewAPIFeature(component.Router)
-
-	cfg, err := config.Get()
-	if err != nil {
-		component.ErrorFeature.Fatalf("failed to get config: %s", err)
-	}
 
 	g := &mock.Generator{URLHost: "http://mockhost:9999"}
 	component.MongoInjector = NewMongoFeature(component.ErrorFeature, g, cfg)
 
 	cfg.ZebedeeURL = component.AuthServiceInjector.FakeAuthService.ResolveURL("")
-	cfg.DatasetAPIURL = component.DatasetInjector.mockDatasetServer.ResolveURL("")
 	log.Info(context.Background(), "config used by component tests", log.Data{"cfg": cfg})
 
-	setInitialiserMock(component.CantabularInjector, g)
+	setInitialiserMock(g)
 	component.svc = service.New()
 	component.svc.Cfg = cfg
 
@@ -94,16 +91,12 @@ func (c *Component) Close() {
 	c.MongoInjector.Close()
 }
 
-func setInitialiserMock(c *CantabularFeature, g service.Generator) {
+func setInitialiserMock(g service.Generator) {
 	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
 		return &http.Server{Addr: bindAddr, Handler: router}
 	}
 
 	service.GetGenerator = func() service.Generator {
 		return g
-	}
-
-	service.GetCantabularClient = func(_ *config.Config) service.CantabularClient {
-		return c
 	}
 }

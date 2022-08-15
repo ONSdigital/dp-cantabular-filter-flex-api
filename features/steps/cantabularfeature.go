@@ -7,13 +7,28 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 
 	"github.com/cucumber/godog"
 )
 
 type CantabularFeature struct {
 	*mock.CantabularClient
+}
+
+func NewCantabularFeature() *CantabularFeature {
+	cf := &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
+	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
+		return cf.CantabularClient
+	}
+
+	return cf
+}
+
+func (cf *CantabularFeature) Reset() {
+	cf.CantabularClient.Reset()
 }
 
 func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
