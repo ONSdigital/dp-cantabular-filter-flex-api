@@ -33,14 +33,16 @@ type MongoFeature struct {
 }
 
 func NewMongoFeature(ef componenttest.ErrorFeature, g service.Generator, cfg *config.Config) *MongoFeature {
-	mf := &MongoFeature{
+	return &MongoFeature{
 		ErrorFeature: ef,
 		MongoFeature: componenttest.NewMongoFeature(componenttest.MongoOptions{
 			MongoVersion: mongoVersion,
 		}),
 		g:   g,
 		cfg: cfg}
+}
 
+func (mf *MongoFeature) Init() *MongoFeature {
 	mf.cfg.Mongo.ClusterEndpoint = mf.MongoFeature.Server.URI()
 
 	return mf

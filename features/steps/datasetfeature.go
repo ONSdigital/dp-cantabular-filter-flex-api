@@ -15,8 +15,11 @@ type DatasetFeature struct {
 	mockDatasetServer *httpfake.HTTPFake
 }
 
-func NewDatasetFeature(t *testing.T, cfg *config.Config) *DatasetFeature {
-	df := &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))}
+func NewDatasetFeature(t *testing.T) *DatasetFeature {
+	return &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))}
+}
+
+func (df *DatasetFeature) Init(cfg *config.Config) *DatasetFeature {
 	cfg.DatasetAPIURL = df.mockDatasetServer.ResolveURL("")
 
 	return df

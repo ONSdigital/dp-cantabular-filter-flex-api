@@ -19,7 +19,10 @@ type CantabularFeature struct {
 }
 
 func NewCantabularFeature() *CantabularFeature {
-	cf := &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
+	return &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
+}
+
+func (cf *CantabularFeature) Init() *CantabularFeature {
 	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
 		return cf.CantabularClient
 	}

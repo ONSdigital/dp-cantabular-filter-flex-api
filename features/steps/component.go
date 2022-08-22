@@ -39,6 +39,7 @@ type Component struct {
 }
 
 func NewComponent(t *testing.T) *Component {
+	g := &mock.Generator{URLHost: "http://mockhost:9999"}
 	cfg, err := config.Get()
 	if err != nil {
 		t.Fatalf("failed to get config: %s", err)
@@ -47,13 +48,11 @@ func NewComponent(t *testing.T) *Component {
 	component := &Component{
 		ErrorFeature:      componenttest.ErrorFeature{TB: t},
 		AuthFeature:       componenttest.NewAuthorizationFeature(),
-		DatasetFeature:    NewDatasetFeature(t, cfg),
-		CantabularFeature: NewCantabularFeature(),
+		DatasetFeature:    NewDatasetFeature(t).Init(cfg),
+		CantabularFeature: NewCantabularFeature().Init(),
 	}
+	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg).Init()
 	component.APIFeature = componenttest.NewAPIFeature(component.Router)
-
-	g := &mock.Generator{URLHost: "http://mockhost:9999"}
-	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 
 	cfg.ZebedeeURL = component.AuthFeature.FakeAuthService.ResolveURL("")
 	log.Info(context.Background(), "config used by component tests", log.Data{"cfg": cfg})
