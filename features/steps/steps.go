@@ -20,11 +20,11 @@ import (
 )
 
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
-	c.AuthServiceInjector.RegisterSteps(ctx)
-	c.APIInjector.RegisterSteps(ctx)
-	c.DatasetInjector.RegisterSteps(ctx)
-	c.CantabularInjector.RegisterSteps(ctx)
-	c.MongoInjector.RegisterSteps(ctx)
+	c.AuthFeature.RegisterSteps(ctx)
+	c.APIFeature.RegisterSteps(ctx)
+	c.DatasetFeature.RegisterSteps(ctx)
+	c.CantabularFeature.RegisterSteps(ctx)
+	c.MongoFeature.RegisterSteps(ctx)
 
 	ctx.Step(
 		`^private endpoints are enabled$`,
@@ -64,7 +64,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
 // an error response, and contains at least one error.
 func (c *Component) iShouldReceiveAnErrorsArray() error {
-	responseBody := c.APIInjector.HttpResponse.Body
+	responseBody := c.APIFeature.HttpResponse.Body
 
 	var errorResponse struct {
 		Errors []string `json:"errors"`
@@ -95,7 +95,7 @@ func arrayParser(raw string) (interface{}, error) {
 }
 
 func (c *Component) anETagIsReturned() error {
-	eTag := c.APIInjector.HttpResponse.Header.Get("ETag")
+	eTag := c.APIFeature.HttpResponse.Header.Get("ETag")
 	if eTag == "" {
 		return fmt.Errorf("no 'ETag' header returned")
 	}
@@ -105,7 +105,7 @@ func (c *Component) anETagIsReturned() error {
 // theETagIsAHashOfTheFilter checks that the returned ETag header (and stored ETag field)
 // are a hash of a filter. Used to validate that the ETag was updated after a mutation.
 func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
-	eTag := c.APIInjector.HttpResponse.Header.Get("ETag")
+	eTag := c.APIFeature.HttpResponse.Header.Get("ETag")
 	if eTag == "" {
 		return errors.New("expected ETag")
 	}
@@ -114,7 +114,7 @@ func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
 	db := c.svc.Cfg.Mongo.Database
 
 	var response model.Filter
-	if err := c.MongoInjector.Client.Database(db).Collection(col).FindOne(context.Background(), bson.M{"filter_id": filterID}).Decode(&response); err != nil {
+	if err := c.MongoFeature.Client.Database(db).Collection(col).FindOne(context.Background(), bson.M{"filter_id": filterID}).Decode(&response); err != nil {
 		return fmt.Errorf("failed to retrieve filter: %w", err)
 	}
 
@@ -162,7 +162,7 @@ func (c *Component) theMaximumLimitIsSetTo(val int) error {
 }
 
 func (c *Component) iProvideIfMatchHeader(eTag string) error {
-	return c.APIInjector.ISetTheHeaderTo("If-Match", eTag)
+	return c.APIFeature.ISetTheHeaderTo("If-Match", eTag)
 }
 
 func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table) error {

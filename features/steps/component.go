@@ -29,11 +29,11 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	AuthServiceInjector *componenttest.AuthorizationFeature
-	APIInjector         *componenttest.APIFeature
-	MongoInjector       *MongoFeature
-	DatasetInjector     *DatasetFeature
-	CantabularInjector  *CantabularFeature
+	AuthFeature       *componenttest.AuthorizationFeature
+	APIFeature        *componenttest.APIFeature
+	MongoFeature      *MongoFeature
+	DatasetFeature    *DatasetFeature
+	CantabularFeature *CantabularFeature
 
 	svc *service.Service
 }
@@ -45,17 +45,17 @@ func NewComponent(t *testing.T) *Component {
 	}
 
 	component := &Component{
-		ErrorFeature:        componenttest.ErrorFeature{TB: t},
-		AuthServiceInjector: componenttest.NewAuthorizationFeature(),
-		DatasetInjector:     NewDatasetFeature(t, cfg),
-		CantabularInjector:  NewCantabularFeature(),
+		ErrorFeature:      componenttest.ErrorFeature{TB: t},
+		AuthFeature:       componenttest.NewAuthorizationFeature(),
+		DatasetFeature:    NewDatasetFeature(t, cfg),
+		CantabularFeature: NewCantabularFeature(),
 	}
-	component.APIInjector = componenttest.NewAPIFeature(component.Router)
+	component.APIFeature = componenttest.NewAPIFeature(component.Router)
 
 	g := &mock.Generator{URLHost: "http://mockhost:9999"}
-	component.MongoInjector = NewMongoFeature(component.ErrorFeature, g, cfg)
+	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 
-	cfg.ZebedeeURL = component.AuthServiceInjector.FakeAuthService.ResolveURL("")
+	cfg.ZebedeeURL = component.AuthFeature.FakeAuthService.ResolveURL("")
 	log.Info(context.Background(), "config used by component tests", log.Data{"cfg": cfg})
 
 	setInitialiserMock(g)
@@ -78,17 +78,17 @@ func (c *Component) Router() (http.Handler, error) {
 
 // Reset re-initialises the service under test and the api mocks.
 func (c *Component) Reset() {
-	c.AuthServiceInjector.Reset()
-	c.APIInjector.Reset()
-	c.DatasetInjector.Reset()
-	c.CantabularInjector.Reset()
-	c.MongoInjector.Reset()
+	c.AuthFeature.Reset()
+	c.APIFeature.Reset()
+	c.DatasetFeature.Reset()
+	c.CantabularFeature.Reset()
+	c.MongoFeature.Reset()
 }
 
 func (c *Component) Close() {
-	c.AuthServiceInjector.Close()
-	c.DatasetInjector.Close()
-	c.MongoInjector.Close()
+	c.AuthFeature.Close()
+	c.DatasetFeature.Close()
+	c.MongoFeature.Close()
 }
 
 func setInitialiserMock(g service.Generator) {
