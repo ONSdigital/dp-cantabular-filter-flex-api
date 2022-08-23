@@ -22,14 +22,6 @@ func NewCantabularFeature() *CantabularFeature {
 	return &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
 }
 
-func (cf *CantabularFeature) Init() *CantabularFeature {
-	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
-		return cf.CantabularClient
-	}
-
-	return cf
-}
-
 func (cf *CantabularFeature) Reset() {
 	cf.CantabularClient.Reset()
 }
@@ -72,4 +64,10 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, d
 
 func (cf *CantabularFeature) cantabularRespondsWithAnError() {
 	cf.OptionsHappy = false
+}
+
+func (cf *CantabularFeature) setInitialiserMock() {
+	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
+		return cf.CantabularClient
+	}
 }

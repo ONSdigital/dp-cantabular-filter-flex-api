@@ -11,7 +11,6 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	componenttest "github.com/ONSdigital/dp-component-test"
-	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const (
@@ -48,16 +47,15 @@ func NewComponent(t *testing.T) *Component {
 	component := &Component{
 		ErrorFeature:      componenttest.ErrorFeature{TB: t},
 		AuthFeature:       componenttest.NewAuthorizationFeature(),
-		DatasetFeature:    NewDatasetFeature(t).Init(cfg),
-		CantabularFeature: NewCantabularFeature().Init(),
+		DatasetFeature:    NewDatasetFeature(t, cfg),
+		CantabularFeature: NewCantabularFeature(),
 	}
-	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg).Init()
+	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 	component.APIFeature = componenttest.NewAPIFeature(component.Router)
 
 	cfg.ZebedeeURL = component.AuthFeature.FakeAuthService.ResolveURL("")
-	log.Info(context.Background(), "config used by component tests", log.Data{"cfg": cfg})
 
-	setInitialiserMock(g)
+	component.setInitialiserMock(g)
 	component.svc = service.New()
 	component.svc.Cfg = cfg
 
@@ -75,7 +73,7 @@ func (c *Component) Router() (http.Handler, error) {
 	return c.svc.Api.Router, nil
 }
 
-// Reset re-initialises the service under test and the api mocks.
+// Reset re-initialises the service under test and the api dependencies
 func (c *Component) Reset() {
 	c.AuthFeature.Reset()
 	c.APIFeature.Reset()
@@ -90,7 +88,11 @@ func (c *Component) Close() {
 	c.MongoFeature.Close()
 }
 
-func setInitialiserMock(g service.Generator) {
+func (c *Component) setInitialiserMock(g service.Generator) {
+	c.CantabularFeature.setInitialiserMock()
+	c.DatasetFeature.setInitialiserMock()
+	c.MongoFeature.setInitialiserMock()
+
 	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
 		return &http.Server{Addr: bindAddr, Handler: router}
 	}

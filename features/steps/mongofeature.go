@@ -33,16 +33,14 @@ type MongoFeature struct {
 }
 
 func NewMongoFeature(ef componenttest.ErrorFeature, g service.Generator, cfg *config.Config) *MongoFeature {
-	return &MongoFeature{
+	mf := &MongoFeature{
 		ErrorFeature: ef,
 		MongoFeature: componenttest.NewMongoFeature(componenttest.MongoOptions{
 			MongoVersion: mongoVersion,
 		}),
 		g:   g,
 		cfg: cfg}
-}
 
-func (mf *MongoFeature) Init() *MongoFeature {
 	mf.cfg.Mongo.ClusterEndpoint = mf.MongoFeature.Server.URI()
 
 	return mf
@@ -282,4 +280,8 @@ func (mf *MongoFeature) insertFilters(filters []model.Filter) error {
 	}
 
 	return nil
+}
+
+func (mf *MongoFeature) setInitialiserMock() {
+	// the default initialiser is fine as it will pick up the mongo server url from the config
 }

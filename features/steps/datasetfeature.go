@@ -15,11 +15,8 @@ type DatasetFeature struct {
 	mockDatasetServer *httpfake.HTTPFake
 }
 
-func NewDatasetFeature(t *testing.T) *DatasetFeature {
-	return &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))}
-}
-
-func (df *DatasetFeature) Init(cfg *config.Config) *DatasetFeature {
+func NewDatasetFeature(t *testing.T, cfg *config.Config) *DatasetFeature {
+	df := &DatasetFeature{mockDatasetServer: httpfake.New(httpfake.WithTesting(t))}
 	cfg.DatasetAPIURL = df.mockDatasetServer.ResolveURL("")
 
 	return df
@@ -63,4 +60,8 @@ func (df *DatasetFeature) theClientForTheDatasetAPIFailedAndIsReturningErrors() 
 		Get("/datasets/cantabular-example-1/editions/2021/versions/1").
 		Reply(http.StatusInternalServerError)
 	return nil
+}
+
+func (df *DatasetFeature) setInitialiserMock() {
+	// the default initialiser is fine as it will pick up the dataset server url from the config
 }
