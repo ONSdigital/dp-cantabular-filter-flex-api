@@ -286,7 +286,19 @@ func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dime
 	return filter.ETag, nil
 }
 
-// findDimensionIndex loops through a dimension, looking for a filter by name, and
+// findDimension loops through a dimension, looking for a dimension by name, and
+// returns Dimension.
+func findDimension(filter *model.Filter, dimensionName string) (model.Dimension, error) {
+	for _, dim := range filter.Dimensions {
+		if dim.Name == dimensionName {
+			return dim, nil
+		}
+	}
+
+	return model.Dimension{}, errors.New("could not find dimension")
+}
+
+// findDimensionIndex loops through a dimension, looking for a dimension by name, and
 // returns the index of the item in the Dimensions slice.
 func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error) {
 	for i, dim := range filter.Dimensions {
@@ -298,8 +310,8 @@ func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error)
 	return 0, errors.New("could not find dimension")
 }
 
-// findDimensionIndex loops through a dimension, looking for a filter by name, and
-// returns the index of the item in the Dimensions slice.
+// findDimensionIndex loops through a dimension, looking for a option by name, and
+// returns the index of the item in the options slice.
 func findDimensionOptionIndex(options []string, optionName string) (int, error) {
 	for i, o := range options {
 		if o == optionName {
@@ -308,4 +320,93 @@ func findDimensionOptionIndex(options []string, optionName string) (int, error) 
 	}
 
 	return 0, errors.New("could not find dimension option")
+}
+
+// DeleteFilterDimension deletes a given dimension in a Filter
+// etag checks should haev passed before calling this function
+func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionName string) (string, error) {
+	col := c.collections.filters
+
+	logData := log.Data{
+		"filter_id":      filterID,
+		"dimension_name": dimensionName,
+	}
+
+	filter, err := c.GetFilter(ctx, filterID)
+	if err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "unable to fetch filter"),
+			logData: logData,
+		}
+	}
+
+	// check the available filter dimensions.
+	// 1. A filter should always have a minimum of 2 dimensions
+	if len(filter.Dimensions) < 3 {
+		return "", &er{
+			err:     errors.New("can't delete dimension as minimum required condition didn't match"),
+			logData: logData,
+		}
+	}
+	// 2. Check if the dimension passed for deletion is not area-type i.e. 'is_area_type' is false.
+	dimension, err := findDimension(filter, dimensionName)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+	if dimension.IsAreaType {
+		return "", &er{
+			err:      errors.New("dimension with area type as true can't be deleted"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	// Find the dimension in order to replace it in-memory with the old one (rather than just
+	// in the datastore). We need to do this in order to generate an accurate ETag/hash.
+	dimensionIndex, err := findDimensionIndex(filter, dimensionName)
+	if err != nil {
+		return "", &er{
+			err:      errors.Wrap(err, "failed to find dimension index"),
+			notFound: true,
+			logData:  logData,
+		}
+	}
+
+	dimensions := filter.Dimensions
+	dimensions = append(dimensions[:dimensionIndex], dimensions[dimensionIndex+1:]...)
+	filter.Dimensions = dimensions
+
+	if filter.ETag, err = filter.Hash(nil); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to generate eTag"),
+			logData: logData,
+		}
+	}
+
+	selectFilter := bson.M{
+		"filter_id": filterID,
+	}
+
+	updateFilter := bson.M{
+		"$set": bson.M{
+			"etag":         filter.ETag,
+			"last_updated": c.generate.Timestamp(),
+		},
+		"$pull": bson.M{
+			"dimensions": bson.M{"name": dimensionName},
+		},
+	}
+
+	if _, err := c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
+		return "", &er{
+			err:     errors.Wrap(err, "failed to update filter dimension"),
+			logData: logData,
+		}
+	}
+
+	return filter.ETag, err
 }

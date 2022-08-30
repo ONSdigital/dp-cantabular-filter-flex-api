@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -379,4 +380,69 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
+}
+
+// deleteFilterDimension deletes a given dimension FilterOutput
+func (api *API) deleteFilterDimension(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	filterID := chi.URLParam(r, "id")
+	dimensionName := chi.URLParam(r, "dimension")
+
+	filter, err := api.store.GetFilter(ctx, filterID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.Wrap(err, "failed to get filter"),
+				message: "failed to delete option: filter not found",
+				logData: log.Data{
+					"id": filterID,
+				},
+			},
+		)
+		return
+	}
+
+	if eTag := api.getETag(r); eTag != eTagAny {
+		if eTag != filter.ETag {
+			api.respond.Error(
+				ctx,
+				w,
+				http.StatusConflict,
+				Error{
+					err: errors.New("conflict: invalid ETag provided or filter has been updated"),
+					logData: log.Data{
+						"expected_etag": eTag,
+						"actual_etag":   filter.ETag,
+					},
+				},
+			)
+		}
+		return
+	}
+
+	eTag, err := api.store.DeleteFilterDimension(
+		ctx,
+		filterID,
+		dimensionName,
+	)
+	if err != nil {
+		code := statusCode(err)
+		if dperrors.NotFound(err) {
+			code = http.StatusBadRequest
+		}
+		api.respond.Error(
+			ctx,
+			w,
+			code,
+			errors.Wrap(err, "failed to delete dimension"),
+		)
+		return
+	}
+
+	w.Header().Set(eTagHeader, eTag)
+	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
