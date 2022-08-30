@@ -89,19 +89,8 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dimensions, err := api.validateAndHydrateDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
-	if err != nil {
-		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
-		return
-	}
-
-	if err := api.validateDimensionOptions(ctx, dimensions, filter.PopulationType); err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			errors.Wrap(err, "failed to validate dimension options"),
-		)
+	if err := api.isValidDatasetDimensions(ctx, v, []model.Dimension{req.Dimension}, filter.PopulationType, filter.Type); err != nil {
+		api.respond.Error(ctx, w, statusCode(err), err)
 		return
 	}
 
