@@ -66,6 +66,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
+	api.Router.Delete("/filters/{id}/dimensions/{dimension}", api.deleteFilterDimension)
 
 	api.Router.Get("/filters/{id}/dimensions/{dimension}/options", api.getFilterDimensionOptions)
 	api.Router.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
@@ -100,6 +101,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Delete("/filters/{id}/dimensions/{dimension}/options", api.deleteFilterDimensionOptions)
 	r.Post("/filters/{id}/dimensions/{dimension}/options/{option}", api.addFilterDimensionOption)
 	r.Delete("/filters/{id}/dimensions/{dimension}/options/{option}", api.deleteFilterDimensionOption)
+	r.Delete("/filters/{id}/dimensions/{dimension}", api.deleteFilterDimension)
 
 	r.Get("/filter-outputs/{id}", api.getFilterOutput)
 	r.Put("/filter-outputs/{id}", api.putFilterOutput)

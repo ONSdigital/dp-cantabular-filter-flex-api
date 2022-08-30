@@ -58,6 +58,7 @@ type Datastore interface {
 	GetFilterDimension(ctx context.Context, fID, dimName string) (model.Dimension, error)
 	GetFilterDimensionOptions(context.Context, string, string, int, int) ([]string, int, string, error)
 	DeleteFilterDimensionOptions(context.Context, string, string) (string, error)
+	DeleteFilterDimension(context.Context, string, string) (string, error)
 	AddFilterDimension(ctx context.Context, s string, dimension model.Dimension) error
 	UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (eTag string, err error)
 	RemoveFilterDimensionOption(ctx context.Context, filterID, dimension, option, currentETag string) (eTag string, err error)
