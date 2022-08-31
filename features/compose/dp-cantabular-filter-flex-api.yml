@@ -17,14 +17,17 @@ services:
             - 27100:27100
         depends_on:
             - kafka-1
+            - cantabular-server
+            - cantabular-api-ext
         environment:
-            BIND_ADDR:                   ":27100"
-            SERVICE_AUTH_TOKEN:          "testToken"
-            COMPONENT_TEST_USE_LOG_FILE: "${COMPONENT_TEST_USE_LOG_FILE-false}"
-            CANTABULAR_URL:              "http://dp-cantabular-server:8491"
-            ENABLE_PRIVATE_ENDPOINTS:    "false"
-            ENABLE_PERMISSIONS_AUTH:     "false"
-            ZEBEDEE_URL:                 "http://zebedee:8082"
-            MONGODB_BIND_ADDR:           "mongodb:27017"
-            KAFKA_ADDR:                  "kafka-1:9092"
+            BIND_ADDR:                          ":27100"
+            SERVICE_AUTH_TOKEN:                 "testToken"
+            COMPONENT_TEST_USE_LOG_FILE:        "${COMPONENT_TEST_USE_LOG_FILE-false}"
+            ENABLE_PRIVATE_ENDPOINTS:           "false"
+            ENABLE_PERMISSIONS_AUTH:            "false"
+            ZEBEDEE_URL:                        "http://zebedee:8082"
+            MONGODB_BIND_ADDR:                  "mongodb:27017"
+            KAFKA_ADDR:                         "kafka-1:9092"
+            CANTABULAR_URL:                     "http://cantabular-server:8491"
+            CANTABULAR_API_EXT_URL:             "http://cantabular-api-ext:8492"
             KAFKA_PRODUCER_MIN_BROKERS_HEALTHY: 1

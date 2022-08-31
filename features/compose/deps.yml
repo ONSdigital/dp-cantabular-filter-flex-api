@@ -26,3 +26,48 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  cantabular-server:
+    build:
+      context: ../../../dp-cantabular-server
+      dockerfile: Dockerfile
+    expose:
+      - 8491
+    ports:
+      - 8491:8491
+    volumes:
+      - ../../../dp-cantabular-server/cantabular/data:/app/data
+      - ../../../dp-cantabular-server/cantabular/scripts:/app/scripts
+  cantabular-api-ext:
+    build:
+      context: ../../../dp-cantabular-api-ext
+      dockerfile: Dockerfile
+    expose:
+      - 8492
+    ports:
+      - 8492:8492
+    depends_on:
+      - cantabular-server
+      - cantabular-metadata-service
+    volumes:
+      - ../../../dp-cantabular-api-ext/cantabular/data:/app/data
+      - ../../../dp-cantabular-api-ext/cantabular/scripts:/app/scripts
+    restart: unless-stopped
+    environment:
+      CANTABULAR_API_URL:       "http://cantabular-server:8491"
+      CANTABULAR_METADATA_URL:  "http://cantabular-metadata-service:8493"
+  cantabular-metadata-service:
+    build:
+      context: ../../../dp-cantabular-metadata-service
+      dockerfile: Dockerfile
+    expose:
+      - 8493
+    ports:
+    - 8493:8493
+    depends_on:
+      - cantabular-server
+    volumes:
+      - ../../../dp-cantabular-metadata-service/cantabular/metadata:/app/metadata
+      - ../../../dp-cantabular-metadata-service/cantabular/scripts:/app/scripts
+    restart: unless-stopped
+    environment:
+      CANTABULAR_API_URL: "http://cantabular-server:8491"
