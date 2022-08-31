@@ -3,19 +3,29 @@ package steps
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/url"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/recipe"
+
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/cucumber/godog"
 	"github.com/google/go-cmp/cmp"
+	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -58,6 +68,12 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 	ctx.Step(`^the following Export Start events are produced:$`,
 		c.theFollowingExportStartEventsAreProduced,
+	)
+	ctx.Step(`^the following recipe is used to create a dataset via the cantabular server:$`,
+		c.theFollowingRecipeIsUsed,
+	)
+	ctx.Step(`^the getDatasetJSON result should be:$`,
+		c.theDatasetJSONResult,
 	)
 }
 
@@ -217,4 +233,205 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		return fmt.Errorf("+got -expected)\n%s\n", diff)
 	}
 	return nil
+}
+
+func (c *Component) theFollowingRecipeIsUsed(rec *godog.DocString) error {
+	var (
+		ctx                = context.Background()
+		r                  recipe.Recipe
+		ds                 dataset.DatasetDetails
+		v                  dataset.Version
+		dims               dataset.VersionDimensions
+		dsj, vj, mj, dimsj []byte
+		cds                *cantabular.StaticDatasetQuery
+		dimVars            []string
+		err                error
+	)
+
+	err = json.Unmarshal([]byte(rec.Content), &r)
+	if err != nil {
+		return errors.Wrap(err, "error unmarshalling recipe in Component::theFollowingRecipeIsUsed")
+	}
+
+	ds = c.makeDataset(r)
+	dsj, err = json.Marshal(ds)
+	if err != nil {
+		return errors.Wrap(err, "error marshalling dataset in Component::theFollowingRecipeIsUsed")
+	}
+	err = c.DatasetFeature.theFollowingDatasetDocumentIsAvailable(ds.ID, &godog.DocString{Content: string(dsj)})
+	if err != nil {
+		return errors.Wrap(err, "error setting dataset into DatasetFeature in Component::theFollowingRecipeIsUsed")
+	}
+
+	for _, d := range r.OutputInstances[0].CodeLists {
+		dims.Items = append(dims.Items, dataset.VersionDimension{ID: d.ID, Name: d.ID, Label: d.Name, Variable: d.ID, Links: dataset.Links{CodeList: dataset.Link{URL: d.HRef, ID: d.ID}}})
+		dimVars = append(dimVars, d.ID)
+	}
+
+	v = c.makeVersion(ds, dims)
+	vj, err = json.Marshal(v)
+	if err != nil {
+		return errors.Wrap(err, "error marshalling version in Component::theFollowingRecipeIsUsed")
+	}
+	err = c.DatasetFeature.theFollowingVersionDocumentIsAvailable(ds.ID, v.Edition, v.Links.Version.ID, &godog.DocString{Content: string(vj)})
+	if err != nil {
+		return errors.Wrap(err, "error setting version into DatasetFeature in Component::theFollowingRecipeIsUsed")
+	}
+
+	m := c.makeMetadata(v)
+	mj, err = json.Marshal(m)
+	if err != nil {
+		return errors.Wrap(err, "error marshalling metadata in Component::theFollowingRecipeIsUsed")
+	}
+	err = c.DatasetFeature.theFollowingMetadataDocumentIsAvailable(ds.ID, v.Edition, v.Links.Version.ID, &godog.DocString{Content: string(mj)})
+	if err != nil {
+		return errors.Wrap(err, "error setting metadata into DatasetFeature in Component::theFollowingRecipeIsUsed")
+	}
+
+	dimsj, err = json.Marshal(dims)
+	if err != nil {
+		return errors.Wrap(err, "error marshalling dimensions in Component::theFollowingRecipeIsUsed")
+	}
+	err = c.DatasetFeature.theFollowingDimensionsDocumentIsAvailable(ds.ID, v.Edition, v.Links.Version.ID, &godog.DocString{Content: string(dimsj)})
+	if err != nil {
+		return errors.Wrap(err, "error setting dimensions into DatasetFeature in Component::theFollowingRecipeIsUsed")
+	}
+
+	// It's assumed the configuration for the cantabular client has been set at this stage, i.e. all 'Given' steps that are concerned with
+	// dependency configuration have been performed, before dependency injection steps
+	cds, err = service.GetCantabularClient(c.svc.Cfg).StaticDatasetQuery(ctx, cantabular.StaticDatasetQueryRequest{Dataset: r.CantabularBlob, Variables: dimVars})
+	if err != nil {
+		return errors.Wrap(err, "error retrieving dataset from cantabular server in Component::theFollowingRecipeIsUsed")
+	}
+
+	_ = c.makeDimensionOptions(v, cds.Dataset.Table.Dimensions)
+
+	return nil
+}
+
+func (c *Component) makeDataset(recipe recipe.Recipe) dataset.DatasetDetails {
+	recipeDetails := recipe.OutputInstances[0]
+
+	return dataset.DatasetDetails{ID: recipeDetails.DatasetID,
+		Title:     recipeDetails.Title,
+		Type:      recipe.Format,
+		IsBasedOn: &dataset.IsBasedOn{ID: recipe.CantabularBlob, Type: recipe.Format},
+		State:     "published",
+		Links: dataset.Links{
+			Self: dataset.Link{
+				ID:  recipeDetails.DatasetID,
+				URL: fmt.Sprintf("%s/datasets/%s", c.svc.Cfg.DatasetAPIURL, recipeDetails.DatasetID),
+			},
+		},
+	}
+}
+
+func (c *Component) makeVersion(ds dataset.DatasetDetails, dims dataset.VersionDimensions) dataset.Version {
+	return dataset.Version{
+		ID:         ds.ID + "UUID",
+		Edition:    "latest",
+		Version:    1,
+		State:      "published",
+		IsBasedOn:  ds.IsBasedOn,
+		Dimensions: dims.Items,
+		Links: dataset.Links{
+			Dataset: ds.Links.Self,
+			Version: dataset.Link{
+				ID:  "1",
+				URL: fmt.Sprintf("%s/editions/%s/versions/%d", ds.Links.Self.URL, "latest", 1),
+			},
+			Self: dataset.Link{
+				ID:  "1",
+				URL: fmt.Sprintf("%s/editions/%s/versions/%d", ds.Links.Self.URL, "latest", 1),
+			},
+		},
+	}
+}
+
+func (c *Component) makeMetadata(v dataset.Version) interface{} {
+	// logic referenced from dp-dataset-api/metadata/models/metadata.go CreateCantabularMetaDataDoc() (commit hash dd295b15704d87c0cb08d127ca108ce2f8df05a7)
+	// no metadata links are being set at present in this function, but it is envisaged the links will be set at some point, so I am setting a basic link in
+	//this test. The returned value is an extremely cutdown version of dp-dataset-api/metadata/models/Metadata
+
+	return struct {
+		Links interface{} `json:"links,omitempty"`
+	}{Links: struct {
+		Self interface{} `json:"self,omitempty"`
+	}{Self: struct {
+		HRef string `json:"href,omitempty"`
+		ID   string `json:"id,omitempty"`
+	}{HRef: v.Links.Self.URL + "/metadata"}}}
+}
+
+func (c *Component) makeDimensionOptions(v dataset.Version, dims []cantabular.Dimension) []dataset.Option {
+	if len(v.Dimensions) != len(dims) {
+		c.Fatalf("dimension lists  not of same length in Component::makeDimensionOptions")
+	}
+	sort.Slice(v.Dimensions, func(i, j int) bool { return v.Dimensions[i].ID < v.Dimensions[j].ID })
+	sort.Slice(dims, func(i, j int) bool { return dims[i].Variable.Name < dims[j].Variable.Name })
+
+	var dimOpts []dataset.Option
+	for i, d := range v.Dimensions {
+
+		var opts []dataset.Option
+		for _, o := range dims[i].Categories {
+			opts = append(opts, dataset.Option{
+				DimensionID: d.ID,
+				Label:       o.Label,
+				Option:      o.Code,
+				Links: dataset.Links{
+					Versions: v.Links.Version,
+					CodeList: d.Links.CodeList,
+					Code: dataset.Link{
+						ID:  o.Code,
+						URL: fmt.Sprintf("%s/codes/%s", d.Links.CodeList.URL, o.Code),
+					},
+				},
+			})
+		}
+
+		optsj, err := json.Marshal(dataset.Options{Items: opts, Count: len(opts), TotalCount: len(opts)})
+		if err != nil {
+			c.Fatalf("error marshalling dimension options in Component::theFollowingRecipeIsUsed: %v", err)
+		}
+		if err = c.DatasetFeature.theFollowingOptionsDocumentIsAvailable(v.Links.Dataset.ID, v.Edition, v.Links.Version.ID, d.ID, &godog.DocString{Content: string(optsj)}); err != nil {
+			c.Fatalf("error setting dimensions into DatasetFeature in Component::theFollowingRecipeIsUsed: %v", err)
+		}
+
+		dimOpts = append(dimOpts, opts...)
+	}
+
+	return dimOpts
+}
+
+func (c *Component) theDatasetJSONResult(expected *godog.DocString) error {
+	var got, expt api.GetDatasetJSONResponse
+
+	b, _ := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	if err := json.Unmarshal(b, &got); err != nil {
+		return err
+	}
+	if err := json.Unmarshal([]byte(expected.Content), &expt); err != nil {
+		return err
+	}
+
+	urlCompare := func(s1, s2 string) bool {
+		if !strings.Contains(s1, "localhost:9999") && !strings.Contains(s2, "localhost:9999") {
+			return s1 == s2
+		}
+		s1URL, e := url.Parse(s1)
+		if e != nil {
+			return false
+		}
+		s2URL, e := url.Parse(s2)
+		if e != nil {
+			return false
+		}
+
+		return s1URL.Path == s2URL.Path
+	}
+
+	assert.Empty(c, cmp.Diff(got, expt, cmp.Comparer(urlCompare)))
+
+	return c.StepError()
 }
