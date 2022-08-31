@@ -245,7 +245,7 @@ type submitFilterResponse struct {
 }
 
 // getDatasetJSONResponse is the response body for GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/json
-type getDatasetJSONResponse struct {
+type GetDatasetJSONResponse struct {
 	Dimensions        []DatasetJSONDimension `json:"dimensions"`
 	Links             DatasetJSONLinks       `json:"links"`
 	Observations      []int                  `json:"observations"`
