@@ -94,3 +94,11 @@ type DatasetAPIClient interface {
 	Checker(context.Context, *healthcheck.CheckState) error
 	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
 }
+
+type PopulationTypesAPIClient interface {
+	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+}
+
+type MetadataAPIClient interface {
+	GetDefaultCategorisation(context.Context, cantabular.GetDefaultCategorisationRequest) (*cantabularGetDefaultCategorisationReponse, error)
+}

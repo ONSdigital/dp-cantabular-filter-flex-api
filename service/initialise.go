@@ -11,6 +11,9 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/metadata"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-net/v2/responder"
@@ -53,6 +56,20 @@ var GetCantabularClient = func(cfg *config.Config) CantabularClient {
 // GetDatasetAPIClient gets and initialises the DatasetAPI Client
 var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 	return dataset.NewAPIClient(cfg.DatasetAPIURL)
+}
+
+// bit unnecessary and verbose no? to split this in a function like above? Is it for returning Interfaces? PS Ask why interfaces need to be both in api/ and service/
+var GetPopulationTypesAPIClient = func(cfg *config.Config) PopulationTypesAPIClient {
+	// NB: Client initialisation is not consistent, see above...
+	client, _ := population.NewClient(cfg.PopulationTypesAPIURL)
+	return *client
+}
+
+// bit unnecessary and verbose no? to split this in a function like above?
+var GetMetadataAPIClient = func(cfg *config.Config) MetadataAPIClient {
+	// NB: Client initialisation is not consistent, see above...
+	client, _ := metadata.NewClient(cfg.PopulationTypesAPIURL)
+	return *client
 }
 
 // GetHealthCheck creates a healthcheck with versionInfo

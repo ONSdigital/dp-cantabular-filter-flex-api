@@ -22,6 +22,8 @@ type Config struct {
 	CantabularURL                string        `envconfig:"CANTABULAR_URL"`
 	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
 	DatasetAPIURL                string        `envconfig:"DATASET_API_URL"`
+	PopulationTypesAPIURL        string        `envconfig:"POPULATION_TYPES_API_URL"`
+	MetadataAPIURL               string        `envconfig:"METADATA_API_URL"`
 	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"`
 	FiltersCollection            string        `envconfig:"FILTERS_COLLECTION"`
 	FilterOutputsCollection      string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
