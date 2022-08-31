@@ -68,6 +68,14 @@ type datasetAPIClient interface {
 	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
 }
 
+type populationTypesAPIClient interface {
+	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+}
+
+type metadataAPIClient interface {
+	GetDefaultCategorisation(context.Context, cantabular.GetDefaultCategorisationRequest) (*cantabularGetDefaultCategorisationReponse, error)
+}
+
 type coder interface {
 	Code() int
 }

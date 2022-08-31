@@ -24,6 +24,8 @@ type API struct {
 	producer       kafka.IProducer
 	identityClient *identity.Client
 	datasets       datasetAPIClient
+	populations    populationTypesAPIClient
+	metadata       metadataAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
 }
