@@ -10,7 +10,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/cucumber/godog"
 )
 
@@ -19,14 +19,26 @@ type CantabularFeature struct {
 }
 
 func NewCantabularFeature() *CantabularFeature {
-	return &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
+	cf := &CantabularFeature{CantabularClient: &mock.CantabularClient{OptionsHappy: true}}
+	cf.setMockServer()
+
+	return cf
 }
 
 func (cf *CantabularFeature) Reset() {
 	cf.CantabularClient.Reset()
+	cf.setMockServer()
 }
 
 func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
+	ctx.Step(
+		`^The Cantabular service is a real extended Cantabular server listening on the configured urls:$`,
+		cf.useARealCantabularServer,
+	)
+	ctx.Step(
+		`^The Cantabular service is a real extended Cantabular server listening on the configured urls:$`,
+		cf.useARealCantabularServer,
+	)
 	ctx.Step(
 		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		cf.cantabularSearchReturnsTheseDimensions,
@@ -35,6 +47,12 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Cantabular responds with an error$`,
 		cf.cantabularRespondsWithAnError,
 	)
+}
+
+func (cf *CantabularFeature) useARealCantabularServer() error {
+	cf.setRealServer()
+
+	return nil
 }
 
 func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
@@ -64,6 +82,26 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, d
 
 func (cf *CantabularFeature) cantabularRespondsWithAnError() {
 	cf.OptionsHappy = false
+}
+
+func (cf *CantabularFeature) setRealServer() {
+	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
+		return cantabular.NewClient(
+			cantabular.Config{
+				Host:           cfg.CantabularURL,
+				ExtApiHost:     cfg.CantabularExtURL,
+				GraphQLTimeout: cfg.DefaultRequestTimeout,
+			},
+			dphttp.NewClient(),
+			nil,
+		)
+	}
+}
+
+func (cf *CantabularFeature) setMockServer() {
+	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
+		return cf.CantabularClient
+	}
 }
 
 func (cf *CantabularFeature) setInitialiserMock() {
