@@ -76,10 +76,10 @@ func TestComponent(t *testing.T) {
 		}
 
 		var opts = godog.Options{
-			Output: colors.Colored(output),
-			Format: "pretty",
-			Paths:  flag.Args(),
-			//			TestingT: t,
+			Output:   colors.Colored(output),
+			Format:   "pretty",
+			Paths:    flag.Args(),
+			TestingT: t,
 		}
 
 		ct := &ComponentTest{
