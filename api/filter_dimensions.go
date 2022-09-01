@@ -20,6 +20,10 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var req addFilterDimensionRequest
 
+	var finalDim model.Dimension
+
+	println("THIS IS WORKING")
+
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
@@ -88,9 +92,25 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.isValidDatasetDimensions(ctx, v, []model.Dimension{req.Dimension}, filter.PopulationType); err != nil {
-		api.respond.Error(ctx, w, statusCode(err), err)
-		return
+	toValidate := []model.Dimension{req.Dimension}
+
+	if filter.Type == flexible {
+		err := api.isValidDatasetDimensions(ctx, v, toValidate, filter.PopulationType)
+		if err != nil {
+			api.respond.Error(ctx, w, statusCode(err), err)
+		}
+
+		finalDim = hydrateDimensions(toValidate, v.Dimensions)[0]
+
+	} else if filter.Type == multivariate {
+
+		multivariateDim, err := api.isValidMultivariateDimensions(ctx, toValidate, filter.PopulationType)
+		if err != nil {
+			api.respond.Error(ctx, w, statusCode(err), err)
+		}
+
+		finalDim = multivariateDim[0]
+
 	}
 
 	h, err := filter.HashDimensions()
@@ -120,9 +140,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dim := hydrateDimensions([]model.Dimension{req.Dimension}, v.Dimensions)[0]
-
-	if err := api.store.AddFilterDimension(ctx, fID, dim); err != nil {
+	if err := api.store.AddFilterDimension(ctx, fID, finalDim); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -166,7 +184,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var resp addFilterDimensionResponse
 	resp.dimensionItem.fromDimension(
-		dim,
+		finalDim,
 		api.cfg.FilterAPIURL,
 		fID,
 	)
