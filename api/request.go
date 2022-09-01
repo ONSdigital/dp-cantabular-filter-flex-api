@@ -12,8 +12,8 @@ import (
 
 const (
 	ifMatchHeader = "If-Match"
-	eTagHeader = "ETag"
-	eTagAny    = "*"
+	eTagHeader    = "ETag"
+	eTagAny       = "*"
 )
 
 // ParseRequest attemts to read unmarshal a request body into a
@@ -21,6 +21,9 @@ const (
 // 'req' must be a pointer to a struct.
 // ParseRequest will also attempt to call the request's Valid()
 // function if it has one and will throw an error if it fails
+
+// NOTE: for multivariate tables, it is going to use the name field
+// for the id when making the call to cantabular.
 func (api *API) ParseRequest(body io.Reader, req interface{}) error {
 	b, err := io.ReadAll(body)
 	if err != nil {
