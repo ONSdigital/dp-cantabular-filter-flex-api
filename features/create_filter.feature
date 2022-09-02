@@ -512,7 +512,7 @@ Feature: Filters Private Endpoints Not Enabled
     }
     """
 
-    And the HTTP status code should be "404"  
+    And the HTTP status code should be "404"
 
   Scenario: Do not create a filter based on cantabular blob
     When I POST "/filters"
