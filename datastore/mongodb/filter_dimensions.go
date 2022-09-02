@@ -344,8 +344,9 @@ func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionN
 	// 1. A filter should always have a minimum of 2 dimensions
 	if len(filter.Dimensions) < 3 {
 		return "", &er{
-			err:     errors.New("can't delete dimension as minimum required condition didn't match"),
-			logData: logData,
+			err:      errors.New("can't delete dimension as minimum required condition didn't match"),
+			conflict: true,
+			logData:  logData,
 		}
 	}
 	// 2. Check if the dimension passed for deletion is not area-type i.e. 'is_area_type' is false.
@@ -360,7 +361,7 @@ func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionN
 	if dimension.IsAreaType {
 		return "", &er{
 			err:      errors.New("dimension with area type as true can't be deleted"),
-			notFound: true,
+			conflict: true,
 			logData:  logData,
 		}
 	}

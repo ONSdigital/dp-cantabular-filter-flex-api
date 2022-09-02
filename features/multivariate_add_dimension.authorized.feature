@@ -9,6 +9,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     {
       "alerts": [],
       "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
+        "is_based_on":{"@type": "cantabular_multivariate_table"},
       "dimensions": [
         {
           "label": "City",
@@ -172,3 +173,22 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
       }
     }
     """
+
+    Scenario: Add a non multivariate dimension that does not exist
+      When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+      """
+      {
+      "name": "DOESNOTEXIST",
+      "is_area_type": false,
+      "filter_by_parent": ""
+      }
+      """
+      Then the HTTP status code should be "404"
+      And I should receive the following JSON response:
+      """
+      {
+          "errors": [
+              "error in cantabular response: no dimensions in response"
+          ]
+      }
+      """
