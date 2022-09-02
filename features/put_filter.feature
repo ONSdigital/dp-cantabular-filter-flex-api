@@ -2,6 +2,10 @@ Feature: Put Filter Private Endpoints Not Enabled
 
   Background:
     Given private endpoints are not enabled
+    And I am identified as "user@ons.gov.uk"
+
+    And I am authorised
+
     And I have these filters:
     """
     [

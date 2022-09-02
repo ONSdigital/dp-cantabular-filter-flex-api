@@ -164,6 +164,7 @@
       },
       "population_type": "dummy_data_households",
       "dimensions": [
+
       {
         "name": "ladcd",
         "is_area_type": true,
@@ -276,76 +277,5 @@
           "$numberLong": "1643200024783"
         }
       }
-    }
-    """
-  Scenario: Creating a new multivariate with no dims when authorized
-    Given I am identified as "user@ons.gov.uk"
-
-    And I am authorised
-
-    When I POST "/filters"
-    """
-    {
-      "dataset":{
-          "id":      "cantabular-example-1",
-          "edition": "2021",
-          "version": 1
-      },
-      "population_type": "dummy_data_households",
-      "dimensions": [
-      ]
-    }
-    """
-
-    Then the HTTP status code should be "400"
-    Then I should receive the following JSON response:
-    """
-    {
-        "errors": [
-            "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
-        ]
-    }
-    """
-  Scenario: Creating a new multivariate with a bad dim
-    Given I am identified as "user@ons.gov.uk"
-
-    And I am authorised
-
-    When I POST "/filters"
-    """
-    {
-      "dataset":{
-          "id":      "cantabular-example-1",
-          "edition": "2021",
-          "version": 1
-      },
-      "population_type": "dummy_data_households",
-      "dimensions": [
-      {
-        "name": "DOES NOT EXIST",
-        "is_area_type": true,
-        "filter_by_parent": ""
-      },
-      {
-        "name": "hh_deprivation_health",
-        "is_area_type": false,
-        "filter_by_parent": ""
-      },
-    {
-        "name": "hh_deprivation",
-        "is_area_type": false,
-        "filter_by_parent": ""
-      }
-      ]
-    }
-    """
-
-    Then the HTTP status code should be "404"
-    Then I should receive the following JSON response:
-    """
-    {
-        "errors": [
-            "error in cantabular response: no dimensions in response"
-        ]
     }
     """
