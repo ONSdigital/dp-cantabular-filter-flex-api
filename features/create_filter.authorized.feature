@@ -8,7 +8,7 @@ Feature: Filters Private Endpoints Enabled
       {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
-        "is_based_on":{"@type": "not-table"},
+        "is_based_on":{"@type": "cantabular_flexible_table"},
         "dimensions": [
           {
             "label": "City",

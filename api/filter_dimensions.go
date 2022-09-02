@@ -22,8 +22,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var finalDim model.Dimension
 
-	println("THIS IS WORKING")
-
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
