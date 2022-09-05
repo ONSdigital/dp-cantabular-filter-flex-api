@@ -35,6 +35,41 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Cantabular responds with an error$`,
 		cf.cantabularRespondsWithAnError,
 	)
+
+	ctx.Step(
+		`^Cantabular returns dimensions for the dataset "([^"]*)" for the following search terms:$`,
+		cf.cantabularReturnsMultipleDimensions,
+	)
+
+}
+
+// cantabylarSearchReturnsOneOfTheseDimensions sets up a stub response for the `SearchDimensions` method.
+func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID string, docs *godog.DocString) error {
+	cantabularResponses := struct {
+		Responses map[string]cantabular.GetDimensionsResponse `json:"responses""`
+	}{}
+
+	if err := json.Unmarshal([]byte(docs.Content), &cantabularResponses); err != nil {
+		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
+	}
+
+	cf.CantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+		if val, ok := cantabularResponses.Responses[req.Text]; ok {
+			return &val, nil
+		}
+
+		return &cantabular.GetDimensionsResponse{
+			Dataset: gql.Dataset{
+				Variables: gql.Variables{
+					Search: gql.Search{
+						Edges: []gql.Edge{},
+					},
+				},
+			},
+		}, nil
+	}
+
+	return nil
 }
 
 func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
