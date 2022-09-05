@@ -20,8 +20,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var req addFilterDimensionRequest
 
-	var finalDim model.Dimension
-
 	if err := api.ParseRequest(r.Body, &req); err != nil {
 		api.respond.Error(
 			ctx,
@@ -31,12 +29,10 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
 	logData := log.Data{
 		"request": req,
 		"id":      fID,
 	}
-
 	filter, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
 		api.respond.Error(
@@ -51,7 +47,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -75,7 +70,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
 	if v.State != published && !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
@@ -89,29 +83,13 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	toValidate := []model.Dimension{req.Dimension}
-
-	if filter.Type == flexible {
-		err := api.isValidDatasetDimensions(ctx, v, toValidate, filter.PopulationType)
-		if err != nil {
-			api.respond.Error(ctx, w, statusCode(err), err)
-		}
-
-		finalDim = hydrateDimensions(toValidate, v.Dimensions)[0]
-
-	} else if filter.Type == multivariate {
-
-		multivariateDim, err := api.isValidMultivariateDimensions(ctx, toValidate, filter.PopulationType)
-		if err != nil {
-			api.respond.Error(ctx, w, statusCode(err), err)
-			return
-		}
-
-		finalDim = multivariateDim[0]
-
+	dimensions, _, err := api.ValidateAndReturnDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
+	if err != nil {
+		api.respond.Error(ctx, w, statusCode(err), err)
+		return
 	}
 
+	finalDim := dimensions[0]
 	h, err := filter.HashDimensions()
 	if err != nil {
 		api.respond.Error(
@@ -187,7 +165,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		api.cfg.FilterAPIURL,
 		fID,
 	)
-
 	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
@@ -222,10 +199,25 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filter, err := api.store.GetFilter(ctx, filterID)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.Wrap(err, "failed to parse update filter request"),
+				logData: logData,
+			},
+		)
+		return
+
+	}
+
 	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),
 	// so instead of validating it against the existing Version, we check to see if the dimension exists in Cantabular.
 	// TODO: this function gets the dimension via a search, not guaranteed to be correct dimension
-	node, err := api.getCantabularDimension(ctx, filterID, req.ID)
+	node, err := api.getCantabularDimension(ctx, filter.PopulationType, req.ID)
 	if err != nil {
 		api.respond.Error(
 			ctx,

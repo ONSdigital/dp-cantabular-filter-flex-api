@@ -99,28 +99,14 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if v.IsBasedOn.Type == cantabularFlexible {
-
-		filterType = flexible
-		err := api.isValidDatasetDimensions(ctx, v, req.Dimensions, req.PopulationType)
-		if err != nil {
-			api.respond.Error(ctx, w, statusCode(err), err)
-			return
-		}
-
-		finalDims = hydrateDimensions(req.Dimensions, v.Dimensions)
-
-	} else if v.IsBasedOn.Type == cantabularMultivariate {
-
-		filterType = multivariate
-		multivariateDims, err := api.isValidMultivariateDimensions(ctx, req.Dimensions, req.PopulationType)
-		if err != nil {
-			api.respond.Error(ctx, w, statusCode(err), err)
-			return
-		}
-
-		finalDims = multivariateDims
-
+	finalDims, filterType, err = api.ValidateAndReturnDimensions(
+		v,
+		req.Dimensions,
+		req.PopulationType,
+	)
+	if err != nil {
+		api.respond.Error(ctx, w, statusCode(err), err)
+		return
 	}
 
 	f := model.Filter{
@@ -368,14 +354,10 @@ func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
    using the same value for both.
 */
 func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
-	//steps
-	// make the call to the cantabular service to ensure that the dimensions exist for a given dataset
-	// Then return the dimensions fully populated.
-
 	hydratedDimensions := make([]model.Dimension, 0)
 
 	for _, dim := range dimensions {
-		node, err := api.getCantabularDimensionNoFilterID(ctx, pType, dim.Name)
+		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
@@ -410,41 +392,7 @@ func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version,
 
 // getCantabularDimension checks that dimension exists in Cantabular by searching for it.
 // If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
-func (api *API) getCantabularDimension(ctx context.Context, filterID, dimensionName string) (*gql.Node, error) {
-	// No idea why the filter is being retrieved here?
-	// leaving comment in just in case it is not necessary and we can remove.
-	filter, err := api.store.GetFilter(ctx, filterID)
-	if err != nil {
-		return nil, Error{
-			err:        errors.Wrap(err, "error retrieving filter"),
-			message:    "failed to get filter dimensions",
-			badRequest: true,
-		}
-	}
-
-	foundDimensions, err := api.ctblr.SearchDimensions(ctx, cantabular.SearchDimensionsRequest{
-		Dataset: filter.PopulationType,
-		Text:    dimensionName,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "error in cantabular response")
-	}
-
-	if len(foundDimensions.Dataset.Variables.Search.Edges) == 0 {
-		return nil, Error{
-			err:      errors.New("no dimensions in response"),
-			notFound: true,
-			logData:  log.Data{"found_dimensions": foundDimensions},
-		}
-	}
-
-	return &foundDimensions.Dataset.Variables.Search.Edges[0].Node, nil
-}
-
-// getCantabularDimension checks that dimension exists in Cantabular by searching for it.
-// If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
-func (api *API) getCantabularDimensionNoFilterID(ctx context.Context, popType, dimensionName string) (*gql.Node, error) {
-
+func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionName string) (*gql.Node, error) {
 	foundDimensions, err := api.ctblr.SearchDimensions(ctx, cantabular.SearchDimensionsRequest{
 		Dataset: popType,
 		Text:    dimensionName,
