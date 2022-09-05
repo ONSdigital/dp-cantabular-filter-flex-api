@@ -105,6 +105,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		multivariateDim, err := api.isValidMultivariateDimensions(ctx, toValidate, filter.PopulationType)
 		if err != nil {
 			api.respond.Error(ctx, w, statusCode(err), err)
+			return
 		}
 
 		finalDim = multivariateDim[0]
