@@ -59,47 +59,6 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the following Export Start events are produced:$`,
 		c.theFollowingExportStartEventsAreProduced,
 	)
-	ctx.Step(`^I have these filter outputs:$`,
-		c.iHaveTheseFilterOutputs,
-	)
-	ctx.Step(
-		`^I should receive an errors array`,
-		c.iShouldReceiveAnErrorsArray,
-	)
-	ctx.Step(
-		`^Cantabular returns these dimensions for the dataset "([^"]*)" and search term "([^"]*)":$`,
-		c.cantabularSearchReturnsTheseDimensions,
-	)
-	ctx.Step(
-		`^Cantabular returns dimensions for the dataset "([^"]*)" for the following search terms:$`,
-		c.cantabularReturnsMultipleDimensions,
-	)
-	ctx.Step(
-		`^Cantabular responds with an error$`,
-		c.cantabularRespondsWithAnError,
-	)
-	ctx.Step(`^the filter output with the following structure is in the datastore:$`,
-		c.filterOutputIsInDatastore,
-	)
-
-}
-func (c *Component) filterOutputIsInDatastore(expectedOutput *godog.DocString) error {
-	var expected model.FilterOutput
-
-	err := json.Unmarshal([]byte(expectedOutput.Content), &expected)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshall provided filterOutput: %w", err)
-	}
-
-	actual, err := c.store.GetFilterOutput(c.ctx, expected.ID)
-	if err != nil {
-		return fmt.Errorf("Error encountered while retrieving filter output: %w", err)
-	}
-
-	if diff := cmp.Diff(actual, &expected); diff != "" {
-		return fmt.Errorf("-got +expected)\n%s\n", diff)
-	}
-	return nil
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
