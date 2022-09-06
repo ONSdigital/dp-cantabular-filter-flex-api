@@ -11,9 +11,6 @@ import (
    so that we store the correct parent dimension for a given set of options?
 */
 func (api *API) CheckDefaultCategorisation(dimName string) (dimension *model.Dimension, err error) {
-	// steps
-	// get all of the categorisations for the variable from the population types api .
-	// get the default categorisations through the metadata service.
 
 	ctx := context.Background()
 	cats, err := api.populations.GetCategorisations(ctx, nil)

@@ -10,6 +10,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -69,11 +70,11 @@ type datasetAPIClient interface {
 }
 
 type populationTypesAPIClient interface {
-	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+	GetCategorisations(context.Context, population.GetCategorisationsRequest) (*population.GetCategorisationsResponse, error)
 }
 
 type metadataAPIClient interface {
-	GetDefaultCategorisation(context.Context, cantabular.GetDefaultCategorisationRequest) (*cantabularGetDefaultCategorisationReponse, error)
+	GetDefaultClassification(ctx context.Context, req GetDefaultClassificationRequest) (*GetDefaultClassificationResponse, error)
 }
 
 type coder interface {
