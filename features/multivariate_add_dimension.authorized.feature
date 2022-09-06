@@ -139,6 +139,33 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     }
     """
 
+  And the population types api returns this response for this search term "["age_3a", "age_5a"]":
+  """
+
+  """
+  And the metadata api returns this response for this search term "blah":
+  """
+  {
+    "data": {
+      "dataset": {
+        "vars": [
+          {
+            "meta": {
+              "Default_Classification_Flag": "N"
+            },
+            "name": "test_variable_1"
+          },
+          {
+            "meta": {
+              "Default_Classification_Flag": "Y"
+            },
+            "name": "test_variable_2"
+          }
+        ]
+      }
+    }
+  }
+  """
   Scenario: Add a multivariate filter dimension with no options successfully
 
     When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
@@ -172,7 +199,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     }
     """
 
-    Scenario: Add a non multivariate dimension that does not exist
+    Scenario: Add a multivariate dimension that does not exist
       When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
       """
       {
@@ -191,3 +218,42 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
       }
       """
       And the HTTP status code should be "404"
+
+    Scenario: Add a multivariate dimension but pop types errors
+    Given the population types API returns an error
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+    "name": "hh_deprivation",
+    "is_area_type": false,
+    "filter_by_parent": ""
+    }
+    """
+    Then the HTTP status code should be "500"
+    And I should receive the following JSON response:
+    """
+    {
+        "errors": [
+            "failed to add dimension: internal server error"
+        ]
+    }
+    """
+    Scenario: Add a multivariate dimension but metadata errors
+    Given the metadata API returns an error
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+    "name": "hh_deprivation",
+    "is_area_type": false,
+    "filter_by_parent": ""
+    }
+    """
+    Then the HTTP status code should be "500"
+    And I should receive the following JSON response:
+    """
+    {
+        "errors": [
+            "failed to add dimension: internal server error"
+        ]
+    }
+    """

@@ -34,7 +34,11 @@ type Component struct {
 	MongoFeature      *MongoFeature
 	DatasetFeature    *DatasetFeature
 	CantabularFeature *CantabularFeature
-	svc               *service.Service
+
+	PopulationFeatures *PopulationFeature
+	MetadataFeature    *MetadataFeature
+
+	svc *service.Service
 }
 
 func NewComponent(t *testing.T) *Component {
@@ -45,10 +49,11 @@ func NewComponent(t *testing.T) *Component {
 	}
 
 	component := &Component{
-		ErrorFeature:      componenttest.ErrorFeature{TB: t},
-		AuthFeature:       componenttest.NewAuthorizationFeature(),
-		DatasetFeature:    NewDatasetFeature(t, cfg),
-		CantabularFeature: NewCantabularFeature(t, cfg),
+		ErrorFeature:       componenttest.ErrorFeature{TB: t},
+		AuthFeature:        componenttest.NewAuthorizationFeature(),
+		DatasetFeature:     NewDatasetFeature(t, cfg),
+		CantabularFeature:  NewCantabularFeature(),
+		PopulationFeatures: NewPopulationFeature(t, cfg),
 	}
 	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 	component.APIFeature = componenttest.NewAPIFeature(component.Router)
