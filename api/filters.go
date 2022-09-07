@@ -404,10 +404,15 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
+		finalDimension, err := api.CheckDefaultCategorisation(node.Name)
+		if err != nil {
+			return nil, err
+		}
+
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{
-			Label:      node.Label,
-			ID:         node.Name,
-			Name:       node.Name,
+			Label:      finalDimension.Label,
+			ID:         finalDimension.Name,
+			Name:       finalDimension.Name,
 			IsAreaType: dim.IsAreaType,
 		})
 
