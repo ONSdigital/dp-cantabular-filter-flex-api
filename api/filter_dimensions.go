@@ -89,12 +89,12 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.isValidDatasetDimensions(ctx, v, []model.Dimension{req.Dimension}, filter.PopulationType, filter.Type); err != nil {
+	dimensions, _, err := api.ValidateAndReturnDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
+	if err != nil {
 		api.respond.Error(ctx, w, statusCode(err), err)
 		return
 	}
 
-	finalDim := dimensions[0]
 	h, err := filter.HashDimensions()
 	if err != nil {
 		api.respond.Error(
@@ -123,6 +123,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	finalDim := dimensions[0]
 	if err := api.store.AddFilterDimension(ctx, fID, finalDim); err != nil {
 		api.respond.Error(
 			ctx,

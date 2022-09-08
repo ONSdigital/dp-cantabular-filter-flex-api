@@ -404,6 +404,7 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
+		// NB: this is now going to do so for creation of filter AND POST dimensions
 		finalDimension, err := api.CheckDefaultCategorisation(node.Name, pType)
 		if err != nil {
 			return nil, err
