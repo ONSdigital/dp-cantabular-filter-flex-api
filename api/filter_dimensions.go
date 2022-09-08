@@ -15,17 +15,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-/*
-
-- User selects "Add a variable" from the multivariates dataset landing page
-- User browses for a variable and selects one from the list returned
-- On the button click - a POST request to /filters/{filter-id}/dimensions for that variable is made.
-- When the POST request is received, it takes the name from the dimension supplied in the body. This is fed in to the default categorisation check.
-   - A response is received from the categorisation check with the correct value to use as the dimension name, id, and label.
-   - the population types serice?
-   - This replaces what was sent originally in the POST request, then the database update is made.
-
-*/
 func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
@@ -133,12 +122,6 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	/*
-	   Here we make the call to the metadata service and the population types service?
-	   to get the parent variable to the particular dimension?
-	   So we check ALL variables for the default categorisation?
-	*/
-	dimToCheck := req.Dimension
 
 	if err := api.store.AddFilterDimension(ctx, fID, finalDim); err != nil {
 		api.respond.Error(

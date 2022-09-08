@@ -2,15 +2,13 @@ package api
 
 import (
 	"context"
-
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 )
 
 /*
    CheckDefaultCategorisation checks the default categorisation of a given dimension
    so that we store the correct parent dimension for a given set of options?
 */
-func (api *API) CheckDefaultCategorisation(dimName string) (dimension *model.Dimension, err error) {
+func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (string, error) {
 
 	ctx := context.Background()
 	cats, err := api.populations.GetCategorisations(ctx, nil)
@@ -19,13 +17,14 @@ func (api *API) CheckDefaultCategorisation(dimName string) (dimension *model.Dim
 	for _, cat := range cats {
 		names = append(names, cat.Name)
 	}
-	defaultCat, err := api.metadata.GetDefaultCategorisation(ctx, nil)
-
-	for _, categorisation := range defaultCat {
-		if categorisation.isDefaultCat == true {
-			dimension = defaultCat
-			return
-		}
+	defaultCat, err := api.metadata.GetDefaultClassification(ctx, GetDefaultClassificationRequest{
+		Dataset:   datasetName,
+		Variables: names,
+	})
+	if err != nil {
+		return "", err
 	}
-	return nil, err
+
+	return defaultCat.Variable, nil
+
 }

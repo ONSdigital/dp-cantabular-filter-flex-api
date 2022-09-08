@@ -404,16 +404,18 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
-		finalDimension, err := api.CheckDefaultCategorisation(node.Name)
+		finalDimension, err := api.CheckDefaultCategorisation(node.Name, pType)
 		if err != nil {
 			return nil, err
 		}
 
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{
-			Label:      finalDimension.Label,
-			ID:         finalDimension.Name,
-			Name:       finalDimension.Name,
-			IsAreaType: dim.IsAreaType,
+			Name:           finalDimension,
+			ID:             finalDimension,
+			Label:          dim.Label,
+			Options:        dim.Options,
+			IsAreaType:     dim.IsAreaType,
+			FilterByParent: dim.FilterByParent,
 		})
 
 	}
@@ -422,7 +424,7 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 }
 
 func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version, d []model.Dimension, pType string) error {
-	dimIDs, err := api.validateDimensions(d, v.Dimensions)
+	dimIDs, err := api.validateDimensions(d, v.Dimensions, pType)
 	if err != nil {
 		return Error{
 			err:      errors.Wrap(err, "failed to validate request dimensions"),
