@@ -285,31 +285,3 @@ type DatasetJSONLinks struct {
 	Self            model.Link `json:"self"`
 	Version         model.Link `json:"version"`
 }
-
-// TODO: make sure this is in the right place
-
-type GetDefaultClassificationRequest struct {
-	Dataset   string
-	Variables []string
-}
-
-type GetDefaultClassificationResponse struct {
-	Variable string
-}
-
-type Data struct {
-	Dataset `json:"dataset"`
-}
-
-type Dataset struct {
-	Vars []Var `json:"vars"`
-}
-
-type Var struct {
-	Name string `json:"name"`
-	Meta Meta   `json:"meta"`
-}
-
-type Meta struct {
-	DefaultClassificationFlag string `json:"Default_Classification_Flag"`
-}

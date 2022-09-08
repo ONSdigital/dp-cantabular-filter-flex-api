@@ -63,7 +63,6 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
-	svc.populationTypesAPIClient = GetPopulationTypesAPIClient(cfg)
 	svc.metadataAPIClient = GetMetadataAPIClient(cfg)
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
