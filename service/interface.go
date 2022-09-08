@@ -99,5 +99,5 @@ type DatasetAPIClient interface {
 }
 
 type MetadataAPIClient interface {
-	GetDefaultCategorisation(context.Context, cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error)
+	GetDefaultClassification(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error)
 }

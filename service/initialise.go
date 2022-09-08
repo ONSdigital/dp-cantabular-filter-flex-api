@@ -59,9 +59,13 @@ var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 
 // bit unnecessary and verbose no? to split this in a function like above?
 var GetMetadataAPIClient = func(cfg *config.Config) MetadataAPIClient {
+
 	// NB: Client initialisation is not consistent, see above...
-	client, _ := cantabularmetadata.NewClient(cfg.PopulationTypesAPIURL)
-	return *client
+	return cantabularmetadata.NewClient(cantabularmetadata.Config{
+		Host:           cfg.MetadataAPIURL,
+		GraphQLTimeout: cfg.DefaultRequestTimeout,
+	}, dphttp.NewClient())
+
 }
 
 // GetHealthCheck creates a healthcheck with versionInfo

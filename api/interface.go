@@ -71,9 +71,6 @@ type datasetAPIClient interface {
 	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
 }
 
-type populationTypesAPIClient interface {
-}
-
 type metadataAPIClient interface {
 	GetDefaultClassification(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error)
 }

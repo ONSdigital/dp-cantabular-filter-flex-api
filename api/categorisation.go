@@ -2,6 +2,9 @@ package api
 
 import (
 	"context"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 )
 
 /*
@@ -11,13 +14,16 @@ import (
 func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (string, error) {
 
 	ctx := context.Background()
-	cats, err := api.populations.GetCategorisations(ctx, nil)
+	cats, err := api.ctblr.GetCategorisations(ctx, cantabular.GetCategorisationsRequest{
+		Dataset:  datasetName,
+		Variable: dimName,
+	})
 	names := make([]string, 0)
 
-	for _, cat := range cats {
-		names = append(names, cat.Name)
+	for _, cat := range cats.Dataset.Variables.Edges {
+		names = append(names, cat.Node.Name)
 	}
-	defaultCat, err := api.metadata.GetDefaultClassification(ctx, GetDefaultClassificationRequest{
+	defaultCat, err := api.metadata.GetDefaultClassification(ctx, cantabularmetadata.GetDefaultClassificationRequest{
 		Dataset:   datasetName,
 		Variables: names,
 	})
