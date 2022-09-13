@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"testing"
@@ -33,8 +34,7 @@ type Component struct {
 	MongoFeature      *MongoFeature
 	DatasetFeature    *DatasetFeature
 	CantabularFeature *CantabularFeature
-
-	svc *service.Service
+	svc               *service.Service
 }
 
 func NewComponent(t *testing.T) *Component {
@@ -67,7 +67,7 @@ func NewComponent(t *testing.T) *Component {
 // as a result of test setup, are picked up
 func (c *Component) Router() (http.Handler, error) {
 	if err := c.svc.Init(context.Background(), c.svc.Cfg, BuildTime, GitCommit, Version); err != nil {
-		c.ErrorFeature.Fatalf("failed to initialise service: %s", err)
+		return nil, fmt.Errorf("failed to initialise service: %s", err)
 	}
 
 	return c.svc.Api.Router, nil

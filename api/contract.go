@@ -45,6 +45,10 @@ func (r *createFilterRequest) Valid() error {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
 
+		if d.IsAreaType == nil {
+			return fmt.Errorf("missing field: [dimension[%d].is_area_type", i)
+		}
+
 		if len(d.ID) != 0 {
 			return fmt.Errorf("unexpected field id provided for: %s", d.Name)
 		}
@@ -138,6 +142,14 @@ type addFilterDimensionRequest struct {
 	model.Dimension
 }
 
+func (r *addFilterDimensionRequest) Valid() error {
+	if r.IsAreaType == nil {
+		return fmt.Errorf("missing field: [is_area_type]")
+	}
+
+	return nil
+}
+
 // addFilterDimensionResponse is the response body for POST /filters/{id}/dimensions
 type addFilterDimensionResponse struct {
 	dimensionItem
@@ -148,9 +160,12 @@ type updateFilterDimensionRequest struct {
 	model.Dimension
 }
 
-func (u *updateFilterDimensionRequest) Valid() error {
-	if len(u.ID) == 0 {
+func (r *updateFilterDimensionRequest) Valid() error {
+	if len(r.ID) == 0 {
 		return errors.New("missing field: [id]")
+	}
+	if r.IsAreaType == nil {
+		return fmt.Errorf("missing field: [is_area_type]")
 	}
 
 	return nil
@@ -190,7 +205,6 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 			HREF: dimURL + "/options",
 		},
 	}
-
 }
 
 type dimensionItems []dimensionItem

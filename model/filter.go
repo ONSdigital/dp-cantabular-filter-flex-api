@@ -56,11 +56,11 @@ type Event struct {
 }
 
 type Dimension struct {
-	Name           string   `bson:"name"          json:"name"`
-	ID             string   `bson:"id"            json:"id"`
-	Label          string   `bson:"label"         json:"label"`
-	Options        []string `bson:"options"       json:"options"`
-	IsAreaType     bool     `bson:"is_area_type"  json:"is_area_type"`
+	Name           string   `bson:"name"                       json:"name"`
+	ID             string   `bson:"id"                         json:"id"`
+	Label          string   `bson:"label"                      json:"label"`
+	Options        []string `bson:"options"                    json:"options"`
+	IsAreaType     *bool    `bson:"is_area_type"               json:"is_area_type,omitempty"`
 	FilterByParent string   `bson:"filter_by_parent,omitempty" json:"filter_by_parent,omitempty"`
 }
 
