@@ -117,7 +117,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
               {
                 "node": {
                   "name": "hh_deprivation",
-                  "label": "Household deprivation (6 categories)",
+                  "label": "TEST_LABEL",
                   "mapFrom": [
                     {
                       "edges": [
@@ -139,31 +139,42 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     }
     """
 
-  And the population types api returns this response for this search term "["age_3a", "age_5a"]":
-  """
-
-  """
-  And the metadata api returns this response for this search term "blah":
+  And Cantabular returns response for this search term "hh_deprivation":
   """
   {
-    "data": {
-      "dataset": {
-        "vars": [
+  "dataset": {
+    "variables": {
+      "search": {
+        "edges": [
           {
-            "meta": {
-              "Default_Classification_Flag": "N"
-            },
-            "name": "test_variable_1"
-          },
-          {
-            "meta": {
-              "Default_Classification_Flag": "Y"
-            },
-            "name": "test_variable_2"
+            "node": {
+              "categories": {
+                "edges": [
+                  {
+                    "label": "hh_a",
+                    "name": "hh_a"
+                  },
+                  {
+                    "label": "hh_b",
+                    "name": "hh_b"
+                  }
+                ]
+              },
+              "name": "hh_deprivation",
+              "label": "hh_deprivation"
+            }
           }
         ]
       }
     }
+  }
+  }
+  """
+
+  And the metadata api returns this response for this search terms:
+  """
+  {
+  "variable": "hh_a"
   }
   """
   Scenario: Add a multivariate filter dimension with no options successfully
@@ -180,9 +191,9 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     And I should receive the following JSON response:
     """
     {
-      "id": "hh_deprivation",
-      "name": "hh_deprivation",
-      "label": "Household deprivation (6 categories)",
+      "id": "hh_a",
+      "name": "hh_a",
+      "label": "TEST-LABEL",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",

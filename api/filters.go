@@ -172,7 +172,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		DisclosureControl: nil, // populate for these fields yet
 	}
 
-	if v.IsBasedOn.Type == "cantabular_multivariate_table" {
+	if v.IsBasedOn.Type == cantabularMultivariate {
 		f.Type = multivariate
 	}
 

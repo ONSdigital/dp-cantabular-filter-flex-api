@@ -23,7 +23,7 @@ type Config struct {
 	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
 	DatasetAPIURL                string        `envconfig:"DATASET_API_URL"`
 	PopulationTypesAPIURL        string        `envconfig:"POPULATION_TYPES_API_URL"`
-	MetadataAPIURL               string        `envconfig:"METADATA_API_URL"`
+	MetadataAPIURL               string        `envconfig:"CANTABULAR_METADATA_API_URL"`
 	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"`
 	FiltersCollection            string        `envconfig:"FILTERS_COLLECTION"`
 	FilterOutputsCollection      string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
@@ -77,6 +77,7 @@ func Get() (*Config, error) {
 		CantabularURL:                "http://localhost:8491",
 		CantabularExtURL:             "http://localhost:8492",
 		FilterAPIURL:                 "http://localhost:22100",
+		MetadataAPIURL:               "http://dp-cantabular-metadata-service:8493",
 		FiltersCollection:            "filters",
 		FilterOutputsCollection:      "filterOutputs",
 		EnablePrivateEndpoints:       false,
