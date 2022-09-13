@@ -274,6 +274,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     {
       "name": "siblings",
+      "is_area_type": false,
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -298,6 +299,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     {
       "name": "siblings",
+      "is_area_type": false,
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -322,6 +324,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     {
       "name": "siblings",
+      "is_area_type": false,
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
