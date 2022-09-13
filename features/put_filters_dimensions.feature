@@ -329,6 +329,21 @@ Feature: Updating a filter's dimensions
     Then I should receive an errors array
     And the HTTP status code should be "400"
 
+  Scenario: PUT dimension but 'is_area_type' is missing
+    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings"
+    """
+    {
+      "name": "siblings",
+      "id": "siblings",
+      "options": ["4-7", "7+"]
+    }
+    """
+    And I should receive the following JSON response:
+    """
+    {"errors":["failed to parse request: invalid request: missing field: [is_area_type]"]}
+    """
+    Then the HTTP status code should be "400"
+
   Scenario: An invalid JSON body (doesn't update the filter)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
     """

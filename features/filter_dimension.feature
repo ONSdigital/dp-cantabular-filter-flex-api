@@ -342,6 +342,22 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     Then the HTTP status code should be "500"
 
+  Scenario: Add dimension but 'is_area_type' is missing
+    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+    """
+    {
+      "name": "siblings",
+      "options": ["4-7", "7+"]
+    }
+    """
+
+    Then the HTTP status code should be "400"
+
+    And I should receive the following JSON response:
+    """
+    {"errors":["failed to parse request: invalid request: missing field: [is_area_type]"]}
+    """
+
   Scenario: Get paginated filter dimensions successfully (limit)
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions?limit=1"
     Then I should receive the following JSON response:

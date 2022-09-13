@@ -99,6 +99,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "failed to hash existing filter dimensions"),
+				message: "internal server error",
 				logData: logData,
 			},
 		)
@@ -111,7 +112,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			w,
 			http.StatusConflict,
 			Error{
-				err:     errors.Wrap(err, "ETag does not match"),
+				err:     errors.New("ETag does not match"),
 				logData: logData,
 			},
 		)
@@ -125,6 +126,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "failed to add filter dimension"),
+				message: "failed to add filter dimension",
 				logData: logData,
 			},
 		)
@@ -154,6 +156,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError,
 			Error{
 				err:     errors.Wrap(err, "failed to hash filter dimensions"),
+				message: "internal server error",
 				logData: logData,
 			},
 		)
@@ -193,7 +196,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 			w,
 			http.StatusBadRequest,
 			Error{
-				err:     errors.Wrap(err, "failed to parse update filter request"),
+				err:     errors.Wrap(err, "failed to parse request"),
 				logData: logData,
 			},
 		)
@@ -202,12 +205,17 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	filter, err := api.store.GetFilter(ctx, filterID)
 	if err != nil {
+		sc := statusCode(err)
+		if sc == http.StatusNotFound {
+			sc = http.StatusBadRequest
+		}
 		api.respond.Error(
 			ctx,
 			w,
-			http.StatusBadRequest,
+			sc,
 			Error{
-				err:     errors.Wrap(err, "failed to parse update filter request"),
+				err:     errors.Wrap(err, "failed to get filter"),
+				message: "failed to find filter",
 				logData: logData,
 			},
 		)
@@ -226,6 +234,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "error searching for dimension"),
+				message: "dimension does not exist",
 				logData: logData,
 			},
 		)
@@ -248,6 +257,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 			statusCode(err),
 			Error{
 				err:     errors.Wrap(err, "unable to update filter dimension"),
+				message: "failed to update filter dimension",
 				logData: logData,
 			},
 		)
