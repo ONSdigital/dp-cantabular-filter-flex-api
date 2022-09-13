@@ -157,7 +157,7 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 		}
 	}
 
-	if !filter.Dimensions[newDimensionIndex].IsAreaType {
+	if at := filter.Dimensions[newDimensionIndex].IsAreaType; at == nil || !(*at) {
 		return "", &er{
 			err:     errors.New("non geography variable"),
 			logData: logData,
@@ -358,7 +358,7 @@ func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionN
 			logData:  logData,
 		}
 	}
-	if dimension.IsAreaType {
+	if dimension.IsAreaType != nil && *(dimension.IsAreaType) {
 		return "", &er{
 			err:      errors.New("dimension with area type as true can't be deleted"),
 			conflict: true,

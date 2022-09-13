@@ -8,6 +8,11 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+var (
+	trueVal  = true
+	falseVal = false
+)
+
 func TestCreateFiltersRequestValid(t *testing.T) {
 	Convey("Given a valid createFilterRequest request object", t, func() {
 		req := createFilterRequest{
@@ -21,12 +26,12 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 				{
 					Name:       "test-dimension-1",
 					Options:    []string{"a", "b", "c"},
-					IsAreaType: true,
+					IsAreaType: &trueVal,
 				},
 				{
 					Name:       "test-dimension-2",
 					Options:    []string{"1", "2", "3"},
-					IsAreaType: false,
+					IsAreaType: &falseVal,
 				},
 			},
 		}

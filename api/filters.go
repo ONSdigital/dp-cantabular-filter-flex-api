@@ -189,7 +189,6 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 			Self: model.Link{
 				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filter-outputs"),
 				// uuid created by mongo client, will set there.
-				ID: "",
 			},
 			FilterBlueprint: model.Link{
 				HREF: api.generate.URL(api.cfg.FilterAPIURL, "/filters"),
