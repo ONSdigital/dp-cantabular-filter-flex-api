@@ -89,7 +89,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dimensions, _, err := api.ValidateAndReturnDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
+	dimensions, _, err := api.ValidateAndReturnDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType, true)
 	if err != nil {
 		api.respond.Error(ctx, w, statusCode(err), err)
 		return

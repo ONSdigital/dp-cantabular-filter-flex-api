@@ -29,12 +29,11 @@ var (
 
 type Component struct {
 	componenttest.ErrorFeature
-	AuthFeature       *componenttest.AuthorizationFeature
-	APIFeature        *componenttest.APIFeature
-	MongoFeature      *MongoFeature
-	DatasetFeature    *DatasetFeature
-	CantabularFeature *CantabularFeature
-
+	AuthFeature        *componenttest.AuthorizationFeature
+	APIFeature         *componenttest.APIFeature
+	MongoFeature       *MongoFeature
+	DatasetFeature     *DatasetFeature
+	CantabularFeature  *CantabularFeature
 	PopulationFeatures *PopulationFeature
 	MetadataFeature    *MetadataFeature
 

@@ -108,6 +108,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		v,
 		req.Dimensions,
 		req.PopulationType,
+		false,
 	)
 	if err != nil {
 		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
@@ -395,21 +396,23 @@ not relevant.
 NOTE: when we hydrate the dimensions, we will be using the name as the id, and filling out the dimensions
 using the same value for both.
 */
-func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
+func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string, postDimension bool) ([]model.Dimension, error) {
 	hydratedDimensions := make([]model.Dimension, 0)
 
 	for _, dim := range dimensions {
+		finalDimension := dim.ID
 		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
-		// NB: this is now going to do so for creation of filter AND POST dimensions
-		finalDimension, err := api.CheckDefaultCategorisation(node.Name, pType)
-		if err != nil {
-			return nil, err
-		}
+		if postDimension {
+			finalDimension, err = api.CheckDefaultCategorisation(node.Name, pType)
+			if err != nil {
+				return nil, err
+			}
 
+		}
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{
 			Name:           finalDimension,
 			ID:             finalDimension,

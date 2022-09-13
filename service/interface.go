@@ -23,6 +23,7 @@ import (
 //go:generate moq -out mock/datastore.go -pkg mock . Datastore
 //go:generate moq -out mock/responder.go -pkg mock . Responder
 //go:generate moq -out mock/generator.go -pkg mock . Generator
+//go:generate moq -out mock/metadata.go -pkg mock . MetadataAPIClient
 //go:generate moq -out mock/health_check.go -pkg mock . HealthChecker
 
 // HTTPServer defines the required methods from the HTTP server

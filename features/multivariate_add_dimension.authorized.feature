@@ -139,7 +139,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     }
     """
 
-  And Cantabular returns response for this search term "hh_deprivation":
+  And Cantabular returns categorisations for this search term "hh_deprivation":
   """
   {
   "dataset": {
@@ -171,10 +171,10 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
   }
   """
 
-  And the metadata api returns this response for this search terms:
+  And the metadata api returns this response for the given search terms:
   """
   {
-  "variable": "hh_a"
+  "variable": "hh_deprivation"
   }
   """
   Scenario: Add a multivariate filter dimension with no options successfully

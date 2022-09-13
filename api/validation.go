@@ -12,14 +12,27 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ValidateAndHydrateDimensions performs validation against the provided dimensions and hydrates missing fields (id/name/label).
-// Flexible table types will validate by checking the exisisting variables in the dataset version. Multivariate tables
-// will use Cantabular to check the new dimensions exist.
-func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dimension, pType string) ([]model.Dimension, error) {
+// ValidateAndReturnDimensions encapsulates the dimension validation paths for filters based on flexible and multivariate tables.
+func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []model.Dimension, populationType string, postDimension bool) (finalDims []model.Dimension, filterType string, err error) {
 	ctx := context.Background()
 
-	if len(dims) < 1 {
-		return nil, errors.New("no dimensions given")
+	if v.IsBasedOn.Type == cantabularFlexible {
+		filterType = flexible
+		if err = api.isValidDatasetDimensions(ctx, v, dimensions, populationType); err != nil {
+			return
+		}
+
+		finalDims = hydrateDimensions(dimensions, v.Dimensions)
+
+	} else if v.IsBasedOn.Type == cantabularMultivariate {
+		filterType = multivariate
+		multivariateDims, err := api.isValidMultivariateDimensions(ctx, dimensions, populationType, postDimension)
+		if err != nil {
+			return finalDims, "", err
+		}
+
+		finalDims = multivariateDims
+
 	}
 
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
