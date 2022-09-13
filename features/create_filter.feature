@@ -433,8 +433,45 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-  Scenario: Creating a new invalid request
+  Scenario: Creating a new filter but 'is_area_type' missing from dimension
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+          "id":      "cantabular-example-unpublished",
+          "edition": "2021",
+          "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "siblings",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ]
+        },{
+          "name": "geography",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
 
+    Then I should receive the following JSON response:
+    """
+    {"errors":["failed to parse request: invalid request: missing field: [dimension[0].is_area_type"]}
+    """
+    
+    And the HTTP status code should be "400"
+
+  Scenario: Creating a new invalid request
     When I POST "/filters"
     """
     {
