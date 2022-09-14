@@ -75,6 +75,13 @@ func (c *CantabularClient) GetDimensionsByName(ctx context.Context, req cantabul
 	return nil, errors.New("error while searching dimensions")
 }
 
+func (c *CantabularClient) GetCategorisations(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	if c.OptionsHappy {
+		return c.GetCategorisationsFunc(ctx, req)
+	}
+	return nil, errors.New("error while retrieving categorisations")
+}
+
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
 }

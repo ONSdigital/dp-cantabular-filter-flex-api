@@ -98,10 +98,29 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Cantabular returns dimensions for the dataset "([^"]*)" for the following search terms:$`,
 		cf.cantabularReturnsMultipleDimensions,
 	)
+	ctx.Step(
+		`^Cantabular returns these categories:$`,
+		cf.cantabularReturnsTheseCategories,
+	)
 
 }
 
 // cantabularReturnsMultipleDimensions sets up a stub response for the `GetDimensionsByName` method.
+func (cf *CantabularFeature) cantabularReturnsTheseCategories(input *godog.DocString) error {
+	response := &cantabular.GetCategorisationsResponse{}
+
+	if err := json.Unmarshal([]byte(input.Content), &response); err != nil {
+		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
+	}
+
+	cf.GetCategorisationsFunc = func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+		return response, nil
+	}
+
+	return nil
+}
+
+// cantabylarSearchReturnsOneOfTheseDimensions sets up a stub response for the `SearchDimensions` method.
 func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID string, docs *godog.DocString) error {
 	cantabularResponses := struct {
 		Responses map[string]cantabular.GetDimensionsResponse `json:"responses"`
