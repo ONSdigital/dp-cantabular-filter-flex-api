@@ -52,4 +52,5 @@ func (mf *MetadataFeature) MetadataReturnsTheseDefaults(input *godog.DocString) 
 
 func (mf *MetadataFeature) MetadataReturnsAnError() error {
 	mf.OptionsHappy = false
+	return nil
 }

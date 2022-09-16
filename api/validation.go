@@ -25,6 +25,7 @@ func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []mode
 		finalDims = hydrateDimensions(dimensions, v.Dimensions)
 
 	} else if v.IsBasedOn.Type == cantabularMultivariate {
+		println("CREATING FILTER")
 		filterType = multivariate
 		multivariateDims, err := api.isValidMultivariateDimensions(ctx, dimensions, populationType, postDimension)
 		if err != nil {

@@ -102,9 +102,8 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	filterType := filterTypes[v.IsBasedOn.Type]
-	finalDims, err := api.validateAndHydrateDimensions(
+	println("STARTING THIS ")
+	finalDims, filterType, err = api.ValidateAndReturnDimensions(
 		v,
 		req.Dimensions,
 		req.PopulationType,
@@ -398,16 +397,18 @@ using the same value for both.
 */
 func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string, postDimension bool) ([]model.Dimension, error) {
 	hydratedDimensions := make([]model.Dimension, 0)
+	var finalLabel string
 
 	for _, dim := range dimensions {
-		finalDimension := dim.ID
+		finalDimension := dim.Name
 		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
 		if postDimension {
-			finalDimension, err = api.CheckDefaultCategorisation(node.Name, pType)
+
+			finalDimension, finalLabel, err = api.CheckDefaultCategorisation(node.Name, pType)
 			if err != nil {
 				return nil, err
 			}
@@ -416,7 +417,7 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{
 			Name:           finalDimension,
 			ID:             finalDimension,
-			Label:          dim.Label,
+			Label:          finalLabel,
 			Options:        dim.Options,
 			IsAreaType:     dim.IsAreaType,
 			FilterByParent: dim.FilterByParent,
