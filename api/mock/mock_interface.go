@@ -546,19 +546,19 @@ func (m *MockdatasetAPIClient) EXPECT() *MockdatasetAPIClientMockRecorder {
 	return m.recorder
 }
 
-// GetDatasetCurrentAndNext mocks base method.
-func (m *MockdatasetAPIClient) GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.Dataset, error) {
+// Get mocks base method.
+func (m *MockdatasetAPIClient) Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.DatasetDetails, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDatasetCurrentAndNext", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
-	ret0, _ := ret[0].(dataset.Dataset)
+	ret := m.ctrl.Call(m, "Get", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	ret0, _ := ret[0].(dataset.DatasetDetails)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDatasetCurrentAndNext indicates an expected call of GetDatasetCurrentAndNext.
-func (mr *MockdatasetAPIClientMockRecorder) GetDatasetCurrentAndNext(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockdatasetAPIClientMockRecorder) Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetCurrentAndNext", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetDatasetCurrentAndNext), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockdatasetAPIClient)(nil).Get), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 }
 
 // GetOptionsInBatches mocks base method.
