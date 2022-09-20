@@ -74,7 +74,7 @@ func (api *API) enablePublicEndpoints() {
 
 	api.Router.Get("/filter-outputs/{id}", api.getFilterOutput)
 
-	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
 }
 
 func (api *API) enablePrivateEndpoints() {

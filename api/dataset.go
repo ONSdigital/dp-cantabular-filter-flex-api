@@ -16,31 +16,31 @@ import (
 type optionsMap map[string]map[string]dataset.Option
 
 type datasetParams struct {
-	id                 string
-	edition            string
-	version            string
-	basedOn            string
-	datasetLink        dataset.Link
-	versionLink        dataset.Link
-	metadataLink       dataset.Link
-	unsortedDimensions []string
-	options            optionsMap // dimension -> option -> option item
+	id                string
+	edition           string
+	version           string
+	basedOn           string
+	datasetLink       dataset.Link
+	versionLink       dataset.Link
+	metadataLink      dataset.Link
+	geoDimensions     []string
+	datasetDimensions []string
+	sortedDimensions  []string
+	options           optionsMap // dimension -> option -> option item
 }
 
-func (api *API) getDatasetJSON(w http.ResponseWriter, r *http.Request) {
+func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if r.URL.Query().Get("geography") == "" {
-		api.getDefaultDatasetJSON(ctx, w, r)
-	} else {
-		api.getGeographyDatsetJSON(ctx, r)
-	}
-}
-
-func (api *API) getDefaultDatasetJSON(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	params, err := api.getDatasetParams(ctx, r)
+
 	if err != nil {
-		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to get dataset params"))
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to get dataset params"),
+		)
 		return
 	}
 
@@ -50,60 +50,110 @@ func (api *API) getDefaultDatasetJSON(ctx context.Context, w http.ResponseWriter
 		"version": params.version,
 	}
 
-	geoDimensions, err := api.getGeographyTypes(ctx, params.basedOn)
+	response, err := api.getDatasetJSON(ctx, r, params)
+
 	if err != nil {
 		api.respond.Error(
 			ctx,
 			w,
 			statusCode(err),
 			Error{
-				err:     errors.Wrap(err, "failed to get geography types"),
+				err:     err,
 				logData: logData,
 			},
 		)
-		return
+	} else {
+		api.respond.JSON(ctx, w, http.StatusOK, response)
 	}
+}
 
-	dimensions, _ := api.sortGeography(geoDimensions, params.unsortedDimensions)
-
+func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*getDatasetJSONResponse, error) {
 	datasetRequest := cantabular.StaticDatasetQueryRequest{
 		Dataset:   params.basedOn,
-		Variables: dimensions,
+		Variables: params.sortedDimensions,
+	}
+
+	if r.URL.Query().Get("geography") != "" {
+		filters, err := api.getGeographyFilters(ctx, r, params)
+
+		if err != nil {
+			return nil, errors.Wrap(err, "getGeographyFilters failed")
+		}
+
+		datasetRequest.Filters = filters
 	}
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
 	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			Error{
-				err:     errors.Wrap(err, "failed to run query"),
-				logData: logData,
-			},
-		)
-		return
+		return nil, errors.Wrap(err, "failed to run query")
 	}
 
 	response, err := api.toGetDatasetJsonResponse(params, queryResult)
 	if err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			Error{
-				err:     errors.Wrap(err, "failed to generate response"),
-				logData: logData,
-			},
-		)
-		return
+		return nil, errors.Wrap(err, "failed to generate response")
 	}
 
-	api.respond.JSON(ctx, w, http.StatusOK, response)
+	return response, nil
 }
 
-func (api *API) getGeographyDatsetJSON(ctx context.Context, r *http.Request) (*getDatasetJSONResponse, error) {
-	return &getDatasetJSONResponse{}, nil
+func (api *API) getGeographyFilters(ctx context.Context, r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
+	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+
+	if len(geographyQuery) < 2 {
+		return nil, errors.New("unable to locate geography")
+	}
+
+	geography := geographyQuery[0]
+	geographyOptions := geographyQuery[1:]
+
+	foundGeography := false
+	for _, datasetGeography := range params.geoDimensions {
+		if datasetGeography == strings.ToUpper(geography) {
+			foundGeography = true
+			break
+		}
+	}
+
+	if !foundGeography {
+		return nil, errors.Errorf("unable to validate geography %s", geography)
+	}
+
+	for _, geographyOption := range geographyOptions {
+		if _, ok := params.options[geography][geographyOption]; !ok {
+			return nil, errors.Errorf("unable to validate geography option %s", geographyOption)
+		}
+	}
+
+	dimension := r.URL.Query().Get("dimension")
+
+	if dimension == "" {
+		return nil, errors.New("unable to locate dimension")
+	}
+	foundDimension := false
+	for _, datasetDimension := range params.datasetDimensions {
+		if datasetDimension == dimension {
+			foundDimension = true
+			break
+		}
+	}
+
+	if !foundDimension {
+		return nil, errors.Errorf("unable to validate dimension %s", dimension)
+	}
+
+	options := strings.Split(r.URL.Query().Get("options"), ",")
+
+	if len(options) < 1 || options[0] == "" {
+		return nil, errors.Errorf("invalid options length or options is empty")
+	}
+
+	for _, option := range options {
+		if _, ok := params.options[dimension][option]; !ok {
+			return nil, errors.Errorf("unable to locate dimension option %s", option)
+		}
+	}
+
+	return []cantabular.Filter{{Variable: geography, Codes: geographyOptions}, {Variable: dimension, Codes: options}}, nil
 }
 
 func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*getDatasetJSONResponse, error) {
@@ -227,8 +277,15 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 			params.options[dimension.Links.CodeList.ID][option.Label] = option
 		}
 
-		params.unsortedDimensions = append(params.unsortedDimensions, dimension.Links.CodeList.ID)
+		params.datasetDimensions = append(params.datasetDimensions, dimension.Links.CodeList.ID)
 	}
+
+	params.geoDimensions, err = api.getGeographyTypes(ctx, params.basedOn)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get geography types")
+	}
+
+	params.sortedDimensions = api.sortGeography(params.geoDimensions, params.datasetDimensions)
 
 	return params, nil
 }
@@ -252,7 +309,7 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]stri
 	return geoDimensions, nil
 }
 
-func (api *API) sortGeography(geoDimensions []string, dimensions []string) ([]string, bool) {
+func (api *API) sortGeography(geoDimensions []string, dimensions []string) []string {
 	foundGeography := false
 	var sortedDimensions []string
 	var nonGeoDimensions []string
@@ -278,5 +335,5 @@ func (api *API) sortGeography(geoDimensions []string, dimensions []string) ([]st
 
 	sortedDimensions = append(sortedDimensions, nonGeoDimensions...)
 
-	return sortedDimensions, foundGeography
+	return sortedDimensions
 }
