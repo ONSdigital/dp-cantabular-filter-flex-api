@@ -9,6 +9,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/log.go/v2/log"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 )
@@ -67,7 +68,7 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*getDatasetJSONResponse, error) {
+func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*GetDatasetJSONResponse, error) {
 	datasetRequest := cantabular.StaticDatasetQueryRequest{
 		Dataset:   params.basedOn,
 		Variables: params.sortedDimensions,
@@ -96,7 +97,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
-func (api *API) getGeographyFilters(ctx context.Context, r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
+func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
 	if len(geographyQuery) < 2 {
@@ -108,7 +109,7 @@ func (api *API) getGeographyFilters(ctx context.Context, r *http.Request, params
 
 	foundGeography := false
 	for _, datasetGeography := range params.geoDimensions {
-		if datasetGeography == strings.ToUpper(geography) {
+		if strings.EqualFold(datasetGeography, geography) {
 			foundGeography = true
 			break
 		}
@@ -118,17 +119,20 @@ func (api *API) getGeographyFilters(ctx context.Context, r *http.Request, params
 		return nil, errors.Errorf("unable to validate geography %s", geography)
 	}
 
+	var geographyCodes []string
 	for _, geographyOption := range geographyOptions {
-		if _, ok := params.options[geography][geographyOption]; !ok {
+		opt, ok := params.options[geography][geographyOption]
+		if !ok {
 			return nil, errors.Errorf("unable to validate geography option %s", geographyOption)
 		}
+		geographyCodes = append(geographyCodes, opt.Option)
 	}
 
 	dimension := r.URL.Query().Get("dimension")
-
 	if dimension == "" {
 		return nil, errors.New("unable to locate dimension")
 	}
+
 	foundDimension := false
 	for _, datasetDimension := range params.datasetDimensions {
 		if datasetDimension == dimension {
@@ -136,27 +140,28 @@ func (api *API) getGeographyFilters(ctx context.Context, r *http.Request, params
 			break
 		}
 	}
-
 	if !foundDimension {
 		return nil, errors.Errorf("unable to validate dimension %s", dimension)
 	}
 
 	options := strings.Split(r.URL.Query().Get("options"), ",")
-
 	if len(options) < 1 || options[0] == "" {
 		return nil, errors.Errorf("invalid options length or options is empty")
 	}
 
+	var dimensionCodes []string
 	for _, option := range options {
-		if _, ok := params.options[dimension][option]; !ok {
+		opt, ok := params.options[dimension][option]
+		if !ok {
 			return nil, errors.Errorf("unable to locate dimension option %s", option)
 		}
+		dimensionCodes = append(dimensionCodes, opt.Option)
 	}
 
-	return []cantabular.Filter{{Variable: geography, Codes: geographyOptions}, {Variable: dimension, Codes: options}}, nil
+	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
 }
 
-func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*getDatasetJSONResponse, error) {
+func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
@@ -171,12 +176,10 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 				return nil, errors.New("option mismatch")
 			}
 
-			option := model.Link{
+			options = append(options, model.Link{
 				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
-				ID:   option.Label,
-			}
-
-			options = append(options, option)
+				ID:   option.Code,
+			})
 		}
 
 		dimensions = append(dimensions, DatasetJSONDimension{
@@ -200,7 +203,7 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 		},
 	}
 
-	getDatasetJsonResponse := getDatasetJSONResponse{
+	getDatasetJsonResponse := GetDatasetJSONResponse{
 		Dimensions:        dimensions,
 		Links:             datasetLinks,
 		Observations:      query.Dataset.Table.Values,
@@ -230,21 +233,18 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		return nil, errors.New("invalid version")
 	}
 
-	datasetItem, err := api.datasets.GetDatasetCurrentAndNext(ctx, "", "", "", params.id)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get dataset")
-	}
-
-	params.datasetLink = datasetItem.Links.Self
-	params.basedOn = datasetItem.IsBasedOn.ID
-
-	if datasetItem.DatasetDetails.Type != "cantabular_flexible_table" {
-		return nil, errors.New("invalid dataset type")
-	}
-
+	// The following GetVersion() call will only return a 'published' version for an unauthorised caller, i.e. public caller
+	// We are therefore guaranteed that the if a version is returned, it is 'published' and the BasedOn, Dimension, and Links.datasetLink/versionLink attributes are complete
 	versionItem, err := api.datasets.GetVersion(ctx, "", "", "", "", params.id, params.edition, params.version)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get version")
+	}
+
+	params.datasetLink = versionItem.Links.Dataset
+	params.basedOn = versionItem.IsBasedOn.ID
+
+	if versionItem.IsBasedOn.Type != "cantabular_flexible_table" {
+		return nil, errors.New("invalid dataset type")
 	}
 
 	params.versionLink = versionItem.Links.Self
@@ -256,28 +256,23 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	params.metadataLink = metadata.Version.Links.Self
 
-	dimensions, err := api.datasets.GetVersionDimensions(ctx, "", "", "", params.id, params.edition, params.version)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get dimensions")
-	}
-
-	if dimensions.Items.Len() == 0 {
+	if len(versionItem.Dimensions) == 0 {
 		return nil, errors.New("invalid dimensions length of zero")
 	}
 
-	for _, dimension := range dimensions.Items {
+	for _, dimension := range versionItem.Dimensions {
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", "", "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get options")
 		}
 
-		params.options[dimension.Links.CodeList.ID] = make(map[string]dataset.Option)
+		params.options[dimension.ID] = make(map[string]dataset.Option)
 
 		for _, option := range options.Items {
-			params.options[dimension.Links.CodeList.ID][option.Label] = option
+			params.options[dimension.ID][option.Label] = option
 		}
 
-		params.datasetDimensions = append(params.datasetDimensions, dimension.Links.CodeList.ID)
+		params.datasetDimensions = append(params.datasetDimensions, dimension.ID)
 	}
 
 	params.geoDimensions, err = api.getGeographyTypes(ctx, params.basedOn)
@@ -318,7 +313,7 @@ func (api *API) sortGeography(geoDimensions []string, dimensions []string) []str
 		isGeography := false
 
 		for _, geo := range geoDimensions {
-			if geo == strings.ToUpper(item) {
+			if strings.EqualFold(geo, item) {
 				isGeography = true
 
 				if !foundGeography {
