@@ -45,10 +45,9 @@ func (r *createFilterRequest) Valid() error {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
 
-		/*Temporary commit to make florence work when passing a dimension with nil IsAreaType
-		 if d.IsAreaType == nil {
+		if d.IsAreaType == nil {
 			return fmt.Errorf("missing field: [dimension[%d].is_area_type", i)
-		}*/
+		}
 
 		if len(d.ID) != 0 {
 			return fmt.Errorf("unexpected field id provided for: %s", d.Name)
