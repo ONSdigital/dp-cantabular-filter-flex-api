@@ -19,7 +19,7 @@ import (
 )
 
 type CantabularFeature struct {
-	cantabularMock   *mock.CantabularClient
+	cantabularClient *mock.CantabularClient
 	cantabularServer *mock.CantabularServer
 
 	cfg *config.Config
@@ -27,14 +27,14 @@ type CantabularFeature struct {
 
 func NewCantabularFeature(t *testing.T, cfg *config.Config) *CantabularFeature {
 	return &CantabularFeature{
-		cantabularMock:   &mock.CantabularClient{OptionsHappy: true},
+		cantabularClient: &mock.CantabularClient{OptionsHappy: true},
 		cantabularServer: mock.NewCantabularServer(t),
 		cfg:              cfg,
 	}
 }
 
 func (cf *CantabularFeature) Reset() {
-	cf.cantabularMock.Reset()
+	cf.cantabularClient.Reset()
 	cf.cantabularServer.Reset()
 
 	cf.setMockedInterface()
@@ -85,7 +85,7 @@ func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID strin
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.cantabularMock.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	cf.cantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
 		if val, ok := cantabularResponses.Responses[req.Text]; ok {
 			return &val, nil
 		}
@@ -118,7 +118,7 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, d
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.cantabularMock.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
+	cf.cantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
 		if req.Dataset == datasetID && req.Text == dimension {
 			return &response, nil
 		}
@@ -162,7 +162,7 @@ func (cf *CantabularFeature) cantabularReturnsThisStaticDatasetForTheGivenReques
 }
 
 func (cf *CantabularFeature) cantabularRespondsWithAnError() {
-	cf.cantabularMock.OptionsHappy = false
+	cf.cantabularClient.OptionsHappy = false
 }
 
 func (cf *CantabularFeature) setMockedServer() {
@@ -181,7 +181,7 @@ func (cf *CantabularFeature) setMockedServer() {
 
 func (cf *CantabularFeature) setMockedInterface() {
 	service.GetCantabularClient = func(cfg *config.Config) service.CantabularClient {
-		return cf.cantabularMock
+		return cf.cantabularClient
 	}
 }
 
