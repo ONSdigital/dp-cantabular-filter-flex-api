@@ -34,7 +34,6 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	params, err := api.getDatasetParams(ctx, r)
-
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -52,7 +51,6 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := api.getDatasetJSON(ctx, r, params)
-
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -75,8 +73,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	}
 
 	if r.URL.Query().Get("geography") != "" {
-		filters, err := api.getGeographyFilters(ctx, r, params)
-
+		filters, err := api.getGeographyFilters(r, params)
 		if err != nil {
 			return nil, errors.Wrap(err, "getGeographyFilters failed")
 		}
@@ -97,7 +94,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
-func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
+func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
 	if len(geographyQuery) < 2 {
@@ -108,8 +105,8 @@ func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *
 	geographyOptions := geographyQuery[1:]
 
 	foundGeography := false
-	for _, datasetGeography := range params.geoDimensions {
-		if strings.EqualFold(datasetGeography, geography) {
+	for _, d := range params.geoDimensions {
+		if strings.EqualFold(d, geography) {
 			foundGeography = true
 			break
 		}
@@ -120,10 +117,10 @@ func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *
 	}
 
 	var geographyCodes []string
-	for _, geographyOption := range geographyOptions {
-		opt, ok := params.options[geography][geographyOption]
+	for _, o := range geographyOptions {
+		opt, ok := params.options[geography][o]
 		if !ok {
-			return nil, errors.Errorf("unable to validate geography option %s", geographyOption)
+			return nil, errors.Errorf("unable to validate geography option %s", o)
 		}
 		geographyCodes = append(geographyCodes, opt.Option)
 	}
@@ -134,8 +131,8 @@ func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *
 	}
 
 	foundDimension := false
-	for _, datasetDimension := range params.datasetDimensions {
-		if datasetDimension == dimension {
+	for _, d := range params.datasetDimensions {
+		if d == dimension {
 			foundDimension = true
 			break
 		}
@@ -150,10 +147,10 @@ func (api *API) getGeographyFilters(_ context.Context, r *http.Request, params *
 	}
 
 	var dimensionCodes []string
-	for _, option := range options {
-		opt, ok := params.options[dimension][option]
+	for _, o := range options {
+		opt, ok := params.options[dimension][o]
 		if !ok {
-			return nil, errors.Errorf("unable to locate dimension option %s", option)
+			return nil, errors.Errorf("unable to locate dimension option %s", o)
 		}
 		dimensionCodes = append(dimensionCodes, opt.Option)
 	}
@@ -243,7 +240,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.datasetLink = versionItem.Links.Dataset
 	params.basedOn = versionItem.IsBasedOn.ID
 
-	if versionItem.IsBasedOn.Type != "cantabular_flexible_table" {
+	if versionItem.IsBasedOn.Type != cantabularFlexible {
 		return nil, errors.New("invalid dataset type")
 	}
 
