@@ -5,87 +5,340 @@ Feature: Get Dataset JSON
 
     And the Cantabular service is a mocked extended Cantabular server
 
-    And the following recipe is used to create a dataset based on the given cantabular dataset:
+    And the following dataset document with dataset id "cantabular-flexible-table-component-test" is available from dp-dataset-api:
     """
     {
-      "recipe": {
-        "_id": "6cf112cb-87bd-41f5-9a70-e6abd67de4f2",
-        "alias": "cantabular flexible table component test",
-        "cantabular_blob": "Example",
-        "format": "cantabular_flexible_table",
-        "output_instances": [
-          {
-            "dataset_id": "cantabular-flexible-table-component-test",
-            "editions": ["latest"],
-            "title": "cantabular flexible table component test",
-            "code_lists": [
-              {
-                "id": "city",
-                "href": "http://hostname/code-lists/city",
-                "name": "City",
-                "is_hierarchy": false,
-                "is_cantabular_geography": true,
-                "is_cantabular_default_geography": true
-              },
-              {
-                "id": "sex",
-                "href": "http://hostname/code-lists/sex",
-                "name": "Sex",
-                "is_hierarchy": false,
-                "is_cantabular_geography": false,
-                "is_cantabular_default_geography": false
-              },
-              {
-                "id": "siblings_3",
-                "href": "http://hostname/code-lists/siblings_3",
-                "name": "Number of siblings (3 mappings)",
-                "is_hierarchy": false,
-                "is_cantabular_geography": false,
-                "is_cantabular_default_geography": false
-              }
-            ]
-          }
-        ]
+      "id":"cantabular-flexible-table-component-test",
+      "links":{
+        "self":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+          "id":"cantabular-flexible-table-component-test"
+        }
       },
-      "cantabular_dataset": {
-        "dataset": {
-          "table": {
-            "dimensions": [
-              {
-                "categories": [
-                  {"code": "0", "label": "London"},
-                  {"code": "1","label": "Liverpool"},
-                  {"code": "2","label": "Belfast" }
-                ],
-                "count": 3,
-                "variable": {"label": "City","name": "city"}
-              },
-              {
-                "categories": [
-                  {"code": "0","label": "Male"},
-                  {"code": "1","label": "Female"}
-                ],
-                "count": 2,
-                "variable": {"label": "Sex","name": "sex"}
-              },
-              {
-                "categories": [
-                  {"code": "0","label": "No siblings"},
-                  {"code": "1-2","label": "1 or 2 siblings"},
-                  {"code": "3+","label": "3 or more siblings"
-                  }
-                ],
-                "count": 3,
-                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
-              }
-            ],
-            "error": null,
-            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2]
-          }
+      "state":"published",
+      "title":"cantabular-flexible-table-component-test",
+      "type":"cantabular_flexible_table",
+      "is_based_on":{
+        "@type":"cantabular_flexible_table",
+        "@id":"Example"
+      }
+    }
+    """
+
+    And the following version document with dataset id "cantabular-flexible-table-component-test", edition "latest" and version "1" is available from dp-dataset-api:
+    """
+    {
+      "edition":"latest",
+      "dimensions":[
+        {
+          "id":"city",
+          "name":"city",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/city",
+              "id":"city"
+            }
+          },
+          "description":"",
+          "label":"City",
+          "variable":"city"
+        },
+        {
+          "id":"sex",
+          "name":"sex",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/sex",
+              "id":"sex"
+            }
+          },
+          "description":"",
+          "label":"Sex",
+          "variable":"sex"
+        },
+        {
+          "id":"siblings_3",
+          "name":"siblings_3",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/siblings_3",
+              "id":"siblings_3"
+            }
+          },
+          "description":"",
+          "label":"Number of siblings (3 mappings)",
+          "variable":"siblings_3"
+        }
+      ],
+      "id":"cantabular-flexible-table-component-testUUID",
+      "links":{
+        "dataset":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+          "id":"cantabular-flexible-table-component-test"
+        },
+        "self":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+          "id":"1"
+        },
+        "version":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+          "id":"1"
+        }
+      },
+      "state":"published",
+      "version":1,
+      "is_based_on":{
+        "@type":"cantabular_flexible_table",
+        "@id":"Example"
+      }
+    }
+    """
+
+    And the following metadata document for dataset id "cantabular-flexible-table-component-test", edition "latest" and version "1" is available from dp-dataset-api:
+    """
+    {
+      "links":{
+        "self":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         }
       }
-   }
-   """
+    }
+    """
+
+    And the following dimensions document for dataset id "cantabular-flexible-table-component-test", edition "latest" and version "1" is available from dp-dataset-api:
+    """
+    {
+      "items":[
+        {
+          "id":"city",
+          "name":"city",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/city",
+              "id":"city"
+            }
+          },
+          "description":"",
+          "label":"City",
+          "variable":"city"
+        },
+        {
+          "id":"sex",
+          "name":"sex",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/sex",
+              "id":"sex"
+            }
+          },
+          "description":"",
+          "label":"Sex",
+          "variable":"sex"
+        },
+        {
+          "id":"siblings_3",
+          "name":"siblings_3",
+          "links":{
+            "code_list":{
+              "href":"http://hostname/code-lists/siblings_3",
+              "id":"siblings_3"
+            }
+          },
+          "description":"",
+          "label":"Number of siblings (3 mappings)",
+          "variable":"siblings_3"
+        }
+      ]
+    }
+    """
+
+    And the following options document for dataset id "cantabular-flexible-table-component-test", edition "latest", version "1" and dimension "city" is available from dp-dataset-api:
+    """
+    {
+      "items":[
+        {
+          "dimension":"city",
+          "label":"London",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/city",
+              "id":"city"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/city/codes/0",
+              "id":"0"
+            }
+          },
+          "option":"0"
+        },
+        {
+          "dimension":"city",
+          "label":"Liverpool",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/city",
+              "id":"city"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/city/codes/1",
+              "id":"1"
+            }
+          },
+          "option":"1"
+        },
+        {
+          "dimension":"city",
+          "label":"Belfast",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/city",
+              "id":"city"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/city/codes/2",
+              "id":"2"
+            }
+          },
+          "option":"2"
+        }
+      ],
+      "count":3,
+      "offset":0,
+      "limit":0,
+      "total_count":3
+    }
+    """
+
+    And the following options document for dataset id "cantabular-flexible-table-component-test", edition "latest", version "1" and dimension "sex" is available from dp-dataset-api:
+    """
+    {
+      "items":[
+        {
+          "dimension":"sex",
+          "label":"Male",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/sex",
+              "id":"sex"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/sex/codes/0",
+              "id":"0"
+            }
+          },
+          "option":"0"
+        },
+        {
+          "dimension":"sex",
+          "label":"Female",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/sex",
+              "id":"sex"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/sex/codes/1",
+              "id":"1"
+            }
+          },
+          "option":"1"
+        }
+      ],
+      "count":2,
+      "offset":0,
+      "limit":0,
+      "total_count":2
+    }
+    """
+
+    And the following options document for dataset id "cantabular-flexible-table-component-test", edition "latest", version "1" and dimension "siblings_3" is available from dp-dataset-api:
+    """
+    {
+      "items":[
+        {
+          "dimension":"siblings_3",
+          "label":"No siblings",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/siblings_3",
+              "id":"siblings_3"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/siblings_3/codes/0",
+              "id":"0"
+            }
+          },
+          "option":"0"
+        },
+        {
+          "dimension":"siblings_3",
+          "label":"1 or 2 siblings",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/siblings_3",
+              "id":"siblings_3"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/siblings_3/codes/1-2",
+              "id":"1-2"
+            }
+          },
+          "option":"1-2"
+        },
+        {
+          "dimension":"siblings_3",
+          "label":"3 or more siblings",
+          "links":{
+            "versions":{
+              "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+              "id":"1"
+            },
+            "code_list":{
+              "href":"http://hostname/code-lists/siblings_3",
+              "id":"siblings_3"
+            },
+            "code":{
+              "href":"http://hostname/code-lists/siblings_3/codes/3+",
+              "id":"3+"
+            }
+          },
+          "option":"3+"
+        }
+      ],
+      "count":3,
+      "offset":0,
+      "limit":0,
+      "total_count":3
+    }
+    """
 
     And Cantabular returns these geography dimensions for the given request:
     """
