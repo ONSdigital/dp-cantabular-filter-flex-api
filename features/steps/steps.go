@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -14,7 +12,6 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/recipe"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
@@ -24,7 +21,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
-	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -70,12 +66,6 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 	ctx.Step(`^the following recipe is used to create a dataset based on the given cantabular dataset:$`,
 		c.theFollowingRecipeIsUsed,
-	)
-	ctx.Step(`^the getDatasetJSON result should be:$`,
-		c.theDatasetJSONResult,
-	)
-	ctx.Step(`^the getGeographyDatasetJSON result should be:$`,
-		c.theGeographyDatsetJSONResult,
 	)
 }
 
@@ -316,7 +306,7 @@ func (c *Component) makeDataset(recipe recipe.Recipe) dataset.DatasetDetails {
 		Links: dataset.Links{
 			Self: dataset.Link{
 				ID:  recipeDetails.DatasetID,
-				URL: fmt.Sprintf("%s/datasets/%s", c.svc.Cfg.DatasetAPIURL, recipeDetails.DatasetID),
+				URL: fmt.Sprintf("http://hostname/datasets/%s", recipeDetails.DatasetID),
 			},
 		},
 	}
@@ -398,68 +388,4 @@ func (c *Component) makeDimensionOptions(v dataset.Version, dims []cantabular.Di
 	}
 
 	return dimOpts
-}
-
-func (c *Component) theDatasetJSONResult(expected *godog.DocString) error {
-	var got, expt api.GetDatasetJSONResponse
-
-	b, _ := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
-	if err := json.Unmarshal(b, &got); err != nil {
-		return err
-	}
-	if err := json.Unmarshal([]byte(expected.Content), &expt); err != nil {
-		return err
-	}
-
-	urlCompare := func(s1, s2 string) bool {
-		if !strings.Contains(s1, "localhost:9999") && !strings.Contains(s2, "localhost:9999") {
-			return s1 == s2
-		}
-		s1URL, e := url.Parse(s1)
-		if e != nil {
-			return false
-		}
-		s2URL, e := url.Parse(s2)
-		if e != nil {
-			return false
-		}
-
-		return s1URL.Path == s2URL.Path
-	}
-
-	assert.Empty(c, cmp.Diff(got, expt, cmp.Comparer(urlCompare)))
-
-	return c.StepError()
-}
-
-func (c *Component) theGeographyDatsetJSONResult(expected *godog.DocString) error {
-	var got, expt api.GetDatasetJSONResponse
-
-	b, _ := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
-	if err := json.Unmarshal(b, &got); err != nil {
-		return err
-	}
-	if err := json.Unmarshal([]byte(expected.Content), &expt); err != nil {
-		return err
-	}
-
-	urlCompare := func(s1, s2 string) bool {
-		if !strings.Contains(s1, "localhost:9999") && !strings.Contains(s2, "localhost:9999") {
-			return s1 == s2
-		}
-		s1URL, e := url.Parse(s1)
-		if e != nil {
-			return false
-		}
-		s2URL, e := url.Parse(s2)
-		if e != nil {
-			return false
-		}
-
-		return s1URL.Path == s2URL.Path
-	}
-
-	assert.Empty(c, cmp.Diff(got, expt, cmp.Comparer(urlCompare)))
-
-	return c.StepError()
 }
