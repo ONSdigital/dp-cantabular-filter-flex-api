@@ -466,10 +466,10 @@ Feature: Filters Private Endpoints Not Enabled
 
     Then I should receive the following JSON response:
     """
-    {"errors":["dataset not found"]}
+    {"errors":["failed to parse request: invalid request: missing field: [dimension[0].is_area_type"]}
     """
     
-    And the HTTP status code should be "404"
+    And the HTTP status code should be "400"
 
   Scenario: Creating a new invalid request
     When I POST "/filters"
