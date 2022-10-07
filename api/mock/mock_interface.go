@@ -464,6 +464,21 @@ func (mr *MockcantabularClientMockRecorder) GetDimensionOptions(arg0, arg1 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionOptions", reflect.TypeOf((*MockcantabularClient)(nil).GetDimensionOptions), arg0, arg1)
 }
 
+// GetDimensionsByName mocks base method.
+func (m *MockcantabularClient) GetDimensionsByName(arg0 context.Context, arg1 cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDimensionsByName", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetDimensionsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDimensionsByName indicates an expected call of GetDimensionsByName.
+func (mr *MockcantabularClientMockRecorder) GetDimensionsByName(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionsByName", reflect.TypeOf((*MockcantabularClient)(nil).GetDimensionsByName), arg0, arg1)
+}
+
 // GetGeographyDimensions mocks base method.
 func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1 cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
 	m.ctrl.T.Helper()
@@ -477,21 +492,6 @@ func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1
 func (mr *MockcantabularClientMockRecorder) GetGeographyDimensions(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensions", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensions), arg0, arg1)
-}
-
-// SearchDimensions mocks base method.
-func (m *MockcantabularClient) SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SearchDimensions", ctx, req)
-	ret0, _ := ret[0].(*cantabular.GetDimensionsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SearchDimensions indicates an expected call of SearchDimensions.
-func (mr *MockcantabularClientMockRecorder) SearchDimensions(ctx, req interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchDimensions", reflect.TypeOf((*MockcantabularClient)(nil).SearchDimensions), ctx, req)
 }
 
 // StaticDatasetQuery mocks base method.

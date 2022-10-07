@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -344,30 +343,22 @@ func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
-/*
-   isValidMultivariateDimensions checks the validity of the supplied dimensions for a multivariate filter.
-   Supplied dimensions may not be in original dataset but still valid, and so isValidDatasetDimensions is
-   not relevant.
-
-   NOTE: when we hydrate the dimensions, we will be using the name as the id, and filling out the dimensions
-   using the same value for both.
-*/
+// isValidMultivariateDimensions checks the validity of the supplied dimensions for a multivariate filter.
+// Supplied dimensions may not be in original dataset but still valid, and so isValidDatasetDimensions is
+// not relevant.
+// NOTE: when we hydrate the dimensions, we will be using the name as the id, and filling out the dimensions
+// using the same value for both.
 func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
 	hydratedDimensions := make([]model.Dimension, 0)
 
-	for _, dim := range dimensions {
-		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
+	for _, d := range dimensions {
+		dim, err := api.getCantabularDimension(ctx, pType, d.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
-		hydratedDimensions = append(hydratedDimensions, model.Dimension{
-			Label:      node.Label,
-			ID:         node.Name,
-			Name:       node.Name,
-			IsAreaType: dim.IsAreaType,
-		})
-
+		dim.IsAreaType = d.IsAreaType
+		hydratedDimensions = append(hydratedDimensions, *dim)
 	}
 
 	return hydratedDimensions, nil
@@ -391,24 +382,31 @@ func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version,
 
 // getCantabularDimension checks that dimension exists in Cantabular by searching for it.
 // If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
-func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionName string) (*gql.Node, error) {
-	foundDimensions, err := api.ctblr.SearchDimensions(ctx, cantabular.SearchDimensionsRequest{
-		Dataset: popType,
-		Text:    dimensionName,
+func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionName string) (*model.Dimension, error) {
+	resp, err := api.ctblr.GetDimensionsByName(ctx, cantabular.GetDimensionsByNameRequest{
+		Dataset:        popType,
+		DimensionNames: []string{dimensionName},
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "error in cantabular response")
 	}
 
-	if len(foundDimensions.Dataset.Variables.Search.Edges) == 0 {
+	if len(resp.Dataset.Variables.Search.Edges) == 0 {
 		return nil, Error{
 			err:      errors.New("no dimensions in response"),
 			notFound: true,
-			logData:  log.Data{"found_dimensions": foundDimensions},
+			logData:  log.Data{"response": resp},
 		}
 	}
 
-	return &foundDimensions.Dataset.Variables.Search.Edges[0].Node, nil
+	node := resp.Dataset.Variables.Search.Edges[0].Node
+	dim := model.Dimension{
+		Label: node.Label,
+		ID:    node.Name,
+		Name:  node.Name,
+	}
+
+	return &dim, nil
 }
 
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.

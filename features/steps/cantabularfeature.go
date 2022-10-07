@@ -3,6 +3,7 @@ package steps
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -46,16 +47,19 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 // cantabylarSearchReturnsOneOfTheseDimensions sets up a stub response for the `SearchDimensions` method.
 func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID string, docs *godog.DocString) error {
 	cantabularResponses := struct {
-		Responses map[string]cantabular.GetDimensionsResponse `json:"responses""`
+		Responses map[string]cantabular.GetDimensionsResponse `json:"responses"`
 	}{}
 
 	if err := json.Unmarshal([]byte(docs.Content), &cantabularResponses); err != nil {
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.CantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-		if val, ok := cantabularResponses.Responses[req.Text]; ok {
-			return &val, nil
+	cf.CantabularClient.GetDimensionsByNameFunc = func(_ context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+		if len(req.DimensionNames) == 0 {
+			return nil, errors.New("no dimension provided in request")
+		}
+		if resp, ok := cantabularResponses.Responses[req.DimensionNames[0]]; ok {
+			return &resp, nil
 		}
 
 		return &cantabular.GetDimensionsResponse{
@@ -73,14 +77,17 @@ func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID strin
 }
 
 func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
-	var response cantabular.GetDimensionsResponse
-	if err := json.Unmarshal([]byte(docs.Content), &response); err != nil {
+	var resp cantabular.GetDimensionsResponse
+	if err := json.Unmarshal([]byte(docs.Content), &resp); err != nil {
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.CantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-		if req.Dataset == datasetID && req.Text == dimension {
-			return &response, nil
+	cf.CantabularClient.GetDimensionsByNameFunc = func(_ context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+		if len(req.DimensionNames) == 0 {
+			return nil, errors.New("no dimension provided in request")
+		}
+		if req.Dataset == datasetID && req.DimensionNames[0] == dimension {
+			return &resp, nil
 		}
 
 		return &cantabular.GetDimensionsResponse{
