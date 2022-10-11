@@ -32,8 +32,12 @@ type Config struct {
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
 	DatasetOptionsWorkers        int           `envconfig:"DATASET_OPTIONS_WORKERS"`
 	DatasetOptionsBatchSize      int           `envconfig:"DATASET_OPTIONS_BATCH_SIZE"`
-	Mongo                        mongo.MongoDriverConfig
-	KafkaConfig                  KafkaConfig
+
+	EnableFilterOutputs bool `envconfig:"ENABLE_FILTER_OUTPUTS_CHECK"`
+	FilterOutputToken   bool `envconfig:"FILTER_OUTPUT_TOKEN"`
+
+	Mongo       mongo.MongoDriverConfig
+	KafkaConfig KafkaConfig
 }
 
 type KafkaConfig struct {
