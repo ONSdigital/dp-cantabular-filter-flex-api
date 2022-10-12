@@ -110,11 +110,6 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 			},
 		},
 	}
-	//dReq.DimensionNames = append(dReq.DimensionNames, dID)
-	//dReq.Filters = append(dReq.Filters, cantabular.Filter{
-	//	Codes:    []string{req.Option},
-	//	Variable: dID,
-	//})
 
 	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
 		logData["request"] = dReq
@@ -412,6 +407,7 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	w.Header().Set(eTagHeader, eTag)
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
+
 func parseFilterDimensionOptions(options []string, filterID, dimensionName string, address string) []GetFilterDimensionOptionsItem {
 	responses := make([]GetFilterDimensionOptionsItem, 0)
 

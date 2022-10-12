@@ -544,12 +544,12 @@ Feature: Filters Private Endpoints Not Enabled
     """
     {
       "errors": [
-        "failed to validate request dimensions: duplicate dimensions chosen: siblings"
+        "duplicate dimension chosen: siblings"
       ]
     }
     """
 
-    And the HTTP status code should be "404"
+    And the HTTP status code should be "400"
 
   Scenario: Do not create a filter based on cantabular blob
     When I POST "/filters"

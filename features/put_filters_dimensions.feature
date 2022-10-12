@@ -65,6 +65,7 @@ Feature: Updating a filter's dimensions
       "version": 1
     }
     """
+
     And I have this filter with an ETag of "city":
     """
     {
@@ -110,6 +111,7 @@ Feature: Updating a filter's dimensions
       "type": "flexible"
     }
     """
+
     And Cantabular returns these dimensions for the dataset "Example" and search term "country":
     """
     {
@@ -152,6 +154,7 @@ Feature: Updating a filter's dimensions
       "is_area_type": true
     }
     """
+
     Then I should receive the following JSON response:
     """
     {
@@ -175,7 +178,32 @@ Feature: Updating a filter's dimensions
     """
     And the HTTP status code should be "200"
 
-    Scenario: Replacing a non-goegraphy filter dimension (returns an error)
+  Scenario: Replacing a filter dimension but the dimension option validation fails
+    Given Cantabular GetOptions responds with an error
+
+    When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
+    """
+    {
+      "name": "geography",
+      "id": "country",
+      "is_area_type": true,
+      "options": [
+        "0",
+        "1"
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": ["Internal Server Error"]
+    }
+    """
+
+    And the HTTP status code should be "500"
+
+  Scenario: Replacing a non-goegraphy filter dimension (returns an error)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
     """
     {
@@ -213,6 +241,7 @@ Feature: Updating a filter's dimensions
     }
     """
     And I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+
     Then I should receive the following JSON response:
     """
     {
@@ -326,6 +355,7 @@ Feature: Updating a filter's dimensions
       "name": "country
     }
     """
+
     Then I should receive an errors array
     And the HTTP status code should be "400"
 
@@ -338,11 +368,12 @@ Feature: Updating a filter's dimensions
       "options": ["4-7", "7+"]
     }
     """
-    And I should receive the following JSON response:
+
+    Then I should receive the following JSON response:
     """
     {"errors":["failed to parse request: invalid request: missing field: [is_area_type]"]}
     """
-    Then the HTTP status code should be "400"
+    And the HTTP status code should be "400"
 
   Scenario: An invalid JSON body (doesn't update the filter)
     When I PUT "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
@@ -352,6 +383,7 @@ Feature: Updating a filter's dimensions
     }
     """
     And I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+
     Then I should receive the following JSON response:
     """
     {

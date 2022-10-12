@@ -15,8 +15,6 @@ import (
 
 func Test_getFilterVariable(t *testing.T) {
 	Convey("Given an array of dimension IDs exists", t, func() {
-		dimIDs := map[string]string{"city": "city"}
-
 		Convey("When I have a dimension with no FilterByParent", func() {
 			d := model.Dimension{
 				Name:           "city",
@@ -24,7 +22,7 @@ func Test_getFilterVariable(t *testing.T) {
 			}
 
 			Convey("Then the 'city' should be returned as the filter variable", func() {
-				got := getFilterVariable(dimIDs, d)
+				got := getFilterVariable(d)
 				So(got, ShouldResemble, "city")
 			})
 		})
@@ -36,7 +34,7 @@ func Test_getFilterVariable(t *testing.T) {
 			}
 
 			Convey("Then 'region' should be returned as the filter variable", func() {
-				got := getFilterVariable(dimIDs, d)
+				got := getFilterVariable(d)
 				So(got, ShouldResemble, "region")
 			})
 		})
@@ -76,14 +74,8 @@ func TestValidateDimensions(t *testing.T) {
 		}
 
 		Convey("When validateDimensions is called", func() {
-			expected := map[string]string{
-				"foo": "foo01",
-				"bar": "bar01",
-			}
-
-			got, err := api.validateDimensions(filterDims, existingDims)
+			err := api.validateDimensionsFromVersion(filterDims, existingDims)
 			So(err, ShouldBeNil)
-			So(got, ShouldResemble, expected)
 		})
 	})
 
@@ -124,7 +116,7 @@ func TestValidateDimensions(t *testing.T) {
 		}
 
 		Convey("When validateDimensions is called", func() {
-			_, err := api.validateDimensions(filterDims, existingDims)
+			err := api.validateDimensionsFromVersion(filterDims, existingDims)
 			So(err, ShouldNotBeNil)
 		})
 	})
@@ -159,7 +151,7 @@ func TestValidateDimensions(t *testing.T) {
 		}
 
 		Convey("When validateDimensions is called", func() {
-			_, err := api.validateDimensions(filterDims, existingDims)
+			err := api.validateDimensionsFromVersion(filterDims, existingDims)
 			So(err, ShouldNotBeNil)
 		})
 	})
@@ -176,11 +168,6 @@ func TestValidateDimensionOptions(t *testing.T) {
 		}
 
 		Convey("When validateDimenOptions is called", func() {
-			dimIDs := map[string]string{
-				"foo": "foo01",
-				"bar": "bar01",
-			}
-
 			req := createFilterRequest{
 				PopulationType: "Example",
 				Dimensions: []model.Dimension{
@@ -201,16 +188,11 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 
 		Convey("When validateDimenOptions is called but there are no options selected", func() {
-			dimIDs := map[string]string{
-				"foo": "foo01",
-				"bar": "bar01",
-			}
-
 			req := createFilterRequest{
 				PopulationType: "Example",
 				Dimensions: []model.Dimension{
@@ -223,7 +205,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -235,11 +217,6 @@ func TestValidateDimensionOptions(t *testing.T) {
 		}
 
 		Convey("When validateDimenOptions is called", func() {
-			dimIDs := map[string]string{
-				"foo": "foo01",
-				"bar": "bar01",
-			}
-
 			req := createFilterRequest{
 				PopulationType: "Example",
 				Dimensions: []model.Dimension{
@@ -260,8 +237,96 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
 			So(err, ShouldBeNil)
+		})
+	})
+
+	Convey("Given a Cantabular Client which is expecting the value present in FilterByParent variable", t, func() {
+		parentDim := "ParentFoo"
+
+		api.ctblr = &mock.CantabularClient{
+			ErrStatus:               http.StatusInternalServerError,
+			OptionsHappy:            true,
+			ExpectedFilterDimension: parentDim,
+		}
+
+		Convey("When validateDimenOptions is called with value as the parent of a variable", func() {
+			req := createFilterRequest{
+				PopulationType: "Example",
+				Dimensions: []model.Dimension{
+					{
+						Name: "foo",
+						Options: []string{
+							"foo_1",
+							"foo_2",
+						},
+						FilterByParent: parentDim,
+					},
+					{
+						Name: "bar",
+						Options: []string{
+							"bar_1",
+							"bar_2",
+						},
+					},
+				},
+			}
+
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("When validateDimenOptions is called with the correct value but not as the parent", func() {
+			req := createFilterRequest{
+				PopulationType: "Example",
+				Dimensions: []model.Dimension{
+					{
+						Name: parentDim,
+						Options: []string{
+							"foo_1",
+							"foo_2",
+						},
+						FilterByParent: "incorrect",
+					},
+					{
+						Name: "bar",
+						Options: []string{
+							"bar_1",
+							"bar_2",
+						},
+					},
+				},
+			}
+
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("When validateDimenOptions is called without the correct value", func() {
+			req := createFilterRequest{
+				PopulationType: "Example",
+				Dimensions: []model.Dimension{
+					{
+						Name: "foo",
+						Options: []string{
+							"foo_1",
+							"foo_2",
+						},
+						FilterByParent: "incorrect",
+					},
+					{
+						Name: "bar",
+						Options: []string{
+							"bar_1",
+							"bar_2",
+						},
+					},
+				},
+			}
+
+			err := api.validateDimensionOptions(ctx, req.Dimensions, req.PopulationType)
+			So(err, ShouldNotBeNil)
 		})
 	})
 }

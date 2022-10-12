@@ -108,8 +108,8 @@ Feature: Get Filter Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-  Scenario: Add filter dimension option but Cantabular is failing
-    Given Cantabular responds with an error
+  Scenario: Add filter dimension option but Cantabular option validation is failing
+    Given Cantabular GetOptions responds with an error
 
     When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options/2"
     """

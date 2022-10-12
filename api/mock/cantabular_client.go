@@ -3,25 +3,42 @@ package mock
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
 type CantabularClient struct {
-	ErrStatus    int
-	OptionsHappy bool
+	ErrStatus               int
+	OptionsHappy            bool
+	ExpectedFilterDimension string
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
 	return c.ErrStatus
 }
 
-func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
-	if c.OptionsHappy {
+func (c *CantabularClient) GetDimensionOptions(_ context.Context, req cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
+	if !c.OptionsHappy {
+		return nil, errors.New("invalid dimension options")
+	}
+
+	if c.ExpectedFilterDimension == "" {
 		return nil, nil
 	}
-	return nil, errors.New("invalid dimension options")
+
+	for _, f := range req.Filters {
+		if f.Variable == c.ExpectedFilterDimension {
+			return nil, nil
+		}
+	}
+
+	return nil, fmt.Errorf(
+		"expected dimension not found in request (expected: %s found: %v)",
+		c.ExpectedFilterDimension,
+		req.DimensionNames,
+	)
 }
 
 func (c *CantabularClient) StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {
@@ -33,10 +50,7 @@ func (c *CantabularClient) GetGeographyDimensions(context.Context, cantabular.Ge
 }
 
 func (c *CantabularClient) GetDimensionsByName(_ context.Context, _ cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
-	if c.OptionsHappy {
-		return nil, nil
-	}
-	return nil, errors.New("error searching dimensions")
+	return nil, nil
 }
 
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
