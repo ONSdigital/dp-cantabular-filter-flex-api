@@ -3,7 +3,6 @@ package steps
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/google/go-cmp/cmp"
+	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
 	"go.mongodb.org/mongo-driver/bson"
 )

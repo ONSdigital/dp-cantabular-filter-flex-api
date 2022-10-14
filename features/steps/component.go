@@ -48,7 +48,7 @@ func NewComponent(t *testing.T) *Component {
 		ErrorFeature:      componenttest.ErrorFeature{TB: t},
 		AuthFeature:       componenttest.NewAuthorizationFeature(),
 		DatasetFeature:    NewDatasetFeature(t, cfg),
-		CantabularFeature: NewCantabularFeature(),
+		CantabularFeature: NewCantabularFeature(t, cfg),
 	}
 	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 	component.APIFeature = componenttest.NewAPIFeature(component.Router)
