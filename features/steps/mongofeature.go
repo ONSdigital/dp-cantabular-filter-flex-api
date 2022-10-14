@@ -235,9 +235,8 @@ func (mf *MongoFeature) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 	db := mf.cfg.Mongo.Database
 	col := mf.cfg.FilterOutputsCollection
 
-	upsert := true
 	for _, f := range filterOutputs {
-		if _, err := mf.Client.Database(db).Collection(col).UpdateByID(context.Background(), f.ID, bson.M{"$set": f}, &options.UpdateOptions{Upsert: &upsert}); err != nil {
+		if _, err := mf.Client.Database(db).Collection(col).InsertOne(context.Background(), f); err != nil {
 			return fmt.Errorf("failed to upsert filter output: %w", err)
 		}
 	}
@@ -256,7 +255,7 @@ func (mf *MongoFeature) filterOutputIsInDatastore(expectedOutput *godog.DocStrin
 		return fmt.Errorf("failed to unmarshall provided filterOutput: %w", err)
 	}
 
-	err = mf.Client.Database(db).Collection(col).FindOne(ctx, bson.M{"id": expected.ID}).Decode(&actual)
+	err = mf.Client.Database(db).Collection(col).FindOne(ctx, bson.M{"_id": expected.ID}).Decode(&actual)
 	if err != nil {
 		return fmt.Errorf("error encountered while retrieving filter output: %w", err)
 	}

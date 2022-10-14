@@ -7,7 +7,7 @@ import (
 )
 
 type FilterOutput struct {
-	ID                string              `bson:"id,omitempty"                 json:"id,omitempty"`
+	ID                string              `bson:"_id"                 		   json:"id"`
 	FilterID          string              `bson:"filter_id"                    json:"filter_id"`
 	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
