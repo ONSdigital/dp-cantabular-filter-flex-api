@@ -49,7 +49,11 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 	var dimExists bool
 
 	for _, d := range filter.Dimensions {
-		if d.Name == req.Dimension {
+		dName := d.Name
+		if d.FilterByParent != "" {
+			dName = d.FilterByParent
+		}
+		if req.Dimension == dName {
 			dimension = d
 			dimExists = true
 			break
@@ -92,14 +96,20 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Check option is valid
-	dReq := cantabular.GetDimensionOptionsRequest{
-		Dataset: filter.PopulationType,
+	dID := dimension.ID
+	if dimension.FilterByParent != "" {
+		dID = dimension.FilterByParent
 	}
-	dReq.DimensionNames = append(dReq.DimensionNames, dimension.ID)
-	dReq.Filters = append(dReq.Filters, cantabular.Filter{
-		Codes:    []string{req.Option},
-		Variable: dimension.ID,
-	})
+	dReq := cantabular.GetDimensionOptionsRequest{
+		Dataset:        filter.PopulationType,
+		DimensionNames: []string{dID},
+		Filters: []cantabular.Filter{
+			{
+				Codes:    []string{req.Option},
+				Variable: dID,
+			},
+		},
+	}
 
 	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
 		logData["request"] = dReq
@@ -397,6 +407,7 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	w.Header().Set(eTagHeader, eTag)
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
+
 func parseFilterDimensionOptions(options []string, filterID, dimensionName string, address string) []GetFilterDimensionOptionsItem {
 	responses := make([]GetFilterDimensionOptionsItem, 0)
 

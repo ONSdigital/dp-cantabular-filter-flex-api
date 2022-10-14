@@ -20,6 +20,8 @@ import (
 type CantabularClient struct {
 	ErrStatus                  int
 	OptionsHappy               bool
+	DimensionsHappy            bool
+	GetDimensionsByNameFunc    func(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
 	SearchDimensionsFunc       func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	GetGeographyDimensionsFunc func(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error)
 	StaticDatasetQueryFunc     func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
@@ -28,16 +30,18 @@ type CantabularClient struct {
 func (c *CantabularClient) Reset() {
 	c.ErrStatus = 500
 	c.OptionsHappy = true
+	c.DimensionsHappy = true
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
 	return c.ErrStatus
 }
 
-func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
+func (c *CantabularClient) GetDimensionOptions(_ context.Context, req cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
 	if c.OptionsHappy {
 		return nil, nil
 	}
+
 	return nil, errors.New("invalid dimension options")
 }
 
@@ -55,9 +59,9 @@ func (c *CantabularClient) GetGeographyDimensions(ctx context.Context, req canta
 	return nil, errors.New("error while getting geography dimensions")
 }
 
-func (c *CantabularClient) SearchDimensions(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-	if c.OptionsHappy {
-		return c.SearchDimensionsFunc(ctx, req)
+func (c *CantabularClient) GetDimensionsByName(ctx context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+	if c.DimensionsHappy {
+		return c.GetDimensionsByNameFunc(ctx, req)
 	}
 	return nil, errors.New("error while searching dimensions")
 }

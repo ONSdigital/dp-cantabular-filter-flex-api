@@ -240,7 +240,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.datasetLink = versionItem.Links.Dataset
 	params.basedOn = versionItem.IsBasedOn.ID
 
-	if versionItem.IsBasedOn.Type != cantabularFlexible {
+	if versionItem.IsBasedOn.Type != cantabularFlexibleTable {
 		return nil, errors.New("invalid dataset type")
 	}
 

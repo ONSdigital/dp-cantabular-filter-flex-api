@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.18
+go 1.19
 
 // The following replacement is for module versions that have known vulnerabilities (from nancy sleuth)
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0

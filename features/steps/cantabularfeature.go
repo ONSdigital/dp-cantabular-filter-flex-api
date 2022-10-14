@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
@@ -17,6 +17,22 @@ import (
 
 	"github.com/cucumber/godog"
 )
+
+type er struct {
+	err        error
+	statusCode int
+}
+
+func (e *er) Error() string {
+	if e.err == nil {
+		return "nil"
+	}
+	return e.err.Error()
+}
+
+func (e *er) Code() int {
+	return e.statusCode
+}
 
 type CantabularFeature struct {
 	cantabularClient *mock.CantabularClient
@@ -27,7 +43,10 @@ type CantabularFeature struct {
 
 func NewCantabularFeature(t *testing.T, cfg *config.Config) *CantabularFeature {
 	return &CantabularFeature{
-		cantabularClient: &mock.CantabularClient{OptionsHappy: true},
+		cantabularClient: &mock.CantabularClient{
+			OptionsHappy:    true,
+			DimensionsHappy: true,
+		},
 		cantabularServer: mock.NewCantabularServer(t),
 		cfg:              cfg,
 	}
@@ -67,6 +86,10 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Cantabular responds with an error$`,
 		cf.cantabularRespondsWithAnError,
 	)
+	ctx.Step(
+		`^Cantabular GetOptions responds with an error$`,
+		cf.cantabularGetOptionsRespondsWithAnError,
+	)
 
 	ctx.Step(
 		`^Cantabular returns dimensions for the dataset "([^"]*)" for the following search terms:$`,
@@ -75,7 +98,7 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 
 }
 
-// cantabularReturnsMultipleDimensions sets up a stub response for the `SearchDimensions` method.
+// cantabularReturnsMultipleDimensions sets up a stub response for the `GetDimensionsByName` method.
 func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID string, docs *godog.DocString) error {
 	cantabularResponses := struct {
 		Responses map[string]cantabular.GetDimensionsResponse `json:"responses"`
@@ -85,20 +108,18 @@ func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID strin
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.cantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-		if val, ok := cantabularResponses.Responses[req.Text]; ok {
-			return &val, nil
+	cf.cantabularClient.GetDimensionsByNameFunc = func(_ context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+		if len(req.DimensionNames) == 0 {
+			return nil, errors.New("no dimension provided in request")
+		}
+		if resp, ok := cantabularResponses.Responses[req.DimensionNames[0]]; ok {
+			return &resp, nil
 		}
 
-		return &cantabular.GetDimensionsResponse{
-			Dataset: gql.Dataset{
-				Variables: gql.Variables{
-					Search: gql.Search{
-						Edges: []gql.Edge{},
-					},
-				},
-			},
-		}, nil
+		return nil, &er{
+			err:        errors.New("variable at position 1 does not exist"),
+			statusCode: http.StatusNotFound,
+		}
 	}
 
 	return nil
@@ -113,25 +134,23 @@ func (cf *CantabularFeature) useAMockedExtCantabularServer() error {
 }
 
 func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, dimension string, docs *godog.DocString) error {
-	var response cantabular.GetDimensionsResponse
-	if err := json.Unmarshal([]byte(docs.Content), &response); err != nil {
+	var resp cantabular.GetDimensionsResponse
+	if err := json.Unmarshal([]byte(docs.Content), &resp); err != nil {
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.cantabularClient.SearchDimensionsFunc = func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error) {
-		if req.Dataset == datasetID && req.Text == dimension {
-			return &response, nil
+	cf.cantabularClient.GetDimensionsByNameFunc = func(_ context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
+		if len(req.DimensionNames) == 0 {
+			return nil, errors.New("no dimension provided in request")
+		}
+		if req.Dataset == datasetID && req.DimensionNames[0] == dimension {
+			return &resp, nil
 		}
 
-		return &cantabular.GetDimensionsResponse{
-			Dataset: gql.Dataset{
-				Variables: gql.Variables{
-					Search: gql.Search{
-						Edges: []gql.Edge{},
-					},
-				},
-			},
-		}, nil
+		return nil, &er{
+			err:        errors.New("variable at position 1 does not exist"),
+			statusCode: http.StatusNotFound,
+		}
 	}
 
 	return nil
@@ -162,6 +181,12 @@ func (cf *CantabularFeature) cantabularReturnsThisStaticDatasetForTheGivenReques
 }
 
 func (cf *CantabularFeature) cantabularRespondsWithAnError() {
+	cf.cantabularClient.OptionsHappy = false
+	cf.cantabularClient.DimensionsHappy = false
+}
+
+func (cf *CantabularFeature) cantabularGetOptionsRespondsWithAnError() {
+	cf.cantabularClient.OptionsHappy = false
 	cf.cantabularClient.OptionsHappy = false
 }
 
