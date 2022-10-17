@@ -117,7 +117,6 @@ Feature: Updating a filter's dimensions
     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -139,7 +138,6 @@ Feature: Updating a filter's dimensions
                 }
               }
             ]
-          }
         }
       }
     }

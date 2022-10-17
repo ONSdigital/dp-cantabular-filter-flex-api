@@ -62,7 +62,6 @@
        "ladcd":     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -84,14 +83,12 @@
                 }
               }
             ]
-          }
         }
       }
     },
        "hh_deprivation_health":     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -113,14 +110,12 @@
                 }
               }
             ]
-          }
         }
       }
     },
        "hh_deprivation":     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -142,7 +137,6 @@
                 }
               }
             ]
-          }
         }
       }
     }
