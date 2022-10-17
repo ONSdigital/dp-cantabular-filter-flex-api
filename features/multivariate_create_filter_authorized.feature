@@ -58,89 +58,89 @@
     And Cantabular returns dimensions for the dataset "dummy_data_households" for the following search terms:
       """
       {
-      "responses": {
-       "ladcd":     {
-      "dataset": {
-        "variables": {
-            "edges": [
-              {
-                "node": {
-                  "name": "LADCD",
-                  "label": "Local Authority code",
-                  "mapFrom": [
-                    {
-                      "edges": [
+        "responses": {
+          "ladcd": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "LADCD",
+                      "label": "Local Authority code",
+                      "mapFrom": [
                         {
-                          "node": {
-                            "label": "City",
-                            "name": "city"
-                          }
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
                         }
-                      ],
-                      "totalCount": 1
+                      ]
                     }
-                  ]
-                }
+                  }
+                ]
               }
-            ]
-        }
-      }
-    },
-       "hh_deprivation_health":     {
-      "dataset": {
-        "variables": {
-            "edges": [
-              {
-                "node": {
-                  "name": "hh_deprivation_health",
-                  "label": "Household deprived in the health and disability dimension (3 categories)",
-                  "mapFrom": [
-                    {
-                      "edges": [
+            }
+          },
+          "hh_deprivation_health": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "hh_deprivation_health",
+                      "label": "Household deprived in the health and disability dimension (3 categories)",
+                      "mapFrom": [
                         {
-                          "node": {
-                            "label": "City",
-                            "name": "city"
-                          }
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
                         }
-                      ],
-                      "totalCount": 1
+                      ]
                     }
-                  ]
-                }
+                  }
+                ]
               }
-            ]
-        }
-      }
-    },
-       "hh_deprivation":     {
-      "dataset": {
-        "variables": {
-            "edges": [
-              {
-                "node": {
-                  "name": "hh_deprivation",
-                  "label": "Household deprivation (6 categories)",
-                  "mapFrom": [
-                    {
-                      "edges": [
+            }
+          },
+          "hh_deprivation": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "hh_deprivation",
+                      "label": "Household deprivation (6 categories)",
+                      "mapFrom": [
                         {
-                          "node": {
-                            "label": "City",
-                            "name": "city"
-                          }
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
                         }
-                      ],
-                      "totalCount": 1
+                      ]
                     }
-                  ]
-                }
+                  }
+                ]
               }
-            ]
+            }
+          }
         }
-      }
-    }
-       }
       }
       """
   Scenario: Creating a new multivariate filter journey when authorized
@@ -224,7 +224,7 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "e02ac5f3b1472258c821ff704f91e39957c19938",
+      "etag": "7c25d373250a8f6c75b3980656f4bbf4a82fefb4",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -232,21 +232,21 @@
           "label": "Local Authority code",
           "id": "LADCD",
           "is_area_type": true,
-          "options": null
+          "options": []
         },
         {
           "name": "hh_deprivation_health",
           "label": "Household deprived in the health and disability dimension (3 categories)",
           "id": "hh_deprivation_health",
           "is_area_type": false,
-          "options": null
+          "options": []
         },
         {
           "name": "hh_deprivation",
           "id": "hh_deprivation",
           "label": "Household deprivation (6 categories)",
           "is_area_type": false,
-          "options": null
+          "options": []
         }
       ],
       "dataset": {
@@ -343,4 +343,3 @@
     """
 
     And the HTTP status code should be "404"
-

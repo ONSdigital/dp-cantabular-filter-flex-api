@@ -19,7 +19,8 @@ Feature: Filters Private Endpoints Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "geography"
+            "name": "city",
+            "is_area_type": true
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -30,7 +31,8 @@ Feature: Filters Private Endpoints Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
             "id": "siblings_3",
-            "name": "siblings"
+            "name": "siblings_3",
+            "is_area_type": false
           }
         ],
         "edition": "2021",
@@ -56,6 +58,37 @@ Feature: Filters Private Endpoints Enabled
       }
       """
 
+    And Cantabular returns these dimensions for the dataset "Example" and search term "city":
+    """
+    {
+      "dataset": {
+        "variables": {
+          "edges": [
+            {
+              "node": {
+                "name": "city",
+                "label": "City",
+                "mapFrom": [
+                  {
+                    "edges": [
+                      {
+                        "node": {
+                          "label": "LSOA",
+                          "name": "lsoa"
+                        }
+                      }
+                    ],
+                    "totalCount": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+    """
+
   Scenario: Creating a new filter journey when authorized
     Given I use an X Florence user token "user token"
 
@@ -74,7 +107,7 @@ Feature: Filters Private Endpoints Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -82,7 +115,7 @@ Feature: Filters Private Endpoints Enabled
           ],
           "is_area_type": false
         },{
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -142,11 +175,11 @@ Feature: Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "23a9465237f56092a95275d5d80ac79f31eff349",
+      "etag":        "8d9a6b147a08a65a816c02967185c17372d94115",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
-          "name":  "siblings",
+          "name":  "siblings_3",
           "id":    "siblings_3",
           "label": "Number of siblings (3 mappings)",
           "options": [
@@ -157,7 +190,7 @@ Feature: Filters Private Endpoints Enabled
           "is_area_type":  false
         },
         {
-          "name":  "geography",
+          "name":  "city",
           "id":    "city",
           "label": "City",
           "options": [
@@ -229,4 +262,3 @@ Feature: Filters Private Endpoints Enabled
     """
 
     Then the HTTP status code should be "401"
-

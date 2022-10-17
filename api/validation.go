@@ -19,11 +19,23 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	ctx := context.Background()
 
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
+		var geodim model.Dimension
+		for _, d := range dims {
+			if d.IsAreaType != nil && *d.IsAreaType {
+				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
+				if err != nil {
+					return nil, errors.Wrap(err, "failed to get geography dimension from Cantabular")
+				}
+				geodim = geodims[0]
+			}
+		}
 		if err := api.validateDimensionsFromVersion(dims, v.Dimensions); err != nil {
 			return nil, errors.Wrap(err, "failed to validate dataset dimensions")
 		}
 
-		return hydrateDimensionsFromVersion(dims, v.Dimensions), nil
+		hydrated := hydrateDimensionsFromVersion(dims, v.Dimensions)
+		hydrated = append(hydrated, geodim)
+		return hydrated, nil
 	}
 
 	if v.IsBasedOn.Type == cantabularMultivariateTable {
@@ -60,6 +72,11 @@ func (api *API) getCantabularDimensions(ctx context.Context, dimensions []model.
 		}
 
 		dim.IsAreaType = d.IsAreaType
+		dim.FilterByParent = d.FilterByParent
+		dim.Options = d.Options
+		if dim.Options == nil {
+			dim.Options = []string{}
+		}
 		hydratedDimensions = append(hydratedDimensions, *dim)
 	}
 
@@ -121,6 +138,10 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 
 	var incorrect []string
 	for _, d := range dims {
+		// allow geography dimensions other than default
+		if d.IsAreaType != nil && *d.IsAreaType {
+			continue
+		}
 		if _, ok := dimensions[d.Name]; !ok {
 			incorrect = append(incorrect, d.Name)
 			continue
@@ -191,18 +212,26 @@ func hydrateDimensionsFromVersion(filterDims []model.Dimension, dims []dataset.V
 	type record struct{ id, label string }
 
 	lookup := make(map[string]record)
-	for _, dim := range dims {
-		lookup[dim.Name] = record{id: dim.ID, label: dim.Label}
+	for _, d := range dims {
+		// geography dimension gets hydrated from Cantabular
+		if d.IsAreaType != nil && *d.IsAreaType {
+			continue
+		}
+		lookup[d.Name] = record{id: d.ID, label: d.Label}
 	}
 
 	var hydrated []model.Dimension
-	for _, dim := range filterDims {
-		dim.ID = lookup[dim.Name].id
-		dim.Label = lookup[dim.Name].label
-		if dim.Options == nil {
-			dim.Options = []string{}
+	for _, d := range filterDims {
+		// geography dimension gets hydrated from Cantabular
+		if d.IsAreaType != nil && *d.IsAreaType {
+			continue
 		}
-		hydrated = append(hydrated, dim)
+		d.ID = lookup[d.Name].id
+		d.Label = lookup[d.Name].label
+		if d.Options == nil {
+			d.Options = []string{}
+		}
+		hydrated = append(hydrated, d)
 	}
 
 	return hydrated
