@@ -77,7 +77,7 @@ func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionNa
 		return nil, errors.Wrap(err, "failed to get dimension by name")
 	}
 
-	if len(resp.Dataset.Variables.Search.Edges) == 0 {
+	if len(resp.Dataset.Variables.Edges) == 0 {
 		return nil, Error{
 			err:      errors.New("no dimensions in response"),
 			notFound: true,
@@ -85,7 +85,7 @@ func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionNa
 		}
 	}
 
-	node := resp.Dataset.Variables.Search.Edges[0].Node
+	node := resp.Dataset.Variables.Edges[0].Node
 	dim := model.Dimension{
 		Label: node.Label,
 		ID:    node.Name,

@@ -113,7 +113,6 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -135,7 +134,6 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
                 }
               }
             ]
-          }
         }
       }
     }
