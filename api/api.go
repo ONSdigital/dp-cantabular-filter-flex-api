@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	// "net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	kafka "github.com/ONSdigital/dp-kafka/v3"
@@ -64,7 +63,6 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Get("/filters/{id}/dimensions/{dimension}/options", api.getFilterDimensionOptions)
 	api.Router.Delete("/filters/{id}/dimensions/{dimension}/options", api.deleteFilterDimensionOptions)
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
-	api.Router.Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
 	api.Router.Get("/filters/{id}/dimensions/{dimension}", api.getFilterDimension)
 	api.Router.Delete("/filters/{id}/dimensions/{dimension}", api.deleteFilterDimension)
 
@@ -85,6 +83,12 @@ func (api *API) enablePublicEndpoints() {
 			With(middleware.LogIdentity()).
 			With(permissions.Require(auth.Permissions{Read: true})).
 			Put("/filter-outputs/{id}", api.putFilterOutput)
+
+		api.Router.
+			With(checkIdentity).
+			With(middleware.LogIdentity()).
+			With(permissions.Require(auth.Permissions{Read: true})).
+			Put("/filters/{id}/dimensions/{dimension}", api.updateFilterDimension)
 	}
 }
 
