@@ -18,6 +18,10 @@ import (
 func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dimension, pType string) ([]model.Dimension, error) {
 	ctx := context.Background()
 
+	if len(dims) < 1 {
+		return nil, errors.New("no dimensions given")
+	}
+
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
 		var geodim model.Dimension
 		for _, d := range dims {
