@@ -23,14 +23,14 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	}
 
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
-		var geodim model.Dimension
+		var geodim *model.Dimension
 		for _, d := range dims {
 			if d.IsAreaType != nil && *d.IsAreaType {
 				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to get geography dimension from Cantabular")
 				}
-				geodim = geodims[0]
+				geodim = &geodims[0]
 			}
 		}
 		if err := api.validateDimensionsFromVersion(dims, v.Dimensions); err != nil {
@@ -38,7 +38,11 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 		}
 
 		hydrated := hydrateDimensionsFromVersion(dims, v.Dimensions)
-		hydrated = append(hydrated, geodim)
+		// insert Geography dimension as first in list if present
+		if geodim != nil {
+			hydrated = append([]model.Dimension{*geodim}, hydrated...)
+		}
+
 		return hydrated, nil
 	}
 

@@ -175,20 +175,9 @@ Feature: Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "8d9a6b147a08a65a816c02967185c17372d94115",
+      "etag":        "c3fc6ebe1dca53481a615d58aec488a2c39ccd3c",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
-        {
-          "name":  "siblings_3",
-          "id":    "siblings_3",
-          "label": "Number of siblings (3 mappings)",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "is_area_type":  false
-        },
         {
           "name":  "city",
           "id":    "city",
@@ -200,6 +189,17 @@ Feature: Filters Private Endpoints Enabled
           ],
           "is_area_type":  true,
           "filter_by_parent": "country"
+        },
+        {
+          "name":  "siblings_3",
+          "id":    "siblings_3",
+          "label": "Number of siblings (3 mappings)",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type":  false
         }
       ],
       "dataset": {

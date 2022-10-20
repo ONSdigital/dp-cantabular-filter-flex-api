@@ -364,7 +364,7 @@ Feature: Filters Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "488d6860a21d3cfa488f3a0e639deb67a768f106",
+      "etag": "783f4b1acb67e778117c4a3354e4993b08bc9d58",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
@@ -375,6 +375,15 @@ Feature: Filters Private Endpoints Not Enabled
       },
       "dimensions": [
         {
+          "name": "region",
+          "id": "region",
+          "label": "Region",
+          "is_area_type": true,
+          "options": [
+            "0"
+          ]
+        },
+        {
           "name": "siblings_3",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
@@ -384,15 +393,6 @@ Feature: Filters Private Endpoints Not Enabled
             "7+"
           ],
           "is_area_type": false
-        },
-        {
-          "name": "region",
-          "id": "region",
-          "label": "Region",
-          "is_area_type": true,
-          "options": [
-            "0"
-          ]
         }
       ],
       "population_type": "Example",
