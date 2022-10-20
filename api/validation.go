@@ -23,24 +23,37 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	}
 
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
-		var geodim *model.Dimension
+		var geodim model.Dimension
+		var areaCount int
 		for _, d := range dims {
 			if d.IsAreaType != nil && *d.IsAreaType {
+				areaCount++
 				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
 				if err != nil {
 					return nil, errors.Wrap(err, "failed to get geography dimension from Cantabular")
 				}
-				geodim = &geodims[0]
+				geodim = geodims[0]
 			}
 		}
+
+		if areaCount > 1 {
+			return nil, &Error{
+				err:        errors.New("multiple geography dimensions not permitted"),
+				badRequest: true,
+				logData: log.Data{
+					"dimensions": dims,
+				},
+			}
+		}
+
 		if err := api.validateDimensionsFromVersion(dims, v.Dimensions); err != nil {
 			return nil, errors.Wrap(err, "failed to validate dataset dimensions")
 		}
 
 		hydrated := hydrateDimensionsFromVersion(dims, v.Dimensions)
 		// insert Geography dimension as first in list if present
-		if geodim != nil {
-			hydrated = append([]model.Dimension{*geodim}, hydrated...)
+		if areaCount > 0 {
+			hydrated = append([]model.Dimension{geodim}, hydrated...)
 		}
 
 		return hydrated, nil
@@ -55,8 +68,9 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	}
 
 	return nil, &Error{
-		err:     errors.New("unexpected IsBasedOn type"),
-		logData: log.Data{"is_based_on.type": v.IsBasedOn.Type},
+		err:        errors.New("unexpected IsBasedOn type"),
+		logData:    log.Data{"is_based_on.type": v.IsBasedOn.Type},
+		badRequest: true,
 	}
 }
 

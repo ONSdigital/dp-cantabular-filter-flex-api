@@ -552,24 +552,63 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-  Scenario: Creating a new filter but 'is_area_type' missing from dimension
+#  Scenario: Creating a new filter but 'is_area_type' missing from dimension
+#    When I POST "/filters"
+#    """
+#    {
+#      "dataset":{
+#          "id":      "cantabular-example-1",
+#          "edition": "2021",
+#          "version": 1
+#      },
+#      "population_type": "Example",
+#      "dimensions": [
+#        {
+#          "name": "siblings_3",
+#          "options": [
+#            "0-3",
+#            "4-7",
+#            "7+"
+#          ]
+#        },{
+#          "name": "city",
+#          "options": [
+#            "Cardiff",
+#            "London",
+#            "Swansea"
+#          ],
+#          "is_area_type": true
+#        }
+#      ]
+#    }
+#    """
+#
+#    Then I should receive the following JSON response:
+#    """
+#    {"errors":["missing field: ['is_area_type']"]}
+#    """
+#    
+#    And the HTTP status code should be "404"
+
+  Scenario: Creating a new filter but multiple geography dimensions selected
     When I POST "/filters"
     """
     {
       "dataset":{
-          "id":      "cantabular-example-unpublished",
+          "id":      "cantabular-example-1",
           "edition": "2021",
           "version": 1
       },
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings_3",
+          "name": "region",
           "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ]
+            "South East",
+            "North West",
+            "South"
+          ],
+          "is_area_type": true
         },{
           "name": "city",
           "options": [
@@ -585,10 +624,10 @@ Feature: Filters Private Endpoints Not Enabled
 
     Then I should receive the following JSON response:
     """
-    {"errors":["dataset not found"]}
+    {"errors":["failed to validate dimensions: multiple geography dimensions not permitted"]}
     """
     
-    And the HTTP status code should be "404"
+    And the HTTP status code should be "400"
 
   Scenario: Creating a new invalid request
     When I POST "/filters"
