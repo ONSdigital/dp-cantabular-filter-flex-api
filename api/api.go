@@ -74,7 +74,18 @@ func (api *API) enablePublicEndpoints() {
 
 	api.Router.Get("/filter-outputs/{id}", api.getFilterOutput)
 
-	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSON)
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
+
+	if api.cfg.EnableFilterOutputs {
+		//permissions := middleware.NewPermissions(api.cfg.ZebedeeURL, api.cfg.EnablePermissionsAuth)
+		//checkIdentity := dphandlers.IdentityWithHTTPClient(api.identityClient)
+
+		api.Router.
+			//With(checkIdentity).
+			//With(middleware.LogIdentity()).
+			//With(permissions.Require(auth.Permissions{Read: true})).
+			Put("/filter-outputs/{id}", api.putFilterOutput)
+	}
 }
 
 func (api *API) enablePrivateEndpoints() {

@@ -19,7 +19,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "geography"
+            "name": "city"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -30,7 +30,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
             "id": "siblings_3",
-            "name": "siblings"
+            "name": "siblings_3"
           }
         ],
         "edition": "2021",
@@ -57,8 +57,8 @@ Feature: Filters Private Endpoints Not Enabled
       """
 
     And the following version document with dataset id "cantabular_table_example", edition "2021" and version "1" is available from dp-dataset-api:
-      """
-  {
+    """
+    {
         "alerts": [],
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
         "is_based_on":{"@type": "cantabular_table"},
@@ -72,7 +72,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "geography"
+            "name": "city"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -83,7 +83,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
             "id": "siblings_3",
-            "name": "siblings"
+            "name": "siblings_3"
           }
         ],
         "edition": "2021",
@@ -126,7 +126,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/city",
             "id": "city",
-            "name": "geography"
+            "name": "city"
           },
           {
             "label": "Number of siblings (3 mappings)",
@@ -137,7 +137,7 @@ Feature: Filters Private Endpoints Not Enabled
             },
             "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
             "id": "siblings_3",
-            "name": "siblings"
+            "name": "siblings_3"
           }
         ],
         "edition": "2021",
@@ -163,6 +163,68 @@ Feature: Filters Private Endpoints Not Enabled
       }
       """
 
+    And Cantabular returns dimensions for the dataset "dummy_data_households" for the following search terms:
+      """
+      {
+        "responses": {
+          "city": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "city",
+                      "label": "City",
+                      "mapFrom": [
+                        {
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "OA",
+                                "name": "oa"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "totalCount": 1
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "region": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "region",
+                      "label": "Region",
+                      "mapFrom": [
+                        {
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "OA",
+                                "name": "oa"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "totalCount": 1
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+      """
+
   Scenario: Creating a new filter happy
 
     When I POST "/filters"
@@ -176,7 +238,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -184,13 +246,72 @@ Feature: Filters Private Endpoints Not Enabled
           ],
           "is_area_type": false
         },{
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
             "Swansea"
           ],
           "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
+      "links": {
+        "version": {
+          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "id": "1"
+        },
+        "self": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "dimensions": {
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+        }
+      },
+      "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
+      "dataset": {
+        "id": "cantabular-example-1",
+        "edition": "2021",
+        "version": 1
+      },
+      "population_type": "Example",
+      "published": true,
+      "type": "flexible"
+    }
+    """
+
+    Scenario: Creating a new filter happy with non-default geography
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+          "id":      "cantabular-example-1",
+          "edition": "2021",
+          "version": 1
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "siblings_3",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "name": "region",
+          "is_area_type": true,
+          "options": [
+            "0"
+          ]
         }
       ]
     }
@@ -243,7 +364,7 @@ Feature: Filters Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "e70f6470a26c2379b591b34e47e50321879abcbc",
+      "etag": "783f4b1acb67e778117c4a3354e4993b08bc9d58",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
@@ -254,7 +375,16 @@ Feature: Filters Private Endpoints Not Enabled
       },
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "region",
+          "id": "region",
+          "label": "Region",
+          "is_area_type": true,
+          "options": [
+            "0"
+          ]
+        },
+        {
+          "name": "siblings_3",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
           "options": [
@@ -263,17 +393,6 @@ Feature: Filters Private Endpoints Not Enabled
             "7+"
           ],
           "is_area_type": false
-        },
-        {
-          "name": "geography",
-          "id": "city",
-          "label": "City",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "is_area_type": true
         }
       ],
       "population_type": "Example",
@@ -306,7 +425,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -314,7 +433,7 @@ Feature: Filters Private Endpoints Not Enabled
           ],
           "is_area_type": false
         },{
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -368,7 +487,7 @@ Feature: Filters Private Endpoints Not Enabled
       "dimensions": [
         {
           "id": "siblings_3",
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -378,7 +497,7 @@ Feature: Filters Private Endpoints Not Enabled
         },{
           "id": "city",
           "label": "City",
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -408,7 +527,7 @@ Feature: Filters Private Endpoints Not Enabled
       "dimensions": [
         {
           "label": "Number of Siblings (3 mappings)",
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -417,7 +536,7 @@ Feature: Filters Private Endpoints Not Enabled
           "is_area_type": false
         },{
           "label": "City",
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -433,26 +552,65 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-  Scenario: Creating a new filter but 'is_area_type' missing from dimension
+#  Scenario: Creating a new filter but 'is_area_type' missing from dimension
+#    When I POST "/filters"
+#    """
+#    {
+#      "dataset":{
+#          "id":      "cantabular-example-1",
+#          "edition": "2021",
+#          "version": 1
+#      },
+#      "population_type": "Example",
+#      "dimensions": [
+#        {
+#          "name": "siblings_3",
+#          "options": [
+#            "0-3",
+#            "4-7",
+#            "7+"
+#          ]
+#        },{
+#          "name": "city",
+#          "options": [
+#            "Cardiff",
+#            "London",
+#            "Swansea"
+#          ],
+#          "is_area_type": true
+#        }
+#      ]
+#    }
+#    """
+#
+#    Then I should receive the following JSON response:
+#    """
+#    {"errors":["missing field: ['is_area_type']"]}
+#    """
+#    
+#    And the HTTP status code should be "404"
+
+  Scenario: Creating a new filter but multiple geography dimensions selected
     When I POST "/filters"
     """
     {
       "dataset":{
-          "id":      "cantabular-example-unpublished",
+          "id":      "cantabular-example-1",
           "edition": "2021",
           "version": 1
       },
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "region",
           "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ]
+            "South East",
+            "North West",
+            "South"
+          ],
+          "is_area_type": true
         },{
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",
@@ -466,10 +624,10 @@ Feature: Filters Private Endpoints Not Enabled
 
     Then I should receive the following JSON response:
     """
-    {"errors":["dataset not found"]}
+    {"errors":["failed to validate dimensions: multiple geography dimensions not permitted"]}
     """
     
-    And the HTTP status code should be "404"
+    And the HTTP status code should be "400"
 
   Scenario: Creating a new invalid request
     When I POST "/filters"
@@ -483,7 +641,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -519,7 +677,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -528,7 +686,7 @@ Feature: Filters Private Endpoints Not Enabled
           "is_area_type": false
         },
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -544,12 +702,12 @@ Feature: Filters Private Endpoints Not Enabled
     """
     {
       "errors": [
-        "failed to validate request dimensions: duplicate dimensions chosen: siblings"
+        "duplicate dimension chosen: siblings_3"
       ]
     }
     """
 
-    And the HTTP status code should be "404"
+    And the HTTP status code should be "400"
 
   Scenario: Do not create a filter based on cantabular blob
     When I POST "/filters"
@@ -563,7 +721,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "dimensions": [
         {
-          "name": "siblings",
+          "name": "siblings_3",
           "options": [
             "0-3",
             "4-7",
@@ -571,7 +729,7 @@ Feature: Filters Private Endpoints Not Enabled
           ],
           "is_area_type": false
         },{
-          "name": "geography",
+          "name": "city",
           "options": [
             "Cardiff",
             "London",

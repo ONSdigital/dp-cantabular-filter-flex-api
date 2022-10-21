@@ -30,10 +30,12 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
 	logData := log.Data{
 		"request": req,
 		"id":      fID,
 	}
+
 	filter, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
 		api.respond.Error(
@@ -48,6 +50,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
 	v, err := api.datasets.GetVersion(
 		ctx,
 		"",
@@ -71,6 +74,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
 	if v.State != published && !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
@@ -84,9 +88,20 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	dimensions, _, err := api.ValidateAndReturnDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
+
+	dimensions, err := api.validateAndHydrateDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
 	if err != nil {
-		api.respond.Error(ctx, w, statusCode(err), err)
+		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
+		return
+	}
+
+	if err := api.validateDimensionOptions(ctx, dimensions, filter.PopulationType); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to validate dimension options"),
+		)
 		return
 	}
 
@@ -225,8 +240,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),
 	// so instead of validating it against the existing Version, we check to see if the dimension exists in Cantabular.
-	// TODO: this function gets the dimension via a search, not guaranteed to be correct dimension
-	node, err := api.getCantabularDimension(ctx, filter.PopulationType, req.ID)
+	dim, err := api.getCantabularDimension(ctx, filter.PopulationType, req.ID)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -241,8 +255,18 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := api.validateDimensionOptions(ctx, []model.Dimension{req.Dimension}, filter.PopulationType); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to validate dimension options"),
+		)
+		return
+	}
+
 	// ID/name is provided by the request, but the label is provided by Cantabular.
-	req.Label = node.Label
+	req.Label = dim.Label
 
 	var eTag string
 	if reqETag := api.getETag(r); reqETag != eTagAny {

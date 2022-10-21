@@ -113,7 +113,6 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
               {
                 "node": {
@@ -135,7 +134,6 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
                 }
               }
             ]
-          }
         }
       }
     }
@@ -146,9 +144,9 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
     """
     {
-    "name": "hh_deprivation",
-    "is_area_type": false,
-    "filter_by_parent": ""
+      "name": "hh_deprivation",
+      "is_area_type": false,
+      "filter_by_parent": ""
     }
     """
     Then the HTTP status code should be "201"
@@ -178,17 +176,18 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
       When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
       """
       {
-      "name": "DOESNOTEXIST",
-      "is_area_type": false,
-      "filter_by_parent": ""
+        "name":             "DOESNOTEXIST",
+        "is_area_type":     false,
+        "filter_by_parent": ""
       }
       """
-      Then the HTTP status code should be "404"
-      And I should receive the following JSON response:
+
+      Then I should receive the following JSON response:
       """
       {
-          "errors": [
-              "error in cantabular response: no dimensions in response"
-          ]
+        "errors": [
+            "failed to find dimension: DOESNOTEXIST"
+        ]
       }
       """
+      And the HTTP status code should be "404"

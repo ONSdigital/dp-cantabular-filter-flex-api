@@ -144,8 +144,16 @@ type addFilterDimensionRequest struct {
 }
 
 func (r *addFilterDimensionRequest) Valid() error {
+	// name and id must be same or one ommitted
+	if r.Name == "" && r.ID == "" {
+		return errors.New("missing field: [name | id]")
+	}
+	if r.Name != "" && r.ID != "" && r.Name != r.ID {
+		return errors.New("'name' and 'id' do not match")
+	}
+
 	if r.IsAreaType == nil {
-		return fmt.Errorf("missing field: [is_area_type]")
+		return errors.New("missing field: [is_area_type]")
 	}
 
 	return nil
@@ -260,7 +268,7 @@ type submitFilterResponse struct {
 }
 
 // getDatasetJSONResponse is the response body for GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/json
-type getDatasetJSONResponse struct {
+type GetDatasetJSONResponse struct {
 	Dimensions        []DatasetJSONDimension `json:"dimensions"`
 	Links             DatasetJSONLinks       `json:"links"`
 	Observations      []int                  `json:"observations"`
