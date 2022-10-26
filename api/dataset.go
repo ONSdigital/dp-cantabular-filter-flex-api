@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -72,13 +73,21 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 		Variables: params.sortedDimensions,
 	}
 
-	if r.URL.Query().Get("geography") != "" {
-		filters, err := api.getGeographyFilters(r, params)
-		if err != nil {
-			return nil, errors.Wrap(err, "getGeographyFilters failed")
-		}
+	fmt.Println(params.sortedDimensions)
 
-		datasetRequest.Filters = filters
+	if r.URL.Query().Get("geography") != "" {
+		geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+
+		success, err := api.validateGeography(r, params)
+		if err == nil && success {
+			params.sortedDimensions[0] = geographyQuery[0]
+		}
+		// filters, err := api.getGeographyFilters(r, params)
+		// if err != nil {
+		// 	return nil, errors.Wrap(err, "getGeographyFilters failed")
+		// }
+		datasetRequest.Variables = params.sortedDimensions
+		//datasetRequest.Filters = filters
 	}
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
@@ -94,15 +103,43 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
+func (api *API) validateGeography(r *http.Request, params *datasetParams) (bool, error) {
+	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+
+	fmt.Println(geographyQuery)
+	if len(geographyQuery) < 1 {
+		return false, errors.New("unable to locate geography")
+	}
+
+	geography := geographyQuery[0]
+	//geographyOptions := geographyQuery[1:]
+
+	foundGeography := false
+	for _, d := range params.geoDimensions {
+		if strings.EqualFold(d, geography) {
+			foundGeography = true
+			break
+		}
+	}
+
+	if !foundGeography {
+		return false, errors.New("unable to locate geography")
+	}
+
+	fmt.Println(foundGeography)
+	return foundGeography, nil
+}
+
 func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
+	fmt.Println(geographyQuery)
 	if len(geographyQuery) < 2 {
 		return nil, errors.New("unable to locate geography")
 	}
 
 	geography := geographyQuery[0]
-	geographyOptions := geographyQuery[1:]
+	//geographyOptions := geographyQuery[1:]
 
 	foundGeography := false
 	for _, d := range params.geoDimensions {
@@ -117,61 +154,62 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 	}
 
 	var geographyCodes []string
-	for _, o := range geographyOptions {
-		opt, ok := params.options[geography][o]
-		if !ok {
-			return nil, errors.Errorf("unable to validate geography option %s", o)
-		}
-		geographyCodes = append(geographyCodes, opt.Option)
-	}
+	// for _, o := range geographyOptions {
+	// 	opt, ok := params.options[geography][o]
+	// 	if !ok {
+	// 		return nil, errors.Errorf("unable to validate geography option %s", o)
+	// 	}
+	// 	geographyCodes = append(geographyCodes, opt.Option)
+	// }
 
-	dimension := r.URL.Query().Get("dimension")
-	if dimension == "" {
-		return nil, errors.New("unable to locate dimension")
-	}
+	// dimension := r.URL.Query().Get("dimension")
+	// if dimension == "" {
+	// 	return nil, errors.New("unable to locate dimension")
+	// }
 
-	foundDimension := false
-	for _, d := range params.datasetDimensions {
-		if d == dimension {
-			foundDimension = true
-			break
-		}
-	}
-	if !foundDimension {
-		return nil, errors.Errorf("unable to validate dimension %s", dimension)
-	}
+	// foundDimension := false
+	// for _, d := range params.datasetDimensions {
+	// 	if d == dimension {
+	// 		foundDimension = true
+	// 		break
+	// 	}
+	// }
+	// if !foundDimension {
+	// 	return nil, errors.Errorf("unable to validate dimension %s", dimension)
+	// }
 
-	options := strings.Split(r.URL.Query().Get("options"), ",")
-	if len(options) < 1 || options[0] == "" {
-		return nil, errors.Errorf("invalid options length or options is empty")
-	}
+	// options := strings.Split(r.URL.Query().Get("options"), ",")
+	// if len(options) < 1 || options[0] == "" {
+	// 	return nil, errors.Errorf("invalid options length or options is empty")
+	// }
 
-	var dimensionCodes []string
-	for _, o := range options {
-		opt, ok := params.options[dimension][o]
-		if !ok {
-			return nil, errors.Errorf("unable to locate dimension option %s", o)
-		}
-		dimensionCodes = append(dimensionCodes, opt.Option)
-	}
+	// var dimensionCodes []string
+	// for _, o := range options {
+	// 	opt, ok := params.options[dimension][o]
+	// 	if !ok {
+	// 		return nil, errors.Errorf("unable to locate dimension option %s", o)
+	// 	}
+	// 	dimensionCodes = append(dimensionCodes, opt.Option)
+	// }
 
-	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
+	//return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
+	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}}, nil
 }
 
 func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		if _, ok := params.options[dimension.Variable.Name]; !ok {
-			return nil, errors.New("dimension mismatch")
-		}
+		// if _, ok := params.options[dimension.Variable.Name]; !ok {
+		// 	return nil, errors.New("dimension mismatch")
+		// }
 
 		var options []model.Link
 
 		for _, option := range dimension.Categories {
-			if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
-				return nil, errors.New("option mismatch")
-			}
+			// if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
+			// 	return nil, errors.New("option mismatch")
+			// }
 
 			options = append(options, model.Link{
 				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
@@ -232,7 +270,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	// The following GetVersion() call will only return a 'published' version for an unauthorised caller, i.e. public caller
 	// We are therefore guaranteed that the if a version is returned, it is 'published' and the BasedOn, Dimension, and Links.datasetLink/versionLink attributes are complete
-	versionItem, err := api.datasets.GetVersion(ctx, "", "", "", "", params.id, params.edition, params.version)
+	versionItem, err := api.datasets.GetVersion(ctx, "", api.cfg.ServiceAuthToken, "", "", params.id, params.edition, params.version)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get version")
 	}
@@ -246,7 +284,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	params.versionLink = versionItem.Links.Self
 
-	metadata, err := api.datasets.GetVersionMetadata(ctx, "", "", "", params.id, params.edition, params.version)
+	metadata, err := api.datasets.GetVersionMetadata(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get metadata")
 	}
@@ -258,7 +296,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	}
 
 	for _, dimension := range versionItem.Dimensions {
-		options, err := api.datasets.GetOptionsInBatches(ctx, "", "", "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
+		options, err := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get options")
 		}
