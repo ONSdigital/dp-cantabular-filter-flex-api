@@ -32,7 +32,6 @@ type Config struct {
 	ZebedeeURL                   string        `envconfig:"ZEBEDEE_URL"`
 	DatasetOptionsWorkers        int           `envconfig:"DATASET_OPTIONS_WORKERS"`
 	DatasetOptionsBatchSize      int           `envconfig:"DATASET_OPTIONS_BATCH_SIZE"`
-	EnableFilterOutputs          bool          `envconfig:"ENABLE_FILTER_OUTPUTS_CHECK"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
 }
@@ -85,7 +84,6 @@ func Get() (*Config, error) {
 		ZebedeeURL:                   "http://localhost:8082",
 		DatasetOptionsWorkers:        2,
 		DatasetOptionsBatchSize:      20,
-		EnableFilterOutputs:          true,
 		Mongo: mongo.MongoDriverConfig{
 			ClusterEndpoint: "localhost:27017",
 			Username:        "",
