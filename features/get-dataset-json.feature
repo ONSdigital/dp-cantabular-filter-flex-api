@@ -351,6 +351,7 @@ Feature: Get Dataset JSON
             edges {
               node {
                 name
+                description
                 mapFrom {
                   edges {
                     node {
@@ -379,6 +380,7 @@ Feature: Get Dataset JSON
               {
                 "node": {
                   "categories": {"totalCount": 3},
+                  "description":"",
                   "label": "City",
                   "mapFrom": [],
                   "name": "city"
@@ -552,7 +554,7 @@ Feature: Get Dataset JSON
     """
     request:
     {
-      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
+      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]!) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
             dimensions {
@@ -565,110 +567,170 @@ Feature: Get Dataset JSON
           }
         }
       }",
-      "variables": {"base":false,"category":"","dataset":"Example","filters":[{"codes": ["0", "1"], "variable": "city"},  {"codes": ["1"], "variable": "sex"}],"limit":20,"offset":0,"rule":false,"text":"","variables":["city", "sex", "siblings_3"]}
+      "variables": {"base":false,"category":"","dataset":"Example","limit":20,"offset":0,"rule":false,"text":"","variables":["country", "sex", "siblings_3"], "filters":null}
     }
     response:
-    {
-      "data": {
-        "dataset": {
-          "table": {
-            "dimensions": [
+   {
+  "data": {
+    "dataset": {
+      "table": {
+        "dimensions": [
+          {
+            "categories": [
               {
-                "categories": [
-                  {"code": "1","label": "Liverpool"},
-                  {"code": "2","label": "Belfast" }
-                ],
-                "count": 2,
-                "variable": {"label": "City","name": "city"}
+                "code": "E",
+                "label": "England"
               },
               {
-                "categories": [
-                  {"code": "1","label": "Female"}
-                ],
-                "count": 1,
-                "variable": {"label": "Sex","name": "sex"}
-              },
-              {
-                "categories": [
-                  {"code": "0","label": "No siblings"},
-                  {"code": "1-2","label": "1 or 2 siblings"},
-                  {"code": "3+","label": "3 or more siblings"
-                  }
-                ],
-                "count": 3,
-                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
+                "code": "N",
+                "label": "Northern Ireland"
               }
             ],
-            "error": null,
-            "values": [0, 0, 0, 0, 0, 2]
+            "count": 2,
+            "variable": {
+              "label": "Country",
+              "name": "country"
+            }
+          },
+          {
+            "categories": [
+              {
+                "code": "0",
+                "label": "Male"
+              },
+              {
+                "code": "1",
+                "label": "Female"
+              }
+            ],
+            "count": 2,
+            "variable": {
+              "label": "Sex",
+              "name": "sex"
+            }
+          },
+          {
+            "categories": [
+              {
+                "code": "0",
+                "label": "No siblings"
+              },
+              {
+                "code": "1-2",
+                "label": "1 or 2 siblings"
+              },
+              {
+                "code": "3+",
+                "label": "3 or more siblings"
+              }
+            ],
+            "count": 3,
+            "variable": {
+              "label": "Number of siblings (3 mappings)",
+              "name": "siblings_3"
+            }
           }
-        }
+        ],
+        "error": null,
+        "values": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          2
+        ]
       }
     }
+  }
+}
     """
 
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?geography=city,London,Liverpool&dimension=sex&options=Female"
+ 
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?geography=country"
 
     Then the HTTP status code should be "200"
 
     And I should receive the following JSON response:
     """
     {
-      "dimensions":[
+       "dimensions": [
         {
-          "dimension_name":"city",
-          "options":[
-            {
-              "href":"http://hostname/code-lists/city/codes/1",
-              "id":"1"
-            },
-            {
-              "href":"http://hostname/code-lists/city/codes/2",
-              "id":"2"
-            }
-          ]
+            "dimension_name": "country",
+            "options": [
+                {
+                    "href": "",
+                    "id": "E"
+                },
+                {
+                    "href": "",
+                    "id": "N"
+                }
+            ]
         },
         {
-          "dimension_name":"sex",
-          "options":[
-            {
-              "href":"http://hostname/code-lists/sex/codes/1",
-              "id":"1"
-            }
-          ]
+            "dimension_name": "sex",
+            "options": [
+                {
+                    "href": "http://localhost:22400/code-lists/sex/codes/0",
+                    "id": "0"
+                },
+                {
+                    "href": "http://localhost:22400/code-lists/sex/codes/1",
+                    "id": "1"
+                }
+            ]
         },
         {
-          "dimension_name":"siblings_3",
-          "options":[
-            {
-              "href":"http://hostname/code-lists/siblings_3/codes/0",
-              "id":"0"
-            },
-            {
-              "href":"http://hostname/code-lists/siblings_3/codes/1-2",
-              "id":"1-2"
-            },
-            {
-              "href":"http://hostname/code-lists/siblings_3/codes/3+",
-              "id":"3+"
-            }
-          ]
+            "dimension_name": "siblings_3",
+            "options": [
+                {
+                    "href": "http://localhost:22400/code-lists/siblings_3/codes/0",
+                    "id": "0"
+                },
+                {
+                    "href": "http://localhost:22400/code-lists/siblings_3/codes/1-2",
+                    "id": "1-2"
+                },
+                {
+                    "href": "http://localhost:22400/code-lists/siblings_3/codes/3+",
+                    "id": "3+"
+                }
+            ]
         }
-      ],
-      "links":{
+    ],
+    "links": {
         "dataset_metadata": {
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": ""
         },
-        "self":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
-          "id":"cantabular-flexible-table-component-test"
+        "self": {
+            "href": "http://dp-dataset-api:22000/datasets/Cantabular-Test",
+            "id": "Cantabular-Test"
         },
-        "version":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
-          "id":"1"
+        "version": {
+            "href": "http://localhost:22000/datasets/Cantabular-Test/editions/2021/versions/1"
         }
-      },
-      "observations":[0, 0, 0, 0, 0, 2],
-      "total_observations":6
+    },
+    "observations": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        2
+    ],
+    "total_observations": 12
     }
     """

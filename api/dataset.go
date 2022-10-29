@@ -78,17 +78,23 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	if r.URL.Query().Get("geography") != "" {
 		geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
-		success, err := api.validateGeography(r, params)
-		if err == nil && success {
-			params.sortedDimensions[0] = geographyQuery[0]
+		success, err := api.validateGeography(ctx, r, params)
+		if err != nil {
+			return nil, errors.Wrap(err, "getGeographyFilters failed")
 		}
-		// filters, err := api.getGeographyFilters(r, params)
-		// if err != nil {
-		// 	return nil, errors.Wrap(err, "getGeographyFilters failed")
-		// }
-		datasetRequest.Variables = params.sortedDimensions
-		//datasetRequest.Filters = filters
+
+		if success {
+			params.sortedDimensions[0] = geographyQuery[0]
+			geographyOptions := geographyQuery[1:]
+
+			datasetRequest.Variables = params.sortedDimensions
+			if len(geographyOptions) > 0 {
+				datasetRequest.Filters = []cantabular.Filter{{Variable: params.sortedDimensions[0], Codes: geographyOptions}}
+			}
+		}
 	}
+
+	fmt.Println(datasetRequest.Variables)
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
 	if err != nil {
@@ -103,7 +109,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
-func (api *API) validateGeography(r *http.Request, params *datasetParams) (bool, error) {
+func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams) (bool, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
 	fmt.Println(geographyQuery)
@@ -112,14 +118,47 @@ func (api *API) validateGeography(r *http.Request, params *datasetParams) (bool,
 	}
 
 	geography := geographyQuery[0]
-	//geographyOptions := geographyQuery[1:]
+	geographyOptions := geographyQuery[1:]
+
+	fmt.Println(geographyOptions)
 
 	foundGeography := false
 	for _, d := range params.geoDimensions {
 		if strings.EqualFold(d, geography) {
+			fmt.Println("THE STRINGS MATCH")
+			fmt.Println("LOCATED GEOGRAPHY")
+			fmt.Println(d + " " + geography)
 			foundGeography = true
 			break
 		}
+	}
+
+	if len(geographyOptions) > 0 {
+		fmt.Println("I AM NOT NULL")
+		// Check the area code is in the area type
+		for _, a := range geographyOptions {
+			fmt.Println(a)
+			cReq := cantabular.GetAreaRequest{
+				Dataset:  params.basedOn,
+				Variable: geography,
+				Category: a,
+			}
+
+			fmt.Println(cReq)
+
+			res, err := api.ctblr.GetArea(ctx, cReq)
+
+			if err != nil {
+				fmt.Println(err)
+				return false, errors.New("unable to locate area")
+			}
+
+			if res != nil {
+				fmt.Println(res.Dataset)
+			}
+
+		}
+
 	}
 
 	if !foundGeography {
@@ -127,19 +166,26 @@ func (api *API) validateGeography(r *http.Request, params *datasetParams) (bool,
 	}
 
 	fmt.Println(foundGeography)
+
+	// dataset := cantabular.StaticDatasetQueryRequest{
+	// 	Dataset:  params.basedOn,
+	// 	Variables: [geography, paraparams.sortedDimensions[1]],
+	// 	Category: a,
+	// }
+
 	return foundGeography, nil
+	//return cantabular.StaticDatasetQueryRequest{{Dataset: params.basedOn, Variables: geography, Filters: geographyCodes}}, nil
 }
 
 func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
 
-	fmt.Println(geographyQuery)
 	if len(geographyQuery) < 2 {
 		return nil, errors.New("unable to locate geography")
 	}
 
 	geography := geographyQuery[0]
-	//geographyOptions := geographyQuery[1:]
+	geographyOptions := geographyQuery[1:]
 
 	foundGeography := false
 	for _, d := range params.geoDimensions {
@@ -154,46 +200,46 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 	}
 
 	var geographyCodes []string
-	// for _, o := range geographyOptions {
-	// 	opt, ok := params.options[geography][o]
-	// 	if !ok {
-	// 		return nil, errors.Errorf("unable to validate geography option %s", o)
-	// 	}
-	// 	geographyCodes = append(geographyCodes, opt.Option)
-	// }
+	for _, o := range geographyOptions {
+		opt, ok := params.options[geography][o]
+		if !ok {
+			return nil, errors.Errorf("unable to validate geography option %s", o)
+		}
+		geographyCodes = append(geographyCodes, opt.Option)
+	}
 
-	// dimension := r.URL.Query().Get("dimension")
-	// if dimension == "" {
-	// 	return nil, errors.New("unable to locate dimension")
-	// }
+	dimension := r.URL.Query().Get("dimension")
+	if dimension == "" {
+		return nil, errors.New("unable to locate dimension")
+	}
 
-	// foundDimension := false
-	// for _, d := range params.datasetDimensions {
-	// 	if d == dimension {
-	// 		foundDimension = true
-	// 		break
-	// 	}
-	// }
-	// if !foundDimension {
-	// 	return nil, errors.Errorf("unable to validate dimension %s", dimension)
-	// }
+	foundDimension := false
+	for _, d := range params.datasetDimensions {
+		if d == dimension {
+			foundDimension = true
+			break
+		}
+	}
+	if !foundDimension {
+		return nil, errors.Errorf("unable to validate dimension %s", dimension)
+	}
 
-	// options := strings.Split(r.URL.Query().Get("options"), ",")
-	// if len(options) < 1 || options[0] == "" {
-	// 	return nil, errors.Errorf("invalid options length or options is empty")
-	// }
+	options := strings.Split(r.URL.Query().Get("options"), ",")
+	if len(options) < 1 || options[0] == "" {
+		return nil, errors.Errorf("invalid options length or options is empty")
+	}
 
-	// var dimensionCodes []string
-	// for _, o := range options {
-	// 	opt, ok := params.options[dimension][o]
-	// 	if !ok {
-	// 		return nil, errors.Errorf("unable to locate dimension option %s", o)
-	// 	}
-	// 	dimensionCodes = append(dimensionCodes, opt.Option)
-	// }
+	var dimensionCodes []string
+	for _, o := range options {
+		opt, ok := params.options[dimension][o]
+		if !ok {
+			return nil, errors.Errorf("unable to locate dimension option %s", o)
+		}
+		dimensionCodes = append(dimensionCodes, opt.Option)
+	}
 
-	//return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
-	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}}, nil
+	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
+
 }
 
 func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
@@ -249,6 +295,7 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 }
 
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
+	fmt.Println("IN GET DATASET PARAMS")
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
 		edition: chi.URLParam(r, "edition"),

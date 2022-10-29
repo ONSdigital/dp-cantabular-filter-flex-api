@@ -53,6 +53,10 @@ func (c *CantabularClient) GetDimensionsByName(_ context.Context, _ cantabular.G
 	return nil, nil
 }
 
+func (c *CantabularClient) GetArea(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
+	return nil, errors.New("invalid area query")
+}
+
 func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
 }
