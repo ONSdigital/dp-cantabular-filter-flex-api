@@ -308,7 +308,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 	})
 
 	Convey("WHEN getGeographyFilters is called with an invalid geo query string THEN an error is returned", t, func() {
-		request := httptest.NewRequest("GET", "/dataset?geography=ABC", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC", nil)
 		result, err := api.getGeographyFilters(request, nil)
 
 		So(result, ShouldBeNil)
@@ -320,7 +320,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 		params := &datasetParams{
 			geoDimensions: []string{},
 		}
-		request := httptest.NewRequest("GET", "/dataset?geography=ABC,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC,DEF", nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -334,7 +334,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: nil},
 		}
-		request := httptest.NewRequest("GET", "/dataset?geography=REGION,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=REGION,DEF", nil)
 
 		result, err := api.getGeographyFilters(request, params)
 
@@ -356,7 +356,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s", region, area), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s", region, area), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -373,7 +373,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -395,7 +395,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           optionsMap{region: map[string]dataset.Option{area: {}}},
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -419,7 +419,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           optionsMap,
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -456,7 +456,7 @@ func TestHandlerErrors(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		request := httptest.NewRequest("GET", "/dataset?geography=test", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=test", nil)
 		request = request.WithContext(p.request.Context())
 
 		api.getDatasetJSONHandler(p.response, request)

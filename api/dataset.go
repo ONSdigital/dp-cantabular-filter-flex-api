@@ -75,8 +75,8 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 
 	fmt.Println(params.sortedDimensions)
 
-	if r.URL.Query().Get("geography") != "" {
-		geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+	if r.URL.Query().Get("area-type") != "" {
+		geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
 		success, err := api.validateGeography(ctx, r, params)
 		if err != nil {
@@ -110,7 +110,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 }
 
 func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams) (bool, error) {
-	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+	geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
 	fmt.Println(geographyQuery)
 	if len(geographyQuery) < 1 {
@@ -178,7 +178,7 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 }
 
 func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
-	geographyQuery := strings.Split(r.URL.Query().Get("geography"), ",")
+	geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
 	if len(geographyQuery) < 2 {
 		return nil, errors.New("unable to locate geography")

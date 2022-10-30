@@ -554,7 +554,7 @@ Feature: Get Dataset JSON
     """
     request:
     {
-      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]!) {
+      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
             dimensions {
@@ -567,15 +567,15 @@ Feature: Get Dataset JSON
           }
         }
       }",
-      "variables": {"base":false,"category":"","dataset":"Example","limit":20,"offset":0,"rule":false,"text":"","variables":["country", "sex", "siblings_3"], "filters":null}
+      "variables": {"base":false,"category":"","dataset":"Example","filters":null,"limit":20,"offset":0,"rule":false,"text":"","variables":["country", "sex", "siblings_3"]}
     }
     response:
-   {
-  "data": {
-    "dataset": {
-      "table": {
-        "dimensions": [
-          {
+    {
+      "data": {
+        "dataset": {
+          "table": {
+            "dimensions": [
+             {
             "categories": [
               {
                 "code": "E",
@@ -592,47 +592,27 @@ Feature: Get Dataset JSON
               "name": "country"
             }
           },
-          {
-            "categories": [
               {
-                "code": "0",
-                "label": "Male"
+                "categories": [
+                  {"code": "0","label": "Male"},
+                  {"code": "1","label": "Female"}
+                ],
+                "count": 2,
+                "variable": {"label": "Sex","name": "sex"}
               },
               {
-                "code": "1",
-                "label": "Female"
+                "categories": [
+                  {"code": "0","label": "No siblings"},
+                  {"code": "1-2","label": "1 or 2 siblings"},
+                  {"code": "3+","label": "3 or more siblings"
+                  }
+                ],
+                "count": 3,
+                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
               }
             ],
-            "count": 2,
-            "variable": {
-              "label": "Sex",
-              "name": "sex"
-            }
-          },
-          {
-            "categories": [
-              {
-                "code": "0",
-                "label": "No siblings"
-              },
-              {
-                "code": "1-2",
-                "label": "1 or 2 siblings"
-              },
-              {
-                "code": "3+",
-                "label": "3 or more siblings"
-              }
-            ],
-            "count": 3,
-            "variable": {
-              "label": "Number of siblings (3 mappings)",
-              "name": "siblings_3"
-            }
-          }
-        ],
-        "error": null,
-        "values": [
+            "error": null,
+             "values": [
           1,
           0,
           1,
@@ -646,14 +626,14 @@ Feature: Get Dataset JSON
           0,
           2
         ]
+          }
+        }
       }
     }
-  }
-}
     """
 
  
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?geography=country"
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country"
 
     Then the HTTP status code should be "200"
 
@@ -678,11 +658,11 @@ Feature: Get Dataset JSON
             "dimension_name": "sex",
             "options": [
                 {
-                    "href": "http://localhost:22400/code-lists/sex/codes/0",
+                    "href": "http://hostname/code-lists/sex/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://localhost:22400/code-lists/sex/codes/1",
+                    "href": "http://hostname/code-lists/sex/codes/1",
                     "id": "1"
                 }
             ]
@@ -691,15 +671,15 @@ Feature: Get Dataset JSON
             "dimension_name": "siblings_3",
             "options": [
                 {
-                    "href": "http://localhost:22400/code-lists/siblings_3/codes/0",
+                    "href": "http://hostname/code-lists/siblings_3/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://localhost:22400/code-lists/siblings_3/codes/1-2",
+                    "href": "http://hostname/code-lists/siblings_3/codes/1-2",
                     "id": "1-2"
                 },
                 {
-                    "href": "http://localhost:22400/code-lists/siblings_3/codes/3+",
+                    "href": "http://hostname/code-lists/siblings_3/codes/3+",
                     "id": "3+"
                 }
             ]
@@ -707,14 +687,15 @@ Feature: Get Dataset JSON
     ],
     "links": {
         "dataset_metadata": {
-            "href": ""
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
-            "href": "http://dp-dataset-api:22000/datasets/Cantabular-Test",
-            "id": "Cantabular-Test"
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
+            "id": "cantabular-flexible-table-component-test"
         },
         "version": {
-            "href": "http://localhost:22000/datasets/Cantabular-Test/editions/2021/versions/1"
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+            "id": "1"
         }
     },
     "observations": [
