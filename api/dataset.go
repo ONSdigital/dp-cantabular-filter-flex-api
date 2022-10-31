@@ -154,7 +154,11 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 			}
 
 			if res != nil {
-				fmt.Println(res.Dataset)
+				fmt.Println("printing out some stuff")
+				fmt.Println(res.Dataset.Variables.Edges[0].Node.Categories.Edges[0].Node.Code)
+				fmt.Println(res.Dataset.Variables.Edges[0].Node.Categories.Edges[0].Node.Label)
+				fmt.Println(res.Dataset.Variables.Edges[0].Node.Label)
+				fmt.Println(res.Dataset.Variables.Edges[0].Node.Name)
 			}
 
 		}

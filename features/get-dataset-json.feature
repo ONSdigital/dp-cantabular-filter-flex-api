@@ -549,7 +549,7 @@ Feature: Get Dataset JSON
     }
     """
 
-  Scenario: Get the dataset as JSON asking for specific geography and non-geography dimensions
+  Scenario: Get the dataset as JSON asking for specific area-type
     Given Cantabular returns this static dataset for the given request:
     """
     request:
@@ -713,5 +713,214 @@ Feature: Get Dataset JSON
         2
     ],
     "total_observations": 12
+    }
+    """
+
+    Scenario: Get the dataset as JSON asking for specific area-type and area
+    Given Cantabular returns this static dataset for the given request:
+    """
+    request:
+    {
+      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
+        dataset(name: $dataset) {
+          table(variables: $variables, filters: $filters) {
+            dimensions {
+              count
+              variable { name label }
+              categories { code label }
+            }
+            values
+            error
+          }
+        }
+      }",
+      "variables": {"base":false,"category":"","dataset":"Example","filters":[{"codes": ["E"], "variable": "country"}],"limit":20,"offset":0,"rule":false,"text":"","variables":["country", "sex", "siblings_3"]}
+    }
+    response:
+    {
+      "data": {
+        "dataset": {
+          "table": {
+            "dimensions": [
+             {
+            "categories": [
+              {
+                "code": "E",
+                "label": "England"
+              }
+            ],
+            "count": 2,
+            "variable": {
+              "label": "Country",
+              "name": "country"
+            }
+          },
+              {
+                "categories": [
+                  {"code": "0","label": "Male"},
+                  {"code": "1","label": "Female"}
+                ],
+                "count": 2,
+                "variable": {"label": "Sex","name": "sex"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "No siblings"},
+                  {"code": "1-2","label": "1 or 2 siblings"},
+                  {"code": "3+","label": "3 or more siblings"
+                  }
+                ],
+                "count": 3,
+                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
+              }
+            ],
+            "error": null,
+              "values": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1
+        ]
+          }
+        }
+      }
+    }
+    """
+    
+     And Cantabular returns this area for the given request:
+    """
+   request:
+    {
+      "query":"query ($dataset: String!, $text: String!, $category: String!) 
+        {    
+          dataset(name: $dataset)
+          {      
+              variables(rule: true, names: [ $text ])
+              {        
+                edges
+                {    
+                  node
+                  {      
+                    name     
+                    label     
+                    categories(codes: [ $category ]) 
+                    {        
+                      edges 
+                      {          
+                        node 
+                        {     
+                          code      
+                          label          
+                        }        
+                      }     
+                    }    
+                  }       
+                 }      
+              }   
+             }  
+             
+            }",
+    "variables": {"category":"E","dataset":"Example","text":"country"}
+    }
+    response:{
+  "data": {
+    "dataset": {
+      "variables": {
+        "edges": [
+          {
+            "node": {
+              "categories": {
+                "edges": [
+                  {
+                    "node": {
+                      "code": "E",
+                      "label": "England"
+                    }
+                  }
+                ]
+              },
+              "label": "Country",
+              "name": "country"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+    """
+ 
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country,E"
+
+    Then the HTTP status code should be "200"
+
+    And I should receive the following JSON response:
+    """
+    {
+       "dimensions": [
+        {
+            "dimension_name": "country",
+            "options": [
+                {
+                    "href": "",
+                    "id": "E"
+                }
+            ]
+        },
+        {
+            "dimension_name": "sex",
+            "options": [
+                {
+                    "href": "http://hostname/code-lists/sex/codes/0",
+                    "id": "0"
+                },
+                {
+                    "href": "http://hostname/code-lists/sex/codes/1",
+                    "id": "1"
+                }
+            ]
+        },
+        {
+            "dimension_name": "siblings_3",
+            "options": [
+                {
+                    "href": "http://hostname/code-lists/siblings_3/codes/0",
+                    "id": "0"
+                },
+                {
+                    "href": "http://hostname/code-lists/siblings_3/codes/1-2",
+                    "id": "1-2"
+                },
+                {
+                    "href": "http://hostname/code-lists/siblings_3/codes/3+",
+                    "id": "3+"
+                }
+            ]
+        }
+    ],
+    "links": {
+        "dataset_metadata": {
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+        },
+        "self": {
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
+            "id": "cantabular-flexible-table-component-test"
+        },
+        "version": {
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+            "id": "1"
+        }
+    },
+    "observations": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+    ],
+    "total_observations": 6
     }
     """
