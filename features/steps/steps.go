@@ -64,7 +64,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.theFollowingExportStartEventsAreProduced,
 	)
 	ctx.Step(`^the getGeographyDatasetJSON result should be:$`,
-		c.theGeographyDatsetJSONResult,
+		c.theGeographyDatasetJSONResult,
 	)
 }
 
@@ -226,15 +226,18 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 	return nil
 }
 
-func (c *Component) theGeographyDatsetJSONResult(expected *godog.DocString) error {
+func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) error {
 	var got, expt api.GetDatasetJSONResponse
 
-	b, _ := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
-	if err := json.Unmarshal(b, &got); err != nil {
-		return err
+	b, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	if err != nil {
+		return fmt.Errorf("Component::theGeographyDatasetJSONResult: error reading APIfeature response body: %w", err)
 	}
-	if err := json.Unmarshal([]byte(expected.Content), &expt); err != nil {
-		return err
+	if err = json.Unmarshal(b, &got); err != nil {
+		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling APIfeature response body: %w", err)
+	}
+	if err = json.Unmarshal([]byte(expected.Content), &expt); err != nil {
+		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling 'expected' parameter: %w", err)
 	}
 
 	urlCompare := func(s1, s2 string) bool {
