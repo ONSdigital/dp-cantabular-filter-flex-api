@@ -793,7 +793,26 @@ Feature: Get Dataset JSON
     """
    request:
     {
-        "query": "query ($dataset: String!, $text: String!, $category: String!) {  dataset(name: $dataset) {    variables(rule: true, names: [ $text ]) {      edges {node {name label categories(codes: [ $category ]) {edges {node {code label }}}}}}}}",
+        "query": "query ($dataset: String!, $text: String!, $category: String!) {
+          dataset(name: $dataset) {
+            variables(rule: true, names: [$text]) {
+              edges {
+                node {
+                  name
+                  label
+                  categories(codes: [$category]) {
+                    edges {
+                      node {
+                        code
+                        label
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }",
         "variables": {
             "base": false,
             "category": "E",
