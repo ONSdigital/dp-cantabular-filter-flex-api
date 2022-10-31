@@ -237,21 +237,15 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		return nil, errors.Wrap(err, "failed to get version")
 	}
 
-	params.datasetLink = versionItem.Links.Dataset
-	params.basedOn = versionItem.IsBasedOn.ID
-
 	if versionItem.IsBasedOn.Type != cantabularFlexibleTable {
 		return nil, errors.New("invalid dataset type")
 	}
 
+	params.datasetLink = versionItem.Links.Dataset
 	params.versionLink = versionItem.Links.Self
+	params.basedOn = versionItem.IsBasedOn.ID
 
-	metadata, err := api.datasets.GetVersionMetadata(ctx, "", "", "", params.id, params.edition, params.version)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get metadata")
-	}
-
-	params.metadataLink = metadata.Version.Links.Self
+	params.metadataLink.URL = api.datasets.GetMetadataURL(params.id, params.edition, params.version)
 
 	if len(versionItem.Dimensions) == 0 {
 		return nil, errors.New("invalid dimensions length of zero")
@@ -282,19 +276,20 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	return params, nil
 }
 
+const (
+	batchSize     = 100
+	numberWorkers = 10
+)
+
 func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]string, error) {
 	var geoDimensions []string
 
-	request := cantabular.GetGeographyDimensionsRequest{
-		Dataset: datasetId,
-	}
-
-	res, err := api.ctblr.GetGeographyDimensions(ctx, request)
+	res, err := api.ctblr.GetGeographyDimensionsInBatches(ctx, datasetId, batchSize, numberWorkers)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
 
-	for _, d := range res.Dataset.Variables.Edges {
+	for _, d := range res.Variables.Edges {
 		geoDimensions = append(geoDimensions, d.Node.Name)
 	}
 
