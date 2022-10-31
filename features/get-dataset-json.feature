@@ -793,63 +793,46 @@ Feature: Get Dataset JSON
     """
    request:
     {
-      "query":"query ($dataset: String!, $text: String!, $category: String!) 
-        {    
-          dataset(name: $dataset)
-          {      
-              variables(rule: true, names: [ $text ])
-              {        
-                edges
-                {    
-                  node
-                  {      
-                    name     
-                    label     
-                    categories(codes: [ $category ]) 
-                    {        
-                      edges 
-                      {          
-                        node 
-                        {     
-                          code      
-                          label          
-                        }        
-                      }     
-                    }    
-                  }       
-                 }      
-              }   
-             }  
-             
-            }",
-    "variables": {"category":"E","dataset":"Example","text":"country"}
+        "query": "query ($dataset: String!, $text: String!, $category: String!) {  dataset(name: $dataset) {    variables(rule: true, names: [ $text ]) {      edges {node {name label categories(codes: [ $category ]) {edges {node {code label }}}}}}}}",
+        "variables": {
+            "base": false,
+            "category": "E",
+            "dataset": "Example",
+            "filters": null,
+            "limit": 20,
+            "offset": 0,
+            "rule": false,
+            "text": "country",
+            "variables": null
+        }
     }
-    response:{
-  "data": {
-    "dataset": {
-      "variables": {
-        "edges": [
-          {
-            "node": {
-              "categories": {
-                "edges": [
-                  {
-                    "node": {
-                      "code": "E",
-                      "label": "England"
+  response:
+    {
+    "data": {
+      "dataset": {
+        "variables": {
+          "edges": [
+            {
+              "node": {
+                "categories": {
+                  "edges": [
+                    {
+                      "node": {
+                        "code": "E",
+                        "label": "England"
+                      }
                     }
-                  }
-                ]
-              },
-              "label": "Country",
-              "name": "country"
+                  ]
+                },
+                "label": "Country",
+                "name": "country"
+              }
             }
-          }
-        ]
+          ]
+        }
       }
     }
   }
-}
     """
  
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country,E"
