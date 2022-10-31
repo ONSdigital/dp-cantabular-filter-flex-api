@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -73,28 +72,14 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 		Variables: params.sortedDimensions,
 	}
 
-	fmt.Println(params.sortedDimensions)
-
 	if r.URL.Query().Get("area-type") != "" {
-		geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
-
-		success, err := api.validateGeography(ctx, r, params)
+		variables, filters, err := api.validateGeography(ctx, r, params, datasetRequest)
 		if err != nil {
 			return nil, errors.Wrap(err, "getGeographyFilters failed")
 		}
-
-		if success {
-			params.sortedDimensions[0] = geographyQuery[0]
-			geographyOptions := geographyQuery[1:]
-
-			datasetRequest.Variables = params.sortedDimensions
-			if len(geographyOptions) > 0 {
-				datasetRequest.Filters = []cantabular.Filter{{Variable: params.sortedDimensions[0], Codes: geographyOptions}}
-			}
-		}
+		datasetRequest.Variables = variables
+		datasetRequest.Filters = *filters
 	}
-
-	fmt.Println(datasetRequest.Variables)
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
 	if err != nil {
@@ -109,76 +94,52 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
-func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams) (bool, error) {
+func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams, datasetRequest cantabular.StaticDatasetQueryRequest) ([]string, *[]cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
-	fmt.Println(geographyQuery)
 	if len(geographyQuery) < 1 {
-		return false, errors.New("unable to locate geography")
+		return nil, nil, errors.New("unable to locate geography")
 	}
 
 	geography := geographyQuery[0]
 	geographyOptions := geographyQuery[1:]
 
-	fmt.Println(geographyOptions)
-
 	foundGeography := false
 	for _, d := range params.geoDimensions {
 		if strings.EqualFold(d, geography) {
-			fmt.Println("THE STRINGS MATCH")
-			fmt.Println("LOCATED GEOGRAPHY")
-			fmt.Println(d + " " + geography)
 			foundGeography = true
+			params.sortedDimensions[0] = geographyQuery[0]
+
+			datasetRequest.Variables = params.sortedDimensions
 			break
 		}
 	}
 
 	if len(geographyOptions) > 0 {
-		fmt.Println("I AM NOT NULL")
 		// Check the area code is in the area type
 		for _, a := range geographyOptions {
-			fmt.Println(a)
 			cReq := cantabular.GetAreaRequest{
 				Dataset:  params.basedOn,
 				Variable: geography,
 				Category: a,
 			}
 
-			fmt.Println(cReq)
-
-			res, err := api.ctblr.GetArea(ctx, cReq)
+			_, err := api.ctblr.GetArea(ctx, cReq)
 
 			if err != nil {
-				fmt.Println(err)
-				return false, errors.New("unable to locate area")
-			}
-
-			if res != nil {
-				fmt.Println("printing out some stuff")
-				fmt.Println(res.Dataset.Variables.Edges[0].Node.Categories.Edges[0].Node.Code)
-				fmt.Println(res.Dataset.Variables.Edges[0].Node.Categories.Edges[0].Node.Label)
-				fmt.Println(res.Dataset.Variables.Edges[0].Node.Label)
-				fmt.Println(res.Dataset.Variables.Edges[0].Node.Name)
+				return nil, nil, errors.New("unable to locate area")
 			}
 
 		}
-
+		foundGeography = true
+		datasetRequest.Filters = []cantabular.Filter{{Variable: geography, Codes: geographyOptions}}
 	}
 
 	if !foundGeography {
-		return false, errors.New("unable to locate geography")
+		return nil, nil, errors.New("unable to locate geography")
 	}
 
-	fmt.Println(foundGeography)
-
-	// dataset := cantabular.StaticDatasetQueryRequest{
-	// 	Dataset:  params.basedOn,
-	// 	Variables: [geography, paraparams.sortedDimensions[1]],
-	// 	Category: a,
-	// }
-
-	return foundGeography, nil
-	//return cantabular.StaticDatasetQueryRequest{{Dataset: params.basedOn, Variables: geography, Filters: geographyCodes}}, nil
+	return datasetRequest.Variables, &datasetRequest.Filters, nil
 }
 
 func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
@@ -299,7 +260,6 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 }
 
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
-	fmt.Println("IN GET DATASET PARAMS")
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
 		edition: chi.URLParam(r, "edition"),

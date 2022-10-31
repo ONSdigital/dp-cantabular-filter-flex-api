@@ -160,7 +160,6 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseDimensions(datasetID, d
 }
 
 func (cf *CantabularFeature) cantabularReturnsTheseGeographyDimensionsForTheGivenRequest(docs *godog.DocString) error {
-	fmt.Println("GETTING THE GEOGRAPHY")
 	request, response, found := strings.Cut(docs.Content, "response:")
 	if !found {
 		return errors.New("CantabularFeature::cantabularReturnsTheseGeographyDimensionsForTheGivenRequest - request and response were not found")
@@ -181,9 +180,6 @@ func (cf *CantabularFeature) cantabularReturnsThisAreaForTheGivenRequest(docs *g
 
 	cf.cantabularServer.Handle([]byte(request), []byte(response))
 
-	fmt.Println("IN THE MOCK STUFF")
-	fmt.Println(request)
-	fmt.Println(response)
 	return nil
 }
 
