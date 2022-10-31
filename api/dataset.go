@@ -75,7 +75,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	if r.URL.Query().Get("area-type") != "" {
 		variables, filters, err := api.validateGeography(ctx, r, params, datasetRequest)
 		if err != nil {
-			return nil, errors.Wrap(err, "getGeographyFilters failed")
+			return nil, errors.Wrap(err, "validateGeography failed")
 		}
 		datasetRequest.Variables = variables
 		datasetRequest.Filters = *filters
@@ -98,7 +98,7 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 	geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
 	if len(geographyQuery) < 1 {
-		return nil, nil, errors.New("unable to locate geography")
+		return nil, nil, errors.New("unable to locate area-type")
 	}
 
 	geography := geographyQuery[0]
@@ -136,7 +136,7 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 	}
 
 	if !foundGeography {
-		return nil, nil, errors.New("unable to locate geography")
+		return nil, nil, errors.New("unable to locate area or area-type")
 	}
 
 	return datasetRequest.Variables, &datasetRequest.Filters, nil
@@ -211,16 +211,16 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		// if _, ok := params.options[dimension.Variable.Name]; !ok {
-		// 	return nil, errors.New("dimension mismatch")
-		// }
+		if _, ok := params.options[dimension.Variable.Name]; !ok {
+			return nil, errors.New("dimension mismatch")
+		}
 
 		var options []model.Link
 
 		for _, option := range dimension.Categories {
-			// if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
-			// 	return nil, errors.New("option mismatch")
-			// }
+			if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
+				return nil, errors.New("option mismatch")
+			}
 
 			options = append(options, model.Link{
 				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
