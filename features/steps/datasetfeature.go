@@ -35,10 +35,6 @@ func (df *DatasetFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		df.theFollowingVersionDocumentIsAvailable,
 	)
 	ctx.Step(
-		`^the following metadata document for dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
-		df.theFollowingMetadataDocumentIsAvailable,
-	)
-	ctx.Step(
 		`^the following dimensions document for dataset id "([^"]*)", edition "([^"]*)" and version "([^"]*)" is available from dp-dataset-api:$`,
 		df.theFollowingDimensionsDocumentIsAvailable,
 	)
@@ -74,19 +70,6 @@ func (df *DatasetFeature) theFollowingVersionDocumentIsAvailable(datasetID, edit
 		edition,
 		version,
 	)
-
-	df.datasetServer.NewHandler().
-		Get(url).
-		Reply(http.StatusOK).
-		BodyString(v.Content)
-
-	return nil
-}
-
-// theFollowingMetadataDocumentIsAvailable generates a mocked response for dataset API
-// GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/metadata
-func (df *DatasetFeature) theFollowingMetadataDocumentIsAvailable(datasetID, edition, version string, v *godog.DocString) error {
-	url := fmt.Sprintf("/datasets/%s/editions/%s/versions/%s/metadata", datasetID, edition, version)
 
 	df.datasetServer.NewHandler().
 		Get(url).

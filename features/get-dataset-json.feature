@@ -94,17 +94,6 @@ Feature: Get Dataset JSON
     }
     """
 
-    And the following metadata document for dataset id "cantabular-flexible-table-component-test", edition "latest" and version "1" is available from dp-dataset-api:
-    """
-    {
-      "links":{
-        "self":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
-        }
-      }
-    }
-    """
-
     And the following dimensions document for dataset id "cantabular-flexible-table-component-test", edition "latest" and version "1" is available from dp-dataset-api:
     """
     {
@@ -368,7 +357,7 @@ Feature: Get Dataset JSON
           }
         }
       }",
-      "variables": {"base":false,"category":"","dataset":"Example","filters":null,"limit":20,"offset":0,"rule":false,"text":"","variables":null}
+      "variables": {"base":false,"category":"","dataset":"Example","filters":null,"limit":100,"offset":0,"rule":false,"text":"","variables":null}
     }
     response:
     {
@@ -477,7 +466,7 @@ Feature: Get Dataset JSON
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getGeographyDatasetJSON result should be:
     """
     {
       "dimensions":[
@@ -531,7 +520,7 @@ Feature: Get Dataset JSON
       ],
       "links":{
         "dataset_metadata": {
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+          "href":"http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self":{
           "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
@@ -611,7 +600,7 @@ Feature: Get Dataset JSON
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getGeographyDatasetJSON result should be:
     """
     {
       "dimensions":[
@@ -657,7 +646,7 @@ Feature: Get Dataset JSON
       ],
       "links":{
         "dataset_metadata": {
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+          "href":"http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self":{
           "href":"http://hostname/datasets/cantabular-flexible-table-component-test",

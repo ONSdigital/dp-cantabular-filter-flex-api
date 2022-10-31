@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/url"
 	"strings"
 	"time"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/schema"
@@ -16,6 +19,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"github.com/rdumont/assistdog"
+	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -59,6 +63,9 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the following Export Start events are produced:$`,
 		c.theFollowingExportStartEventsAreProduced,
 	)
+	ctx.Step(`^the getGeographyDatasetJSON result should be:$`,
+		c.theGeographyDatsetJSONResult,
+	)
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
@@ -81,8 +88,8 @@ func (c *Component) iShouldReceiveAnErrorsArray() error {
 	return nil
 }
 
-//we are passing the string array as [xxxx,yyyy,zzz]
-//this is required to support array being used in kafka messages
+// we are passing the string array as [xxxx,yyyy,zzz]
+// this is required to support array being used in kafka messages
 func arrayParser(raw string) (interface{}, error) {
 	//remove the starting and trailing brackets
 	str := strings.Trim(raw, "[]")
@@ -217,4 +224,36 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		return fmt.Errorf("+got -expected)\n%s\n", diff)
 	}
 	return nil
+}
+
+func (c *Component) theGeographyDatsetJSONResult(expected *godog.DocString) error {
+	var got, expt api.GetDatasetJSONResponse
+
+	b, _ := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	if err := json.Unmarshal(b, &got); err != nil {
+		return err
+	}
+	if err := json.Unmarshal([]byte(expected.Content), &expt); err != nil {
+		return err
+	}
+
+	urlCompare := func(s1, s2 string) bool {
+		if !strings.Contains(s1, "localhost:9999") && !strings.Contains(s2, "localhost:9999") {
+			return s1 == s2
+		}
+		s1URL, e := url.Parse(s1)
+		if e != nil {
+			return false
+		}
+		s2URL, e := url.Parse(s2)
+		if e != nil {
+			return false
+		}
+
+		return s1URL.Path == s2URL.Path
+	}
+
+	assert.Empty(c, cmp.Diff(got, expt, cmp.Comparer(urlCompare)))
+
+	return c.StepError()
 }
