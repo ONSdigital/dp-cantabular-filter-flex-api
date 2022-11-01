@@ -211,16 +211,16 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		if _, ok := params.options[dimension.Variable.Name]; !ok {
-			return nil, errors.New("dimension mismatch")
-		}
+		// if _, ok := params.options[dimension.Variable.Name]; !ok {
+		// 	return nil, errors.New("dimension mismatch")
+		// }
 
 		var options []model.Link
 
 		for _, option := range dimension.Categories {
-			if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
-				return nil, errors.New("option mismatch")
-			}
+			// if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
+			// 	return nil, errors.New("option mismatch")
+			// }
 
 			options = append(options, model.Link{
 				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
