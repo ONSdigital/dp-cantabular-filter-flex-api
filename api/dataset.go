@@ -78,7 +78,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 			return nil, errors.Wrap(err, "validateGeography failed")
 		}
 		datasetRequest.Variables = variables
-		datasetRequest.Filters = *filters
+		datasetRequest.Filters = filters
 	}
 
 	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
@@ -94,7 +94,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	return response, nil
 }
 
-func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams, datasetRequest cantabular.StaticDatasetQueryRequest) ([]string, *[]cantabular.Filter, error) {
+func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams, datasetRequest cantabular.StaticDatasetQueryRequest) ([]string, []cantabular.Filter, error) {
 	geographyQuery := strings.Split(r.URL.Query().Get("area-type"), ",")
 
 	if len(geographyQuery) < 1 {
@@ -125,7 +125,6 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 			}
 
 			_, err := api.ctblr.GetArea(ctx, cReq)
-
 			if err != nil {
 				return nil, nil, errors.New("unable to locate area")
 			}
@@ -139,7 +138,7 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 		return nil, nil, errors.New("unable to locate area or area-type")
 	}
 
-	return datasetRequest.Variables, &datasetRequest.Filters, nil
+	return datasetRequest.Variables, datasetRequest.Filters, nil
 }
 
 func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]cantabular.Filter, error) {
@@ -211,17 +210,9 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		// if _, ok := params.options[dimension.Variable.Name]; !ok {
-		// 	return nil, errors.New("dimension mismatch")
-		// }
-
 		var options []model.Link
 
 		for _, option := range dimension.Categories {
-			// if _, ok := params.options[dimension.Variable.Name][option.Label]; !ok {
-			// 	return nil, errors.New("option mismatch")
-			// }
-
 			options = append(options, model.Link{
 				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
 				ID:   option.Code,
