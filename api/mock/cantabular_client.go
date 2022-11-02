@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
@@ -45,7 +46,7 @@ func (c *CantabularClient) StaticDatasetQuery(context.Context, cantabular.Static
 	return nil, errors.New("invalid dataset query")
 }
 
-func (c *CantabularClient) GetGeographyDimensions(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
+func (c *CantabularClient) GetGeographyDimensionsInBatches(context.Context, string, int, int) (*gql.Dataset, error) {
 	return nil, errors.New("invalid geography query")
 }
 

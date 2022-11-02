@@ -12,20 +12,20 @@ import (
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/maxcnunes/httpfake"
 )
 
 type CantabularClient struct {
-	ErrStatus                  int
-	OptionsHappy               bool
-	DimensionsHappy            bool
-	GetDimensionsByNameFunc    func(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
-	SearchDimensionsFunc       func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
-	GetGeographyDimensionsFunc func(context.Context, cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error)
-	GetAreaFunc                func(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
-	StaticDatasetQueryFunc     func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
+	ErrStatus                           int
+	OptionsHappy                        bool
+	DimensionsHappy                     bool
+	GetDimensionsByNameFunc             func(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
+	SearchDimensionsFunc                func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
+	GetGeographyDimensionsInBatchesFunc func(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
+	StaticDatasetQueryFunc              func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
 }
 
 func (c *CantabularClient) Reset() {
@@ -38,7 +38,7 @@ func (c *CantabularClient) StatusCode(_ error) int {
 	return c.ErrStatus
 }
 
-func (c *CantabularClient) GetDimensionOptions(_ context.Context, req cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
+func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
 	if c.OptionsHappy {
 		return nil, nil
 	}
@@ -53,9 +53,9 @@ func (c *CantabularClient) StaticDatasetQuery(ctx context.Context, req cantabula
 	return nil, errors.New("error while executing dataset query")
 }
 
-func (c *CantabularClient) GetGeographyDimensions(ctx context.Context, req cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
+func (c *CantabularClient) GetGeographyDimensionsInBatches(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error) {
 	if c.OptionsHappy {
-		return c.GetGeographyDimensionsFunc(ctx, req)
+		return c.GetGeographyDimensionsInBatchesFunc(ctx, datasetID, batchSize, maxWorkers)
 	}
 	return nil, errors.New("error while getting geography dimensions")
 }
