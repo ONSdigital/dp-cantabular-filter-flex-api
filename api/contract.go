@@ -36,8 +36,8 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing field: population_type")
 	}
 
-	if len(r.Dimensions) < 2 {
-		return errors.New("missing/invalid field: 'dimensions' must contain at least 2 values")
+	if len(r.Dimensions) < 1 {
+		return errors.New("missing/invalid field: 'dimensions' must contain at least 1 value")
 	}
 
 	for i, d := range r.Dimensions {

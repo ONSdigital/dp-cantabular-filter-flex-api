@@ -299,7 +299,7 @@
     """
     {
       "errors": [
-          "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
+          "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 1 value"
       ]
     }
     """

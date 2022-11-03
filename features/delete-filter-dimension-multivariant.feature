@@ -120,9 +120,9 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
   Scenario: Delete area_type filter dimensions error
     When I DELETE "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
     Then the HTTP status code should be "409"
-  
-  Scenario: Delete filter dimensions with only 2 dimensions in filter error
+
+  Scenario: Delete filter dimensions with only 2 dimensions in filter happy
     When I DELETE "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/accommodation_type"
     Then the HTTP status code should be "204"
     When I DELETE "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings"
-    Then the HTTP status code should be "409"
+    Then the HTTP status code should be "204"
