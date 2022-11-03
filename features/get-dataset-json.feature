@@ -676,7 +676,7 @@ Feature: Get Dataset JSON
     ],
     "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
@@ -893,7 +893,7 @@ Feature: Get Dataset JSON
     ],
     "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
