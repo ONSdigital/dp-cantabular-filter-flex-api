@@ -12,7 +12,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         "dataset": {
           "edition":"2021",
           "id":"cantabular-flexible-example",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
         },
         "dimensions": [
           {
@@ -161,7 +162,8 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
           "id": "cantabular-flexible-example",
           "version": {
             "$numberInt": "1"
-          }
+          },
+          "lowest_geography": "lowest-geography"
         },
         "dimensions": [
           {

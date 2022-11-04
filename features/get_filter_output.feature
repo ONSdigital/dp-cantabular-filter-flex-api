@@ -112,7 +112,8 @@ Feature: Get Filter Private Endpoints Not Enabled
           "dataset": {
                   "id": "",
                   "edition": "",
-                  "version": 0
+                  "version": 0,
+                  "lowest_geography": ""
           },
           "population_type": "",
           "downloads": {

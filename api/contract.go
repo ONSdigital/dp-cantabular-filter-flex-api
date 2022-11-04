@@ -28,8 +28,8 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing field: dataset")
 	}
 
-	if r.Dataset.ID == "" || r.Dataset.Edition == "" || r.Dataset.Version == 0 {
-		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version]")
+	if r.Dataset.ID == "" || r.Dataset.Edition == "" || r.Dataset.Version == 0 || r.Dataset.LowestGeography == "" {
+		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version | dataset.lowest_geography]")
 	}
 
 	if r.PopulationType == "" {

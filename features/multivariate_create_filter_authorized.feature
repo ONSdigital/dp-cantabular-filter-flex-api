@@ -154,7 +154,8 @@
       "dataset":{
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
       "dimensions": [
@@ -197,7 +198,8 @@
       "dataset": {
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
       "published":       true,
@@ -224,7 +226,7 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "7c25d373250a8f6c75b3980656f4bbf4a82fefb4",
+      "etag": "4db09dbf5dc40e8b064fdafa8672536195224c20",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -254,7 +256,8 @@
         "edition": "2021",
         "version": {
           "$numberInt": "1"
-        }
+        },
+        "lowest_geography": "lowest-geography"
       },
       "published": true,
       "population_type": "dummy_data_households",
@@ -283,7 +286,8 @@
       "dataset":{
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
       "dimensions": []
@@ -310,7 +314,8 @@
       "dataset":{
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
       "dimensions": [

@@ -43,7 +43,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
         "dataset": {
           "id": "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
         },
         "published": true,
         "population_type": "Example",
@@ -113,7 +114,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
       "dataset":{
         "id":"cantabular-example-1",
         "edition":"2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "links": {
         "version": {
@@ -141,7 +143,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "links": {
         "version": {

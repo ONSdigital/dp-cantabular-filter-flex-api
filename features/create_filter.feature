@@ -233,7 +233,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -278,7 +279,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "published": true,
@@ -294,7 +296,9 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
+
       },
       "population_type": "Example",
       "dimensions": [
@@ -337,7 +341,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "published": true,
@@ -364,14 +369,15 @@ Feature: Filters Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "783f4b1acb67e778117c4a3354e4993b08bc9d58",
+      "etag": "ad4b7f2152afa437f54a861831a297d0a59bdfee",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
         "edition": "2021",
         "version": {
           "$numberInt":"1"
-        }
+        },
+        "lowest_geography": "lowest-geography"
       },
       "dimensions": [
         {
@@ -420,7 +426,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular-example-unpublished",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -481,7 +488,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -521,7 +529,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -597,7 +606,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -636,7 +646,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
        },
       "population_type": "Example",
       "dimensions": [
@@ -672,7 +683,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
        },
       "population_type": "Example",
       "dimensions": [
@@ -716,7 +728,8 @@ Feature: Filters Private Endpoints Not Enabled
       "dataset":{
           "id":      "cantabular_table_example",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
