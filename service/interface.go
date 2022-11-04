@@ -81,6 +81,7 @@ type CantabularClient interface {
 	StaticDatasetQuery(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
 	GetGeographyDimensionsInBatches(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
 	GetDimensionsByName(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
+	GetArea(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StatusCode(error) int
 	Checker(context.Context, *healthcheck.CheckState) error
 	CheckerAPIExt(context.Context, *healthcheck.CheckState) error

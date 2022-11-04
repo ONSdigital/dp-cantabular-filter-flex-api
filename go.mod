@@ -5,11 +5,12 @@ go 1.19
 // The following replacement is for module versions that have known vulnerabilities (from nancy sleuth)
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
+
 // to avoid 'sonatype-2021-4899' non-CVE Vulnerability
 exclude github.com/gorilla/sessions v1.2.1
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.186.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.193.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.8.0
 	github.com/ONSdigital/dp-healthcheck v1.3.0

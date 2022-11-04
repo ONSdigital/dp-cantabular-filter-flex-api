@@ -108,5 +108,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Put("/filter-outputs/{id}", api.putFilterOutput)
 	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
+	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
+
 	api.Router.Mount("/", r)
 }

@@ -78,10 +78,13 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		cf.cantabularReturnsTheseGeographyDimensionsForTheGivenRequest,
 	)
 	ctx.Step(
+		`^Cantabular returns this area for the given request:$`,
+		cf.cantabularReturnsThisAreaForTheGivenRequest,
+	)
+	ctx.Step(
 		`^Cantabular returns this static dataset for the given request:$`,
 		cf.cantabularReturnsThisStaticDatasetForTheGivenRequest,
 	)
-
 	ctx.Step(
 		`^Cantabular responds with an error$`,
 		cf.cantabularRespondsWithAnError,
@@ -160,6 +163,18 @@ func (cf *CantabularFeature) cantabularReturnsTheseGeographyDimensionsForTheGive
 	request, response, found := strings.Cut(docs.Content, "response:")
 	if !found {
 		return errors.New("CantabularFeature::cantabularReturnsTheseGeographyDimensionsForTheGivenRequest - request and response were not found")
+	}
+	request = strings.TrimPrefix(request, "request:")
+
+	cf.cantabularServer.Handle([]byte(request), []byte(response))
+
+	return nil
+}
+
+func (cf *CantabularFeature) cantabularReturnsThisAreaForTheGivenRequest(docs *godog.DocString) error {
+	request, response, found := strings.Cut(docs.Content, "response:")
+	if !found {
+		return errors.New("CantabularFeature::cantabularReturnsThisAreaForTheGivenRequest - request and response were not found")
 	}
 	request = strings.TrimPrefix(request, "request:")
 

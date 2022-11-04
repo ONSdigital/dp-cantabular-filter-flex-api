@@ -25,6 +25,7 @@ type CantabularClient struct {
 	GetDimensionsByNameFunc             func(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
 	SearchDimensionsFunc                func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	GetGeographyDimensionsInBatchesFunc func(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
+	GetAreaFunc                         func(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StaticDatasetQueryFunc              func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
 }
 
@@ -58,6 +59,13 @@ func (c *CantabularClient) GetGeographyDimensionsInBatches(ctx context.Context, 
 		return c.GetGeographyDimensionsInBatchesFunc(ctx, datasetID, batchSize, maxWorkers)
 	}
 	return nil, errors.New("error while getting geography dimensions")
+}
+
+func (c *CantabularClient) GetArea(ctx context.Context, req cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
+	if c.OptionsHappy {
+		return c.GetAreaFunc(ctx, req)
+	}
+	return nil, errors.New("error while getting area dimensions")
 }
 
 func (c *CantabularClient) GetDimensionsByName(ctx context.Context, req cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error) {
