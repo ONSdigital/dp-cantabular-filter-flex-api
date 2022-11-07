@@ -69,15 +69,6 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			})
 		})
 
-		Convey("Given lowest_geography is missing", func() {
-			r := req
-			r.Dataset.LowestGeography = ""
-			Convey("When Valid() is called", func() {
-				err := r.Valid()
-				So(err, ShouldNotBeNil)
-			})
-		})
-
 		Convey("If there are less than 2 dimensions", func() {
 			r := req
 			r.Dimensions = r.Dimensions[:1]
