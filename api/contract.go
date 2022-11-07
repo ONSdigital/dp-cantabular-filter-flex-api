@@ -29,7 +29,7 @@ func (r *createFilterRequest) Valid() error {
 	}
 
 	if r.Dataset.ID == "" || r.Dataset.Edition == "" || r.Dataset.Version == 0 {
-		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version")
+		return errors.New("missing field: [dataset.id | dataset.edition | dataset.version]")
 	}
 
 	if r.PopulationType == "" {
