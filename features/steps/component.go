@@ -93,10 +93,6 @@ func (c *Component) setInitialiserMock(g service.Generator) {
 	c.DatasetFeature.setInitialiserMock()
 	c.MongoFeature.setInitialiserMock()
 
-	service.GetDatasetAPIClient = func(cfg *config.Config) service.DatasetAPIClient {
-		return mock.NewMockDatasetAPIClient()
-	}
-
 	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
 		return &http.Server{Addr: bindAddr, Handler: router}
 	}

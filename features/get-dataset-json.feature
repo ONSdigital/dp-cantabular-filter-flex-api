@@ -847,7 +847,7 @@ Feature: Get Dataset JSON
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getGeographyDatasetJSON result should be:
     """
     {
        "dimensions": [
