@@ -162,7 +162,6 @@ Feature: Filters Private Endpoints Not Enabled
         "version": 1
       }
       """
-
     And Cantabular returns dimensions for the dataset "dummy_data_households" for the following search terms:
       """
       {
@@ -480,7 +479,7 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-  Scenario: Creating a new filter (invalid request, passing id)
+  Scenario: Creating a new single dimension filter
 
     When I POST "/filters"
     """
@@ -502,16 +501,6 @@ Feature: Filters Private Endpoints Not Enabled
             "7+"
           ],
           "is_area_type": false
-        },{
-          "id": "city",
-          "label": "City",
-          "name": "city",
-          "options": [
-            "Cardiff",
-            "London",
-            "Swansea"
-          ],
-          "is_area_type": true
         }
       ]
     }
@@ -596,7 +585,7 @@ Feature: Filters Private Endpoints Not Enabled
 #    """
 #    {"errors":["missing field: ['is_area_type']"]}
 #    """
-#    
+#
 #    And the HTTP status code should be "404"
 
   Scenario: Creating a new filter but multiple geography dimensions selected
@@ -635,42 +624,6 @@ Feature: Filters Private Endpoints Not Enabled
     Then I should receive the following JSON response:
     """
     {"errors":["failed to validate dimensions: multiple geography dimensions not permitted"]}
-    """
-    
-    And the HTTP status code should be "400"
-
-  Scenario: Creating a new invalid request
-    When I POST "/filters"
-    """
-    {
-      "dataset":{
-          "id":      "c7b634c9-b4e9-4e7a-a0b8-d255d38db200",
-          "edition": "2021",
-          "version": 1,
-          "lowest_geography": "lowest-geography"
-       },
-      "population_type": "Example",
-      "dimensions": [
-        {
-          "name": "siblings_3",
-          "options": [
-            "0-3",
-            "4-7",
-            "7+"
-          ],
-          "is_area_type": false
-        }
-      ]
-    }
-    """
-
-    Then I should receive the following JSON response:
-    """
-    {
-      "errors": [
-        "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 2 values"
-      ]
-    }
     """
 
     And the HTTP status code should be "400"

@@ -69,15 +69,6 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 			})
 		})
 
-		Convey("If there are less than 2 dimensions", func() {
-			r := req
-			r.Dimensions = r.Dimensions[:1]
-			Convey("When Valid() is called", func() {
-				err := r.Valid()
-				So(err, ShouldNotBeNil)
-			})
-		})
-
 		Convey("Given a dimension is invalid", func() {
 			r := req
 			r.Dimensions[0] = model.Dimension{}

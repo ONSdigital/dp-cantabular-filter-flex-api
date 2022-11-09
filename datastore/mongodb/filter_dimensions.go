@@ -340,9 +340,7 @@ func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionN
 		}
 	}
 
-	// check the available filter dimensions.
-	// 1. A filter should always have a minimum of 2 dimensions
-	if len(filter.Dimensions) < 3 {
+	if len(filter.Dimensions) < 2 {
 		return "", &er{
 			err:      errors.New("can't delete dimension as minimum required condition didn't match"),
 			conflict: true,
