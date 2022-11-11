@@ -65,9 +65,10 @@ type Dimension struct {
 }
 
 type Dataset struct {
-	ID      string `bson:"id"      json:"id"`
-	Edition string `bson:"edition" json:"edition"`
-	Version int    `bson:"version" json:"version"`
+	ID              string `bson:"id"      json:"id"`
+	Edition         string `bson:"edition" json:"edition"`
+	Version         int    `bson:"version" json:"version"`
+	LowestGeography string `bson:"lowest_geography" json:"lowest_geography"`
 }
 
 type DisclosureControl struct {

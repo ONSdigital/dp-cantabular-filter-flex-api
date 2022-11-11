@@ -45,7 +45,8 @@ Feature: Get Filter Private Endpoints Not Enabled
         "dataset": {
           "id": "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
         },
         "published": true,
         "population_type": "Example",
@@ -146,7 +147,7 @@ Feature: Get Filter Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "b58214ab82b0149c76b4e0992540de41a5b17737",
+      "etag":        "98fdb3ef39d1a53d812662ecde8bc696c9acfa85",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -175,7 +176,8 @@ Feature: Get Filter Private Endpoints Not Enabled
         "edition": "2021",
         "version": {
           "$numberInt":"1"
-        }
+        },
+        "lowest_geography": "lowest-geography"
       },
       "published":       true,
       "type":            "flexible",

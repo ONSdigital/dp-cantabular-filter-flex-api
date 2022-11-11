@@ -5,11 +5,12 @@ go 1.19
 // The following replacement is for module versions that have known vulnerabilities (from nancy sleuth)
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
+
 // to avoid 'sonatype-2021-4899' non-CVE Vulnerability
 exclude github.com/gorilla/sessions v1.2.1
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.186.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.193.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.8.0
 	github.com/ONSdigital/dp-healthcheck v1.3.0
@@ -28,6 +29,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rdumont/assistdog v0.0.0-20201106100018-168b06230d14
 	github.com/smartystreets/goconvey v1.7.2
+	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.10.3
 )
 
@@ -87,7 +89,6 @@ require (
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect

@@ -102,7 +102,8 @@ Feature: Filters Private Endpoints Enabled
       "dataset":{
           "id":      "cantabular-example-1",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "dimensions": [
@@ -148,7 +149,8 @@ Feature: Filters Private Endpoints Enabled
       "dataset": {
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "Example",
       "published":       true,
@@ -175,7 +177,7 @@ Feature: Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "c3fc6ebe1dca53481a615d58aec488a2c39ccd3c",
+      "etag":        "0108cdf2059ce01ffa98a956e907a9e7b5a19241",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -207,7 +209,8 @@ Feature: Filters Private Endpoints Enabled
         "edition": "2021",
         "version": {
           "$numberInt":"1"
-        }
+        },
+        "lowest_geography": "lowest-geography"
       },
       "published":       true,
       "type":            "flexible",

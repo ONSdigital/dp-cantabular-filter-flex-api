@@ -6,11 +6,13 @@ package mock
 
 import (
 	context "context"
+	"fmt"
 	http "net/http"
 	reflect "reflect"
 	time "time"
 
 	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	gql "github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	model "github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	gomock "github.com/golang/mock/gomock"
@@ -479,19 +481,36 @@ func (mr *MockcantabularClientMockRecorder) GetDimensionsByName(arg0, arg1 inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDimensionsByName", reflect.TypeOf((*MockcantabularClient)(nil).GetDimensionsByName), arg0, arg1)
 }
 
-// GetGeographyDimensions mocks base method.
-func (m *MockcantabularClient) GetGeographyDimensions(arg0 context.Context, arg1 cantabular.GetGeographyDimensionsRequest) (*cantabular.GetGeographyDimensionsResponse, error) {
+// GetGeographyDimensionsInBatches mocks base method.
+func (m *MockcantabularClient) GetGeographyDimensionsInBatches(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGeographyDimensions", arg0, arg1)
-	ret0, _ := ret[0].(*cantabular.GetGeographyDimensionsResponse)
+	ret := m.ctrl.Call(m, "GetGeographyDimensionsInBatches", ctx, datasetID, batchSize, maxWorkers)
+	ret0, _ := ret[0].(*gql.Dataset)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetGeographyDimensions indicates an expected call of GetGeographyDimensions.
-func (mr *MockcantabularClientMockRecorder) GetGeographyDimensions(arg0, arg1 interface{}) *gomock.Call {
+// GetGeographyDimensionsInBatches indicates an expected call of GetGeographyDimensionsInBatches.
+func (mr *MockcantabularClientMockRecorder) GetGeographyDimensionsInBatches(ctx, datasetID, batchSize, maxWorkers interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensions", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensions), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensionsInBatches", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensionsInBatches), ctx, datasetID, batchSize, maxWorkers)
+}
+
+// GetArea mocks base method.
+func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetArea", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetAreaResponse)
+	fmt.Println("THE RESPONSE IS")
+	fmt.Println(ret0)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetArea indicates an expected call of GetArea.
+func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
 }
 
 // StaticDatasetQuery mocks base method.
@@ -546,19 +565,18 @@ func (m *MockdatasetAPIClient) EXPECT() *MockdatasetAPIClientMockRecorder {
 	return m.recorder
 }
 
-// Get mocks base method.
-func (m *MockdatasetAPIClient) Get(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.DatasetDetails, error) {
+// GetMetadataURL mocks base method.
+func (m *MockdatasetAPIClient) GetMetadataURL(id, edition, version string) string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
-	ret0, _ := ret[0].(dataset.DatasetDetails)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "GetMetadataURL", id, edition, version)
+	ret0, _ := ret[0].(string)
+	return ret0
 }
 
-// Get indicates an expected call of Get.
-func (mr *MockdatasetAPIClientMockRecorder) Get(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
+// GetMetadataURL indicates an expected call of GetMetadataURL.
+func (mr *MockdatasetAPIClientMockRecorder) GetMetadataURL(id, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockdatasetAPIClient)(nil).Get), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMetadataURL", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetMetadataURL), id, edition, version)
 }
 
 // GetOptionsInBatches mocks base method.
@@ -589,36 +607,6 @@ func (m *MockdatasetAPIClient) GetVersion(ctx context.Context, userAuthToken, sv
 func (mr *MockdatasetAPIClientMockRecorder) GetVersion(ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersion), ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version)
-}
-
-// GetVersionDimensions mocks base method.
-func (m *MockdatasetAPIClient) GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVersionDimensions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-	ret0, _ := ret[0].(dataset.VersionDimensions)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersionDimensions indicates an expected call of GetVersionDimensions.
-func (mr *MockdatasetAPIClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-}
-
-// GetVersionMetadata mocks base method.
-func (m *MockdatasetAPIClient) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVersionMetadata", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-	ret0, _ := ret[0].(dataset.Metadata)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersionMetadata indicates an expected call of GetVersionMetadata.
-func (mr *MockdatasetAPIClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // Mockcoder is a mock of coder interface.

@@ -96,14 +96,11 @@ func TestInvalidGeography(t *testing.T) {
 		p := getTestParams()
 
 		versionResponse := getValidVersionResponse()
-		geographyDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
-			Dataset: versionResponse.IsBasedOn.ID,
-		}
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(getValidMetadataURLResponse()).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(getValidOptionsResponse(), nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(nil, expectedError).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(nil, expectedError).Times(1),
 		)
 
 		ret, err := api.getDatasetParams(p.ctx, p.request)
@@ -132,27 +129,6 @@ func TestGetVersion(t *testing.T) {
 	})
 }
 
-func TestGetVersionMetadata(t *testing.T) {
-	Convey("When GetVersionMetadata is called with an invalid dataset id then an error is returned", t, func() {
-		api, ctrl, _, datasetAPIMock := initMocks(t)
-		defer ctrl.Finish()
-
-		expectedError := errors.New(uuid.NewString())
-		p := getTestParams()
-
-		gomock.InOrder(
-			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(getValidVersionResponse(), nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(dataset.Metadata{}, expectedError).Times(1),
-		)
-
-		ret, err := api.getDatasetParams(p.ctx, p.request)
-
-		So(err, ShouldNotBeNil)
-		So(err.Error(), ShouldEqual, "failed to get metadata: "+expectedError.Error())
-		So(ret, ShouldBeNil)
-	})
-}
-
 func TestGetOptions(t *testing.T) {
 	Convey("When GetOptions is called with an invalid id an error is returned", t, func() {
 		api, ctrl, _, datasetAPIMock := initMocks(t)
@@ -164,7 +140,7 @@ func TestGetOptions(t *testing.T) {
 
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(getValidMetadataURLResponse()).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(dataset.Options{}, expectedError).Times(1),
 		)
 
@@ -191,15 +167,11 @@ func TestStaticDatasetQuery(t *testing.T) {
 			Variables: []string{versionResponse.Dimensions[0].ID},
 		}
 
-		geographyDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
-			Dataset: versionResponse.IsBasedOn.ID,
-		}
-
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(getValidMetadataURLResponse()).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(getValidOptionsResponse(), nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 			ctblrMock.EXPECT().StaticDatasetQuery(p.ctx, datasetRequest).Return(nil, expectedError).Times(1),
 		)
 
@@ -256,20 +228,16 @@ func TestToGetJsonResponse(t *testing.T) {
 		p := getTestParams()
 
 		versionResponse := getValidVersionResponse()
-		metadataResponse := getValidMetadataResponse()
+		metadataResponse := getValidMetadataURLResponse()
 		optionsResponse := getValidOptionsResponse()
 
 		cantabularResponse := getValidCantabularResponse(versionResponse.Dimensions[0].ID, optionsResponse.Items[0].Label)
 
-		geographyDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
-			Dataset: versionResponse.IsBasedOn.ID,
-		}
-
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(metadataResponse, nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(metadataResponse).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(optionsResponse, nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
 		params, err := api.getDatasetParams(p.ctx, p.request)
@@ -286,8 +254,7 @@ func TestToGetJsonResponse(t *testing.T) {
 		So(len(result.Dimensions[0].Options), ShouldEqual, 1)
 		So(result.Dimensions[0].Options[0].HREF, ShouldEqual, optionsResponse.Items[0].Links.Code.URL)
 		So(result.Dimensions[0].Options[0].ID, ShouldEqual, optionsResponse.Items[0].Links.Code.ID)
-		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse.Version.Links.Self.URL)
-		So(result.Links.DatasetMetadata.ID, ShouldEqual, metadataResponse.Version.Links.Self.ID)
+		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse)
 		So(result.Links.Self.HREF, ShouldEqual, versionResponse.Links.Dataset.URL)
 		So(result.Links.Self.ID, ShouldEqual, versionResponse.Links.Dataset.ID)
 		So(result.Links.Version.HREF, ShouldEqual, versionResponse.Links.Self.URL)
@@ -308,7 +275,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 	})
 
 	Convey("WHEN getGeographyFilters is called with an invalid geo query string THEN an error is returned", t, func() {
-		request := httptest.NewRequest("GET", "/dataset?geography=ABC", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC", nil)
 		result, err := api.getGeographyFilters(request, nil)
 
 		So(result, ShouldBeNil)
@@ -320,7 +287,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 		params := &datasetParams{
 			geoDimensions: []string{},
 		}
-		request := httptest.NewRequest("GET", "/dataset?geography=ABC,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC,DEF", nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -334,7 +301,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: nil},
 		}
-		request := httptest.NewRequest("GET", "/dataset?geography=REGION,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=REGION,DEF", nil)
 
 		result, err := api.getGeographyFilters(request, params)
 
@@ -356,7 +323,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s", region, area), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s", region, area), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -373,7 +340,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -395,7 +362,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           optionsMap{region: map[string]dataset.Option{area: {}}},
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -419,7 +386,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           optionsMap,
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?geography=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -445,18 +412,15 @@ func TestHandlerErrors(t *testing.T) {
 		p := getTestParams()
 
 		versionResponse := getValidVersionResponse()
-		geographyDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
-			Dataset: versionResponse.IsBasedOn.ID,
-		}
 
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(getValidMetadataResponse(), nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(getValidMetadataURLResponse()).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(getValidOptionsResponse(), nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		request := httptest.NewRequest("GET", "/dataset?geography=test", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=test", nil)
 		request = request.WithContext(p.request.Context())
 
 		api.getDatasetJSONHandler(p.response, request)
@@ -470,12 +434,8 @@ func TestHandlerErrors(t *testing.T) {
 		p := getTestParams()
 
 		versionResponse := getValidVersionResponse()
-		metadataResponse := getValidMetadataResponse()
+		metadataResponse := getValidMetadataURLResponse()
 		optionsResponse := getValidOptionsResponse()
-
-		geographyDimensionsRequest := cantabular.GetGeographyDimensionsRequest{
-			Dataset: versionResponse.IsBasedOn.ID,
-		}
 
 		datasetRequest := cantabular.StaticDatasetQueryRequest{
 			Dataset:   versionResponse.IsBasedOn.ID,
@@ -484,9 +444,9 @@ func TestHandlerErrors(t *testing.T) {
 
 		gomock.InOrder(
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
-			datasetAPIMock.EXPECT().GetVersionMetadata(p.ctx, "", "", "", p.datasetId, p.edition, p.version).Return(metadataResponse, nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(metadataResponse).Times(1),
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(optionsResponse, nil).Times(1),
-			ctblrMock.EXPECT().GetGeographyDimensions(p.ctx, geographyDimensionsRequest).Return(getValidGeoResponse(), nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 			ctblrMock.EXPECT().StaticDatasetQuery(p.ctx, datasetRequest).Return(nil, errors.New(uuid.NewString())).Times(1),
 		)
 
@@ -565,17 +525,8 @@ func getValidVersionResponse() dataset.Version {
 	}
 }
 
-func getValidMetadataResponse() dataset.Metadata {
-	return dataset.Metadata{
-		Version: dataset.Version{
-			Links: dataset.Links{
-				Self: dataset.Link{
-					URL: "metadataURL " + uuid.NewString(),
-					ID:  "metadataId " + uuid.NewString(),
-				},
-			},
-		},
-	}
+func getValidMetadataURLResponse() string {
+	return "metadataURL " + uuid.NewString()
 }
 
 func getValidOptionsResponse() dataset.Options {
@@ -593,16 +544,14 @@ func getValidOptionsResponse() dataset.Options {
 	}
 }
 
-func getValidGeoResponse() *cantabular.GetGeographyDimensionsResponse {
-	return &cantabular.GetGeographyDimensionsResponse{
-		Dataset: gql.Dataset{
-			RuleBase: gql.RuleBase{
-				IsSourceOf: gql.Variables{
-					Edges: []gql.Edge{
-						{
-							Node: gql.Node{
-								Name: "NodeName " + uuid.NewString(),
-							},
+func getValidGeoResponse() *gql.Dataset {
+	return &gql.Dataset{
+		RuleBase: gql.RuleBase{
+			IsSourceOf: gql.Variables{
+				Edges: []gql.Edge{
+					{
+						Node: gql.Node{
+							Name: "NodeName " + uuid.NewString(),
 						},
 					},
 				},

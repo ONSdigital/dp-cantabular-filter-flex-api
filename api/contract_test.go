@@ -17,9 +17,10 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 	Convey("Given a valid createFilterRequest request object", t, func() {
 		req := createFilterRequest{
 			Dataset: &model.Dataset{
-				ID:      "test-dataset-id",
-				Edition: "test-edition",
-				Version: 1,
+				ID:              "test-dataset-id",
+				Edition:         "test-edition",
+				Version:         1,
+				LowestGeography: "lowest-geography",
 			},
 			PopulationType: "test-blob",
 			Dimensions: []model.Dimension{
@@ -62,15 +63,6 @@ func TestCreateFiltersRequestValid(t *testing.T) {
 		Convey("Given edition is missing", func() {
 			r := req
 			r.Dataset.Edition = ""
-			Convey("When Valid() is called", func() {
-				err := r.Valid()
-				So(err, ShouldNotBeNil)
-			})
-		})
-
-		Convey("If there are less than 2 dimensions", func() {
-			r := req
-			r.Dimensions = r.Dimensions[:1]
 			Convey("When Valid() is called", func() {
 				err := r.Valid()
 				So(err, ShouldNotBeNil)
