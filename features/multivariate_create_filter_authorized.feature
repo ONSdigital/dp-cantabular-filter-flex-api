@@ -226,13 +226,13 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "4db09dbf5dc40e8b064fdafa8672536195224c20",
+      "etag": "c363de574175a32ee90b0b9a4e8795f31954ec9d",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
-          "name": "LADCD",
+          "name": "ladcd",
           "label": "Local Authority code",
-          "id": "LADCD",
+          "id": "ladcd",
           "is_area_type": true,
           "options": []
         },
