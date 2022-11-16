@@ -120,6 +120,30 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentNext, err := api.datasets.GetDatasetCurrentAndNext(
+		ctx,
+		"",
+		api.cfg.ServiceAuthToken,
+		"",
+		req.Dataset.ID,
+	)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get current and next dataset"),
+				message: "failed to get current and next dataset information",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	req.Dataset.ReleaseDate = v.ReleaseDate
+	req.Dataset.Title = currentNext.Title
+
 	f := model.Filter{
 		Links: model.FilterLinks{
 			Version: model.Link{

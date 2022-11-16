@@ -45,7 +45,9 @@ Feature: Get Filter Private Endpoints Not Enabled
           "id": "cantabular-example-1",
           "edition": "2021",
           "version": 1,
-          "lowest_geography": "lowest-geography"
+          "lowest_geography": "lowest-geography",
+          "release_date": "2021-11-19T00:00:00.000Z",
+          "title": "cantabular-example-1"
         },
         "published": true,
         "population_type": "Example",
@@ -89,7 +91,9 @@ Feature: Get Filter Private Endpoints Not Enabled
         "dataset": {
           "id": "cantabular-example-unpublished",
           "edition": "2021",
-          "version": 1
+          "version": 1,
+          "release_date": "2021-11-19T00:00:00.000Z",
+          "title": "cantabular-example-unpublished"
         },
         "published": false,
         "population_type": "Example",
@@ -122,7 +126,9 @@ Feature: Get Filter Private Endpoints Not Enabled
         "id": "cantabular-example-1",
         "edition": "2021",
         "version": 1,
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "published": true,
       "population_type": "Example",
