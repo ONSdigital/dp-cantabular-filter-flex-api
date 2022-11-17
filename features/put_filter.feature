@@ -116,7 +116,9 @@ Feature: Put Filter Private Endpoints Not Enabled
         "id": "string",
         "edition": "string",
         "version": 0,
-        "lowest_geography": ""
+        "lowest_geography": "",
+        "release_date": "",
+        "title": ""
       },
       "population_type": "string"
     }

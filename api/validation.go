@@ -127,8 +127,8 @@ func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionNa
 	node := resp.Dataset.Variables.Edges[0].Node
 	dim := model.Dimension{
 		Label: node.Label,
-		ID:    node.Name,
-		Name:  node.Name,
+		ID:    dimensionName,
+		Name:  dimensionName,
 	}
 
 	return &dim, nil

@@ -105,7 +105,9 @@ Feature: Updating a filter's dimensions
         "id": "cantabular-example-1",
         "edition": "2021",
         "version": 1,
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "published": true,
       "population_type": "Example",
@@ -305,7 +307,7 @@ Feature: Updating a filter's dimensions
           "href": ""
         }
       },
-      "etag": "a650ec8f8f6f44d87b309d5240688512909006bc",
+      "etag": "4eea288aacd95f32469bbdaaf020a226060437e4",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
@@ -313,7 +315,9 @@ Feature: Updating a filter's dimensions
         "version": {
           "$numberInt":"1"
         },
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "dimensions": [
         {

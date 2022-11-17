@@ -2,6 +2,28 @@
 
   Background:
     Given private endpoints are enabled
+
+    And the following dataset document with dataset id "cantabular-example-1" is available from dp-dataset-api:
+      """
+      {
+        "id":"cantabular-example-1",
+        "links":{
+          "self":{
+            "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+            "id":"cantabular-flexible-table-component-test"
+          }
+        },
+        "state":"published",
+        "title":"cantabular-example-1",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "type":"cantabular_flexible_table",
+        "is_based_on":{
+          "@type":"cantabular_flexible_table",
+          "@id":"Example"
+        }
+      }
+      """
+
     And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
       """
       {
@@ -199,7 +221,9 @@
         "id":      "cantabular-example-1",
         "edition": "2021",
         "version": 1,
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "population_type": "dummy_data_households",
       "published":       true,
@@ -226,13 +250,13 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "4db09dbf5dc40e8b064fdafa8672536195224c20",
+      "etag": "d26355bd49694942f6f87f77b901e741d57ac435",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
-          "name": "LADCD",
+          "name": "ladcd",
           "label": "Local Authority code",
-          "id": "LADCD",
+          "id": "ladcd",
           "is_area_type": true,
           "options": []
         },
@@ -257,7 +281,9 @@
         "version": {
           "$numberInt": "1"
         },
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "published": true,
       "population_type": "dummy_data_households",

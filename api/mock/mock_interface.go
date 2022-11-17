@@ -6,7 +6,6 @@ package mock
 
 import (
 	context "context"
-	"fmt"
 	http "net/http"
 	reflect "reflect"
 	time "time"
@@ -451,6 +450,21 @@ func (m *MockcantabularClient) EXPECT() *MockcantabularClientMockRecorder {
 	return m.recorder
 }
 
+// GetArea mocks base method.
+func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetArea", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetAreaResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetArea indicates an expected call of GetArea.
+func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
+}
+
 // GetDimensionOptions mocks base method.
 func (m *MockcantabularClient) GetDimensionOptions(arg0 context.Context, arg1 cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
 	m.ctrl.T.Helper()
@@ -494,23 +508,6 @@ func (m *MockcantabularClient) GetGeographyDimensionsInBatches(ctx context.Conte
 func (mr *MockcantabularClientMockRecorder) GetGeographyDimensionsInBatches(ctx, datasetID, batchSize, maxWorkers interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGeographyDimensionsInBatches", reflect.TypeOf((*MockcantabularClient)(nil).GetGeographyDimensionsInBatches), ctx, datasetID, batchSize, maxWorkers)
-}
-
-// GetArea mocks base method.
-func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetArea", arg0, arg1)
-	ret0, _ := ret[0].(*cantabular.GetAreaResponse)
-	fmt.Println("THE RESPONSE IS")
-	fmt.Println(ret0)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetArea indicates an expected call of GetArea.
-func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
 }
 
 // StaticDatasetQuery mocks base method.
@@ -563,6 +560,21 @@ func NewMockdatasetAPIClient(ctrl *gomock.Controller) *MockdatasetAPIClient {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockdatasetAPIClient) EXPECT() *MockdatasetAPIClientMockRecorder {
 	return m.recorder
+}
+
+// GetDatasetCurrentAndNext mocks base method.
+func (m *MockdatasetAPIClient) GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (dataset.Dataset, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDatasetCurrentAndNext", ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
+	ret0, _ := ret[0].(dataset.Dataset)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDatasetCurrentAndNext indicates an expected call of GetDatasetCurrentAndNext.
+func (mr *MockdatasetAPIClientMockRecorder) GetDatasetCurrentAndNext(ctx, userAuthToken, serviceAuthToken, collectionID, datasetID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDatasetCurrentAndNext", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetDatasetCurrentAndNext), ctx, userAuthToken, serviceAuthToken, collectionID, datasetID)
 }
 
 // GetMetadataURL mocks base method.

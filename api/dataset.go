@@ -210,18 +210,8 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 	var dimensions []DatasetJSONDimension
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		var options []model.Link
-
-		for _, option := range dimension.Categories {
-			options = append(options, model.Link{
-				HREF: params.options[dimension.Variable.Name][option.Label].Links.Code.URL,
-				ID:   option.Code,
-			})
-		}
-
 		dimensions = append(dimensions, DatasetJSONDimension{
 			DimensionName: dimension.Variable.Name,
-			Options:       options,
 		})
 	}
 

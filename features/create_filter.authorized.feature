@@ -57,6 +57,27 @@ Feature: Filters Private Endpoints Enabled
         "version": 1
       }
       """
+    
+    And the following dataset document with dataset id "cantabular-example-1" is available from dp-dataset-api:
+    """
+    {
+      "id":"cantabular-example-1",
+      "links":{
+        "self":{
+          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+          "id":"cantabular-flexible-table-component-test"
+        }
+      },
+      "state":"published",
+      "title":"cantabular-example-1",
+      "release_date": "2021-11-19T00:00:00.000Z",
+      "type":"cantabular_flexible_table",
+      "is_based_on":{
+        "@type":"cantabular_flexible_table",
+        "@id":"Example"
+      }
+    }
+    """
 
     And Cantabular returns these dimensions for the dataset "Example" and search term "city":
     """
@@ -150,7 +171,9 @@ Feature: Filters Private Endpoints Enabled
         "id":      "cantabular-example-1",
         "edition": "2021",
         "version": 1,
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "population_type": "Example",
       "published":       true,
@@ -177,7 +200,7 @@ Feature: Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "0108cdf2059ce01ffa98a956e907a9e7b5a19241",
+      "etag":        "ce22e9f70ec663fe65341ab4b439d7e5e3fa362f",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -210,7 +233,9 @@ Feature: Filters Private Endpoints Enabled
         "version": {
           "$numberInt":"1"
         },
-        "lowest_geography": "lowest-geography"
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "published":       true,
       "type":            "flexible",

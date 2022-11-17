@@ -69,6 +69,8 @@ type Dataset struct {
 	Edition         string `bson:"edition" json:"edition"`
 	Version         int    `bson:"version" json:"version"`
 	LowestGeography string `bson:"lowest_geography" json:"lowest_geography"`
+	ReleaseDate     string `bson:"release_date" json:"release_date"`
+	Title           string `bson:"title"      json:"title"`
 }
 
 type DisclosureControl struct {

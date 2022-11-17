@@ -92,4 +92,5 @@ type DatasetAPIClient interface {
 	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (dataset.Options, error)
 	GetMetadataURL(id, edition, version string) string
 	Checker(context.Context, *healthcheck.CheckState) error
+	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
 }
