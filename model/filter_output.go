@@ -25,11 +25,13 @@ type FilterOutput struct {
 	ETag              string              `bson:"etag"                         json:"-"`
 }
 
+// Downloads holds download information for various file types. Items are in a specific order
+// and should not be changed (xlsx, csv, txt, csvw)
 type Downloads struct {
-	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
-	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
-	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`
 	XLS  *FileInfo `bson:"xls,omitempty"   json:"xls,omitempty"`
+	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
+	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`
+	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
 }
 
 type FileInfo struct {
