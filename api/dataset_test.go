@@ -251,6 +251,8 @@ func TestToGetJsonResponse(t *testing.T) {
 		So(result.TotalObservations, ShouldEqual, len(cantabularResponse.Dataset.Table.Values))
 		So(len(result.Dimensions), ShouldEqual, 1)
 		So(result.Dimensions[0].DimensionName, ShouldEqual, versionResponse.Dimensions[0].ID)
+		So(len(result.Dimensions[0].Options), ShouldEqual, 1)
+		So(result.Dimensions[0].Options[0].ID, ShouldEqual, optionsResponse.Items[0].Links.Code.ID)
 		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse)
 		So(result.Links.Self.HREF, ShouldEqual, versionResponse.Links.Dataset.URL)
 		So(result.Links.Self.ID, ShouldEqual, versionResponse.Links.Dataset.ID)
