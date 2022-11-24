@@ -573,7 +573,7 @@ func getValidCantabularResponse(name, label string) cantabular.StaticDatasetQuer
 						},
 					},
 				},
-				Values: []int{100},
+				Values: []float32{100.0},
 			},
 		},
 	}
