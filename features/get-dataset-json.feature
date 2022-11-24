@@ -476,15 +476,12 @@ Feature: Get Dataset JSON
           "dimension_name":"city",
           "options":[
             {
-              "href":"http://hostname/code-lists/city/codes/0",
               "id":"0"
             },
             {
-              "href":"http://hostname/code-lists/city/codes/1",
               "id":"1"
             },
             {
-              "href":"http://hostname/code-lists/city/codes/2",
               "id":"2"
             }
           ]
@@ -493,11 +490,9 @@ Feature: Get Dataset JSON
           "dimension_name":"sex",
           "options":[
             {
-              "href":"http://hostname/code-lists/sex/codes/0",
               "id":"0"
             },
             {
-              "href":"http://hostname/code-lists/sex/codes/1",
               "id":"1"
             }
           ]
@@ -506,15 +501,12 @@ Feature: Get Dataset JSON
           "dimension_name":"siblings_3",
           "options":[
             {
-              "href":"http://hostname/code-lists/siblings_3/codes/0",
               "id":"0"
             },
             {
-              "href":"http://hostname/code-lists/siblings_3/codes/1-2",
               "id":"1-2"
             },
             {
-              "href":"http://hostname/code-lists/siblings_3/codes/3+",
               "id":"3+"
             }
           ]
@@ -647,11 +639,9 @@ Feature: Get Dataset JSON
             "dimension_name": "sex",
             "options": [
                 {
-                    "href": "http://hostname/code-lists/sex/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://hostname/code-lists/sex/codes/1",
                     "id": "1"
                 }
             ]
@@ -660,15 +650,12 @@ Feature: Get Dataset JSON
             "dimension_name": "siblings_3",
             "options": [
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/1-2",
                     "id": "1-2"
                 },
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/3+",
                     "id": "3+"
                 }
             ]
@@ -864,11 +851,9 @@ Feature: Get Dataset JSON
             "dimension_name": "sex",
             "options": [
                 {
-                    "href": "http://hostname/code-lists/sex/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://hostname/code-lists/sex/codes/1",
                     "id": "1"
                 }
             ]
@@ -877,15 +862,12 @@ Feature: Get Dataset JSON
             "dimension_name": "siblings_3",
             "options": [
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/0",
                     "id": "0"
                 },
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/1-2",
                     "id": "1-2"
                 },
                 {
-                    "href": "http://hostname/code-lists/siblings_3/codes/3+",
                     "id": "3+"
                 }
             ]

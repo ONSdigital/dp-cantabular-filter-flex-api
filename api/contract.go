@@ -276,7 +276,8 @@ type GetDatasetJSONResponse struct {
 }
 
 type DatasetJSONDimension struct {
-	DimensionName string `json:"dimension_name"`
+	DimensionName string       `json:"dimension_name"`
+	Options       []model.Link `json:"options"`
 }
 
 type DatasetJSONLinks struct {
