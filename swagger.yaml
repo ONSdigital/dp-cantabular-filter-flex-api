@@ -212,7 +212,7 @@ paths:
       summary: Create a filter for a dataset
       description: >-
         Create a resource for listing a selection of dimensions and dimension
-        options to be added to filter for a dataset.  Note - the is_area_type property is required to ensure a successful filter journey.
+        options to be added to filter for a dataset. Note - the is_area_type property is required to ensure a successful filter journey.
       produces:
         - application/json
       parameters:
@@ -561,7 +561,7 @@ paths:
       tags:
       - "Public"
       summary: "Get observations for a census dataset"
-      description: "Get observations for a census dataset, with capability to flex and filter the data to the users need.If no area-type parameters are supplied then observations for the default area-type are returned."
+      description: "Get observations for a census dataset, with capability to flex and filter the data to the users need. If no area-type parameters are supplied then observations for the default area-type are returned."
       parameters:
         - $ref: '#/parameters/dataset_id'
         - $ref: '#/parameters/edition'
