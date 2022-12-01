@@ -27,6 +27,7 @@ type CantabularClient struct {
 	GetGeographyDimensionsInBatchesFunc func(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
 	GetAreaFunc                         func(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StaticDatasetQueryFunc              func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
+	GetCategorisationsFunc              func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
 }
 
 func (c *CantabularClient) Reset() {

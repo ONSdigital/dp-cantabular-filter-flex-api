@@ -113,7 +113,7 @@ func (cf *CantabularFeature) cantabularReturnsTheseCategories(input *godog.DocSt
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
-	cf.GetCategorisationsFunc = func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	cf.cantabularClient.GetCategorisationsFunc = func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
 		return response, nil
 	}
 

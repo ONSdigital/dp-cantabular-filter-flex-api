@@ -451,11 +451,6 @@ func (m *MockcantabularClient) EXPECT() *MockcantabularClientMockRecorder {
 	return m.recorder
 }
 
-// GetArea mocks base method.
-func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetArea", arg0, arg1)
-	ret0, _ := ret[0].(*cantabular.GetAreaResponse)
 // GetCategorisations mocks base method.
 func (m *MockcantabularClient) GetCategorisations(arg0 context.Context, arg1 cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
 	m.ctrl.T.Helper()
@@ -465,14 +460,25 @@ func (m *MockcantabularClient) GetCategorisations(arg0 context.Context, arg1 can
 	return ret0, ret1
 }
 
-// GetArea indicates an expected call of GetArea.
-func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
 // GetCategorisations indicates an expected call of GetCategorisations.
 func (mr *MockcantabularClientMockRecorder) GetCategorisations(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockcantabularClient)(nil).GetCategorisations), arg0, arg1)
+}
+
+// GetArea mocks base method.
+func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetArea", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetAreaResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetArea indicates an expected call of GetArea.
+func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
 }
 
 // GetDimensionOptions mocks base method.

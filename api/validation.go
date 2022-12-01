@@ -16,7 +16,7 @@ import (
 func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []model.Dimension, populationType string, postDimension bool) (finalDims []model.Dimension, filterType string, err error) {
 	ctx := context.Background()
 
-	if v.IsBasedOn.Type == cantabularFlexible {
+	if v.IsBasedOn.Type == cantabularFlexibleTable {
 		filterType = flexible
 		if err = api.isValidDatasetDimensions(ctx, v, dimensions, populationType); err != nil {
 			return
@@ -24,7 +24,7 @@ func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []mode
 
 		finalDims = hydrateDimensions(dimensions, v.Dimensions)
 
-	} else if v.IsBasedOn.Type == cantabularMultivariate {
+	} else if v.IsBasedOn.Type == cantabularMultivariateTable {
 		println("CREATING FILTER")
 		filterType = multivariate
 		multivariateDims, err := api.isValidMultivariateDimensions(ctx, dimensions, populationType, postDimension)
@@ -36,56 +36,7 @@ func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []mode
 
 	}
 
-	if v.IsBasedOn.Type == cantabularFlexibleTable {
-		var geodim model.Dimension
-		var areaCount int
-		for _, d := range dims {
-			if d.IsAreaType != nil && *d.IsAreaType {
-				areaCount++
-				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to get geography dimension from Cantabular")
-				}
-				geodim = geodims[0]
-			}
-		}
-
-		if areaCount > 1 {
-			return nil, &Error{
-				err:        errors.New("multiple geography dimensions not permitted"),
-				badRequest: true,
-				logData: log.Data{
-					"dimensions": dims,
-				},
-			}
-		}
-
-		if err := api.validateDimensionsFromVersion(dims, v.Dimensions); err != nil {
-			return nil, errors.Wrap(err, "failed to validate dataset dimensions")
-		}
-
-		hydrated := hydrateDimensionsFromVersion(dims, v.Dimensions)
-		// insert Geography dimension as first in list if present
-		if areaCount > 0 {
-			hydrated = append([]model.Dimension{geodim}, hydrated...)
-		}
-
-		return hydrated, nil
-	}
-
-	if v.IsBasedOn.Type == cantabularMultivariateTable {
-		resp, err := api.getCantabularDimensions(ctx, dims, pType)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get dimensions from Cantabular")
-		}
-		return resp, nil
-	}
-
-	return nil, &Error{
-		err:        errors.New("unexpected IsBasedOn type"),
-		logData:    log.Data{"is_based_on.type": v.IsBasedOn.Type},
-		badRequest: true,
-	}
+	return
 }
 
 // getCantabularDimensions pulls full dimension information from Cantabular using the names of the provided
@@ -200,13 +151,13 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 
 // validateDimensionOptions by performing Cantabular query with selections,
 // will be skipped if requesting all options
-func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, populationType string) error {
+func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
 	dReq := cantabular.GetDimensionOptionsRequest{
 		Dataset: populationType,
 	}
 	for _, d := range filterDimensions {
 		if len(d.Options) > 0 {
-			dReq.DimensionNames = append(dReq.DimensionNames, d.Name)
+			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
 				Codes:    d.Options,
 				Variable: getFilterVariable(d),

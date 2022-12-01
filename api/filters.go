@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
-	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
@@ -103,7 +101,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	println("STARTING THIS ")
-	finalDims, filterType, err = api.ValidateAndReturnDimensions(
+	finalDims, filterType, err := api.ValidateAndReturnDimensions(
 		v,
 		req.Dimensions,
 		req.PopulationType,
@@ -111,16 +109,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
-		return
-	}
-
-	if err := api.validateDimensionOptions(ctx, finalDims, req.PopulationType); err != nil {
-		api.respond.Error(
-			ctx,
-			w,
-			statusCode(err),
-			errors.Wrap(err, "failed to validate dimension options"),
-		)
 		return
 	}
 
@@ -172,7 +160,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		DisclosureControl: nil, // populate for these fields yet
 	}
 
-	if v.IsBasedOn.Type == cantabularMultivariate {
+	if v.IsBasedOn.Type == cantabularMultivariateTable {
 		f.Type = multivariate
 	}
 
@@ -444,28 +432,6 @@ func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version,
 	return nil
 }
 
-// getCantabularDimension checks that dimension exists in Cantabular by searching for it.
-// If the dimension doesn't exist, or couldn't be retrieved, an error is returned.
-func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionName string) (*gql.Node, error) {
-	foundDimensions, err := api.ctblr.SearchDimensions(ctx, cantabular.SearchDimensionsRequest{
-		Dataset: popType,
-		Text:    dimensionName,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "error in cantabular response")
-	}
-
-	if len(foundDimensions.Dataset.Variables.Search.Edges) == 0 {
-		return nil, Error{
-			err:      errors.New("no dimensions in response"),
-			notFound: true,
-			logData:  log.Data{"found_dimensions": foundDimensions},
-		}
-	}
-
-	return &foundDimensions.Dataset.Variables.Search.Edges[0].Node, nil
-}
-
 // validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
 // Returns a map of the dimensions name:id for use in the following validation calls
 func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension, datasetType string) (map[string]string, error) {
@@ -513,52 +479,6 @@ func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.
 	}
 
 	return dimensions, nil
-}
-
-// validateDimensionOptions by performing Cantabular query with selections,
-// will be skipped if requesting all options
-func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
-	dReq := cantabular.GetDimensionOptionsRequest{
-		Dataset: populationType,
-	}
-	for _, d := range filterDimensions {
-		if len(d.Options) > 0 {
-			dReq.DimensionNames = append(dReq.DimensionNames, dimIDs[d.Name])
-			dReq.Filters = append(dReq.Filters, cantabular.Filter{
-				Codes:    d.Options,
-				Variable: getFilterVariable(dimIDs, d),
-			})
-		}
-	}
-	if len(dReq.Filters) == 0 {
-		return nil
-	}
-
-	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
-		if api.ctblr.StatusCode(err) >= http.StatusInternalServerError {
-			return Error{
-				err:     errors.Wrap(err, "failed to query dimension options from Cantabular"),
-				message: "Internal Server Error",
-				logData: log.Data{
-					"request": dReq,
-				},
-			}
-		}
-		return Error{
-			err:     errors.WithStack(err),
-			message: "failed to validate dimension options for filter",
-		}
-	}
-
-	return nil
-}
-
-func getFilterVariable(dimIDs map[string]string, d model.Dimension) string {
-	fVariable := dimIDs[d.Name]
-	if len(d.FilterByParent) != 0 {
-		fVariable = d.FilterByParent
-	}
-	return fVariable
 }
 
 // hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.

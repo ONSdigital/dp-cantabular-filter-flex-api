@@ -4,6 +4,7 @@ go 1.19
 
 // The following replacement is for module versions that have known vulnerabilities (from nancy sleuth)
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
+
 // replace github.com/ONSdigital/dp-api-clients-go/v2 => /dp-api-clients-go
 // to avoid 'sonatype-2021-4899' non-CVE Vulnerability
 exclude github.com/gorilla/sessions v1.2.1
@@ -41,10 +42,6 @@ require (
 	github.com/aws/aws-sdk-go v1.44.115 // indirect
 	github.com/chromedp/cdproto v0.0.0-20221011223153-490dc4d81f7c // indirect
 	github.com/chromedp/chromedp v0.8.6 // indirect
-	github.com/Shopify/sarama v1.36.0 // indirect
-	github.com/aws/aws-sdk-go v1.44.91 // indirect
-	github.com/chromedp/cdproto v0.0.0-20220901095120-1a01299a2163 // indirect
-	github.com/chromedp/chromedp v0.8.5 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
