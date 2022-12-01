@@ -344,6 +344,7 @@ Feature: Get Dataset JSON
                 mapFrom {
                   edges {
                     node {
+                      description
                       label
                       name
                     }
@@ -525,7 +526,7 @@ Feature: Get Dataset JSON
           "id":"1"
         }
       },
-      "observations":[1,0, 0, 0, 0, 1, 0,  0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2],
+      "observations":[1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2],
       "total_observations":18
     }
     """

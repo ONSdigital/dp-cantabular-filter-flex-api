@@ -271,7 +271,7 @@ type submitFilterResponse struct {
 type GetDatasetJSONResponse struct {
 	Dimensions        []DatasetJSONDimension `json:"dimensions"`
 	Links             DatasetJSONLinks       `json:"links"`
-	Observations      []int                  `json:"observations"`
+	Observations      []float32              `json:"observations"`
 	TotalObservations int                    `json:"total_observations"`
 }
 
