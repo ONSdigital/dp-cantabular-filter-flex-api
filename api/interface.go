@@ -60,7 +60,6 @@ type cantabularClient interface {
 	GetDimensionsByName(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
 	GetArea(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StatusCode(error) int
-
 	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
 }
 

@@ -33,7 +33,7 @@ func NewMetadataFeature(t *testing.T, mfg *config.Config) *MetadataFeature {
 func (mf *MetadataFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 
 	ctx.Step(
-		`^the metadata api returns this response:$`,
+		`^Metadata api returns this response for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		mf.MetadataReturnsTheseDefaults,
 	)
 	ctx.Step(
@@ -43,13 +43,21 @@ func (mf *MetadataFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 }
 
 func (mf *MetadataFeature) MetadataReturnsTheseDefaults(datasetID, search string, input *godog.DocString) error {
-	var cantabularResponse cantabularmetadata.GetDefaultClassificationResponse
 
-	if err := json.Unmarshal([]byte(input.Content), &cantabularResponse); err != nil {
+	res := &struct {
+		Data   cantabularmetadata.Data       `json:"data"`
+		Errors []cantabularmetadata.GQLError `json:"errors,omitempty"`
+	}{}
+
+	if err := json.Unmarshal([]byte(input.Content), &res); err != nil {
 		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
 	}
 
 	mf.metadataClient.GetDefaultClassificationFunc = func(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
+		cantabularResponse := cantabularmetadata.GetDefaultClassificationResponse{
+			Variable: res.Data.Dataset.Vars[0].Name,
+		}
+
 		return &cantabularResponse, nil
 	}
 
