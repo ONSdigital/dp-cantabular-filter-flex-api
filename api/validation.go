@@ -12,6 +12,158 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ValidateAndHydrateDimensions performs validation against the provided dimensions and hydrates missing fields (id/name/label).
+// Flexible table types will validate by checking the exisisting variables in the dataset version. Multivariate tables
+// will use Cantabular to check the new dimensions exist.
+func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dimension, pType string) ([]model.Dimension, error) {
+	ctx := context.Background()
+
+	if len(dims) < 1 {
+		return nil, errors.New("no dimensions given")
+	}
+
+	if v.IsBasedOn.Type == cantabularFlexibleTable {
+		var geodim model.Dimension
+		var areaCount int
+		for _, d := range dims {
+			if d.IsAreaType != nil && *d.IsAreaType {
+				areaCount++
+				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
+				if err != nil {
+					return nil, errors.Wrap(err, "failed to get geography dimension from Cantabular")
+				}
+				geodim = geodims[0]
+			}
+		}
+
+		if areaCount > 1 {
+			return nil, &Error{
+				err:        errors.New("multiple geography dimensions not permitted"),
+				badRequest: true,
+				logData: log.Data{
+					"dimensions": dims,
+				},
+			}
+		}
+
+		if err := api.validateDimensionsFromVersion(dims, v.Dimensions); err != nil {
+			return nil, errors.Wrap(err, "failed to validate dataset dimensions")
+		}
+
+		hydrated := hydrateDimensionsFromVersion(dims, v.Dimensions)
+		// insert Geography dimension as first in list if present
+		if areaCount > 0 {
+			hydrated = append([]model.Dimension{geodim}, hydrated...)
+		}
+
+		return hydrated, nil
+	}
+
+	if v.IsBasedOn.Type == cantabularMultivariateTable {
+		resp, err := api.getCantabularDimensions(ctx, dims, pType)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get dimensions from Cantabular")
+		}
+		return resp, nil
+	}
+
+	return nil, &Error{
+		err:        errors.New("unexpected IsBasedOn type"),
+		logData:    log.Data{"is_based_on.type": v.IsBasedOn.Type},
+		badRequest: true,
+	}
+}
+
+// hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.
+func hydrateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) []model.Dimension {
+	type record struct{ id, label string }
+
+	lookup := make(map[string]record)
+	for _, dim := range dims {
+		lookup[dim.Name] = record{id: dim.ID, label: dim.Label}
+	}
+
+	var hydrated []model.Dimension
+	for _, dim := range filterDims {
+		dim.ID = lookup[dim.Name].id
+		dim.Label = lookup[dim.Name].label
+		if dim.Options == nil {
+			dim.Options = []string{}
+		}
+		hydrated = append(hydrated, dim)
+	}
+
+	return hydrated
+}
+
+// validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
+// Returns a map of the dimensions name:id for use in the following validation calls
+func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension, datasetType string) (map[string]string, error) {
+
+	fDims := make(map[string]bool)
+	for _, fd := range filterDims {
+		if _, ok := fDims[fd.Name]; ok {
+			return nil, Error{
+				err: errors.Errorf("duplicate dimensions chosen: %v", fd.Name),
+				logData: log.Data{
+					"duplicate dimensions chosen": fd.Name,
+				},
+			}
+		} else {
+			fDims[fd.Name] = true
+		}
+	}
+
+	dimensions := make(map[string]string)
+	for _, d := range dims {
+		dimensions[d.Name] = d.ID
+
+	}
+	var incorrect []string
+	for _, fd := range filterDims {
+		if _, ok := dimensions[fd.Name]; !ok {
+			// if this is a cantabular multivariate table, then you
+			// should be free to create whatever dimension that you
+			// want to add, provided that they exist. which is checked
+			// in dimension option validation.
+			if datasetType == "cantabular_multivariate_table" {
+				continue
+			}
+			incorrect = append(incorrect, fd.Name)
+		}
+	}
+
+	if incorrect != nil {
+		return nil, Error{
+			err: errors.Errorf("incorrect dimensions chosen: %v", incorrect),
+			logData: log.Data{
+				"available_dimensions": dimensions,
+			},
+		}
+	}
+
+	return dimensions, nil
+}
+
+func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version, d []model.Dimension, pType string) error {
+	/* 	dimIDs, err := api.validateDimensions(d, v.Dimensions, pType)
+	   	if err != nil {
+	   		return Error{
+	   			err:      errors.Wrap(err, "failed to validate request dimensions"),
+	   			notFound: true,
+	   		}
+	   	}
+
+	   	if err := api.validateDimensionOptionsNew(ctx, d, dimIDs, pType); err != nil {
+	   		return errors.Wrap(err, "failed to validate dimension options")
+	   	}
+	*/
+	if err := api.validateDimensionOptions(ctx, d, pType); err != nil {
+		return errors.Wrap(err, "failed to validate dimension options")
+	}
+	return nil
+}
+
 // ValidateAndReturnDimensions encapsulates the dimension validation paths for filters based on flexible and multivariate tables.
 func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []model.Dimension, populationType string, postDimension bool) (finalDims []model.Dimension, filterType string, err error) {
 	ctx := context.Background()
@@ -151,7 +303,45 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 
 // validateDimensionOptions by performing Cantabular query with selections,
 // will be skipped if requesting all options
-func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
+func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions []model.Dimension, populationType string) error {
+	dReq := cantabular.GetDimensionOptionsRequest{
+		Dataset: populationType,
+	}
+	for _, d := range filterDimensions {
+		if len(d.Options) > 0 {
+			dReq.DimensionNames = append(dReq.DimensionNames, d.Name)
+			dReq.Filters = append(dReq.Filters, cantabular.Filter{
+				Codes:    d.Options,
+				Variable: getFilterVariable(d),
+			})
+		}
+	}
+	if len(dReq.Filters) == 0 {
+		return nil
+	}
+
+	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
+		if api.ctblr.StatusCode(err) >= http.StatusInternalServerError {
+			return Error{
+				err:     errors.Wrap(err, "failed to query dimension options from Cantabular"),
+				message: "Internal Server Error",
+				logData: log.Data{
+					"request": dReq,
+				},
+			}
+		}
+		return Error{
+			err:     errors.WithStack(err),
+			message: "failed to validate dimension options for filter",
+		}
+	}
+
+	return nil
+}
+
+/* // validateDimensionOptions by performing Cantabular query with selections,
+// will be skipped if requesting all options
+func (api *API) validateDimensionOptionsNew(ctx context.Context, filterDimensions []model.Dimension, dimIDs map[string]string, populationType string) error {
 	dReq := cantabular.GetDimensionOptionsRequest{
 		Dataset: populationType,
 	}
@@ -185,7 +375,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 	}
 
 	return nil
-}
+} */
 
 func getFilterVariable(d model.Dimension) string {
 	if len(d.FilterByParent) != 0 {
@@ -222,4 +412,45 @@ func hydrateDimensionsFromVersion(filterDims []model.Dimension, dims []dataset.V
 	}
 
 	return hydrated
+}
+
+/*
+isValidMultivariateDimensions checks the validity of the supplied dimensions for a multivariate filter.
+Supplied dimensions may not be in original dataset but still valid, and so isValidDatasetDimensions is
+not relevant.
+NOTE: when we hydrate the dimensions, we will be using the name as the id, and filling out the dimensions
+using the same value for both.
+*/
+func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string, postDimension bool) ([]model.Dimension, error) {
+	hydratedDimensions := make([]model.Dimension, 0)
+	var finalLabel string
+
+	for _, dim := range dimensions {
+		finalDimension := dim.Name
+		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
+		if err != nil {
+			return nil, errors.Wrap(err, "error in cantabular response")
+		}
+
+		if postDimension {
+
+			finalDimension, finalLabel, err = api.CheckDefaultCategorisation(node.Name, pType)
+			if err != nil {
+				return nil, err
+			}
+
+		}
+
+		hydratedDimensions = append(hydratedDimensions, model.Dimension{
+			Name:           finalDimension,
+			ID:             finalDimension,
+			Label:          finalLabel,
+			Options:        dim.Options,
+			IsAreaType:     dim.IsAreaType,
+			FilterByParent: dim.FilterByParent,
+		})
+
+	}
+
+	return hydratedDimensions, nil
 }

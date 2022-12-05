@@ -451,21 +451,6 @@ func (m *MockcantabularClient) EXPECT() *MockcantabularClientMockRecorder {
 	return m.recorder
 }
 
-// GetCategorisations mocks base method.
-func (m *MockcantabularClient) GetCategorisations(arg0 context.Context, arg1 cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCategorisations", arg0, arg1)
-	ret0, _ := ret[0].(*cantabular.GetCategorisationsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCategorisations indicates an expected call of GetCategorisations.
-func (mr *MockcantabularClientMockRecorder) GetCategorisations(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockcantabularClient)(nil).GetCategorisations), arg0, arg1)
-}
-
 // GetArea mocks base method.
 func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
 	m.ctrl.T.Helper()
@@ -479,6 +464,21 @@ func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.Get
 func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
+}
+
+// GetCategorisations mocks base method.
+func (m *MockcantabularClient) GetCategorisations(arg0 context.Context, arg1 cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategorisations", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetCategorisationsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCategorisations indicates an expected call of GetCategorisations.
+func (mr *MockcantabularClientMockRecorder) GetCategorisations(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockcantabularClient)(nil).GetCategorisations), arg0, arg1)
 }
 
 // GetDimensionOptions mocks base method.
@@ -635,36 +635,6 @@ func (m *MockdatasetAPIClient) GetVersion(ctx context.Context, userAuthToken, sv
 func (mr *MockdatasetAPIClientMockRecorder) GetVersion(ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersion), ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version)
-}
-
-// GetVersionDimensions mocks base method.
-func (m *MockdatasetAPIClient) GetVersionDimensions(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.VersionDimensions, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVersionDimensions", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-	ret0, _ := ret[0].(dataset.VersionDimensions)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersionDimensions indicates an expected call of GetVersionDimensions.
-func (mr *MockdatasetAPIClientMockRecorder) GetVersionDimensions(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionDimensions", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionDimensions), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-}
-
-// GetVersionMetadata mocks base method.
-func (m *MockdatasetAPIClient) GetVersionMetadata(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version string) (dataset.Metadata, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetVersionMetadata", ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
-	ret0, _ := ret[0].(dataset.Metadata)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetVersionMetadata indicates an expected call of GetVersionMetadata.
-func (mr *MockdatasetAPIClientMockRecorder) GetVersionMetadata(ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersionMetadata", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersionMetadata), ctx, userAuthToken, serviceAuthToken, collectionID, id, edition, version)
 }
 
 // MockmetadataAPIClient is a mock of metadataAPIClient interface.

@@ -97,6 +97,19 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//if ValidateAndReturnDimensions returned the dimension that still had options
+	if len(dimensions[0].Options) > 0 && dimensions[0].Options[0] != "" {
+		if err := api.validateDimensionOptions(ctx, dimensions, filter.PopulationType); err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				errors.Wrap(err, "failed to validate dimension options"),
+			)
+			return
+		}
+	}
+
 	h, err := filter.HashDimensions()
 	if err != nil {
 		api.respond.Error(
@@ -244,6 +257,16 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 				message: "dimension does not exist",
 				logData: logData,
 			},
+		)
+		return
+	}
+
+	if err := api.validateDimensionOptions(ctx, []model.Dimension{req.Dimension}, filter.PopulationType); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to validate dimension options"),
 		)
 		return
 	}

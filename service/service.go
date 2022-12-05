@@ -19,18 +19,18 @@ import (
 
 // Service contains all the configs, server and clients to run the event handler service
 type Service struct {
-	Cfg               *config.Config
-	Server            HTTPServer
-	HealthCheck       HealthChecker
-	Api               *api.API
-	responder         Responder
-	store             Datastore
-	Producer          kafka.IProducer
-	generator         Generator
-	cantabularClient  CantabularClient
-	datasetAPIClient  DatasetAPIClient
-	metadataAPIClient MetadataAPIClient
-	identityClient    *identity.Client
+	Cfg              *config.Config
+	Server           HTTPServer
+	HealthCheck      HealthChecker
+	Api              *api.API
+	responder        Responder
+	store            Datastore
+	Producer         kafka.IProducer
+	generator        Generator
+	cantabularClient CantabularClient
+	datasetAPIClient DatasetAPIClient
+	metadataClient   MetadataClient
+	identityClient   *identity.Client
 }
 
 func New() *Service {
@@ -62,7 +62,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
-	svc.metadataAPIClient = GetMetadataAPIClient(cfg)
+	svc.metadataClient = GetMetadataClient(cfg)
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
 
@@ -88,7 +88,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.store,
 		svc.datasetAPIClient,
 		svc.cantabularClient,
-		svc.metadataAPIClient,
+		svc.metadataClient,
 		svc.Producer,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)

@@ -12,7 +12,7 @@ import (
 
 // Ensure, that MetadataAPIClientMock does implement service.MetadataAPIClient.
 // If this is not the case, regenerate this file with moq.
-var _ service.MetadataAPIClient = &MetadataAPIClientMock{}
+var _ service.MetadataClient = &MetadataAPIClientMock{}
 
 // MetadataAPIClientMock is a mock implementation of service.MetadataAPIClient.
 //

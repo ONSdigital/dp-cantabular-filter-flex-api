@@ -58,7 +58,7 @@ var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 }
 
 // bit unnecessary and verbose no? to split this in a function like above?
-var GetMetadataAPIClient = func(cfg *config.Config) MetadataAPIClient {
+var GetMetadataClient = func(cfg *config.Config) MetadataClient {
 
 	// NB: Client initialisation is not consistent, see above...
 	return cantabularmetadata.NewClient(cantabularmetadata.Config{

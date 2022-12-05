@@ -9,8 +9,8 @@ import (
 )
 
 /*
-   CheckDefaultCategorisation checks the default categorisation of a given dimension
-   so that we store the correct parent dimension for a given set of options?
+CheckDefaultCategorisation checks the default categorisation of a given dimension
+so that we store the correct parent dimension for a given set of options?
 */
 func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (string, string, error) {
 
@@ -28,24 +28,24 @@ func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (
 
 	if len(cats.Dataset.Variables.Edges) > 0 {
 		for _, edge := range cats.Dataset.Variables.Edges {
-			for _, mapFrom := range edge.Node.MapFrom {
-				if len(mapFrom.Edges) > 0 {
-					for _, mappedEdge := range mapFrom.Edges {
-						if len(mappedEdge.Node.IsSourceOf.Edges) > 0 {
-							for _, FINALLY := range mappedEdge.Node.IsSourceOf.Edges {
-								names = append(names, FINALLY.Node.Name)
-								labelMap[FINALLY.Node.Name] = FINALLY.Node.Label
+			if len(edge.Node.MapFrom) > 0 {
+				for _, mapFrom := range edge.Node.MapFrom {
+					if len(mapFrom.Edges) > 0 {
+						for _, mappedEdge := range mapFrom.Edges {
+							if len(mappedEdge.Node.IsSourceOf.Edges) > 0 {
+								for _, FINALLY := range mappedEdge.Node.IsSourceOf.Edges {
+									names = append(names, FINALLY.Node.Name)
+									labelMap[FINALLY.Node.Name] = FINALLY.Node.Label
+								}
 							}
 						}
 					}
-				} else if len(edge.Node.IsSourceOf.Edges) > 0 {
-					for _, sourceOf := range edge.Node.IsSourceOf.Edges {
-						names = append(names, sourceOf.Node.Name)
-					}
 				}
-
+			} else if len(edge.Node.IsSourceOf.Edges) > 0 {
+				for _, sourceOf := range edge.Node.IsSourceOf.Edges {
+					names = append(names, sourceOf.Node.Name)
+				}
 			}
-
 		}
 	}
 

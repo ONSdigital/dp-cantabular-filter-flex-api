@@ -192,7 +192,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 
@@ -213,7 +213,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -249,7 +249,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 	})
@@ -289,7 +289,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldBeNil)
 		})
 
@@ -319,7 +319,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 
@@ -349,7 +349,7 @@ func TestValidateDimensionOptions(t *testing.T) {
 				},
 			}
 
-			err := api.validateDimensionOptions(ctx, req.Dimensions, dimIDs, req.PopulationType)
+			err := api.validateDimensionOptionsNew(ctx, req.Dimensions, dimIDs, req.PopulationType)
 			So(err, ShouldNotBeNil)
 		})
 	})

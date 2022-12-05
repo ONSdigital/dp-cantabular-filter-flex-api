@@ -1,11 +1,9 @@
 package api
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
@@ -100,15 +98,25 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-	println("STARTING THIS ")
-	finalDims, filterType, err := api.ValidateAndReturnDimensions(
+
+	filterType := filterTypes[v.IsBasedOn.Type]
+	finalDims, err := api.validateAndHydrateDimensions(
 		v,
 		req.Dimensions,
 		req.PopulationType,
-		false,
 	)
 	if err != nil {
 		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
+		return
+	}
+
+	if err := api.validateDimensionOptions(ctx, finalDims, req.PopulationType); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to validate dimension options"),
+		)
 		return
 	}
 
@@ -158,10 +166,6 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		Type:              filterType,
 		Published:         v.State == published,
 		DisclosureControl: nil, // populate for these fields yet
-	}
-
-	if v.IsBasedOn.Type == cantabularMultivariateTable {
-		f.Type = multivariate
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil {
@@ -373,132 +377,4 @@ func (api *API) putFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
-}
-
-/*
-isValidMultivariateDimensions checks the validity of the supplied dimensions for a multivariate filter.
-Supplied dimensions may not be in original dataset but still valid, and so isValidDatasetDimensions is
-not relevant.
-
-NOTE: when we hydrate the dimensions, we will be using the name as the id, and filling out the dimensions
-using the same value for both.
-*/
-func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []model.Dimension, pType string, postDimension bool) ([]model.Dimension, error) {
-	hydratedDimensions := make([]model.Dimension, 0)
-	var finalLabel string
-
-	for _, dim := range dimensions {
-		finalDimension := dim.Name
-		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
-		if err != nil {
-			return nil, errors.Wrap(err, "error in cantabular response")
-		}
-
-		if postDimension {
-
-			finalDimension, finalLabel, err = api.CheckDefaultCategorisation(node.Name, pType)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-		hydratedDimensions = append(hydratedDimensions, model.Dimension{
-			Name:           finalDimension,
-			ID:             finalDimension,
-			Label:          finalLabel,
-			Options:        dim.Options,
-			IsAreaType:     dim.IsAreaType,
-			FilterByParent: dim.FilterByParent,
-		})
-
-	}
-
-	return hydratedDimensions, nil
-}
-
-func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version, d []model.Dimension, pType string) error {
-	dimIDs, err := api.validateDimensions(d, v.Dimensions, pType)
-	if err != nil {
-		return Error{
-			err:      errors.Wrap(err, "failed to validate request dimensions"),
-			notFound: true,
-		}
-	}
-
-	if err := api.validateDimensionOptions(ctx, d, dimIDs, pType); err != nil {
-		return errors.Wrap(err, "failed to validate dimension options")
-	}
-
-	return nil
-}
-
-// validateDimensions validates provided filter dimensions exist within the dataset dimensions provided.
-// Returns a map of the dimensions name:id for use in the following validation calls
-func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension, datasetType string) (map[string]string, error) {
-
-	fDims := make(map[string]bool)
-	for _, fd := range filterDims {
-		if _, ok := fDims[fd.Name]; ok {
-			return nil, Error{
-				err: errors.Errorf("duplicate dimensions chosen: %v", fd.Name),
-				logData: log.Data{
-					"duplicate dimensions chosen": fd.Name,
-				},
-			}
-		} else {
-			fDims[fd.Name] = true
-		}
-	}
-
-	dimensions := make(map[string]string)
-	for _, d := range dims {
-		dimensions[d.Name] = d.ID
-
-	}
-	var incorrect []string
-	for _, fd := range filterDims {
-		if _, ok := dimensions[fd.Name]; !ok {
-			// if this is a cantabular multivariate table, then you
-			// should be free to create whatever dimension that you
-			// want to add, provided that they exist. which is checked
-			// in dimension option validation.
-			if datasetType == "cantabular_multivariate_table" {
-				continue
-			}
-			incorrect = append(incorrect, fd.Name)
-		}
-	}
-
-	if incorrect != nil {
-		return nil, Error{
-			err: errors.Errorf("incorrect dimensions chosen: %v", incorrect),
-			logData: log.Data{
-				"available_dimensions": dimensions,
-			},
-		}
-	}
-
-	return dimensions, nil
-}
-
-// hydrateDimensions adds additional data (id/label) to a model.Dimension, using values provided by the dataset.
-func hydrateDimensions(filterDims []model.Dimension, dims []dataset.VersionDimension) []model.Dimension {
-	type record struct{ id, label string }
-
-	lookup := make(map[string]record)
-	for _, dim := range dims {
-		lookup[dim.Name] = record{id: dim.ID, label: dim.Label}
-	}
-
-	var hydrated []model.Dimension
-	for _, dim := range filterDims {
-		dim.ID = lookup[dim.Name].id
-		dim.Label = lookup[dim.Name].label
-		if dim.Options == nil {
-			dim.Options = []string{}
-		}
-		hydrated = append(hydrated, dim)
-	}
-
-	return hydrated
 }

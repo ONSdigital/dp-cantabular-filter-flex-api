@@ -52,6 +52,7 @@ func NewComponent(t *testing.T) *Component {
 		AuthFeature:        componenttest.NewAuthorizationFeature(),
 		DatasetFeature:     NewDatasetFeature(t, cfg),
 		CantabularFeature:  NewCantabularFeature(t, cfg),
+		MetadataFeature:    NewMetadataFeature(t, cfg),
 		PopulationFeatures: NewPopulationFeature(t, cfg),
 	}
 	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
@@ -83,6 +84,7 @@ func (c *Component) Reset() {
 	c.APIFeature.Reset()
 	c.DatasetFeature.Reset()
 	c.CantabularFeature.Reset()
+	c.MetadataFeature.Reset()
 	c.MongoFeature.Reset()
 }
 
@@ -94,6 +96,7 @@ func (c *Component) Close() {
 
 func (c *Component) setInitialiserMock(g service.Generator) {
 	c.CantabularFeature.setInitialiserMock()
+	c.MetadataFeature.setInitialiserMock()
 	c.DatasetFeature.setInitialiserMock()
 	c.MongoFeature.setInitialiserMock()
 

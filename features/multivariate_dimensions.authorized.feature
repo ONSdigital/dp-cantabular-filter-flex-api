@@ -53,7 +53,11 @@ Feature: Multivariate Feature Dimensions Private Endpoints
         "release_date": "2021-11-19T00:00:00.000Z",
         "state": "published",
         "usage_notes": [],
-        "version": 1
+        "version": 1,
+        "is_based_on": {
+          "@id":"cantabular-example-1",
+          "@type":"cantabular_multivariate_table"
+        }
       }
       """
     And I have these filters:
@@ -72,7 +76,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
         },
         "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
         "dimensions": [
- {
+        {
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
@@ -98,6 +102,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       }
     ]
     """
+
     And Cantabular returns these dimensions for the dataset "dummy_data_households" and search term "hh_carers":
     """
     {
@@ -121,7 +126,63 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       }
     }
     """
+    
+ And Cantabular returns these categorisation for the dataset "dummy_data_households" and search term "hh_carers":
+    """
+    {
+      "dataset": {
+        "variables": {
+          "edges": [
+            {
+              "node": {
+                "isSourceOf": {
+                  "edges": [
+                    {
+                      "node": {
+                        "label": "Number of unpaid carers in household (6 categories)",
+                        "name": "hh_carers_6a"
+                      }
+                    },
+                    {
+                      "node": {
+                        "label": "Number of unpaid carers in household (32 categories)",
+                        "name": "hh_carers"
+                      }
+                    }
+                  ]
+                },
+                "mapFrom": []
+              }
+            }
+          ]
+        }
+      }
+    }
+    """
+
+  And Cantabular metadat returns these default classification for the dataset "dummy_data_households" and search term "hh_carers":
+  """
+  {
+    "dataset": {
+      "vars": [
+        {
+          "meta": {
+            "Default_Classification_Flag": "N"
+          },
+          "name": "hh_carers"
+        }
+      ]
+    }
+  }
+   """
+
     Scenario: Adding a second filter to a multivariate filter with extra variable
+        Given I use an X Florence user token "user token"
+
+      And I am identified as "user@ons.gov.uk"
+
+      And zebedee recognises the user token as valid
+
       When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
       """
       {
@@ -130,7 +191,9 @@ Feature: Multivariate Feature Dimensions Private Endpoints
        "filter_by_parent": ""
       }
       """
+
       Then the HTTP status code should be "201"
+
       And I should receive the following JSON response:
       """
       {

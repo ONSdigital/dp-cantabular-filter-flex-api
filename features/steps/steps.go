@@ -28,6 +28,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	c.APIFeature.RegisterSteps(ctx)
 	c.DatasetFeature.RegisterSteps(ctx)
 	c.CantabularFeature.RegisterSteps(ctx)
+	c.MetadataFeature.RegisterSteps(ctx)
 	c.MongoFeature.RegisterSteps(ctx)
 
 	ctx.Step(
