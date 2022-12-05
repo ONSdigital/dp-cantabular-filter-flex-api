@@ -3,6 +3,7 @@ package steps
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -32,11 +33,11 @@ func NewMetadataFeature(t *testing.T, mfg *config.Config) *MetadataFeature {
 func (mf *MetadataFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 
 	ctx.Step(
-		`^Cantabular metadat returns these default classification for the dataset "([^"]*)" and search term "([^"]*)":$`,
+		`^the metadata api returns this response:$`,
 		mf.MetadataReturnsTheseDefaults,
 	)
 	ctx.Step(
-		`^ the cantabular categorisations return an error`,
+		`^the metadata API returns an error`,
 		mf.MetadataReturnsAnError,
 	)
 }
@@ -56,7 +57,12 @@ func (mf *MetadataFeature) MetadataReturnsTheseDefaults(datasetID, search string
 }
 
 func (mf *MetadataFeature) MetadataReturnsAnError() error {
-	//	mf.OptionsHappy = false
+	var cantabularResponse cantabularmetadata.GetDefaultClassificationResponse
+
+	mf.metadataClient.GetDefaultClassificationFunc = func(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
+		return &cantabularResponse, errors.New("Not Found DefaultClassification")
+	}
+
 	return nil
 }
 

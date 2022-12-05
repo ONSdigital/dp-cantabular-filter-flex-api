@@ -76,7 +76,7 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 
 	ctx.Step(
-		`^Cantabular returns these categorisation for the dataset "([^"]*)" and search term "([^"]*)":$`,
+		`^Cantabular returns these categorisations for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		cf.cantabularSearchReturnsTheseCategories,
 	)
 

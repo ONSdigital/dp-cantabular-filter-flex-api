@@ -139,7 +139,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
     }
     """
 
-  And Cantabular returns categorisations for this search term "hh_deprivation":
+  And Cantabular returns these categorisations for the dataset "dummy_data_households" and search term "hh_deprivation":
   """
   {
   "dataset": {
@@ -171,7 +171,7 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
   }
   """
 
-  And the metadata api returns this response for the given search terms:
+  And the metadata api returns this response:
   """
   {
   "variable": "hh_deprivation"
@@ -230,25 +230,6 @@ Feature: Filter Dimensions Private Endpoints Are Enabled
       """
       And the HTTP status code should be "404"
 
-    Scenario: Add a multivariate dimension but pop types errors
-    Given the population types API returns an error
-    When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
-    """
-    {
-    "name": "hh_deprivation",
-    "is_area_type": false,
-    "filter_by_parent": ""
-    }
-    """
-    Then the HTTP status code should be "500"
-    And I should receive the following JSON response:
-    """
-    {
-        "errors": [
-            "failed to add dimension: internal server error"
-        ]
-    }
-    """
     Scenario: Add a multivariate dimension but metadata errors
     Given the metadata API returns an error
     When I POST "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
