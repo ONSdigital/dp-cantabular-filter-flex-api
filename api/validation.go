@@ -114,11 +114,12 @@ func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.
 		}
 	}
 
-	dimensions := make(map[string]string)
+	dimensions := make(map[string]string, len(dims))
 	for _, d := range dims {
 		dimensions[d.Name] = d.ID
 
 	}
+
 	var incorrect []string
 	for _, fd := range filterDims {
 		if _, ok := dimensions[fd.Name]; !ok {
