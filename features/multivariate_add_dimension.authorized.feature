@@ -124,7 +124,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       }
     }
     """
-    
+
  And Cantabular returns these categorisations for the dataset "dummy_data_households" and search term "hh_carers":
     """
     {
@@ -264,6 +264,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
         {
           "name": "hh_carers_D",
           "id": "hh_carers_D",
+          "default_categorisation": "hh_carers_D",
           "label": "",
           "options":[],
           "is_area_type": false

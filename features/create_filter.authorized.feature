@@ -57,7 +57,7 @@ Feature: Filters Private Endpoints Enabled
         "version": 1
       }
       """
-    
+
     And the following dataset document with dataset id "cantabular-example-1" is available from dp-dataset-api:
     """
     {

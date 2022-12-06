@@ -445,12 +445,13 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 		}
 
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{
-			Name:           finalDimension,
-			ID:             finalDimension,
-			Label:          finalLabel,
-			Options:        dim.Options,
-			IsAreaType:     dim.IsAreaType,
-			FilterByParent: dim.FilterByParent,
+			Name:                  finalDimension,
+			ID:                    finalDimension,
+			Label:                 finalLabel,
+			Options:               dim.Options,
+			IsAreaType:            dim.IsAreaType,
+			DefaultCategorisation: finalDimension,
+			FilterByParent:        dim.FilterByParent,
 		})
 
 	}
