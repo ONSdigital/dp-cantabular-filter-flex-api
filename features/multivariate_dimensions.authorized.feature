@@ -126,8 +126,8 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       }
     }
     """
-    
- And Cantabular returns these categorisation for the dataset "dummy_data_households" and search term "hh_carers":
+
+  And Cantabular returns these categorisations for the dataset "dummy_data_households" and search term "hh_carers":
     """
     {
       "dataset": {
@@ -160,7 +160,8 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     }
     """
 
-  And Cantabular metadat returns these default classification for the dataset "dummy_data_households" and search term "hh_carers":
+
+  And Metadata api returns this response for the dataset "dummy_data_households" and search term "hh_carers":
   """
   {
     "dataset": {
