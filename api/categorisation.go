@@ -33,9 +33,9 @@ func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (
 					if len(mapFrom.Edges) > 0 {
 						for _, mappedEdge := range mapFrom.Edges {
 							if len(mappedEdge.Node.IsSourceOf.Edges) > 0 {
-								for _, FINALLY := range mappedEdge.Node.IsSourceOf.Edges {
-									names = append(names, FINALLY.Node.Name)
-									labelMap[FINALLY.Node.Name] = FINALLY.Node.Label
+								for _, mappedFrom := range mappedEdge.Node.IsSourceOf.Edges {
+									names = append(names, mappedFrom.Node.Name)
+									labelMap[mappedFrom.Node.Name] = mappedFrom.Node.Label
 								}
 							}
 						}

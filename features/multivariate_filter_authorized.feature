@@ -1,9 +1,28 @@
-Feature: Multivariate Filters Private Endpoints Enabled
+ Feature: Filters Private Endpoints Enabled
 
   Background:
-    Given I am identified as "user@ons.gov.uk"
-    And I am authorised
     Given private endpoints are enabled
+
+    And the following dataset document with dataset id "cantabular-example-1" is available from dp-dataset-api:
+      """
+      {
+        "id":"cantabular-example-1",
+        "links":{
+          "self":{
+            "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+            "id":"cantabular-flexible-table-component-test"
+          }
+        },
+        "state":"published",
+        "title":"cantabular-example-1",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "type":"cantabular_flexible_table",
+        "is_based_on":{
+          "@type":"cantabular_flexible_table",
+          "@id":"Example"
+        }
+      }
+      """
 
     And the following version document with dataset id "cantabular-example-1", edition "2021" and version "1" is available from dp-dataset-api:
       """
@@ -12,22 +31,28 @@ Feature: Multivariate Filters Private Endpoints Enabled
         "collection_id": "dfb-38b11d6c4b69493a41028d10de503aabed3728828e17e64914832d91e1f493c6",
         "is_based_on":{"@type": "cantabular_multivariate_table"},
         "dimensions": [
-           {
-                        "href": "http://localhost:22400/code-lists/ladcd",
-                        "id": "ladcd",
-                        "is_hierarchy": false,
-                        "name": "ladcd",
-                        "is_cantabular_geography": true,
-                        "is_cantabular_default_geography": true
-                    },
-                    {
-                        "href": "http://localhost:22400/code-lists/hh_tenure_9a",
-                        "id": "hh_tenure_9a",
-                        "is_hierarchy": false,
-                        "name": "hh_tenure_9a",
-                        "is_cantabular_geography": false,
-                         "is_cantabular_default_geography": false
-                    }
+          {
+            "label": "City",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/city",
+            "id": "city",
+            "name": "geography"
+          },
+          {
+            "label": "Number of siblings (3 mappings)",
+            "links": {
+              "code_list": {},
+              "options": {},
+              "version": {}
+            },
+            "href": "http://api.localhost:23200/v1/code-lists/siblings_3",
+            "id": "siblings_3",
+            "name": "siblings"
+          }
         ],
         "edition": "2021",
         "id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
@@ -51,33 +76,126 @@ Feature: Multivariate Filters Private Endpoints Enabled
         "version": 1
       }
       """
+
+    And Cantabular returns dimensions for the dataset "dummy_data_households" for the following search terms:
+      """
+      {
+        "responses": {
+          "ladcd": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "LADCD",
+                      "label": "Local Authority code",
+                      "mapFrom": [
+                        {
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "hh_deprivation_health": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "hh_deprivation_health",
+                      "label": "Household deprived in the health and disability dimension (3 categories)",
+                      "mapFrom": [
+                        {
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "hh_deprivation": {
+            "dataset": {
+              "variables": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "hh_deprivation",
+                      "label": "Household deprivation (6 categories)",
+                      "mapFrom": [
+                        {
+                          "edges": [
+                            {
+                              "node": {
+                                "label": "City",
+                                "name": "city"
+                              }
+                            }
+                          ],
+                          "totalCount": 1
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+      """
   Scenario: Creating a new multivariate filter journey when authorized
+    Given I am identified as "user@ons.gov.uk"
+
+    And I am authorised
 
     When I POST "/filters"
     """
     {
       "dataset":{
-          "id":      "cantabular-example-1",
-          "edition": "2021",
-          "version": 1
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1,
+        "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
       "dimensions": [
-      {
-        "name": "ladcd",
-        "is_area_type": true,
-        "filter_by_parent": ""
-      },
-      {
-        "name": "ethnic_group",
-        "is_area_type": false,
-        "filter_by_parent": ""
-      },
-    {
-         "name": "hh_deprivation",
-        "is_area_type": false,
-        "filter_by_parent": ""
-      }
+        {
+          "name": "ladcd",
+          "is_area_type": true,
+          "filter_by_parent": ""
+        },
+        {
+          "name": "hh_deprivation_health",
+          "is_area_type": false,
+          "filter_by_parent": ""
+        },
+        {
+          "name": "hh_deprivation",
+          "is_area_type": false,
+          "filter_by_parent": ""
+        }
       ]
     }
     """
@@ -102,13 +220,17 @@ Feature: Multivariate Filters Private Endpoints Enabled
       "dataset": {
         "id":      "cantabular-example-1",
         "edition": "2021",
-        "version": 1
+        "version": 1,
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
       "population_type": "dummy_data_households",
       "published":       true,
-      "type":            "cantabular_multivariate_table"
+      "type":            "multivariate"
     }
     """
+
     And the HTTP status code should be "201"
 
     And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
@@ -128,55 +250,127 @@ Feature: Multivariate Filters Private Endpoints Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "22d6ed269ce9691e27e7abaa424159017cd3609b",
+      "etag": "d26355bd49694942f6f87f77b901e741d57ac435",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
-            {
-
-        "name": "ladcd",
-        "id": "ladcd",
-        "label": "",
-        "is_area_type": true,
-        "options": []
-      },
-      {
-
-        "name": "ethnic_group",
-        "is_area_type": false,
-        "id": "",
-        "label": "",
-        "options": []
-
-      },
-    {
-
-         "name": "hh_deprivation",
-        "is_area_type": false,
-        "id": "",
-        "label": "",
-        "options": []
-      }
+        {
+          "name": "ladcd",
+          "label": "Local Authority code",
+          "id": "ladcd",
+          "is_area_type": true,
+          "options": []
+        },
+        {
+          "name": "hh_deprivation_health",
+          "label": "Household deprived in the health and disability dimension (3 categories)",
+          "id": "hh_deprivation_health",
+          "is_area_type": false,
+          "options": []
+        },
+        {
+          "name": "hh_deprivation",
+          "id": "hh_deprivation",
+          "label": "Household deprivation (6 categories)",
+          "is_area_type": false,
+          "options": []
+        }
       ],
       "dataset": {
-        "id":      "cantabular-example-1",
+        "id": "cantabular-example-1",
         "edition": "2021",
         "version": {
-          "$numberInt":"1"
-        }
+          "$numberInt": "1"
+        },
+        "lowest_geography": "lowest-geography",
+        "release_date": "2021-11-19T00:00:00.000Z",
+        "title": "cantabular-example-1"
       },
-      "published":       true,
+      "published": true,
       "population_type": "dummy_data_households",
-      "type":            "cantabular_multivariate_table",
-      "unique_timestamp":{
-        "$timestamp":{
+      "type": "multivariate",
+      "unique_timestamp": {
+        "$timestamp": {
           "i": 1,
-          "t": 1.643200024e+09
+          "t": 1643200024.0
         }
       },
-      "last_updated":{
-        "$date":{
+      "last_updated": {
+        "$date": {
           "$numberLong": "1643200024783"
         }
       }
     }
     """
+  Scenario: Creating a new multivariate with no dims when authorized
+    Given I am identified as "user@ons.gov.uk"
+
+    And I am authorised
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1,
+        "lowest_geography": "lowest-geography"
+      },
+      "population_type": "dummy_data_households",
+      "dimensions": []
+    }
+    """
+
+    Then the HTTP status code should be "400"
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+          "failed to parse request: invalid request: missing/invalid field: 'dimensions' must contain at least 1 value"
+      ]
+    }
+    """
+  Scenario: Creating a new multivariate with a bad dim
+    Given I am identified as "user@ons.gov.uk"
+
+    And I am authorised
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+        "id":      "cantabular-example-1",
+        "edition": "2021",
+        "version": 1,
+        "lowest_geography": "lowest-geography"
+      },
+      "population_type": "dummy_data_households",
+      "dimensions": [
+        {
+          "name": "DOES NOT EXIST",
+          "is_area_type": true,
+          "filter_by_parent": ""
+        },
+        {
+          "name": "hh_deprivation_health",
+          "is_area_type": false,
+          "filter_by_parent": ""
+        },
+        {
+          "name": "hh_deprivation",
+          "is_area_type": false,
+          "filter_by_parent": ""
+        }
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+          "failed to find dimension: DOES NOT EXIST"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "404"
