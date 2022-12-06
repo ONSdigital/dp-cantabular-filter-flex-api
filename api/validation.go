@@ -146,17 +146,17 @@ func (api *API) validateDimensions(filterDims []model.Dimension, dims []dataset.
 }
 
 func (api *API) isValidDatasetDimensions(ctx context.Context, v dataset.Version, d []model.Dimension, pType string) error {
-	/* 	dimIDs, err := api.validateDimensions(d, v.Dimensions, pType)
-	   	if err != nil {
-	   		return Error{
-	   			err:      errors.Wrap(err, "failed to validate request dimensions"),
-	   			notFound: true,
-	   		}
-	   	}
+	/*	dimIDs, err := api.validateDimensions(d, v.Dimensions, pType)
+		if err != nil {
+			return Error{
+				err:      errors.Wrap(err, "failed to validate request dimensions"),
+				notFound: true,
+			}
+		}
 
-	   	if err := api.validateDimensionOptionsNew(ctx, d, dimIDs, pType); err != nil {
-	   		return errors.Wrap(err, "failed to validate dimension options")
-	   	}
+		if err := api.validateDimensionOptionsNew(ctx, d, dimIDs, pType); err != nil {
+			return errors.Wrap(err, "failed to validate dimension options")
+		}
 	*/
 	if err := api.validateDimensionOptions(ctx, d, pType); err != nil {
 		return errors.Wrap(err, "failed to validate dimension options")
@@ -177,7 +177,6 @@ func (api *API) ValidateAndReturnDimensions(v dataset.Version, dimensions []mode
 		finalDims = hydrateDimensions(dimensions, v.Dimensions)
 
 	} else if v.IsBasedOn.Type == cantabularMultivariateTable {
-		println("CREATING FILTER")
 		filterType = multivariate
 		multivariateDims, err := api.isValidMultivariateDimensions(ctx, dimensions, populationType, postDimension)
 		if err != nil {
@@ -439,6 +438,10 @@ func (api *API) isValidMultivariateDimensions(ctx context.Context, dimensions []
 				return nil, err
 			}
 
+		}
+
+		if dim.Options == nil {
+			dim.Options = []string{}
 		}
 
 		hydratedDimensions = append(hydratedDimensions, model.Dimension{

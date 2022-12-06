@@ -103,31 +103,26 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     ]
     """
 
-    And Cantabular returns these dimensions for the dataset "dummy_data_households" and search term "hh_carers":
+   And Cantabular returns these dimensions for the dataset "dummy_data_households" and search term "hh_carers":
     """
-    {
+  {
       "dataset": {
         "variables": {
-          "search": {
             "edges": [
-            {
-              "node": {
-                "categories": {
-                  "totalCount": 32
-                },
-                "label": "Number of unpaid carers in household (32 categories)",
-                "mapFrom": [],
-                "name": "hh_carers"
+              {
+                "node": {
+                  "name": "hh_carers",
+                  "label": "hh_carers_label",
+                  "mapFrom": []
+                }
               }
-            }
             ]
-          }
         }
       }
     }
     """
-    
- And Cantabular returns these categorisation for the dataset "dummy_data_households" and search term "hh_carers":
+
+  And Cantabular returns these categorisations for the dataset "dummy_data_households" and search term "hh_carers":
     """
     {
       "dataset": {
@@ -160,24 +155,27 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     }
     """
 
-  And Cantabular metadat returns these default classification for the dataset "dummy_data_households" and search term "hh_carers":
+
+  And Metadata api returns this response for the dataset "dummy_data_households" and search term "hh_carers":
   """
   {
+  "data": {
     "dataset": {
       "vars": [
         {
           "meta": {
-            "Default_Classification_Flag": "N"
+            "Default_Classification_Flag": "Y"
           },
-          "name": "hh_carers"
+          "name": "hh_carers_6a"
         }
       ]
     }
   }
-   """
+  }
+  """
 
     Scenario: Adding a second filter to a multivariate filter with extra variable
-        Given I use an X Florence user token "user token"
+      Given I use an X Florence user token "user token"
 
       And I am identified as "user@ons.gov.uk"
 
@@ -192,28 +190,29 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       }
       """
 
-      Then the HTTP status code should be "201"
 
       And I should receive the following JSON response:
       """
       {
-      "name": "hh_carers",
-      "id": "",
-      "label": "",
+      "name": "hh_carers_6a",
+      "id": "hh_carers_6a",
+      "label": "Number of unpaid carers in household (6 categories)",
       "links": {
         "filter": {
             "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
             "id": "94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "options": {
-            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers/options"
+            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_6a/options"
         },
         "self": {
-            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers"
+            "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_6a",
+            "id": "hh_carers_6a"
         }
         }
       }
       """
+      Then the HTTP status code should be "201"
 
 
       And a document in collection "filters" with key "filter_id" value "94310d8d-72d6-492a-bc30-27584627edb1" should match:
@@ -240,7 +239,10 @@ Feature: Multivariate Feature Dimensions Private Endpoints
         "edition": "2021",
         "version": {
           "$numberInt":"1"
-        }
+        },
+        "lowest_geography": "",
+        "release_date": "",
+        "title": ""
       },
       "dimensions": [
 
@@ -259,9 +261,9 @@ Feature: Multivariate Feature Dimensions Private Endpoints
           "is_area_type": true
         },
         {
-          "name": "hh_carers",
-          "id": "",
-          "label": "",
+          "name": "hh_carers_6a",
+          "id": "hh_carers_6a",
+          "label": "Number of unpaid carers in household (6 categories)",
           "options": [],
           "is_area_type": false
         }
