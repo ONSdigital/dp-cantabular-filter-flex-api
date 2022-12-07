@@ -27,6 +27,7 @@ type CantabularClient struct {
 	GetGeographyDimensionsInBatchesFunc func(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
 	GetAreaFunc                         func(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StaticDatasetQueryFunc              func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
+	GetCategorisationsFunc              func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
 }
 
 func (c *CantabularClient) Reset() {
@@ -45,6 +46,13 @@ func (c *CantabularClient) GetDimensionOptions(_ context.Context, _ cantabular.G
 	}
 
 	return nil, errors.New("invalid dimension options")
+}
+
+func (c *CantabularClient) GetCategorisations(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	if c.OptionsHappy {
+		return c.GetCategorisationsFunc(ctx, req)
+	}
+	return nil, errors.New("error while retrieving categorisations")
 }
 
 func (c *CantabularClient) StaticDatasetQuery(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {

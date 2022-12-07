@@ -233,8 +233,6 @@ Feature: Filter Outputs Private Endpoints Enabled
     }
     """
     And an ETag is returned
-
-
   Scenario: Add a filter dimension with no options successfully
     Given I am identified as "user@ons.gov.uk"
     And I am authorised

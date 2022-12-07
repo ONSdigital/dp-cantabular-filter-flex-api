@@ -23,13 +23,14 @@ type API struct {
 	generate       generator
 	producer       kafka.IProducer
 	identityClient *identity.Client
+	metadata       metadataAPIClient
 	datasets       datasetAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
 }
 
 // New creates and initialises a new API
-func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, p kafka.IProducer) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -40,6 +41,7 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 		datasets:       ds,
 		ctblr:          c,
 		producer:       p,
+		metadata:       m,
 	}
 
 	if cfg.EnablePrivateEndpoints {

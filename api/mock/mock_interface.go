@@ -12,6 +12,7 @@ import (
 
 	cantabular "github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	gql "github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
+	cantabularmetadata "github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	model "github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	gomock "github.com/golang/mock/gomock"
@@ -465,6 +466,21 @@ func (mr *MockcantabularClientMockRecorder) GetArea(arg0, arg1 interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArea", reflect.TypeOf((*MockcantabularClient)(nil).GetArea), arg0, arg1)
 }
 
+// GetCategorisations mocks base method.
+func (m *MockcantabularClient) GetCategorisations(arg0 context.Context, arg1 cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategorisations", arg0, arg1)
+	ret0, _ := ret[0].(*cantabular.GetCategorisationsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCategorisations indicates an expected call of GetCategorisations.
+func (mr *MockcantabularClientMockRecorder) GetCategorisations(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockcantabularClient)(nil).GetCategorisations), arg0, arg1)
+}
+
 // GetDimensionOptions mocks base method.
 func (m *MockcantabularClient) GetDimensionOptions(arg0 context.Context, arg1 cantabular.GetDimensionOptionsRequest) (*cantabular.GetDimensionOptionsResponse, error) {
 	m.ctrl.T.Helper()
@@ -619,6 +635,44 @@ func (m *MockdatasetAPIClient) GetVersion(ctx context.Context, userAuthToken, sv
 func (mr *MockdatasetAPIClientMockRecorder) GetVersion(ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersion), ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version)
+}
+
+// MockmetadataAPIClient is a mock of metadataAPIClient interface.
+type MockmetadataAPIClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockmetadataAPIClientMockRecorder
+}
+
+// MockmetadataAPIClientMockRecorder is the mock recorder for MockmetadataAPIClient.
+type MockmetadataAPIClientMockRecorder struct {
+	mock *MockmetadataAPIClient
+}
+
+// NewMockmetadataAPIClient creates a new mock instance.
+func NewMockmetadataAPIClient(ctrl *gomock.Controller) *MockmetadataAPIClient {
+	mock := &MockmetadataAPIClient{ctrl: ctrl}
+	mock.recorder = &MockmetadataAPIClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockmetadataAPIClient) EXPECT() *MockmetadataAPIClientMockRecorder {
+	return m.recorder
+}
+
+// GetDefaultClassification mocks base method.
+func (m *MockmetadataAPIClient) GetDefaultClassification(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDefaultClassification", ctx, req)
+	ret0, _ := ret[0].(*cantabularmetadata.GetDefaultClassificationResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDefaultClassification indicates an expected call of GetDefaultClassification.
+func (mr *MockmetadataAPIClientMockRecorder) GetDefaultClassification(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultClassification", reflect.TypeOf((*MockmetadataAPIClient)(nil).GetDefaultClassification), ctx, req)
 }
 
 // Mockcoder is a mock of coder interface.

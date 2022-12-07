@@ -74,6 +74,11 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		cf.cantabularSearchReturnsTheseDimensions,
 	)
 	ctx.Step(
+		`^Cantabular returns these categorisations for the dataset "([^"]*)" and search term "([^"]*)":$`,
+		cf.cantabularSearchReturnsTheseCategories,
+	)
+
+	ctx.Step(
 		`^Cantabular returns these geography dimensions for the given request:$`,
 		cf.cantabularReturnsTheseGeographyDimensionsForTheGivenRequest,
 	)
@@ -99,6 +104,29 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		cf.cantabularReturnsMultipleDimensions,
 	)
 
+}
+
+func (cf *CantabularFeature) cantabularSearchReturnsTheseCategories(datasetID, dimension string, docs *godog.DocString) error {
+	var resp cantabular.GetCategorisationsResponse
+	if err := json.Unmarshal([]byte(docs.Content), &resp); err != nil {
+		return fmt.Errorf("unable to unmarshal cantabular search response: %w", err)
+	}
+
+	cf.cantabularClient.GetCategorisationsFunc = func(_ context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+		if len(req.Dataset) == 0 {
+			return nil, errors.New("no dataset provided in request")
+		}
+		if req.Dataset == datasetID && req.Variable == dimension {
+			return &resp, nil
+		}
+
+		return nil, &er{
+			err:        errors.New("variable at position 1 does not exist"),
+			statusCode: http.StatusNotFound,
+		}
+	}
+
+	return nil
 }
 
 // cantabularReturnsMultipleDimensions sets up a stub response for the `GetDimensionsByName` method.

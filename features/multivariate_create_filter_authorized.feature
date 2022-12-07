@@ -76,7 +76,6 @@
         "version": 1
       }
       """
-
     And Cantabular returns dimensions for the dataset "dummy_data_households" for the following search terms:
       """
       {

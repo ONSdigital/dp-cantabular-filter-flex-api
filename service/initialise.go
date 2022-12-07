@@ -10,6 +10,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/generator"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
+	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
@@ -48,6 +49,16 @@ var GetCantabularClient = func(cfg *config.Config) CantabularClient {
 		dphttp.NewClient(),
 		nil,
 	)
+}
+
+var GetMetadataClient = func(cfg *config.Config) MetadataClient {
+
+	// NB: Client initialisation is not consistent, see above...
+	return cantabularmetadata.NewClient(cantabularmetadata.Config{
+		Host:           cfg.MetadataAPIURL,
+		GraphQLTimeout: cfg.DefaultRequestTimeout,
+	}, dphttp.NewClient())
+
 }
 
 // GetDatasetAPIClient gets and initialises the DatasetAPI Client

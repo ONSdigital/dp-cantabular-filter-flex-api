@@ -89,9 +89,22 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dimensions, err := api.validateAndHydrateDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
-	if err != nil {
-		api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
+	var dimensions []model.Dimension
+
+	if v.IsBasedOn.Type == cantabularFlexibleTable {
+		dimensions, err = api.validateAndHydrateDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
+		if err != nil {
+			api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
+			return
+		}
+	} else if v.IsBasedOn.Type == cantabularMultivariateTable {
+		dimensions, err = api.HydratePostMultivariateDimensions([]model.Dimension{req.Dimension}, filter.PopulationType)
+		if err != nil {
+			api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
+			return
+		}
+	} else {
+		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.New("unsupported filter type"))
 		return
 	}
 

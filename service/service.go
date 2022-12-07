@@ -29,6 +29,7 @@ type Service struct {
 	generator        Generator
 	cantabularClient CantabularClient
 	datasetAPIClient DatasetAPIClient
+	metadataClient   MetadataClient
 	identityClient   *identity.Client
 }
 
@@ -61,6 +62,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
+	svc.metadataClient = GetMetadataClient(cfg)
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
 
@@ -86,6 +88,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.store,
 		svc.datasetAPIClient,
 		svc.cantabularClient,
+		svc.metadataClient,
 		svc.Producer,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)

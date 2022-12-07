@@ -60,10 +60,12 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	}
 
 	if v.IsBasedOn.Type == cantabularMultivariateTable {
+
 		resp, err := api.getCantabularDimensions(ctx, dims, pType)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get dimensions from Cantabular")
 		}
+
 		return resp, nil
 	}
 
@@ -72,6 +74,41 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 		logData:    log.Data{"is_based_on.type": v.IsBasedOn.Type},
 		badRequest: true,
 	}
+}
+
+// Used for POST Dimension when the filter type is multivariate.
+// Extra logic required to hydrate dimension using the default categorisation of the dimension.
+func (api *API) HydratePostMultivariateDimensions(dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
+	ctx := context.Background()
+	hydratedDimensions := make([]model.Dimension, 0)
+	var finalLabel string
+
+	for _, dim := range dimensions {
+		finalDimension := dim.Name
+		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
+		if err != nil {
+			return nil, errors.Wrap(err, "error in cantabular response")
+		}
+
+		finalDimension, finalLabel, err = api.CheckDefaultCategorisation(node.Name, pType)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to hydrate multivariate dimensions")
+		}
+
+		if finalDimension != dim.Name || dim.Options == nil {
+			dim.Options = []string{}
+		}
+		hydratedDimensions = append(hydratedDimensions, model.Dimension{
+			Name:                  finalDimension,
+			ID:                    finalDimension,
+			Label:                 finalLabel,
+			DefaultCategorisation: finalDimension,
+			Options:               dim.Options,
+			IsAreaType:            dim.IsAreaType,
+			FilterByParent:        dim.FilterByParent,
+		})
+	}
+	return hydratedDimensions, nil
 }
 
 // getCantabularDimensions pulls full dimension information from Cantabular using the names of the provided

@@ -65,3 +65,10 @@ func (c *CantabularClient) Checker(_ context.Context, _ *healthcheck.CheckState)
 func (c *CantabularClient) CheckerAPIExt(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
 }
+
+func (c *CantabularClient) GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
+	if c.OptionsHappy {
+		return nil, nil
+	}
+	return nil, errors.New("invalid Categorisation request")
+}
