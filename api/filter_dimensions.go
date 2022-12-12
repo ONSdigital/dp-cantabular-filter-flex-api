@@ -98,7 +98,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if v.IsBasedOn.Type == cantabularMultivariateTable {
-		dimensions, err = api.HydratePostMultivariateDimensions([]model.Dimension{req.Dimension}, filter.PopulationType)
+		dimensions, err = api.HydrateMultivariateDimensionsPOST([]model.Dimension{req.Dimension}, filter.PopulationType)
 		if err != nil {
 			api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
 			return

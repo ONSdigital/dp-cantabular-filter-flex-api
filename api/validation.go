@@ -78,7 +78,7 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 
 // Used for POST Dimension when the filter type is multivariate.
 // Extra logic required to hydrate dimension using the default categorisation of the dimension.
-func (api *API) HydratePostMultivariateDimensions(dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
+func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
 	ctx := context.Background()
 	hydratedDimensions := make([]model.Dimension, 0)
 	var finalLabel string
