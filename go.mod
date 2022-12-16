@@ -9,14 +9,14 @@ replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 exclude github.com/gorilla/sessions v1.2.1
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.204.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.207.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.9.0
 	github.com/ONSdigital/dp-healthcheck v1.5.0
 	github.com/ONSdigital/dp-kafka/v3 v3.8.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.4.0
 	github.com/ONSdigital/dp-net v1.5.0
-	github.com/ONSdigital/dp-net/v2 v2.6.0
+	github.com/ONSdigital/dp-net/v2 v2.7.0
 	github.com/ONSdigital/log.go/v2 v2.3.0
 	github.com/cucumber/godog v0.12.5
 	github.com/go-chi/chi/v5 v5.0.8
@@ -38,7 +38,7 @@ require (
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/Shopify/sarama v1.37.2 // indirect
-	github.com/aws/aws-sdk-go v1.44.157 // indirect
+	github.com/aws/aws-sdk-go v1.44.161 // indirect
 	github.com/chromedp/cdproto v0.0.0-20221126224343-3a0787b8dd28 // indirect
 	github.com/chromedp/chromedp v0.8.6 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect

@@ -50,6 +50,8 @@ github.com/ONSdigital/dp-api-clients-go/v2 v2.203.0 h1:IhAUaQkhi7Q6heIEwdGXbafZU
 github.com/ONSdigital/dp-api-clients-go/v2 v2.203.0/go.mod h1:JhWrjETosIKYjbLoa3d19QJlKv7dx+/+x09qg355Rxg=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.204.0 h1:Li8N7ObJz701Op00HDFYLIjE4v46xc7bQH3tnxECSM8=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.204.0/go.mod h1:JhWrjETosIKYjbLoa3d19QJlKv7dx+/+x09qg355Rxg=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.207.0 h1:DJZ1+FNJm5EtCNzKmQ1btAF8R83I/NSc5RmJIjsOwHs=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.207.0/go.mod h1:JhWrjETosIKYjbLoa3d19QJlKv7dx+/+x09qg355Rxg=
 github.com/ONSdigital/dp-authorisation v0.2.0 h1:QVjTUSR3c1swZwP7lMbvnBsh4Je9oc54eGzgwPOvHOc=
 github.com/ONSdigital/dp-authorisation v0.2.0/go.mod h1:Tg3BiohT3+bRv4vr4aid/1Rf+S3eXLUI8oHbOLFqFpQ=
 github.com/ONSdigital/dp-component-test v0.9.0 h1:DfSvL1CKrZ4Jm/WqNLw27DtOcn2fmPI6KNx9zaFYgCo=
@@ -80,6 +82,8 @@ github.com/ONSdigital/dp-net v1.5.0 h1:H47O5N+eXyXCYqPoQGWwuK12uLds3pCgzxpYwepg+
 github.com/ONSdigital/dp-net v1.5.0/go.mod h1:d/S4n6FJlQwmVIa2rnVt1HnAUgM8XsG0QEJBQp48uGg=
 github.com/ONSdigital/dp-net/v2 v2.6.0 h1:orxdb0SVDrJgz/zma0QXgQCAGJdLDhp6g2XqH6VFUZw=
 github.com/ONSdigital/dp-net/v2 v2.6.0/go.mod h1:4/2ZyId//hFa7AtbbRNQctY729C1Vbw4UEdOliRvpZI=
+github.com/ONSdigital/dp-net/v2 v2.7.0 h1:iAbGlUmwf7Y8DKJXEF1mDXO+BDO2LhJ3XfMQwesT18U=
+github.com/ONSdigital/dp-net/v2 v2.7.0/go.mod h1:4/2ZyId//hFa7AtbbRNQctY729C1Vbw4UEdOliRvpZI=
 github.com/ONSdigital/dp-rchttp v0.0.0-20190919143000-bb5699e6fd59/go.mod h1:KkW68U3FPuivW4ogi9L8CPKNj9ZxGko4qcUY7KoAAkQ=
 github.com/ONSdigital/dp-rchttp v0.0.0-20200114090501-463a529590e8/go.mod h1:821jZtK0oBsV8hjIkNr8vhAWuv0FxJBPJuAHa2B70Gk=
 github.com/ONSdigital/dp-rchttp v1.0.0 h1:K/1/gDtfMZCX1Mbmq80nZxzDirzneqA1c89ea26FqP4=
@@ -110,6 +114,8 @@ github.com/aws/aws-sdk-go v1.44.154 h1:2TaEC8JIM/t7Fu+FBmdOBK5jFUAVL07tbpfJsLuVo
 github.com/aws/aws-sdk-go v1.44.154/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aws/aws-sdk-go v1.44.157 h1:JVBPpEWC8+yA7CbfAuTl/ZFFlHS3yoqWFqxFyTCISwg=
 github.com/aws/aws-sdk-go v1.44.157/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
+github.com/aws/aws-sdk-go v1.44.161 h1:uZdZJ30mlbaU2wsrd/wzibrX01cbgKE2t486TtRjeHs=
+github.com/aws/aws-sdk-go v1.44.161/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chromedp/cdproto v0.0.0-20221011223153-490dc4d81f7c h1:JQvTh3Lqw0aGKFu/roG/DTMgqVCmSE6aVOegf+mMNrY=
 github.com/chromedp/cdproto v0.0.0-20221011223153-490dc4d81f7c/go.mod h1:5Y4sD/eXpwrChIuxhSr/G20n9CdbCmoerOHnuAf0Zr0=
