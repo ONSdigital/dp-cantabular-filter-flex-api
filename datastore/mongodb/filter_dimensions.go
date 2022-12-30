@@ -157,10 +157,12 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 		}
 	}
 
-	if at := filter.Dimensions[newDimensionIndex].IsAreaType; at == nil || !(*at) {
-		return "", &er{
-			err:     errors.New("non geography variable"),
-			logData: logData,
+	if filter.Type != "multivariate" {
+		if at := filter.Dimensions[newDimensionIndex].IsAreaType; at == nil || !(*at) {
+			return "", &er{
+				err:     errors.New("non geography variable"),
+				logData: logData,
+			}
 		}
 	}
 
