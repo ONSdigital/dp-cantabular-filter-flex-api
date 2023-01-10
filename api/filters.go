@@ -147,14 +147,8 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 	f := model.Filter{
 		Links: model.FilterLinks{
 			Version: model.Link{
-				HREF: api.generate.URL(
-					api.cfg.DatasetAPIURL,
-					"/datasets/%s/editions/%s/version/%d",
-					req.Dataset.ID,
-					req.Dataset.Edition,
-					req.Dataset.Version,
-				),
-				ID: strconv.Itoa(v.Version),
+				HREF: v.Links.Self.URL,
+				ID:   strconv.Itoa(v.Version),
 			},
 		},
 		Dimensions:        finalDims,

@@ -8,7 +8,7 @@ Feature: Get Filter Dimension Options Private Endpoints
     "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
     "links": {
       "version": {
-        "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+        "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
         "id": "1"
       },
       "dimensions": {

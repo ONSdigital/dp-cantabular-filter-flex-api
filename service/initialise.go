@@ -32,7 +32,7 @@ var GetResponder = func() Responder {
 var GetMongoDB = func(ctx context.Context, cfg *config.Config, g Generator) (Datastore, error) {
 	return mongo.NewClient(ctx, g, mongo.Config{
 		MongoDriverConfig:       cfg.Mongo,
-		FilterFlexAPIURL:        cfg.BindAddr,
+		FilterAPIURL:            cfg.FilterAPIURL,
 		FiltersCollection:       cfg.FiltersCollection,
 		FilterOutputsCollection: cfg.FilterOutputsCollection,
 	})

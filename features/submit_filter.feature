@@ -9,7 +9,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
         "filter_id": "TEST-FILTER-ID",
         "links": {
           "version": {
-            "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+            "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
             "id": "1"
           },
           "dimensions": {
@@ -123,7 +123,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
       },
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {
@@ -154,7 +154,7 @@ Feature: Submit Filter Private Endpoints Not Enabled
       },
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {

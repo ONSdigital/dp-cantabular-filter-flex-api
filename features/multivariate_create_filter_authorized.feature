@@ -205,7 +205,7 @@
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {
@@ -239,7 +239,7 @@
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {
@@ -249,7 +249,7 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "d26355bd49694942f6f87f77b901e741d57ac435",
+      "etag": "a8b1b88594cfa782aa0a3f49eb61df82cb50fef4",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {

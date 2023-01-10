@@ -64,7 +64,7 @@ func (mf *MongoFeature) setWorkingMongo() {
 	service.GetMongoDB = func(ctx context.Context, cfg *config.Config, g service.Generator) (service.Datastore, error) {
 		return mongodb.NewClient(ctx, g, mongodb.Config{
 			MongoDriverConfig:       cfg.Mongo,
-			FilterFlexAPIURL:        cfg.BindAddr,
+			FilterAPIURL:            cfg.BindAddr,
 			FiltersCollection:       cfg.FiltersCollection,
 			FilterOutputsCollection: cfg.FilterOutputsCollection,
 		})
