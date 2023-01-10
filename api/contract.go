@@ -186,11 +186,12 @@ type updateFilterDimensionResponse struct {
 }
 
 type dimensionItem struct {
-	ID             string             `json:"id"`
-	Name           string             `json:"name"`
-	Label          string             `json:"label"`
-	FilterByParent string             `json:"filter_by_parent,omitempty"`
-	Links          dimensionItemLinks `json:"links"`
+	ID                    string             `json:"id"`
+	Name                  string             `json:"name"`
+	Label                 string             `json:"label"`
+	FilterByParent        string             `json:"filter_by_parent,omitempty"`
+	DefaultCategorisation string             `json:"default_categorisaion"`
+	Links                 dimensionItemLinks `json:"links"`
 }
 
 func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
@@ -201,6 +202,8 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 	d.Name = dim.Name
 	d.Label = dim.Label
 	d.FilterByParent = dim.FilterByParent
+	d.DefaultCategorisation = dim.DefaultCategorisation
+
 	d.Links = dimensionItemLinks{
 		Self: model.Link{
 			HREF: dimURL,
