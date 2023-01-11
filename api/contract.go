@@ -203,7 +203,6 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 	d.Label = dim.Label
 	d.FilterByParent = dim.FilterByParent
 	d.DefaultCategorisation = dim.DefaultCategorisation
-
 	d.Links = dimensionItemLinks{
 		Self: model.Link{
 			HREF: dimURL,
@@ -288,3 +287,4 @@ type DatasetJSONLinks struct {
 	Self            model.Link `json:"self"`
 	Version         model.Link `json:"version"`
 }
+
