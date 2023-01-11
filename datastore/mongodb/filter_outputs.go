@@ -82,6 +82,9 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 	if f.Downloads.XLS != nil {
 		fields["downloads.xls"] = f.Downloads.XLS
 	}
+	if f.Downloads.XLSX != nil {
+		fields["downloads.xlsx"] = f.Downloads.XLSX
+	}
 
 	update := bson.M{"$set": fields}
 

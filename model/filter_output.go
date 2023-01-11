@@ -29,6 +29,7 @@ type FilterOutput struct {
 // and should not be changed (xlsx, csv, txt, csvw)
 type Downloads struct {
 	XLS  *FileInfo `bson:"xls,omitempty"   json:"xls,omitempty"`
+	XLSX *FileInfo `bson:"xlsx,omitempty"  json:"xlsx,omitempty"`
 	CSV  *FileInfo `bson:"csv,omitempty"   json:"csv,omitempty"`
 	TXT  *FileInfo `bson:"txt,omitempty"   json:"txt,omitempty"`
 	CSVW *FileInfo `bson:"csvw,omitempty"  json:"csvw,omitempty"`
