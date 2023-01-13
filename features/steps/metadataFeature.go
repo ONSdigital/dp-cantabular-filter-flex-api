@@ -55,7 +55,7 @@ func (mf *MetadataFeature) MetadataReturnsTheseDefaults(datasetID, search string
 
 	mf.metadataClient.GetDefaultClassificationFunc = func(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
 		cantabularResponse := cantabularmetadata.GetDefaultClassificationResponse{
-			Variable: res.Data.Dataset.Vars[0].Name,
+			Variables: []string{res.Data.Dataset.Vars[0].Name},
 		}
 
 		return &cantabularResponse, nil

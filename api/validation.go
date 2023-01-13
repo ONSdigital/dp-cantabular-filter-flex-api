@@ -82,7 +82,7 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 	ctx := context.Background()
 	hydratedDimensions := make([]model.Dimension, 0)
 	var finalLabel string
-
+	var finalCategorisation string
 	for _, dim := range dimensions {
 		finalDimension := dim.Name
 		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
@@ -90,7 +90,7 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
-		finalDimension, finalLabel, err = api.CheckDefaultCategorisation(node.Name, pType)
+		finalDimension, finalLabel, finalCategorisation, err = api.RetrieveDefaultCategorisation(node, pType)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to hydrate multivariate dimensions")
 		}
@@ -102,7 +102,7 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 			Name:                  finalDimension,
 			ID:                    finalDimension,
 			Label:                 finalLabel,
-			DefaultCategorisation: finalDimension,
+			DefaultCategorisation: finalCategorisation,
 			Options:               dim.Options,
 			IsAreaType:            dim.IsAreaType,
 			FilterByParent:        dim.FilterByParent,
