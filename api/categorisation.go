@@ -5,32 +5,38 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/pkg/errors"
 )
 
-func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (string, string, error) {
+/*
+RetrieveDefaultCategorisation takes dimension, returns categorisations, and checks if any are default.
+if so, it returns the relevant information. If there are no default categorisations, it returns empty string
+for default categorisation, and the original dimension name and label to persist instead.
+
+	returns (finalDimension, finalLabel, finalCategorisation, error)
+*/
+func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datasetName string) (string, string, string, error) {
 	ctx := context.Background()
 	labelMap := make(map[string]string)
 	cats, err := api.ctblr.GetCategorisations(ctx, cantabular.GetCategorisationsRequest{
 		Dataset:  datasetName,
-		Variable: dimName,
+		Variable: dimension.Name,
 	})
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to check default categorisation")
+		return "", "", "", errors.Wrap(err, "failed to check default categorisation")
 	}
 
 	names := make([]string, 0)
 	for _, edge := range cats.Dataset.Variables.Edges {
 		if len(edge.Node.MapFrom) > 0 {
 			for _, mapFrom := range edge.Node.MapFrom {
-				for _, _ = range mapFrom.Edges {
-					for _, mappedSource := range mapFrom.Edges {
-						for _, mappedSourceEdge := range mappedSource.Node.IsSourceOf.Edges {
-							names = append(names, mappedSourceEdge.Node.Name)
-							labelMap[mappedSourceEdge.Node.Name] = mappedSourceEdge.Node.Label
-						}
-
+				for _, mappedSource := range mapFrom.Edges {
+					for _, mappedSourceEdge := range mappedSource.Node.IsSourceOf.Edges {
+						names = append(names, mappedSourceEdge.Node.Name)
+						labelMap[mappedSourceEdge.Node.Name] = mappedSourceEdge.Node.Label
 					}
+
 				}
 			}
 
@@ -44,7 +50,7 @@ func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (
 	}
 
 	if len(names) == 0 {
-		return "", "", errors.New("no categorisations recieved for variable")
+		return "", "", "", errors.New("no categorisations recieved for variable")
 	}
 
 	defaultCat, err := api.metadata.GetDefaultClassification(ctx, cantabularmetadata.GetDefaultClassificationRequest{
@@ -52,8 +58,16 @@ func (api *API) CheckDefaultCategorisation(dimName string, datasetName string) (
 		Variables: names,
 	})
 	if err != nil {
-		return "", "", errors.Wrap(err, "failed to check default categorisation")
+		return "", "", "", errors.Wrap(err, "failed to check default categorisation")
 	}
 
-	return defaultCat.Variable, labelMap[defaultCat.Variable], nil
+	if len(defaultCat.Variables) > 1 {
+		return "", "", "", errors.New("More than 1 categorisation returned.")
+	}
+
+	if len(defaultCat.Variables) == 0 {
+		return dimension.Name, dimension.Label, "", nil
+	}
+
+	return defaultCat.Variables[0], labelMap[defaultCat.Variables[0]], defaultCat.Variables[0], nil
 }
