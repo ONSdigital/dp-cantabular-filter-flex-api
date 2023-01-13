@@ -156,14 +156,14 @@ Feature: Filters Private Endpoints Enabled
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {
-          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "dimensions": {
-          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
@@ -190,17 +190,17 @@ Feature: Filters Private Endpoints Enabled
       "filter_id": "94310d8d-72d6-492a-bc30-27584627edb1",
       "links": {
         "version": {
-          "href": "http://mockhost:9999/datasets/cantabular-example-1/editions/2021/version/1",
+          "href": "http://localhost:22000/datasets/cantabular-example-1/editions/2021/versions/1",
           "id": "1"
         },
         "self": {
-          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "dimensions": {
-          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "ce22e9f70ec663fe65341ab4b439d7e5e3fa362f",
+      "etag":        "79bab2ebc6d3f82576b1801848b6b3646b0de538",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {

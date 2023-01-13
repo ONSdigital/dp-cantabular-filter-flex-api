@@ -141,12 +141,12 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         "state": "published",
         "downloads":
         {
-            "xls":
+            "xlsx":
             {
-              "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
-              "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
+              "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xlsx",
+              "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xlsx",
               "size":"6944",
-              "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
+              "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xlsx",
               "skipped":true
             }
         }
@@ -226,12 +226,12 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         },
         "downloads":
         {
-            "xls":
+            "xlsx":
             {
-              "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
-              "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xls",
+              "href":"http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xlsx",
+              "private":"http://minio:9000/private-bucket/datasets/cantabular-flexible-example-2021-1.xlsx",
               "size":"6944",
-              "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xls",
+              "public":"https://csv-exported.s3.eu-west-1.amazonaws.com/full-datasets/cpih01-time-series-v1.csv-metadata.xlsx",
               "skipped":true
             },
             "csv":

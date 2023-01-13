@@ -26,7 +26,7 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 	}
 
 	f.Links.Self = model.Link{
-		HREF: fmt.Sprintf("%s/filters/%s", c.cfg.FilterFlexAPIURL, f.ID),
+		HREF: fmt.Sprintf("%s/filters/%s", c.cfg.FilterAPIURL, f.ID),
 	}
 	f.Links.Dimensions = model.Link{
 		HREF: f.Links.Self.HREF + "/dimensions",
