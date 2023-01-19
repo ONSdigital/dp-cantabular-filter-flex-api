@@ -46,8 +46,9 @@ type SubmitFilterLinks struct {
 }
 
 type Link struct {
-	HREF string `bson:"href"           json:"href"`
-	ID   string `bson:"id,omitempty"   json:"id,omitempty"`
+	HREF  string `bson:"href"            json:"href"`
+	Label string `bson:"label,omitempty" json:"label,omitempty"`
+	ID    string `bson:"id,omitempty"    json:"id,omitempty"`
 }
 
 type Event struct {
@@ -56,22 +57,22 @@ type Event struct {
 }
 
 type Dimension struct {
-	Name                  string   `bson:"name"                       json:"name"`
-	ID                    string   `bson:"id"                         json:"id"`
-	Label                 string   `bson:"label"                      json:"label"`
+	Name                  string   `bson:"name"                             json:"name"`
+	ID                    string   `bson:"id"                               json:"id"`
+	Label                 string   `bson:"label"                            json:"label"`
 	DefaultCategorisation string   `bson:"default_categorisation,omitempty" json:"default_categorisation,omitempty"`
-	Options               []string `bson:"options"                    json:"options"`
-	IsAreaType            *bool    `bson:"is_area_type"               json:"is_area_type,omitempty"`
-	FilterByParent        string   `bson:"filter_by_parent,omitempty" json:"filter_by_parent,omitempty"`
+	Options               []string `bson:"options"                          json:"options"`
+	IsAreaType            *bool    `bson:"is_area_type"                     json:"is_area_type,omitempty"`
+	FilterByParent        string   `bson:"filter_by_parent,omitempty"       json:"filter_by_parent,omitempty"`
 }
 
 type Dataset struct {
-	ID              string `bson:"id"      json:"id"`
-	Edition         string `bson:"edition" json:"edition"`
-	Version         int    `bson:"version" json:"version"`
+	ID              string `bson:"id"               json:"id"`
+	Edition         string `bson:"edition"          json:"edition"`
+	Version         int    `bson:"version"          json:"version"`
 	LowestGeography string `bson:"lowest_geography" json:"lowest_geography"`
-	ReleaseDate     string `bson:"release_date" json:"release_date"`
-	Title           string `bson:"title"      json:"title"`
+	ReleaseDate     string `bson:"release_date"     json:"release_date"`
+	Title           string `bson:"title"            json:"title"`
 }
 
 type DisclosureControl struct {

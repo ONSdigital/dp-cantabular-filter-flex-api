@@ -482,13 +482,16 @@ Feature: Get Dataset JSON
           "dimension_name":"city",
           "options":[
             {
-              "id":"0"
+              "id":"0",
+              "label": "London"
             },
             {
-              "id":"1"
+              "id":"1",
+              "label": "Liverpool"
             },
             {
-              "id":"2"
+              "id":"2",
+              "label": "Belfast"
             }
           ]
         },
@@ -496,10 +499,12 @@ Feature: Get Dataset JSON
           "dimension_name":"sex",
           "options":[
             {
-              "id":"0"
+              "id":"0",
+              "label": "Male"
             },
             {
-              "id":"1"
+              "id":"1",
+              "label": "Female"
             }
           ]
         },
@@ -507,13 +512,16 @@ Feature: Get Dataset JSON
           "dimension_name":"siblings_3",
           "options":[
             {
-              "id":"0"
+              "id":"0",
+              "label": "No siblings"
             },
             {
-              "id":"1-2"
+              "id":"1-2",
+              "label": "1 or 2 siblings"
             },
             {
-              "id":"3+"
+              "id":"3+",
+              "label": "3 or more siblings"
             }
           ]
         }
@@ -633,11 +641,14 @@ Feature: Get Dataset JSON
             "options": [
                 {
                     "href": "",
-                    "id": "E"
+                    "id": "E",
+                    "label": "England"
+
                 },
                 {
                     "href": "",
-                    "id": "N"
+                    "id": "N",
+                    "label": "Northern Ireland"
                 }
             ]
         },
@@ -645,10 +656,13 @@ Feature: Get Dataset JSON
             "dimension_name": "sex",
             "options": [
                 {
-                    "id": "0"
+                    "id": "0",
+                     "label": "Male"
+
                 },
                 {
-                    "id": "1"
+                    "id": "1",
+                    "label": "Female"
                 }
             ]
         },
@@ -656,13 +670,16 @@ Feature: Get Dataset JSON
             "dimension_name": "siblings_3",
             "options": [
                 {
-                    "id": "0"
+                    "id": "0",
+                    "label": "No siblings"
                 },
                 {
-                    "id": "1-2"
+                    "id": "1-2",
+                    "label": "1 or 2 siblings"
                 },
                 {
-                    "id": "3+"
+                    "id": "3+",
+                    "label": "3 or more siblings"
                 }
             ]
         }
@@ -849,7 +866,8 @@ Feature: Get Dataset JSON
             "options": [
                 {
                     "href": "",
-                    "id": "E"
+                    "id": "E",
+                    "label": "England"
                 }
             ]
         },
@@ -857,10 +875,12 @@ Feature: Get Dataset JSON
             "dimension_name": "sex",
             "options": [
                 {
-                    "id": "0"
+                    "id": "0",
+                    "label": "Male"
                 },
                 {
-                    "id": "1"
+                    "id": "1",
+                    "label": "Female"
                 }
             ]
         },
@@ -868,13 +888,16 @@ Feature: Get Dataset JSON
             "dimension_name": "siblings_3",
             "options": [
                 {
-                    "id": "0"
+                    "id": "0",
+                    "label": "No siblings"
                 },
                 {
-                    "id": "1-2"
+                    "id": "1-2",
+                    "label": "1 or 2 siblings"
                 },
                 {
-                    "id": "3+"
+                    "id": "3+",
+                    "label": "3 or more siblings"
                 }
             ]
         }
