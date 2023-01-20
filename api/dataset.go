@@ -7,6 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/log.go/v2/log"
 
@@ -50,7 +51,7 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 		"version": params.version,
 	}
 
-	response, err := api.getDatasetJSON(ctx, r, params)
+	resp, err := api.getDatasetJSON(ctx, r, params)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -61,37 +62,37 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 				logData: logData,
 			},
 		)
-	} else {
-		api.respond.JSON(ctx, w, http.StatusOK, response)
 	}
+
+	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
 func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*GetDatasetJSONResponse, error) {
-	datasetRequest := cantabular.StaticDatasetQueryRequest{
+	dReq := cantabular.StaticDatasetQueryRequest{
 		Dataset:   params.basedOn,
 		Variables: params.sortedDimensions,
 	}
 
 	if r.URL.Query().Get("area-type") != "" {
-		variables, filters, err := api.validateGeography(ctx, r, params, datasetRequest)
+		variables, filters, err := api.validateGeography(ctx, r, params, dReq)
 		if err != nil {
 			return nil, errors.Wrap(err, "validateGeography failed")
 		}
-		datasetRequest.Variables = variables
-		datasetRequest.Filters = filters
+		dReq.Variables = variables
+		dReq.Filters = filters
 	}
 
-	queryResult, err := api.ctblr.StaticDatasetQuery(ctx, datasetRequest)
+	qRes, err := api.ctblr.StaticDatasetQuery(ctx, dReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to run query")
 	}
 
-	response, err := api.toGetDatasetJsonResponse(params, queryResult)
+	resp, err := api.toGetDatasetJsonResponse(params, qRes)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate response")
 	}
 
-	return response, nil
+	return resp, nil
 }
 
 func (api *API) validateGeography(ctx context.Context, r *http.Request, params *datasetParams, datasetRequest cantabular.StaticDatasetQueryRequest) ([]string, []cantabular.Filter, error) {
@@ -295,7 +296,12 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		return nil, errors.New("invalid dimensions length of zero")
 	}
 
+	// Used for improved performance doing checks against extra dimensions
+	dimMap := make(map[string]struct{})
+
 	for _, dimension := range versionItem.Dimensions {
+		dimMap[dimension.Name] = struct{}{}
+
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get options")
@@ -308,6 +314,57 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		}
 
 		params.datasetDimensions = append(params.datasetDimensions, dimension.ID)
+	}
+
+	dq := r.URL.Query().Get("dimensions")
+	if extraDims := strings.Split(dq, ","); dq != "" && len(extraDims) > 0 {
+		catMap := make(map[string]struct{})
+
+		for _, dim := range versionItem.Dimensions {
+			if *dim.IsAreaType {
+				continue
+			}
+			res, err := api.population.GetCategorisations(ctx, population.GetCategorisationsInput{
+				PopulationType: params.basedOn,
+				Dimension:      dim.ID,
+				PaginationParams: population.PaginationParams{
+					Limit: 99999,
+				},
+				AuthTokens: population.AuthTokens{
+					ServiceAuthToken: api.cfg.ServiceAuthToken,
+				},
+			})
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to get categorisations")
+			}
+			for _, dim := range res.Items {
+				catMap[dim.ID] = struct{}{}
+			}
+		}
+
+		for _, ed := range extraDims {
+			if _, found := dimMap[ed]; found {
+				return nil, errors.Errorf("dimension already in dataset: %s", ed)
+			}
+			if _, found := catMap[ed]; found {
+				return nil, errors.Errorf("categorisation of dimension already in dataset: %s", ed)
+			}
+		}
+
+		res, err := api.ctblr.GetDimensionsByName(ctx, cantabular.GetDimensionsByNameRequest{
+			Dataset:          params.basedOn,
+			DimensionNames:   extraDims,
+			ExcludeGeography: true,
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get dimensions")
+		}
+
+		if len(res.Dataset.Variables.Edges) > len(extraDims) {
+			return nil, errors.New("geography variable added in 'dimensions' (use 'area-type')")
+		}
+
+		params.datasetDimensions = append(params.datasetDimensions, extraDims...)
 	}
 
 	params.geoDimensions, err = api.getGeographyTypes(ctx, params.basedOn)

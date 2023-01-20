@@ -28,6 +28,7 @@ type Service struct {
 	Producer         kafka.IProducer
 	generator        Generator
 	cantabularClient CantabularClient
+	populationClient PopulationTypesAPIClient
 	datasetAPIClient DatasetAPIClient
 	metadataClient   MetadataClient
 	identityClient   *identity.Client
@@ -62,6 +63,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 
 	svc.cantabularClient = GetCantabularClient(cfg)
 	svc.datasetAPIClient = GetDatasetAPIClient(cfg)
+	svc.populationClient, _ = GetPopulationClient(cfg)
 	svc.metadataClient = GetMetadataClient(cfg)
 	svc.generator = GetGenerator()
 	svc.responder = GetResponder()
@@ -87,6 +89,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.generator,
 		svc.store,
 		svc.datasetAPIClient,
+		svc.populationClient,
 		svc.cantabularClient,
 		svc.metadataClient,
 		svc.Producer,

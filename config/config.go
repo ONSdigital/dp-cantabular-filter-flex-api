@@ -74,6 +74,7 @@ func Get() (*Config, error) {
 		DefaultMaximumLimit:          500,
 		ComponentTestUseLogFile:      false,
 		DatasetAPIURL:                "http://localhost:22000",
+		PopulationTypesAPIURL:        "http://localhost:27300",
 		CantabularURL:                "http://localhost:8491",
 		CantabularExtURL:             "http://localhost:8492",
 		FilterAPIURL:                 "http://localhost:22100",

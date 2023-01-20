@@ -35,14 +35,12 @@ func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datase
 					}
 				}
 			}
-
 		} else if len(edge.Node.IsSourceOf.Edges) > 0 {
 			for _, sourceOf := range edge.Node.IsSourceOf.Edges {
 				names = append(names, sourceOf.Node.Name)
 				labelMap[sourceOf.Node.Name] = sourceOf.Node.Label
 			}
 		}
-
 	}
 
 	if len(names) == 0 {
