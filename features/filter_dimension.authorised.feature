@@ -117,7 +117,7 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "geography",
           "id": "city",
           "label": "City",
-          "default_categorisaion":  "",
+          "default_categorisation":  "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -136,7 +136,7 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -171,7 +171,7 @@ Feature: Filter Outputs Private Endpoints Enabled
       "id": "city",
       "label": "City",
       "is_area_type": true,
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -220,7 +220,7 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "id": "siblings_3",
       "label": "Number of siblings (3 mappings)",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -256,7 +256,7 @@ Feature: Filter Outputs Private Endpoints Enabled
       "name": "siblings",
       "id": "siblings_3",
       "label": "Number of siblings (3 mappings)",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -372,7 +372,7 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "geography",
           "id": "city",
           "label": "City",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -408,7 +408,7 @@ Feature: Filter Outputs Private Endpoints Enabled
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
