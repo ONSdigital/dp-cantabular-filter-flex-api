@@ -9,13 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-/*
-RetrieveDefaultCategorisation takes dimension, returns categorisations, and checks if any are default.
-if so, it returns the relevant information. If there are no default categorisations, it returns empty string
-for default categorisation, and the original dimension name and label to persist instead.
-
-	returns (finalDimension, finalLabel, finalCategorisation, error)
-*/
+// RetrieveDefaultCategorisation takes dimension, returns categorisations, and checks if any are default.
+// if so, it returns the relevant information. If there are no default categorisations, it returns empty string
+// for default categorisation, and the original dimension name and label to persist instead.
+// returns (finalDimension, finalLabel, finalCategorisation, error)
 func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datasetName string) (string, string, string, error) {
 	ctx := context.Background()
 	labelMap := make(map[string]string)
@@ -36,7 +33,6 @@ func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datase
 						names = append(names, mappedSourceEdge.Node.Name)
 						labelMap[mappedSourceEdge.Node.Name] = mappedSourceEdge.Node.Label
 					}
-
 				}
 			}
 
