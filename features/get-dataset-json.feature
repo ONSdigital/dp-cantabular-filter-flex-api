@@ -342,10 +342,10 @@ Feature: Get Dataset JSON
                 name
                 description
                 meta{
-						      ONS_Variable{
-							    Geography_Hierarchy_Order
-						      }
-					      }
+                  ONS_Variable{
+                    Geography_Hierarchy_Order
+                  }
+                }
                 mapFrom {
                   edges {
                     node {
@@ -619,7 +619,7 @@ Feature: Get Dataset JSON
     }
     """
 
- 
+
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country"
 
     Then the HTTP status code should be "200"
@@ -770,7 +770,7 @@ Feature: Get Dataset JSON
       }
     }
     """
-    
+
      And Cantabular returns this area for the given request:
     """
    request:
@@ -835,7 +835,7 @@ Feature: Get Dataset JSON
     }
   }
     """
- 
+
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country,E"
 
     Then the HTTP status code should be "200"
