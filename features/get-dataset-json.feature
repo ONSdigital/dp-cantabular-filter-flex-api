@@ -341,6 +341,11 @@ Feature: Get Dataset JSON
               node {
                 name
                 description
+                meta{
+						      ONS_Variable{
+							    Geography_Hierarchy_Order
+						      }
+					      }
                 mapFrom {
                   edges {
                     node {
