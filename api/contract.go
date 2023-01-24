@@ -190,7 +190,7 @@ type dimensionItem struct {
 	Name                  string             `json:"name"`
 	Label                 string             `json:"label"`
 	FilterByParent        string             `json:"filter_by_parent,omitempty"`
-	DefaultCategorisation string             `json:"default_categorisaion"`
+	DefaultCategorisation string             `json:"default_categorisation"`
 	Links                 dimensionItemLinks `json:"links"`
 }
 
@@ -287,4 +287,3 @@ type DatasetJSONLinks struct {
 	Self            model.Link `json:"self"`
 	Version         model.Link `json:"version"`
 }
-
