@@ -199,7 +199,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     {
     "name": "hh_carers_D",
     "id": "hh_carers_D",
-    "default_categorisaion": "hh_carers_D",
+    "default_categorisation": "hh_carers_D",
     "label": "Number of unpaid carers in household (32 categories)",
     "links": {
       "filter": {
@@ -370,7 +370,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     "name": "hh_carers_D",
     "id": "hh_carers_D",
     "label": "hh_carers_D",
-    "default_categorisaion": "hh_carers_D",
+    "default_categorisation": "hh_carers_D",
     "links": {
       "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",

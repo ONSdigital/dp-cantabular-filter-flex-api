@@ -118,7 +118,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "id": "city",
           "label": "City",
           "filter_by_parent":"country",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -137,7 +137,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -171,7 +171,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "label": "City",
       "is_area_type": true,
       "filter_by_parent":"country",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -213,7 +213,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "id": "siblings_3",
       "name": "siblings",
       "label": "Number of siblings (3 mappings)",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -249,7 +249,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
       "id": "siblings_3",
       "name": "siblings",
       "label": "Number of siblings (3 mappings)",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -374,7 +374,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "id": "city",
           "label": "City",
           "filter_by_parent":"country",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -408,7 +408,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",

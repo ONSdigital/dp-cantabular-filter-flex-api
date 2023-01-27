@@ -162,7 +162,7 @@ Feature: Updating a filter's dimensions
       "name": "geography",
       "id": "country",
       "label": "Country",
-      "default_categorisaion": "",
+      "default_categorisation": "",
       "links": {
         "filter": {
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -252,7 +252,7 @@ Feature: Updating a filter's dimensions
           "name": "geography",
           "id": "country",
           "label": "Country",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -271,7 +271,7 @@ Feature: Updating a filter's dimensions
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -399,7 +399,7 @@ Feature: Updating a filter's dimensions
           "name": "geography",
           "id": "city",
           "label": "City",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -418,7 +418,7 @@ Feature: Updating a filter's dimensions
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -473,7 +473,7 @@ Feature: Updating a filter's dimensions
           "name": "geography",
           "id": "city",
           "label": "City",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
@@ -492,7 +492,7 @@ Feature: Updating a filter's dimensions
           "name": "siblings",
           "id": "siblings_3",
           "label": "Number of siblings (3 mappings)",
-          "default_categorisaion": "",
+          "default_categorisation": "",
           "links": {
             "filter": {
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",

@@ -215,7 +215,8 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 
 		for _, option := range dimension.Categories {
 			options = append(options, model.Link{
-				ID: option.Code,
+				ID:    option.Code,
+				Label: option.Label,
 			})
 		}
 		dimensions = append(dimensions, DatasetJSONDimension{
