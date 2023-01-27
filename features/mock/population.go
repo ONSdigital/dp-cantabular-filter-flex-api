@@ -3,26 +3,29 @@ package mock
 import (
 	"context"
 	"errors"
-	"fmt"
+	"sync"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
 type PopulationTypesAPIClient struct {
-	//GetCategorisationsFunc      func(ctx context.Context, req population.GetCategorisationsInput) (*population.GetCategorisationsResponse, error)
+	mu                          *sync.Mutex
 	GetCategorisationsResponses map[population.GetCategorisationsInput]population.GetCategorisationsResponse
 	GetCategoristionsHappy      bool
 }
 
 func NewPopulationTypesAPIClient() *PopulationTypesAPIClient {
 	return &PopulationTypesAPIClient{
+		mu:                          &sync.Mutex{},
 		GetCategoristionsHappy:      true,
 		GetCategorisationsResponses: make(map[population.GetCategorisationsInput]population.GetCategorisationsResponse),
 	}
 }
 
-func (c *PopulationTypesAPIClient) Reset() {}
+func (c *PopulationTypesAPIClient) Reset() {
+	c.GetCategorisationsResponses = make(map[population.GetCategorisationsInput]population.GetCategorisationsResponse)
+}
 
 func (c *PopulationTypesAPIClient) Checker(_ context.Context, _ *healthcheck.CheckState) error {
 	return nil
@@ -33,14 +36,17 @@ func (c *PopulationTypesAPIClient) GetCategorisations(ctx context.Context, req p
 		return population.GetCategorisationsResponse{}, errors.New("failed to get categorisations")
 	}
 
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	if resp, ok := c.GetCategorisationsResponses[req]; ok {
 		return resp, nil
 	}
-	fmt.Println("DEBUGMAP")
-	for k, _ := range c.GetCategorisationsResponses {
-		fmt.Printf("%+v\n", k)
-	}
 
-	fmt.Printf("DEBUGREQ: %+v", req)
 	return population.GetCategorisationsResponse{}, errors.New("no response for provided input")
+}
+
+func (c *PopulationTypesAPIClient) SetGetCategorisationsResponse(req population.GetCategorisationsInput, res population.GetCategorisationsResponse) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.GetCategorisationsResponses[req] = res
 }

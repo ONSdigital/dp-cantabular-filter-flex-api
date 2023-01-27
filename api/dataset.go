@@ -362,7 +362,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 			return nil, errors.Wrap(err, "failed to get dimensions")
 		}
 
-		if len(res.Dataset.Variables.Edges) > len(extraDims) {
+		if len(res.Dataset.Variables.Edges) < len(extraDims) {
 			return nil, errors.New("geography variable added in 'dimensions' (use 'area-type')")
 		}
 

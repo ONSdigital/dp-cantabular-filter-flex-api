@@ -236,8 +236,7 @@ func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) err
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult: error reading APIfeature response body: %w", err)
 	}
 	if err = json.Unmarshal(b, &got); err != nil {
-
-		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling APIfeature response body: %w (<body: %s>)", err, string(b))
+		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling APIfeature response body: %w", err)
 	}
 	if err = json.Unmarshal([]byte(expected.Content), &expt); err != nil {
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling 'expected' parameter: %w", err)

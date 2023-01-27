@@ -50,10 +50,10 @@ func (f *PopulationFeature) PopulationTypesReturnsTheseCategorisations(input *go
 	}{}
 
 	if err := json.Unmarshal([]byte(input.Content), &rr); err != nil {
-		return fmt.Errorf("unable to unmarshal request:response body %w", err)
+		return fmt.Errorf("unable to unmarshal [request:response] body: %w", err)
 	}
 
-	f.client.GetCategorisationsResponses[rr.Req] = rr.Resp
+	f.client.SetGetCategorisationsResponse(rr.Req, rr.Resp)
 
 	return nil
 }
