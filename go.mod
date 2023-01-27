@@ -8,6 +8,8 @@ replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 // to avoid 'sonatype-2021-4899' non-CVE Vulnerability
 exclude github.com/gorilla/sessions v1.2.1
 
+replace github.com/ONSdigital/dp-api-clients-go/v2 => /Users/joshuamedley/go-modules/ONSdigital/dp-api-clients-go
+
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.220.0
 	github.com/ONSdigital/dp-authorisation v0.2.0

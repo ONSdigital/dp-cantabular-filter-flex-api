@@ -321,9 +321,10 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		catMap := make(map[string]struct{})
 
 		for _, dim := range versionItem.Dimensions {
-			if *dim.IsAreaType {
+			if dim.IsAreaType != nil && *dim.IsAreaType {
 				continue
 			}
+
 			res, err := api.population.GetCategorisations(ctx, population.GetCategorisationsInput{
 				PopulationType: params.basedOn,
 				Dimension:      dim.ID,

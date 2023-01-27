@@ -30,6 +30,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	c.CantabularFeature.RegisterSteps(ctx)
 	c.MetadataFeature.RegisterSteps(ctx)
 	c.MongoFeature.RegisterSteps(ctx)
+	c.PopulationFeature.RegisterSteps(ctx)
 
 	ctx.Step(
 		`^private endpoints are enabled$`,
@@ -235,7 +236,8 @@ func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) err
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult: error reading APIfeature response body: %w", err)
 	}
 	if err = json.Unmarshal(b, &got); err != nil {
-		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling APIfeature response body: %w", err)
+
+		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling APIfeature response body: %w (<body: %s>)", err, string(b))
 	}
 	if err = json.Unmarshal([]byte(expected.Content), &expt); err != nil {
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult error unmarshalling 'expected' parameter: %w", err)
