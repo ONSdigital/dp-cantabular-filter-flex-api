@@ -746,8 +746,7 @@ Feature: Get Dataset JSON
         "filters": [
           {
             "codes": ["E"],
-            "variable":
-            "country"
+            "variable": "country"
           }
         ],
         "limit":20,
@@ -912,7 +911,8 @@ Feature: Get Dataset JSON
           "options": [
             {
               "href": "",
-              "id": "E"
+              "id": "E",
+              "label": "England"
             }
           ]
         },
@@ -920,10 +920,12 @@ Feature: Get Dataset JSON
           "dimension_name": "sex",
           "options": [
             {
-              "id": "0"
+              "id": "0",
+              "label": "Male"
             },
             {
-              "id": "1"
+              "id": "1",
+              "label": "Female"
             }
           ]
         },
@@ -931,13 +933,16 @@ Feature: Get Dataset JSON
           "dimension_name": "siblings_3",
           "options": [
             {
-              "id": "0"
+              "id": "0",
+              "label": "No siblings"
             },
             {
-              "id": "1-2"
+              "id": "1-2",
+              "label": "1 or 2 siblings"
             },
             {
-              "id": "3+"
+              "id": "3+",
+              "label": "3 or more siblings"
             }
           ]
         }
@@ -1153,91 +1158,58 @@ Feature: Get Dataset JSON
 
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?dimensions=age_23_a"
 
-    # Then the HTTP status code should be "200"
+    Then the HTTP status code should be "200"
 
     And the getGeographyDatasetJSON result should be:
     """
     {
       "dimensions":[
         {
-<<<<<<< HEAD
           "dimension_name":"city",
           "options":[
             {
-              "id":"0"
+              "id":"0",
+              "label": "London"
             },
             {
-              "id":"1"
+              "id":"1",
+              "label": "Liverpool"
             },
             {
-              "id":"2"
+              "id":"2",
+              "label": "Belfast"
             }
           ]
         },
         {
-          "dimension_name":"sex",
-          "options":[
+          "dimension_name": "sex",
+          "options": [
             {
-              "id":"0"
+              "id": "0",
+              "label": "Male"
             },
             {
-              "id":"1"
+              "id": "1",
+              "label": "Female"
             }
           ]
         },
         {
-          "dimension_name":"siblings_3",
-          "options":[
+          "dimension_name": "siblings_3",
+          "options": [
             {
-              "id":"0"
+              "id": "0",
+              "label": "No siblings"
             },
             {
-              "id":"1-2"
+              "id": "1-2",
+              "label": "1 or 2 siblings"
             },
             {
-              "id":"3+"
+              "id": "3+",
+              "label": "3 or more siblings"
             }
           ]
-=======
-            "dimension_name": "country",
-            "options": [
-                {
-                    "href": "",
-                    "id": "E",
-                    "label": "England"
-                }
-            ]
-        },
-        {
-            "dimension_name": "sex",
-            "options": [
-                {
-                    "id": "0",
-                    "label": "Male"
-                },
-                {
-                    "id": "1",
-                    "label": "Female"
-                }
-            ]
-        },
-        {
-            "dimension_name": "siblings_3",
-            "options": [
-                {
-                    "id": "0",
-                    "label": "No siblings"
-                },
-                {
-                    "id": "1-2",
-                    "label": "1 or 2 siblings"
-                },
-                {
-                    "id": "3+",
-                    "label": "3 or more siblings"
-                }
-            ]
->>>>>>> develop
         }
       ],
       "links":{
