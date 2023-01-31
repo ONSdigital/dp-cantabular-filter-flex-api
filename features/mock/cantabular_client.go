@@ -125,7 +125,7 @@ func (cs *CantabularServer) PostResponder() httpfake.Responder {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		fmt.Println("PostResponder: " + string(buf))
+
 		cs.RLock()
 		defer cs.RUnlock()
 		if resp, ok := cs.responses[crc(buf)]; ok {

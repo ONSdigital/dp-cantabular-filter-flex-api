@@ -13,7 +13,6 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
-            - /Users/joshuamedley/go-modules/ONSdigital/dp-api-clients-go:/Users/joshuamedley/go-modules/ONSdigital/dp-api-clients-go
         ports:
             - 27100:27100
         depends_on:
