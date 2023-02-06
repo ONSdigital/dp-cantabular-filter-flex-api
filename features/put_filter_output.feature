@@ -9,6 +9,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
       {
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",
         "state": "published",
+        "custom": true,
         "dataset": {
           "edition":"2021",
           "id":"cantabular-flexible-example",
@@ -195,6 +196,7 @@ Feature: Put Filter Outputs Private Endpoints Not Enabled
         ],
         "etag": "",
         "state": "published",
+        "custom": true,
         "events": null,
         "filter_id": "74310d8d-72d6-492a-bc30-27584627edb3",
         "id": "94310d8d-72d6-492a-bc30-27584627edb1",

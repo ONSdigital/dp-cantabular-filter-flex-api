@@ -132,7 +132,8 @@ Feature: Get Filter Private Endpoints Not Enabled
       },
       "published": true,
       "population_type": "Example",
-      "type": "flexible"
+      "type": "flexible",
+      "custom": false
     }
     """
     And the HTTP status code should be "200"

@@ -306,7 +306,8 @@ Feature: Filters Private Endpoints Not Enabled
       },
       "population_type": "Example",
       "published": true,
-      "type": "flexible"
+      "type": "flexible",
+      "custom": false
     }
     """
 
@@ -369,7 +370,8 @@ Feature: Filters Private Endpoints Not Enabled
       },
       "population_type": "Example",
       "published": true,
-      "type": "flexible"
+      "type": "flexible",
+      "custom": false
     }
     """
 
@@ -392,7 +394,7 @@ Feature: Filters Private Endpoints Not Enabled
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "c95a7ed844c27f8b4cc0b92224840d1bc18d95da",
+      "etag": "221a541915316bc000769254548c104f5d1bea9c",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
@@ -429,6 +431,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "published": true,
       "type": "flexible",
+      "custom": false,
       "unique_timestamp":{
         "$timestamp":{
           "i":1,

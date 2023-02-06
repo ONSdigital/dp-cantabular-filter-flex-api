@@ -273,6 +273,7 @@ Feature: Multivariate Feature Dimensions Private Endpoints
       ],
       "population_type": "dummy_data_households",
       "published": true,
+      "custom": false,
       "type": "cantabular_multivariate_table",
       "unique_timestamp":{
         "$timestamp":{

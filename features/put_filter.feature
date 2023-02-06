@@ -49,7 +49,8 @@ Feature: Put Filter Private Endpoints Not Enabled
         },
         "published": true,
         "population_type": "Example",
-        "type": "flexible"
+        "type": "flexible",
+        "custom": true
       },
       {
         "filter_id": "83210d8d-72d6-492a-bc30-27584627abc2",
@@ -94,7 +95,8 @@ Feature: Put Filter Private Endpoints Not Enabled
         },
         "published": false,
         "population_type": "Example",
-        "type": "flexible"
+        "type": "flexible",
+        "custom": false
       }
     ]
     """

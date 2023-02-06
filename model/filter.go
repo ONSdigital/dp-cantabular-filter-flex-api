@@ -19,6 +19,7 @@ type Filter struct {
 	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
 	Published         bool                `bson:"published"                    json:"published"`
+	Custom            bool                `bson:"custom"                       json:"custom"`
 	DisclosureControl *DisclosureControl  `bson:"disclosure_control,omitempty" json:"disclosure_control,omitempty"`
 	Type              string              `bson:"type"                         json:"type"`
 	PopulationType    string              `bson:"population_type"              json:"population_type"`
@@ -33,12 +34,6 @@ type FilterLinks struct {
 	Version    Link `bson:"version"    json:"version"`
 	Self       Link `bson:"self"       json:"self"`
 	Dimensions Link `bson:"dimensions" json:"dimensions"`
-}
-
-type FilterOutputLinks struct {
-	Version         Link `bson:"version" json:"version"`
-	Self            Link `bson:"self"    json:"self"`
-	FilterBlueprint Link `json:"filter_blueprint"`
 }
 
 type SubmitFilterLinks struct {

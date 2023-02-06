@@ -310,7 +310,7 @@ Feature: Updating a filter's dimensions
           "href": ""
         }
       },
-      "etag": "f63733d516325e89a4b0acaa3e582ebaa7645537",
+      "etag": "131121620b8466cba1abaa838aff4143d72ad111",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dataset": {
         "id": "cantabular-example-1",
@@ -340,6 +340,7 @@ Feature: Updating a filter's dimensions
       ],
       "population_type": "Example",
       "published": true,
+      "custom": false,
       "type": "flexible",
       "unique_timestamp":{
         "$timestamp":{

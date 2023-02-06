@@ -158,6 +158,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		InstanceID:        v.ID,
 		PopulationType:    req.PopulationType,
 		Type:              filterType,
+		Custom:            req.Custom,
 		Published:         v.State == published,
 		DisclosureControl: nil, // populate for these fields yet
 	}
@@ -227,6 +228,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		Published:      filter.Published,
 		Dimensions:     filter.Dimensions,
 		Type:           filter.Type,
+		Custom:         filter.Custom,
 		PopulationType: filter.PopulationType,
 	}
 
@@ -281,6 +283,7 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		Dataset:        filter.Dataset,
 		Links:          filter.Links,
 		PopulationType: filter.PopulationType,
+		Custom:         filter.Custom,
 	}
 
 	api.respond.JSON(ctx, w, http.StatusAccepted, resp)

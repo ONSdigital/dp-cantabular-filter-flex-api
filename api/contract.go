@@ -19,6 +19,7 @@ type paginationResponse struct {
 // createFilterRequest is the request body for POST /filters
 type createFilterRequest struct {
 	PopulationType string            `json:"population_type"`
+	Custom         bool              `json:"custom"`
 	Dimensions     []model.Dimension `json:"dimensions"`
 	Dataset        *model.Dataset    `json:"dataset"`
 }
@@ -267,6 +268,7 @@ type submitFilterResponse struct {
 	Dataset        model.Dataset     `json:"dataset"`
 	Links          model.FilterLinks `json:"links"`
 	PopulationType string            `json:"population_type"`
+	Custom         bool              `json:"custom"`
 }
 
 // getDatasetJSONResponse is the response body for GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/json
