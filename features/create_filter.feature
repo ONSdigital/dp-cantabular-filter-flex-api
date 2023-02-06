@@ -657,7 +657,7 @@ Feature: Filters Private Endpoints Not Enabled
 
     And the HTTP status code should be "400"
 
-    Scenario: Creating a new invalid request (duplicate dimensions)
+  Scenario: Creating a new invalid request (duplicate dimensions)
 
     When I POST "/filters"
     """
@@ -744,3 +744,94 @@ Feature: Filters Private Endpoints Not Enabled
       ]
     }
     """
+
+    
+
+  Scenario: Do not create a filter based on cantabular blob
+    When I POST "/filters"
+    """
+      {
+      "dataset":{
+          "id":      "cantabular_table_example",
+          "edition": "2021",
+          "version": 1,
+          "lowest_geography": "lowest-geography"
+      },
+      "population_type": "Example",
+      "dimensions": [
+        {
+          "name": "siblings_3",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "name": "city",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+    Then the HTTP status code should be "400"
+
+    And I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "dataset is of invalid type"
+      ]
+    }
+    """
+
+  Scenario: Creating a new custom filter but dataset is invalid type 
+
+    When I POST "/filters"
+    """
+    {
+      "dataset":{
+          "id":      "cantabular-example-1",
+          "edition": "2021",
+          "version": 1,
+          "lowest_geography": "lowest-geography"
+      },
+      "population_type": "Example",
+      "custom": true,
+      "dimensions": [
+        {
+          "name": "siblings_3",
+          "options": [
+            "0-3",
+            "4-7",
+            "7+"
+          ],
+          "is_area_type": false
+        },{
+          "name": "city",
+          "options": [
+            "Cardiff",
+            "London",
+            "Swansea"
+          ],
+          "is_area_type": true
+        }
+      ]
+    }
+    """
+
+    Then I should receive the following JSON response:
+    """
+    {
+      "errors": [
+        "invalid dataset type for custom filter"
+      ]
+    }
+    """
+
+    And the HTTP status code should be "400"

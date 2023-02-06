@@ -85,6 +85,19 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Custom && v.IsBasedOn.Type != cantabularMultivariateTable {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.New("invalid dataset type for custom filter"),
+				logData: logData,
+			},
+		)
+		return
+	}
+
 	if v.State != published && !dprequest.IsCallerPresent(ctx) {
 		api.respond.Error(
 			ctx,
