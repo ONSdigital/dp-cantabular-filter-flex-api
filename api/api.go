@@ -57,6 +57,7 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 
 func (api *API) enablePublicEndpoints() {
 	api.Router.Post("/filters", api.createFilter)
+	api.Router.Post("/filters/custom", api.createCustomFilter)
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Put("/filters/{id}", api.putFilter)
 	api.Router.Post("/filters/{id}/submit", api.submitFilter)
@@ -93,6 +94,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Use(permissions.Require(auth.Permissions{Read: true}))
 
 	r.Post("/filters", api.createFilter)
+	r.Post("/filters/custom", api.createCustomFilter)
 	r.Get("/filters/{id}", api.getFilter)
 	r.Put("/filters/{id}", api.putFilter)
 	r.Post("/filters/{id}/submit", api.submitFilter)

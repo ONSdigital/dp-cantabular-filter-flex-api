@@ -24,6 +24,11 @@ type createFilterRequest struct {
 	Dataset        *model.Dataset    `json:"dataset"`
 }
 
+// createFilterRequest is the request body for POST /filters
+type createCustomFilterRequest struct {
+	PopulationType string `json:"population_type"`
+}
+
 func (r *createFilterRequest) Valid() error {
 	if r.Dataset == nil {
 		return errors.New("missing field: dataset")

@@ -17,31 +17,31 @@ var _ service.Generator = &GeneratorMock{}
 
 // GeneratorMock is a mock implementation of service.Generator.
 //
-// 	func TestSomethingThatUsesGenerator(t *testing.T) {
+//	func TestSomethingThatUsesGenerator(t *testing.T) {
 //
-// 		// make and configure a mocked service.Generator
-// 		mockedGenerator := &GeneratorMock{
-// 			PSKFunc: func() ([]byte, error) {
-// 				panic("mock out the PSK method")
-// 			},
-// 			TimestampFunc: func() time.Time {
-// 				panic("mock out the Timestamp method")
-// 			},
-// 			URLFunc: func(host string, path string, args ...interface{}) string {
-// 				panic("mock out the URL method")
-// 			},
-// 			UUIDFunc: func() (uuid.UUID, error) {
-// 				panic("mock out the UUID method")
-// 			},
-// 			UniqueTimestampFunc: func() primitive.Timestamp {
-// 				panic("mock out the UniqueTimestamp method")
-// 			},
-// 		}
+//		// make and configure a mocked service.Generator
+//		mockedGenerator := &GeneratorMock{
+//			PSKFunc: func() ([]byte, error) {
+//				panic("mock out the PSK method")
+//			},
+//			TimestampFunc: func() time.Time {
+//				panic("mock out the Timestamp method")
+//			},
+//			URLFunc: func(host string, path string, args ...interface{}) string {
+//				panic("mock out the URL method")
+//			},
+//			UUIDFunc: func() (uuid.UUID, error) {
+//				panic("mock out the UUID method")
+//			},
+//			UniqueTimestampFunc: func() primitive.Timestamp {
+//				panic("mock out the UniqueTimestamp method")
+//			},
+//		}
 //
-// 		// use mockedGenerator in code that requires service.Generator
-// 		// and then make assertions.
+//		// use mockedGenerator in code that requires service.Generator
+//		// and then make assertions.
 //
-// 	}
+//	}
 type GeneratorMock struct {
 	// PSKFunc mocks the PSK method.
 	PSKFunc func() ([]byte, error)
@@ -104,7 +104,8 @@ func (mock *GeneratorMock) PSK() ([]byte, error) {
 
 // PSKCalls gets all the calls that were made to PSK.
 // Check the length with:
-//     len(mockedGenerator.PSKCalls())
+//
+//	len(mockedGenerator.PSKCalls())
 func (mock *GeneratorMock) PSKCalls() []struct {
 } {
 	var calls []struct {
@@ -130,7 +131,8 @@ func (mock *GeneratorMock) Timestamp() time.Time {
 
 // TimestampCalls gets all the calls that were made to Timestamp.
 // Check the length with:
-//     len(mockedGenerator.TimestampCalls())
+//
+//	len(mockedGenerator.TimestampCalls())
 func (mock *GeneratorMock) TimestampCalls() []struct {
 } {
 	var calls []struct {
@@ -163,7 +165,8 @@ func (mock *GeneratorMock) URL(host string, path string, args ...interface{}) st
 
 // URLCalls gets all the calls that were made to URL.
 // Check the length with:
-//     len(mockedGenerator.URLCalls())
+//
+//	len(mockedGenerator.URLCalls())
 func (mock *GeneratorMock) URLCalls() []struct {
 	Host string
 	Path string
@@ -195,7 +198,8 @@ func (mock *GeneratorMock) UUID() (uuid.UUID, error) {
 
 // UUIDCalls gets all the calls that were made to UUID.
 // Check the length with:
-//     len(mockedGenerator.UUIDCalls())
+//
+//	len(mockedGenerator.UUIDCalls())
 func (mock *GeneratorMock) UUIDCalls() []struct {
 } {
 	var calls []struct {
@@ -221,7 +225,8 @@ func (mock *GeneratorMock) UniqueTimestamp() primitive.Timestamp {
 
 // UniqueTimestampCalls gets all the calls that were made to UniqueTimestamp.
 // Check the length with:
-//     len(mockedGenerator.UniqueTimestampCalls())
+//
+//	len(mockedGenerator.UniqueTimestampCalls())
 func (mock *GeneratorMock) UniqueTimestampCalls() []struct {
 } {
 	var calls []struct {

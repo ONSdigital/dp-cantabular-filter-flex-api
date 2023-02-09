@@ -50,3 +50,8 @@ func (c *PopulationTypesAPIClient) SetGetCategorisationsResponse(req population.
 	defer c.mu.Unlock()
 	c.GetCategorisationsResponses[req] = res
 }
+
+func (c *PopulationTypesAPIClient) GetDefaultDatasetMetadata(context.Context, population.GetMetaDataInput) (population.GetMetadataResponse, error) {
+	panic("Please implement a expected return !!")
+	//return population.GetMetadataResponse{}, nil
+}

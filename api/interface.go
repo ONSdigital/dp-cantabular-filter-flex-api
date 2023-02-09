@@ -79,6 +79,7 @@ type datasetAPIClient interface {
 type populationTypesAPIClient interface {
 	Checker(context.Context, *healthcheck.CheckState) error
 	GetCategorisations(context.Context, population.GetCategorisationsInput) (population.GetCategorisationsResponse, error)
+	GetDefaultDatasetMetadata(context.Context, population.GetMetaDataInput) (population.GetMetadataResponse, error)
 }
 
 type coder interface {

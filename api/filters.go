@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
@@ -194,6 +195,158 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 
 	resp := createFilterResponse{f}
 
+	api.respond.JSON(ctx, w, http.StatusCreated, resp)
+}
+
+func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var req createCustomFilterRequest
+
+	if err := api.ParseRequest(r.Body, &req); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			errors.Wrap(err, "failed to parse request"),
+		)
+		return
+	}
+
+	logData := log.Data{
+		"request": req,
+	}
+
+	//call the population-types-api to get the dataset ID
+	input := population.GetMetaDataInput{
+		AuthTokens: population.AuthTokens{
+			ServiceAuthToken: api.cfg.ServiceAuthToken,
+		},
+		PopulationType: req.PopulationType,
+	}
+
+	dMetadata, err := api.population.GetDefaultDatasetMetadata(ctx, input)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get metadata for "+input.PopulationType),
+				message: "failed to get metadata for " + input.PopulationType,
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	v, err := api.datasets.GetVersion(
+		ctx,
+		"",
+		api.cfg.ServiceAuthToken,
+		"",
+		"",
+		dMetadata.DefaultDatasetID,
+		dMetadata.Edition,
+		strconv.Itoa(dMetadata.Version),
+	)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to get existing Version"),
+				message: "failed to get existing dataset Version",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if v.IsBasedOn == nil || v.IsBasedOn.Type != cantabularMultivariateTable {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusBadRequest,
+			Error{
+				err:     errors.New("default dataset is not of type multivariate table"),
+				message: "default dataset is not of type multivariate table",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	if v.State != published && !dprequest.IsCallerPresent(ctx) {
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusNotFound,
+			Error{
+				err:     errors.New("unauthenticated request on unpublished dataset"),
+				message: "dataset not found",
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	filterType := filterTypes[v.IsBasedOn.Type]
+	dataset := model.Dataset{
+		ID:      dMetadata.DefaultDatasetID,
+		Edition: dMetadata.Edition,
+		Version: dMetadata.Version,
+		Title:   "custom",
+	}
+
+	//get the first available area type dimension from the default dataset
+	var dimension model.Dimension
+	for _, d := range v.Dimensions {
+		if *d.IsAreaType {
+			dimension = model.Dimension{
+				Name:       d.Name,
+				Label:      d.Label,
+				ID:         d.ID,
+				IsAreaType: d.IsAreaType,
+				Options:    []string{},
+			}
+			break
+		}
+	}
+
+	f := model.Filter{
+		Links: model.FilterLinks{
+			Version: model.Link{
+				HREF: v.Links.Self.URL,
+				ID:   strconv.Itoa(v.Version),
+			},
+		},
+		Dimensions:        []model.Dimension{dimension},
+		UniqueTimestamp:   api.generate.UniqueTimestamp(),
+		LastUpdated:       api.generate.Timestamp(),
+		Dataset:           dataset,
+		InstanceID:        v.ID,
+		PopulationType:    req.PopulationType,
+		Type:              filterType,
+		Published:         v.State == published,
+		DisclosureControl: nil, // populate for these fields yet
+	}
+
+	if err := api.store.CreateFilter(ctx, &f); err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     errors.Wrap(err, "failed to create filter"),
+				logData: logData,
+			},
+		)
+		return
+	}
+	// don't return dimensions in response
+	f.Dimensions = nil
+	resp := createFilterResponse{f}
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
 }
 
