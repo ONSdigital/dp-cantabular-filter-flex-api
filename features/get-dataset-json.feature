@@ -1116,7 +1116,7 @@ Feature: Get Dataset JSON
     {
       "request": {
         "dimension":       "city",
-        "populationType":  "Example",  
+        "populationType":  "Example",
         "limit":           99999,
         "serviceAuthToken": "testToken"
       },
@@ -1131,7 +1131,7 @@ Feature: Get Dataset JSON
     {
       "request": {
         "dimension":       "sex",
-        "populationType":  "Example",  
+        "populationType":  "Example",
         "limit":           99999,
         "serviceAuthToken": "testToken"
       },
@@ -1146,7 +1146,7 @@ Feature: Get Dataset JSON
     {
       "request": {
         "dimension":       "siblings_3",
-        "populationType":  "Example",  
+        "populationType":  "Example",
         "limit":           99999,
         "serviceAuthToken": "testToken"
       },
