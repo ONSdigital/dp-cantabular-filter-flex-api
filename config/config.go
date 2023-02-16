@@ -81,7 +81,7 @@ func Get() (*Config, error) {
 		MetadataAPIURL:               "http://dp-cantabular-metadata-service:8493",
 		FiltersCollection:            "filters",
 		FilterOutputsCollection:      "filterOutputs",
-		EnablePrivateEndpoints:       true,
+		EnablePrivateEndpoints:       false,
 		EnablePermissionsAuth:        true,
 		CantabularHealthcheckEnabled: false,
 		ServiceAuthToken:             "",

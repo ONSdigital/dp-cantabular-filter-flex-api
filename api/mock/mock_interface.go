@@ -729,19 +729,19 @@ func (mr *MockpopulationTypesAPIClientMockRecorder) GetCategorisations(arg0, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).GetCategorisations), arg0, arg1)
 }
 
-// GetDefaultDatasetMetadata mocks base method.
-func (m *MockpopulationTypesAPIClient) GetDefaultDatasetMetadata(arg0 context.Context, arg1 population.GetMetaDataInput) (population.GetMetadataResponse, error) {
+// GetPopulationTypeMetadata mocks base method.
+func (m *MockpopulationTypesAPIClient) GetPopulationTypeMetadata(arg0 context.Context, arg1 population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDefaultDatasetMetadata", arg0, arg1)
-	ret0, _ := ret[0].(population.GetMetadataResponse)
+	ret := m.ctrl.Call(m, "GetPopulationTypeMetadata", arg0, arg1)
+	ret0, _ := ret[0].(population.GetPopulationTypeMetadataResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDefaultDatasetMetadata indicates an expected call of GetDefaultDatasetMetadata.
-func (mr *MockpopulationTypesAPIClientMockRecorder) GetDefaultDatasetMetadata(arg0, arg1 interface{}) *gomock.Call {
+// GetPopulationTypeMetadata indicates an expected call of GetPopulationTypeMetadata.
+func (mr *MockpopulationTypesAPIClientMockRecorder) GetPopulationTypeMetadata(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultDatasetMetadata", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).GetDefaultDatasetMetadata), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypeMetadata", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).GetPopulationTypeMetadata), arg0, arg1)
 }
 
 // Mockcoder is a mock of coder interface.

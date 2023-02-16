@@ -31,6 +31,10 @@ func (f *PopulationFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		`^Population Types API returns this GetCategorisations response for the given request:$`,
 		f.PopulationTypesReturnsTheseCategorisations,
 	)
+	ctx.Step(
+		`^Population Types API returns this GetDefaultDatasetMetadata response for the given request:$`,
+		f.PopulationTypesReturnsThisDefaultDatasetMetadata,
+	)
 }
 
 func (f *PopulationFeature) setMockedInterface() {
@@ -54,6 +58,18 @@ func (f *PopulationFeature) PopulationTypesReturnsTheseCategorisations(input *go
 	}
 
 	f.client.SetGetCategorisationsResponse(rr.Req, rr.Resp)
+
+	return nil
+}
+
+func (f *PopulationFeature) PopulationTypesReturnsThisDefaultDatasetMetadata(input *godog.DocString) error {
+	var rr population.GetPopulationTypeMetadataResponse
+
+	if err := json.Unmarshal([]byte(input.Content), &rr); err != nil {
+		return fmt.Errorf("unable to unmarshal [request:response] body: %w", err)
+	}
+
+	f.client.SetDefaultDatasetMetadata(rr)
 
 	return nil
 }

@@ -24,7 +24,7 @@ type createFilterRequest struct {
 	Dataset        *model.Dataset    `json:"dataset"`
 }
 
-// createFilterRequest is the request body for POST /filters
+// creatCustomFilterRequest is the request body for POST /filters/custom
 type createCustomFilterRequest struct {
 	PopulationType string `json:"population_type"`
 }

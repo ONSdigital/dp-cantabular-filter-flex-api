@@ -217,14 +217,14 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//call the population-types-api to get the dataset ID
-	input := population.GetMetaDataInput{
+	input := population.GetPopulationTypeMetadataInput{
 		AuthTokens: population.AuthTokens{
 			ServiceAuthToken: api.cfg.ServiceAuthToken,
 		},
 		PopulationType: req.PopulationType,
 	}
 
-	dMetadata, err := api.population.GetDefaultDatasetMetadata(ctx, input)
+	dMetadata, err := api.population.GetPopulationTypeMetadata(ctx, input)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -344,6 +344,7 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
 	// don't return dimensions in response
 	f.Dimensions = nil
 	resp := createFilterResponse{f}

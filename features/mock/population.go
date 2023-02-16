@@ -13,6 +13,7 @@ type PopulationTypesAPIClient struct {
 	mu                          *sync.Mutex
 	GetCategorisationsResponses map[population.GetCategorisationsInput]population.GetCategorisationsResponse
 	GetCategoristionsHappy      bool
+	GetMetadataResponse         population.GetPopulationTypeMetadataResponse
 }
 
 func NewPopulationTypesAPIClient() *PopulationTypesAPIClient {
@@ -51,7 +52,10 @@ func (c *PopulationTypesAPIClient) SetGetCategorisationsResponse(req population.
 	c.GetCategorisationsResponses[req] = res
 }
 
-func (c *PopulationTypesAPIClient) GetDefaultDatasetMetadata(context.Context, population.GetMetaDataInput) (population.GetMetadataResponse, error) {
-	panic("Please implement a expected return !!")
-	//return population.GetMetadataResponse{}, nil
+func (c *PopulationTypesAPIClient) SetDefaultDatasetMetadata(res population.GetPopulationTypeMetadataResponse) {
+	c.GetMetadataResponse = res
+}
+
+func (c *PopulationTypesAPIClient) GetPopulationTypeMetadata(context.Context, population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error) {
+	return c.GetMetadataResponse, nil
 }
