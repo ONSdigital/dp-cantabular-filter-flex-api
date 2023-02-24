@@ -277,7 +277,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		return nil, errors.Wrap(err, "failed to get version")
 	}
 
-	if versionItem.IsBasedOn.Type != cantabularFlexibleTable {
+	if versionItem.IsBasedOn.Type != cantabularFlexibleTable && versionItem.IsBasedOn.Type != cantabularMultivariateTable {
 		return nil, errors.New("invalid dataset type")
 	}
 
@@ -319,6 +319,13 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	dq := r.URL.Query().Get("dimensions")
 	if extraDims := strings.Split(dq, ","); dq != "" && len(extraDims) > 0 {
+		if versionItem.IsBasedOn.Type != cantabularMultivariateTable {
+			return nil, &Error{
+				err:        errors.New("invalid dataset type for custom dimensions"),
+				badRequest: true,
+			}
+		}
+
 		catMap := make(map[string]struct{})
 
 		for _, dim := range versionItem.Dimensions {
