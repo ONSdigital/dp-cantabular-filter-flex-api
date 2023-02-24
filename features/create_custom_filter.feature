@@ -223,7 +223,7 @@ Feature: Filters Private Endpoints Not Enabled
     }
     """
 
-    When I POST "/filters/custom"
+    When I POST "/custom/filters"
     """
     {
         "population_type": "Example" 
@@ -273,7 +273,7 @@ Feature: Filters Private Endpoints Not Enabled
     }
     """
 
-    When I POST "/filters/custom"
+    When I POST "/custom/filters"
     """
     {
         "population_type": "Example" 
@@ -303,7 +303,7 @@ Feature: Filters Private Endpoints Not Enabled
     }
     """
     
-    When I POST "/filters/custom"
+    When I POST "/custom/filters"
     """
     {
         "population_type": "Example" 
@@ -323,7 +323,7 @@ Feature: Filters Private Endpoints Not Enabled
 
   Scenario: Creating a new filter bad request body
 
-    When I POST "/filters/custom"
+    When I POST "/custom/filters"
     """
     """
 
