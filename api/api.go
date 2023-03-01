@@ -56,6 +56,8 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 }
 
 func (api *API) enablePublicEndpoints() {
+	api.Router.Post("/custom/filters", api.createCustomFilter)
+
 	api.Router.Post("/filters", api.createFilter)
 	api.Router.Get("/filters/{id}", api.getFilter)
 	api.Router.Put("/filters/{id}", api.putFilter)
@@ -80,8 +82,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Put("/filter-outputs/{id}", api.putFilterOutput)
 
 	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
-
-	api.Router.Post("/custom/filters", api.createCustomFilter)
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/observations", api.getDatasetObservationHandler)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -115,6 +116,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
 	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
+	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/observations", api.getDatasetObservationHandler)
 
 	r.Post("/custom/filters", api.createCustomFilter)
 
