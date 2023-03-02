@@ -197,23 +197,24 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     And I should receive the following JSON response:
     """
     {
-    "name": "hh_carers_D",
-    "id": "hh_carers_D",
-    "default_categorisation": "hh_carers_D",
-    "label": "Number of unpaid carers in household (32 categories)",
-    "links": {
-      "filter": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
-          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
-      },
-      "options": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D/options"
-      },
-      "self": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D",
-          "id": "hh_carers_D"
-      }
-      }
+        "name": "hh_carers_D",
+        "id": "hh_carers_D",
+        "default_categorisation": "hh_carers_D",
+        "label": "Number of unpaid carers in household (32 categories)",
+        "links": {
+            "filter": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+                "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D/options"
+            },
+            "self": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D",
+                "id": "hh_carers_D"
+            }
+        },
+        "is_area_type":false
     }
     """
 
@@ -368,23 +369,24 @@ Feature: Multivariate Feature Dimensions Private Endpoints
     And I should receive the following JSON response:
     """
     {
-    "name": "hh_carers_D",
-    "id": "hh_carers_D",
-    "label": "hh_carers_D",
-    "default_categorisation": "hh_carers_D",
-    "links": {
-      "filter": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
-          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
-      },
-      "options": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D/options"
-      },
-      "self": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D",
-          "id": "hh_carers_D"
-      }
-      }
+        "name": "hh_carers_D",
+        "id": "hh_carers_D",
+        "label": "hh_carers_D",
+        "default_categorisation": "hh_carers_D",
+        "links": {
+            "filter": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+                "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+            },
+            "options": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D/options"
+            },
+            "self": {
+                "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers_D",
+                "id": "hh_carers_D"
+            }
+        },
+        "is_area_type": false
     }
     """
     Then the HTTP status code should be "201"

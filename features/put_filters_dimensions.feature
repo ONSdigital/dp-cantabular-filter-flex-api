@@ -175,7 +175,8 @@ Feature: Updating a filter's dimensions
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
           "id": "country"
         }
-      }
+      },
+      "is_area_type":true
     }
     """
     And the HTTP status code should be "200"
@@ -265,7 +266,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "country"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "siblings",
@@ -284,7 +286,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "limit": 20,
@@ -413,7 +416,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "siblings",
@@ -432,7 +436,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "limit": 20,
@@ -487,7 +492,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "siblings",
@@ -506,7 +512,8 @@ Feature: Updating a filter's dimensions
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "limit": 20,

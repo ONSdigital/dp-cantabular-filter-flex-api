@@ -373,12 +373,8 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var resp getFilterDimensionResponse
-	resp.dimensionItem.fromDimension(filterDim, api.cfg.FilterAPIURL, fID)
-	if filterDim.IsAreaType != nil {
-		resp.IsAreaType = *filterDim.IsAreaType
-	}
-
+	var resp dimensionItem
+	resp.fromDimension(filterDim, api.cfg.FilterAPIURL, fID)
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 

@@ -198,6 +198,7 @@ type dimensionItem struct {
 	FilterByParent        string             `json:"filter_by_parent,omitempty"`
 	DefaultCategorisation string             `json:"default_categorisation"`
 	Links                 dimensionItemLinks `json:"links"`
+	IsAreaType            *bool              `json:"is_area_type,omitempty"`
 }
 
 func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
@@ -222,6 +223,7 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 			HREF: dimURL + "/options",
 		},
 	}
+	d.IsAreaType = dim.IsAreaType
 }
 
 type dimensionItems []dimensionItem
@@ -237,11 +239,6 @@ func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filter
 	}
 }
 
-type getFilterDimensionResponse struct {
-	dimensionItem
-	IsAreaType bool `json:"is_area_type"`
-}
-
 type dimensionItemLinks struct {
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
@@ -254,7 +251,7 @@ type addFilterDimensionOptionRequest struct {
 
 type addFilterDimensionOptionResponse struct {
 	Option string                     `json:"option"`
-	Links  filterDimensionOptionLinks `json:"links`
+	Links  filterDimensionOptionLinks `json:"links"`
 }
 
 type filterDimensionOptionLinks struct {
