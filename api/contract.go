@@ -122,7 +122,7 @@ func (r *putFilterOutputRequest) Valid() error {
 
 type GetObservationResponse struct {
 	Dimensions  []ObservationDimension `bson:"dimensions"           json:"dimensions"`
-	Observation float32                `bson:"observation,omitempty"   json:"observation,omitempty"`
+	Observation float32                `bson:"observation"   json:"observation"`
 }
 
 type GetObservationsResponse struct {

@@ -341,6 +341,11 @@ Feature: Get Dataset Observations
               node {
                 name
                 description
+                meta{
+                  ONS_Variable{
+                    Geography_Hierarchy_Order
+                  }
+                }
                 mapFrom {
                   edges {
                     node {
@@ -403,7 +408,7 @@ Feature: Get Dataset Observations
     }
     """
 
-  Scenario: Get the dataset as JSON without asking for specific dimensions
+  Scenario: Get the dataset obs
     Given Cantabular returns this static dataset for the given request:
     """
     request:
@@ -469,439 +474,439 @@ Feature: Get Dataset Observations
 
     Then the HTTP status code should be "200"
 
-    And the getGeographyDatasetJSON result should be:
+    And I should receive the following JSON response:
     """
     {
-      "observations":[
-      {  
-        "dimensions": [
+    "observations": [
         {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 1
         },
         {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 0
         },
         {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "London",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 1
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 1
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 1
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "No siblings",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "1 or 2 siblings",
+                    "option_id": "1-2"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Belfast",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Number of siblings (3 mappings)",
+                    "dimension_id": "siblings_3",
+                    "option": "3 or more siblings",
+                    "option_id": "3+"
+                }
+            ],
+            "observation": 2
         }
-        ],
-        "observation": 1
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"London",
-          "option_id":"0"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 1
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 1
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Liverpool",
-          "option_id":"1"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 1
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Male",
-          "option_id":"0"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 0
-      },
-      {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"No siblings",
-          "option_id":"0"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"1 or 2 siblings",
-          "option_id":"1-2"
-        }
-        ],
-        "observation": 0
-      },
-       {  
-        "dimensions": [
-        {
-          "dimension":"city",
-          "dimension_id":"city",
-          "option":"Belfast",
-          "option_id":"2"
-        },
-        {
-          "dimension":"sex",
-          "dimension_id":"sex",
-          "option":"Female",
-          "option_id":"1"
-        },
-        {
-          "dimension":"Number of siblings (3 mappings)",
-          "dimension_id":"siblings_3",
-          "option":"3 or more siblings",
-          "option_id":"3+"
-        }
-        ],
-        "observation": 2
-      }
-      ],
-      "links":{
+    ],
+    "links": {
         "dataset_metadata": {
-          "href":"http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
-        "self":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
-          "id":"cantabular-flexible-table-component-test"
+        "self": {
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
+            "id": "cantabular-flexible-table-component-test"
         },
-        "version":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
-          "id":"1"
+        "version": {
+            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+            "id": "1"
         }
-      },
-      "total_observations":18
+    },
+    "total_observations": 18
     }
     """
 
