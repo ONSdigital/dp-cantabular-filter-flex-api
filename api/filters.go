@@ -330,6 +330,7 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 		Type:              filterType,
 		Published:         v.State == published,
 		DisclosureControl: nil, // populate for these fields yet
+		Custom:            true,
 	}
 
 	if err := api.store.CreateFilter(ctx, &f); err != nil {

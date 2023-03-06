@@ -258,7 +258,7 @@ Feature: Filters Private Endpoints Not Enabled
       "population_type": "Example",
       "published": true,
       "type": "multivariate",
-      "custom": false
+      "custom": true
     }
     """
 
