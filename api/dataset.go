@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -385,12 +384,6 @@ func getDimensionRow(query *cantabular.StaticDatasetQuery, dimIndices []int, dim
 	}
 
 	return observationDimensions
-}
-
-func checkError(message string, err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }
 
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
