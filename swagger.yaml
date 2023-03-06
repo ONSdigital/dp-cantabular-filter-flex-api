@@ -560,8 +560,8 @@ paths:
     get:
       tags:
       - "Public"
-      summary: "Get observations for a census dataset"
-      description: "Get observations for a census dataset, with capability to flex and filter the data to the users need. If no area-type parameters are supplied then observations for the default area-type are returned."
+      summary: "Get observations for a census dataset - to be deprecated autumn 2023.  Updated endpoint will be /datasets/{dataset_id}/editions/{edition}/versions/{version}/observations."
+      description: "This endpoint will be deprecated autumn 2023. This gets observations for a census dataset, with capability to flex and filter the data to the users need. If no area-type or dimension parameters are supplied then observations for the default area-type and dimensions are returned."
       parameters:
         - $ref: '#/parameters/dataset_id'
         - $ref: '#/parameters/edition'
@@ -572,6 +572,35 @@ paths:
           description: "Json object containing all metadata for a version"
           schema:
             $ref: '#/definitions/GetDatasetJSONResponse'
+        400:
+          description: |
+            Invalid request, reasons can be one of the following:
+              * query parameters contain incorrect dimensions
+        404:
+          description: |
+            Resource not found, reasons can be one of the following:
+              * dataset id was incorrect
+              * edition was incorrect
+              * version was incorrect
+              * observations not found for selected query paramaters
+        500:
+          $ref: '#/responses/InternalError'
+  /datasets/{dataset_id}/editions/{edition}/versions/{version}/observations:
+    get:
+      tags:
+      - "Public"
+      summary: "Get observations for a census dataset - new format.  This replaces /datasets/{dataset_id}/editions/{edition}/versions/{version}/json."
+      description: "Get observations for a census dataset, with capability to flex and filter the data to the users need. If no area-type or dimension parameters are supplied then observations for the default area-type and dimensions are returned."
+      parameters:
+        - $ref: '#/parameters/dataset_id'
+        - $ref: '#/parameters/edition'
+        - $ref: '#/parameters/version'
+        - $ref: '#/parameters/area-type'
+      responses:
+        200:
+          description: "Json object containing observations for a dataset"
+          schema:
+            $ref: '#/definitions/GetDatasetObservationsResponse'
         400:
           description: |
             Invalid request, reasons can be one of the following:
@@ -898,6 +927,22 @@ definitions:
           type: array
           items:
             type: string
+  ObservationDimension:
+    type: object
+    description: "A dimension returned relating to an observation"
+    properties:
+      dimension:
+        type: string
+        description: "The dimension description"
+      dimension_id:
+        type: string
+        description: "The dimension id"
+      option:
+        type: string
+        description: "The description of the option the observation relates to"
+      option_id:
+        type: string
+        description: "The id of the option the observation relates to"
   Options:
     type: object
     description: "A list of options for dimension to filter on a dataset"
@@ -988,7 +1033,7 @@ definitions:
                   example: "95c4669b-3ae9-4ba7-b690-87e890a1c543"
                   type: string
   GetDatasetJSONResponse:
-    description: "An object containing information on a list of observations for a given version of a census dataset"
+    description: "An object containing information on a list of observations for a given version of a census dataset - will be deprecated later in 2023"
     type: object
     properties:
       dimensions:
@@ -1023,6 +1068,41 @@ definitions:
          type: integer
       total_observations:
         description: "The number of observations found"
+        type: integer
+  GetDatasetObservationsResponse:
+    description: "An object containing information on a list of observations for a given version of a census dataset - updated response"
+    type: object
+    properties:
+      observations:
+        description: "A list of dimensions for the given query"
+        type: array
+        items:
+          $ref: "#/definitions/GetDatasetObservation"
+      links:
+        description: "A list of links related to this observation resource"
+        readOnly: true
+        type: object
+        properties:
+          dataset_metadata:
+            $ref: '#/definitions/Link'
+          self:
+            $ref: '#/definitions/Link'
+          version:
+            $ref: '#/definitions/Link'
+      total_observations:
+        description: "The number of observations found"
+        type: integer
+  GetDatasetObservation:
+    description: "An object containing information on a list of observations for a given version of a census dataset - updated response"
+    type: object
+    properties:
+      dimensions:
+        description: "A list of dimensions for the given query"
+        type: array
+        items:
+          $ref: "#/definitions/ObservationDimension"
+      observation:
+        description: "The observation relating to the combination of dimensions and options"
         type: integer
   PaginationResponse:
     properties:
