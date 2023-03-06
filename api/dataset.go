@@ -421,7 +421,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.datasetLink = versionItem.Links.Dataset
 	params.versionLink = versionItem.Links.Self
 	params.basedOn = versionItem.IsBasedOn.ID
-	params.metadataLink.URL = versionItem.Links.Self.URL + "/metadata"
+
+	params.metadataLink.URL = api.datasets.GetMetadataURL(params.id, params.edition, params.version)
 
 	if len(versionItem.Dimensions) == 0 {
 		return nil, errors.New("invalid dimensions length of zero")

@@ -646,7 +646,7 @@ Feature: Get Dataset Observations
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getDatasetObservationResult result is:
     """
     {
     "observations": [
@@ -1067,7 +1067,7 @@ Feature: Get Dataset Observations
     ],
     "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
@@ -1169,7 +1169,7 @@ Feature: Get Dataset Observations
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getDatasetObservationResult result is:
     """
     {
     "observations": [
@@ -1452,7 +1452,7 @@ Feature: Get Dataset Observations
     ],
    "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
@@ -1654,7 +1654,7 @@ Feature: Get Dataset Observations
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getDatasetObservationResult result is:
     """
    {
     "observations": [
@@ -1799,7 +1799,7 @@ Feature: Get Dataset Observations
     ],
     "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
@@ -1988,12 +1988,12 @@ Feature: Get Dataset Observations
 
     Then the HTTP status code should be "200"
 
-    And I should receive the following JSON response:
+    And the getDatasetObservationResult result is:
     """
     {
     "links": {
         "dataset_metadata": {
-            "href": "http://hostname/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/metadata"
+            "href": "http://localhost:9999/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
             "href": "http://hostname/datasets/cantabular-multivariate-table-component-test",
