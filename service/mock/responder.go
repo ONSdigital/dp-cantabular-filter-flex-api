@@ -16,31 +16,31 @@ var _ service.Responder = &ResponderMock{}
 
 // ResponderMock is a mock implementation of service.Responder.
 //
-// 	func TestSomethingThatUsesResponder(t *testing.T) {
+//	func TestSomethingThatUsesResponder(t *testing.T) {
 //
-// 		// make and configure a mocked service.Responder
-// 		mockedResponder := &ResponderMock{
-// 			BytesFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, bytes []byte)  {
-// 				panic("mock out the Bytes method")
-// 			},
-// 			ErrorFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, err error)  {
-// 				panic("mock out the Error method")
-// 			},
-// 			ErrorsFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)  {
-// 				panic("mock out the Errors method")
-// 			},
-// 			JSONFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, ifaceVal interface{})  {
-// 				panic("mock out the JSON method")
-// 			},
-// 			StatusCodeFunc: func(responseWriter http.ResponseWriter, n int)  {
-// 				panic("mock out the StatusCode method")
-// 			},
-// 		}
+//		// make and configure a mocked service.Responder
+//		mockedResponder := &ResponderMock{
+//			BytesFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, bytes []byte)  {
+//				panic("mock out the Bytes method")
+//			},
+//			ErrorFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, err error)  {
+//				panic("mock out the Error method")
+//			},
+//			ErrorsFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, errs []error)  {
+//				panic("mock out the Errors method")
+//			},
+//			JSONFunc: func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, ifaceVal interface{})  {
+//				panic("mock out the JSON method")
+//			},
+//			StatusCodeFunc: func(responseWriter http.ResponseWriter, n int)  {
+//				panic("mock out the StatusCode method")
+//			},
+//		}
 //
-// 		// use mockedResponder in code that requires service.Responder
-// 		// and then make assertions.
+//		// use mockedResponder in code that requires service.Responder
+//		// and then make assertions.
 //
-// 	}
+//	}
 type ResponderMock struct {
 	// BytesFunc mocks the Bytes method.
 	BytesFunc func(contextMoqParam context.Context, responseWriter http.ResponseWriter, n int, bytes []byte)
@@ -142,7 +142,8 @@ func (mock *ResponderMock) Bytes(contextMoqParam context.Context, responseWriter
 
 // BytesCalls gets all the calls that were made to Bytes.
 // Check the length with:
-//     len(mockedResponder.BytesCalls())
+//
+//	len(mockedResponder.BytesCalls())
 func (mock *ResponderMock) BytesCalls() []struct {
 	ContextMoqParam context.Context
 	ResponseWriter  http.ResponseWriter
@@ -185,7 +186,8 @@ func (mock *ResponderMock) Error(contextMoqParam context.Context, responseWriter
 
 // ErrorCalls gets all the calls that were made to Error.
 // Check the length with:
-//     len(mockedResponder.ErrorCalls())
+//
+//	len(mockedResponder.ErrorCalls())
 func (mock *ResponderMock) ErrorCalls() []struct {
 	ContextMoqParam context.Context
 	ResponseWriter  http.ResponseWriter
@@ -228,7 +230,8 @@ func (mock *ResponderMock) Errors(contextMoqParam context.Context, responseWrite
 
 // ErrorsCalls gets all the calls that were made to Errors.
 // Check the length with:
-//     len(mockedResponder.ErrorsCalls())
+//
+//	len(mockedResponder.ErrorsCalls())
 func (mock *ResponderMock) ErrorsCalls() []struct {
 	ContextMoqParam context.Context
 	ResponseWriter  http.ResponseWriter
@@ -271,7 +274,8 @@ func (mock *ResponderMock) JSON(contextMoqParam context.Context, responseWriter 
 
 // JSONCalls gets all the calls that were made to JSON.
 // Check the length with:
-//     len(mockedResponder.JSONCalls())
+//
+//	len(mockedResponder.JSONCalls())
 func (mock *ResponderMock) JSONCalls() []struct {
 	ContextMoqParam context.Context
 	ResponseWriter  http.ResponseWriter
@@ -310,7 +314,8 @@ func (mock *ResponderMock) StatusCode(responseWriter http.ResponseWriter, n int)
 
 // StatusCodeCalls gets all the calls that were made to StatusCode.
 // Check the length with:
-//     len(mockedResponder.StatusCodeCalls())
+//
+//	len(mockedResponder.StatusCodeCalls())
 func (mock *ResponderMock) StatusCodeCalls() []struct {
 	ResponseWriter http.ResponseWriter
 	N              int

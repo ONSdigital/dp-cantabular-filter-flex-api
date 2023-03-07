@@ -35,6 +35,7 @@ type Component struct {
 	DatasetFeature    *DatasetFeature
 	CantabularFeature *CantabularFeature
 	MetadataFeature   *MetadataFeature
+	PopulationFeature *PopulationFeature
 	svc               *service.Service
 }
 
@@ -51,6 +52,7 @@ func NewComponent(t *testing.T) *Component {
 		DatasetFeature:    NewDatasetFeature(t, cfg),
 		CantabularFeature: NewCantabularFeature(t, cfg),
 		MetadataFeature:   NewMetadataFeature(t, cfg),
+		PopulationFeature: NewPopulationFeature(t, cfg),
 	}
 	component.MongoFeature = NewMongoFeature(component.ErrorFeature, g, cfg)
 	component.APIFeature = componenttest.NewAPIFeature(component.Router)
@@ -83,6 +85,7 @@ func (c *Component) Reset() {
 	c.DatasetFeature.Reset()
 	c.CantabularFeature.Reset()
 	c.MongoFeature.Reset()
+	c.PopulationFeature.Reset()
 }
 
 func (c *Component) Close() {
@@ -96,6 +99,7 @@ func (c *Component) setInitialiserMock(g service.Generator) {
 	c.DatasetFeature.setInitialiserMock()
 	c.MetadataFeature.setInitialiserMock()
 	c.MongoFeature.setInitialiserMock()
+	c.PopulationFeature.setInitialiserMock()
 
 	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
 		return &http.Server{Addr: bindAddr, Handler: router}

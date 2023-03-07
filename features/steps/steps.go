@@ -30,6 +30,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	c.CantabularFeature.RegisterSteps(ctx)
 	c.MetadataFeature.RegisterSteps(ctx)
 	c.MongoFeature.RegisterSteps(ctx)
+	c.PopulationFeature.RegisterSteps(ctx)
 
 	ctx.Step(
 		`^private endpoints are enabled$`,

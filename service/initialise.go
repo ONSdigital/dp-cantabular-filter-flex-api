@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-net/v2/responder"
@@ -52,18 +53,21 @@ var GetCantabularClient = func(cfg *config.Config) CantabularClient {
 }
 
 var GetMetadataClient = func(cfg *config.Config) MetadataClient {
-
 	// NB: Client initialisation is not consistent, see above...
 	return cantabularmetadata.NewClient(cantabularmetadata.Config{
 		Host:           cfg.MetadataAPIURL,
 		GraphQLTimeout: cfg.DefaultRequestTimeout,
 	}, dphttp.NewClient())
-
 }
 
 // GetDatasetAPIClient gets and initialises the DatasetAPI Client
 var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 	return dataset.NewAPIClient(cfg.DatasetAPIURL)
+}
+
+// GetDatasetAPIClient gets and initialises the DatasetAPI Client
+var GetPopulationClient = func(cfg *config.Config) (PopulationTypesAPIClient, error) {
+	return population.NewClient(cfg.PopulationTypesAPIURL)
 }
 
 // GetHealthCheck creates a healthcheck with versionInfo

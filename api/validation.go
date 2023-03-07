@@ -60,7 +60,6 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	}
 
 	if v.IsBasedOn.Type == cantabularMultivariateTable {
-
 		resp, err := api.getCantabularDimensions(ctx, dims, pType)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get dimensions from Cantabular")

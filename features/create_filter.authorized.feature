@@ -17,7 +17,7 @@ Feature: Filters Private Endpoints Enabled
               "options": {},
               "version": {}
             },
-            "href": "http://api.localhost:23200/v1/code-lists/city",
+            "href": "http://api.localhost:23200/v1/code-lists/city", 
             "id": "city",
             "name": "city",
             "is_area_type": true
@@ -160,10 +160,10 @@ Feature: Filters Private Endpoints Enabled
           "id": "1"
         },
         "self": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "dimensions": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
@@ -177,6 +177,7 @@ Feature: Filters Private Endpoints Enabled
       },
       "population_type": "Example",
       "published":       true,
+      "custom":          false,
       "type":            "flexible"
     }
     """
@@ -194,13 +195,13 @@ Feature: Filters Private Endpoints Enabled
           "id": "1"
         },
         "self": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1"
         },
         "dimensions": {
-          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
+          "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag":        "79bab2ebc6d3f82576b1801848b6b3646b0de538",
+      "etag":        "c377441938e2d9f3ced0641d548a38806a42876a",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -240,6 +241,7 @@ Feature: Filters Private Endpoints Enabled
       "published":       true,
       "type":            "flexible",
       "published":       true,
+      "custom": false,  
       "population_type": "Example",
       "type":            "flexible",
       "unique_timestamp":{

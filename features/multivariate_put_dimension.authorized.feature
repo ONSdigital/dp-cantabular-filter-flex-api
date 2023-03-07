@@ -157,7 +157,8 @@ Feature: Multivariate Feature Dimensions Private Endpoints
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "country"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "hh_carers",
@@ -176,7 +177,8 @@ Feature: Multivariate Feature Dimensions Private Endpoints
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/hh_carers",
               "id": "hh_carers"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "limit": 20,

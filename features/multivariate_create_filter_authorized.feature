@@ -16,7 +16,7 @@
         "state":"published",
         "title":"cantabular-example-1",
         "release_date": "2021-11-19T00:00:00.000Z",
-        "type":"cantabular_flexible_table",
+        "type":"cantabular_multivariate_table",
         "is_based_on":{
           "@type":"cantabular_flexible_table",
           "@id":"Example"
@@ -179,6 +179,7 @@
         "lowest_geography": "lowest-geography"
       },
       "population_type": "dummy_data_households",
+      "custom": true,
       "dimensions": [
         {
           "name": "ladcd",
@@ -226,7 +227,8 @@
       },
       "population_type": "dummy_data_households",
       "published":       true,
-      "type":            "multivariate"
+      "type":            "multivariate",
+      "custom":           true
     }
     """
 
@@ -249,7 +251,7 @@
           "href": ":27100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
         }
       },
-      "etag": "a8b1b88594cfa782aa0a3f49eb61df82cb50fef4",
+      "etag": "c842ed3ecf4c3d1879fcfde5241ba5ed0d7d9110",
       "instance_id": "c733977d-a2ca-4596-9cb1-08a6e724858b",
       "dimensions": [
         {
@@ -287,6 +289,7 @@
       "published": true,
       "population_type": "dummy_data_households",
       "type": "multivariate",
+      "custom": true,
       "unique_timestamp": {
         "$timestamp": {
           "i": 1,

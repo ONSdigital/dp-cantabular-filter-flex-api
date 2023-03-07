@@ -19,8 +19,14 @@ type paginationResponse struct {
 // createFilterRequest is the request body for POST /filters
 type createFilterRequest struct {
 	PopulationType string            `json:"population_type"`
+	Custom         bool              `json:"custom"`
 	Dimensions     []model.Dimension `json:"dimensions"`
 	Dataset        *model.Dataset    `json:"dataset"`
+}
+
+// creatCustomFilterRequest is the request body for POST /filters/custom
+type createCustomFilterRequest struct {
+	PopulationType string `json:"population_type"`
 }
 
 func (r *createFilterRequest) Valid() error {
@@ -192,6 +198,7 @@ type dimensionItem struct {
 	FilterByParent        string             `json:"filter_by_parent,omitempty"`
 	DefaultCategorisation string             `json:"default_categorisation"`
 	Links                 dimensionItemLinks `json:"links"`
+	IsAreaType            *bool              `json:"is_area_type,omitempty"`
 }
 
 func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
@@ -216,6 +223,7 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 			HREF: dimURL + "/options",
 		},
 	}
+	d.IsAreaType = dim.IsAreaType
 }
 
 type dimensionItems []dimensionItem
@@ -231,11 +239,6 @@ func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filter
 	}
 }
 
-type getFilterDimensionResponse struct {
-	dimensionItem
-	IsAreaType bool `json:"is_area_type"`
-}
-
 type dimensionItemLinks struct {
 	Filter  model.Link `json:"filter"`
 	Options model.Link `json:"options"`
@@ -248,7 +251,7 @@ type addFilterDimensionOptionRequest struct {
 
 type addFilterDimensionOptionResponse struct {
 	Option string                     `json:"option"`
-	Links  filterDimensionOptionLinks `json:"links`
+	Links  filterDimensionOptionLinks `json:"links"`
 }
 
 type filterDimensionOptionLinks struct {
@@ -267,6 +270,7 @@ type submitFilterResponse struct {
 	Dataset        model.Dataset     `json:"dataset"`
 	Links          model.FilterLinks `json:"links"`
 	PopulationType string            `json:"population_type"`
+	Custom         bool              `json:"custom"`
 }
 
 // getDatasetJSONResponse is the response body for GET /datasets/{dataset_id}/editions/{edition}/versions/{version}/json

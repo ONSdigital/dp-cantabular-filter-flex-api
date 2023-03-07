@@ -50,7 +50,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
         },
         "published": true,
         "population_type": "Example",
-        "type": "flexible"
+        "type": "flexible",
+        "custom": true
       },
       {
         "filter_id": "test-case-2",
@@ -133,7 +134,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
           "href": ":27100/filters/TEST-FILTER-ID/dimensions"
         }
       },
-      "population_type": "Example"
+      "population_type": "Example",
+      "custom": true
     }
 
     """
@@ -190,7 +192,8 @@ Feature: Submit Filter Private Endpoints Not Enabled
         }
       ],
       "type": "flexible",
-      "population_type": "Example"
+      "population_type": "Example",
+      "custom": true
     }
     """
     And the following Export Start events are produced:

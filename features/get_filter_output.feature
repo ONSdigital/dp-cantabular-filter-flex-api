@@ -11,6 +11,7 @@ Feature: Get Filter Private Endpoints Not Enabled
        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
        "state": "published",
        "published": true,
+       "custom": true,
        "downloads": {
          "xls": {
            "href": "http://localhost:23600/downloads/datasets/cantabular-flexible-example/editions/2021/versions/1.xls",
@@ -61,6 +62,7 @@ Feature: Get Filter Private Endpoints Not Enabled
        "filter_id": "94310d8d-72d6-492a-bc30-27584627fil2",
        "instance_id": "94310d8d-72d6-492a-bc30-27584627inst2",
        "state": "completed",
+       "custom": true,
        "downloads": {
          "xls": {
            "href": "string",
@@ -104,6 +106,7 @@ Feature: Get Filter Private Endpoints Not Enabled
         "filter_id": "94310d8d-72d6-492a-bc30-27584627fil1",
         "instance_id": "94310d8d-72d6-492a-bc30-27584627inst1",
         "type": "",
+        "custom": true,
         "downloads": {},
         "dimensions": null,
           "state": "published",

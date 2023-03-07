@@ -18,64 +18,64 @@ var _ service.Datastore = &DatastoreMock{}
 
 // DatastoreMock is a mock implementation of service.Datastore.
 //
-// 	func TestSomethingThatUsesDatastore(t *testing.T) {
+//	func TestSomethingThatUsesDatastore(t *testing.T) {
 //
-// 		// make and configure a mocked service.Datastore
-// 		mockedDatastore := &DatastoreMock{
-// 			AddFilterDimensionFunc: func(ctx context.Context, s string, dimension model.Dimension) error {
-// 				panic("mock out the AddFilterDimension method")
-// 			},
-// 			AddFilterOutputEventFunc: func(contextMoqParam context.Context, s string, event *model.Event) error {
-// 				panic("mock out the AddFilterOutputEvent method")
-// 			},
-// 			CheckerFunc: func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error {
-// 				panic("mock out the Checker method")
-// 			},
-// 			ConnFunc: func() *mongo.MongoConnection {
-// 				panic("mock out the Conn method")
-// 			},
-// 			CreateFilterFunc: func(contextMoqParam context.Context, filter *model.Filter) error {
-// 				panic("mock out the CreateFilter method")
-// 			},
-// 			CreateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
-// 				panic("mock out the CreateFilterOutput method")
-// 			},
-// 			DeleteFilterDimensionFunc: func(contextMoqParam context.Context, s1 string, s2 string) (string, error) {
-// 				panic("mock out the DeleteFilterDimension method")
-// 			},
-// 			DeleteFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string) (string, error) {
-// 				panic("mock out the DeleteFilterDimensionOptions method")
-// 			},
-// 			GetFilterFunc: func(contextMoqParam context.Context, s string) (*model.Filter, error) {
-// 				panic("mock out the GetFilter method")
-// 			},
-// 			GetFilterDimensionFunc: func(ctx context.Context, fID string, dimName string) (model.Dimension, error) {
-// 				panic("mock out the GetFilterDimension method")
-// 			},
-// 			GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
-// 				panic("mock out the GetFilterDimensionOptions method")
-// 			},
-// 			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error) {
-// 				panic("mock out the GetFilterDimensions method")
-// 			},
-// 			GetFilterOutputFunc: func(contextMoqParam context.Context, s string) (*model.FilterOutput, error) {
-// 				panic("mock out the GetFilterOutput method")
-// 			},
-// 			RemoveFilterDimensionOptionFunc: func(ctx context.Context, filterID string, dimension string, option string, currentETag string) (string, error) {
-// 				panic("mock out the RemoveFilterDimensionOption method")
-// 			},
-// 			UpdateFilterDimensionFunc: func(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
-// 				panic("mock out the UpdateFilterDimension method")
-// 			},
-// 			UpdateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
-// 				panic("mock out the UpdateFilterOutput method")
-// 			},
-// 		}
+//		// make and configure a mocked service.Datastore
+//		mockedDatastore := &DatastoreMock{
+//			AddFilterDimensionFunc: func(ctx context.Context, s string, dimension model.Dimension) error {
+//				panic("mock out the AddFilterDimension method")
+//			},
+//			AddFilterOutputEventFunc: func(contextMoqParam context.Context, s string, event *model.Event) error {
+//				panic("mock out the AddFilterOutputEvent method")
+//			},
+//			CheckerFunc: func(contextMoqParam context.Context, checkState *healthcheck.CheckState) error {
+//				panic("mock out the Checker method")
+//			},
+//			ConnFunc: func() *mongo.MongoConnection {
+//				panic("mock out the Conn method")
+//			},
+//			CreateFilterFunc: func(contextMoqParam context.Context, filter *model.Filter) error {
+//				panic("mock out the CreateFilter method")
+//			},
+//			CreateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
+//				panic("mock out the CreateFilterOutput method")
+//			},
+//			DeleteFilterDimensionFunc: func(contextMoqParam context.Context, s1 string, s2 string) (string, error) {
+//				panic("mock out the DeleteFilterDimension method")
+//			},
+//			DeleteFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string) (string, error) {
+//				panic("mock out the DeleteFilterDimensionOptions method")
+//			},
+//			GetFilterFunc: func(contextMoqParam context.Context, s string) (*model.Filter, error) {
+//				panic("mock out the GetFilter method")
+//			},
+//			GetFilterDimensionFunc: func(ctx context.Context, fID string, dimName string) (model.Dimension, error) {
+//				panic("mock out the GetFilterDimension method")
+//			},
+//			GetFilterDimensionOptionsFunc: func(contextMoqParam context.Context, s1 string, s2 string, n1 int, n2 int) ([]string, int, string, error) {
+//				panic("mock out the GetFilterDimensionOptions method")
+//			},
+//			GetFilterDimensionsFunc: func(contextMoqParam context.Context, s string, n1 int, n2 int) ([]model.Dimension, int, error) {
+//				panic("mock out the GetFilterDimensions method")
+//			},
+//			GetFilterOutputFunc: func(contextMoqParam context.Context, s string) (*model.FilterOutput, error) {
+//				panic("mock out the GetFilterOutput method")
+//			},
+//			RemoveFilterDimensionOptionFunc: func(ctx context.Context, filterID string, dimension string, option string, currentETag string) (string, error) {
+//				panic("mock out the RemoveFilterDimensionOption method")
+//			},
+//			UpdateFilterDimensionFunc: func(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+//				panic("mock out the UpdateFilterDimension method")
+//			},
+//			UpdateFilterOutputFunc: func(contextMoqParam context.Context, filterOutput *model.FilterOutput) error {
+//				panic("mock out the UpdateFilterOutput method")
+//			},
+//		}
 //
-// 		// use mockedDatastore in code that requires service.Datastore
-// 		// and then make assertions.
+//		// use mockedDatastore in code that requires service.Datastore
+//		// and then make assertions.
 //
-// 	}
+//	}
 type DatastoreMock struct {
 	// AddFilterDimensionFunc mocks the AddFilterDimension method.
 	AddFilterDimensionFunc func(ctx context.Context, s string, dimension model.Dimension) error
@@ -308,7 +308,8 @@ func (mock *DatastoreMock) AddFilterDimension(ctx context.Context, s string, dim
 
 // AddFilterDimensionCalls gets all the calls that were made to AddFilterDimension.
 // Check the length with:
-//     len(mockedDatastore.AddFilterDimensionCalls())
+//
+//	len(mockedDatastore.AddFilterDimensionCalls())
 func (mock *DatastoreMock) AddFilterDimensionCalls() []struct {
 	Ctx       context.Context
 	S         string
@@ -347,7 +348,8 @@ func (mock *DatastoreMock) AddFilterOutputEvent(contextMoqParam context.Context,
 
 // AddFilterOutputEventCalls gets all the calls that were made to AddFilterOutputEvent.
 // Check the length with:
-//     len(mockedDatastore.AddFilterOutputEventCalls())
+//
+//	len(mockedDatastore.AddFilterOutputEventCalls())
 func (mock *DatastoreMock) AddFilterOutputEventCalls() []struct {
 	ContextMoqParam context.Context
 	S               string
@@ -384,7 +386,8 @@ func (mock *DatastoreMock) Checker(contextMoqParam context.Context, checkState *
 
 // CheckerCalls gets all the calls that were made to Checker.
 // Check the length with:
-//     len(mockedDatastore.CheckerCalls())
+//
+//	len(mockedDatastore.CheckerCalls())
 func (mock *DatastoreMock) CheckerCalls() []struct {
 	ContextMoqParam context.Context
 	CheckState      *healthcheck.CheckState
@@ -414,7 +417,8 @@ func (mock *DatastoreMock) Conn() *mongo.MongoConnection {
 
 // ConnCalls gets all the calls that were made to Conn.
 // Check the length with:
-//     len(mockedDatastore.ConnCalls())
+//
+//	len(mockedDatastore.ConnCalls())
 func (mock *DatastoreMock) ConnCalls() []struct {
 } {
 	var calls []struct {
@@ -445,7 +449,8 @@ func (mock *DatastoreMock) CreateFilter(contextMoqParam context.Context, filter 
 
 // CreateFilterCalls gets all the calls that were made to CreateFilter.
 // Check the length with:
-//     len(mockedDatastore.CreateFilterCalls())
+//
+//	len(mockedDatastore.CreateFilterCalls())
 func (mock *DatastoreMock) CreateFilterCalls() []struct {
 	ContextMoqParam context.Context
 	Filter          *model.Filter
@@ -480,7 +485,8 @@ func (mock *DatastoreMock) CreateFilterOutput(contextMoqParam context.Context, f
 
 // CreateFilterOutputCalls gets all the calls that were made to CreateFilterOutput.
 // Check the length with:
-//     len(mockedDatastore.CreateFilterOutputCalls())
+//
+//	len(mockedDatastore.CreateFilterOutputCalls())
 func (mock *DatastoreMock) CreateFilterOutputCalls() []struct {
 	ContextMoqParam context.Context
 	FilterOutput    *model.FilterOutput
@@ -517,7 +523,8 @@ func (mock *DatastoreMock) DeleteFilterDimension(contextMoqParam context.Context
 
 // DeleteFilterDimensionCalls gets all the calls that were made to DeleteFilterDimension.
 // Check the length with:
-//     len(mockedDatastore.DeleteFilterDimensionCalls())
+//
+//	len(mockedDatastore.DeleteFilterDimensionCalls())
 func (mock *DatastoreMock) DeleteFilterDimensionCalls() []struct {
 	ContextMoqParam context.Context
 	S1              string
@@ -556,7 +563,8 @@ func (mock *DatastoreMock) DeleteFilterDimensionOptions(contextMoqParam context.
 
 // DeleteFilterDimensionOptionsCalls gets all the calls that were made to DeleteFilterDimensionOptions.
 // Check the length with:
-//     len(mockedDatastore.DeleteFilterDimensionOptionsCalls())
+//
+//	len(mockedDatastore.DeleteFilterDimensionOptionsCalls())
 func (mock *DatastoreMock) DeleteFilterDimensionOptionsCalls() []struct {
 	ContextMoqParam context.Context
 	S1              string
@@ -593,7 +601,8 @@ func (mock *DatastoreMock) GetFilter(contextMoqParam context.Context, s string) 
 
 // GetFilterCalls gets all the calls that were made to GetFilter.
 // Check the length with:
-//     len(mockedDatastore.GetFilterCalls())
+//
+//	len(mockedDatastore.GetFilterCalls())
 func (mock *DatastoreMock) GetFilterCalls() []struct {
 	ContextMoqParam context.Context
 	S               string
@@ -630,7 +639,8 @@ func (mock *DatastoreMock) GetFilterDimension(ctx context.Context, fID string, d
 
 // GetFilterDimensionCalls gets all the calls that were made to GetFilterDimension.
 // Check the length with:
-//     len(mockedDatastore.GetFilterDimensionCalls())
+//
+//	len(mockedDatastore.GetFilterDimensionCalls())
 func (mock *DatastoreMock) GetFilterDimensionCalls() []struct {
 	Ctx     context.Context
 	FID     string
@@ -673,7 +683,8 @@ func (mock *DatastoreMock) GetFilterDimensionOptions(contextMoqParam context.Con
 
 // GetFilterDimensionOptionsCalls gets all the calls that were made to GetFilterDimensionOptions.
 // Check the length with:
-//     len(mockedDatastore.GetFilterDimensionOptionsCalls())
+//
+//	len(mockedDatastore.GetFilterDimensionOptionsCalls())
 func (mock *DatastoreMock) GetFilterDimensionOptionsCalls() []struct {
 	ContextMoqParam context.Context
 	S1              string
@@ -718,7 +729,8 @@ func (mock *DatastoreMock) GetFilterDimensions(contextMoqParam context.Context, 
 
 // GetFilterDimensionsCalls gets all the calls that were made to GetFilterDimensions.
 // Check the length with:
-//     len(mockedDatastore.GetFilterDimensionsCalls())
+//
+//	len(mockedDatastore.GetFilterDimensionsCalls())
 func (mock *DatastoreMock) GetFilterDimensionsCalls() []struct {
 	ContextMoqParam context.Context
 	S               string
@@ -757,7 +769,8 @@ func (mock *DatastoreMock) GetFilterOutput(contextMoqParam context.Context, s st
 
 // GetFilterOutputCalls gets all the calls that were made to GetFilterOutput.
 // Check the length with:
-//     len(mockedDatastore.GetFilterOutputCalls())
+//
+//	len(mockedDatastore.GetFilterOutputCalls())
 func (mock *DatastoreMock) GetFilterOutputCalls() []struct {
 	ContextMoqParam context.Context
 	S               string
@@ -798,7 +811,8 @@ func (mock *DatastoreMock) RemoveFilterDimensionOption(ctx context.Context, filt
 
 // RemoveFilterDimensionOptionCalls gets all the calls that were made to RemoveFilterDimensionOption.
 // Check the length with:
-//     len(mockedDatastore.RemoveFilterDimensionOptionCalls())
+//
+//	len(mockedDatastore.RemoveFilterDimensionOptionCalls())
 func (mock *DatastoreMock) RemoveFilterDimensionOptionCalls() []struct {
 	Ctx         context.Context
 	FilterID    string
@@ -845,7 +859,8 @@ func (mock *DatastoreMock) UpdateFilterDimension(ctx context.Context, filterID s
 
 // UpdateFilterDimensionCalls gets all the calls that were made to UpdateFilterDimension.
 // Check the length with:
-//     len(mockedDatastore.UpdateFilterDimensionCalls())
+//
+//	len(mockedDatastore.UpdateFilterDimensionCalls())
 func (mock *DatastoreMock) UpdateFilterDimensionCalls() []struct {
 	Ctx           context.Context
 	FilterID      string
@@ -886,7 +901,8 @@ func (mock *DatastoreMock) UpdateFilterOutput(contextMoqParam context.Context, f
 
 // UpdateFilterOutputCalls gets all the calls that were made to UpdateFilterOutput.
 // Check the length with:
-//     len(mockedDatastore.UpdateFilterOutputCalls())
+//
+//	len(mockedDatastore.UpdateFilterOutputCalls())
 func (mock *DatastoreMock) UpdateFilterOutputCalls() []struct {
 	ContextMoqParam context.Context
 	FilterOutput    *model.FilterOutput

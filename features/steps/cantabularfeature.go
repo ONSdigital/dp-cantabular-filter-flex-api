@@ -104,6 +104,10 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 		cf.cantabularReturnsMultipleDimensions,
 	)
 
+	ctx.Step(
+		`^Cantabular returns this response for the given request:$`,
+		cf.cantabularReturnsThisResponseForTheGivenRequest,
+	)
 }
 
 func (cf *CantabularFeature) cantabularSearchReturnsTheseCategories(datasetID, dimension string, docs *godog.DocString) error {
@@ -215,6 +219,18 @@ func (cf *CantabularFeature) cantabularReturnsThisStaticDatasetForTheGivenReques
 	request, response, found := strings.Cut(docs.Content, "response:")
 	if !found {
 		return errors.New("CantabularFeature::cantabularReturnsThisStaticDatasetForTheGivenRequest - request and response were not found")
+	}
+	request = strings.TrimPrefix(request, "request:")
+
+	cf.cantabularServer.Handle([]byte(request), []byte(response))
+
+	return nil
+}
+
+func (cf *CantabularFeature) cantabularReturnsThisResponseForTheGivenRequest(docs *godog.DocString) error {
+	request, response, found := strings.Cut(docs.Content, "response:")
+	if !found {
+		return errors.New("badly formed [request:response] body")
 	}
 	request = strings.TrimPrefix(request, "request:")
 

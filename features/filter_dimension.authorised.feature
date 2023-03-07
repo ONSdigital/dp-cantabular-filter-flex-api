@@ -130,7 +130,8 @@ Feature: Filter Outputs Private Endpoints Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "siblings",
@@ -149,7 +150,8 @@ Feature: Filter Outputs Private Endpoints Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "count": 2,
@@ -233,7 +235,8 @@ Feature: Filter Outputs Private Endpoints Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings_3"
         }
-      }
+      },
+      "is_area_type":false
     }
     """
     And an ETag is returned
@@ -269,7 +272,8 @@ Feature: Filter Outputs Private Endpoints Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings_3"
         }
-      }
+      },
+      "is_area_type":false
     }
     """
     And an ETag is returned
@@ -303,7 +307,8 @@ Feature: Filter Outputs Private Endpoints Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings"
         }
-      }
+      },
+      "is_area_type":false
     }
     """
     Then the HTTP status code should be "404"
@@ -385,7 +390,8 @@ Feature: Filter Outputs Private Endpoints Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         }
       ],
       "count": 1,
@@ -421,7 +427,8 @@ Feature: Filter Outputs Private Endpoints Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "count": 1,

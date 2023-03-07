@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -72,6 +74,12 @@ type datasetAPIClient interface {
 	GetOptionsInBatches(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, id, edition, version, dimension string, batchSize, maxWorkers int) (dataset.Options, error)
 	GetMetadataURL(id, edition, version string) string
 	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
+}
+
+type populationTypesAPIClient interface {
+	Checker(context.Context, *healthcheck.CheckState) error
+	GetCategorisations(context.Context, population.GetCategorisationsInput) (population.GetCategorisationsResponse, error)
+	GetPopulationTypeMetadata(context.Context, population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error)
 }
 
 type coder interface {

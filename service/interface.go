@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 
@@ -95,6 +96,12 @@ type DatasetAPIClient interface {
 	GetMetadataURL(id, edition, version string) string
 	Checker(context.Context, *healthcheck.CheckState) error
 	GetDatasetCurrentAndNext(ctx context.Context, userAuthToken, serviceAuthToken, collectionID, datasetID string) (m dataset.Dataset, err error)
+}
+
+type PopulationTypesAPIClient interface {
+	Checker(context.Context, *healthcheck.CheckState) error
+	GetCategorisations(context.Context, population.GetCategorisationsInput) (population.GetCategorisationsResponse, error)
+	GetPopulationTypeMetadata(context.Context, population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error)
 }
 
 type MetadataClient interface {

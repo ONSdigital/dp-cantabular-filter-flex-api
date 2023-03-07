@@ -131,7 +131,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         },
         {
           "name": "siblings",
@@ -150,7 +151,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "count": 2,
@@ -184,7 +186,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
           "id": "city"
         }
-      }
+      },
+      "is_area_type":true
     }
     """
     And the HTTP status code should be "200"
@@ -226,7 +229,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings_3"
         }
-      }
+      },
+      "is_area_type":false
     }
     """
     And an ETag is returned
@@ -262,7 +266,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
           "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
           "id": "siblings_3"
         }
-      }
+      },
+      "is_area_type":false
     }
     """
     And an ETag is returned
@@ -387,7 +392,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
               "id": "city"
             }
-          }
+          },
+          "is_area_type":true
         }
       ],
       "count": 1,
@@ -421,7 +427,8 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
               "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/siblings",
               "id": "siblings_3"
             }
-          }
+          },
+          "is_area_type":false
         }
       ],
       "count": 1,

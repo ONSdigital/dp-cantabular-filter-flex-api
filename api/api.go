@@ -25,12 +25,13 @@ type API struct {
 	identityClient *identity.Client
 	metadata       metadataAPIClient
 	datasets       datasetAPIClient
+	population     populationTypesAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
 }
 
 // New creates and initialises a new API
-func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -39,6 +40,7 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 		cfg:            cfg,
 		identityClient: idc,
 		datasets:       ds,
+		population:     pt,
 		ctblr:          c,
 		producer:       p,
 		metadata:       m,
@@ -78,6 +80,8 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Put("/filter-outputs/{id}", api.putFilterOutput)
 
 	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
+
+	api.Router.Post("/custom/filters", api.createCustomFilter)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -111,6 +115,8 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
 	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
+
+	r.Post("/custom/filters", api.createCustomFilter)
 
 	api.Router.Mount("/", r)
 }

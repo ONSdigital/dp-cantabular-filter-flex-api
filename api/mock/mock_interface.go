@@ -14,7 +14,9 @@ import (
 	gql "github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
 	cantabularmetadata "github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
+	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
 	model "github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	healthcheck "github.com/ONSdigital/dp-healthcheck/healthcheck"
 	gomock "github.com/golang/mock/gomock"
 	primitive "go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -555,6 +557,44 @@ func (mr *MockcantabularClientMockRecorder) StatusCode(arg0 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StatusCode", reflect.TypeOf((*MockcantabularClient)(nil).StatusCode), arg0)
 }
 
+// MockmetadataAPIClient is a mock of metadataAPIClient interface.
+type MockmetadataAPIClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockmetadataAPIClientMockRecorder
+}
+
+// MockmetadataAPIClientMockRecorder is the mock recorder for MockmetadataAPIClient.
+type MockmetadataAPIClientMockRecorder struct {
+	mock *MockmetadataAPIClient
+}
+
+// NewMockmetadataAPIClient creates a new mock instance.
+func NewMockmetadataAPIClient(ctrl *gomock.Controller) *MockmetadataAPIClient {
+	mock := &MockmetadataAPIClient{ctrl: ctrl}
+	mock.recorder = &MockmetadataAPIClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockmetadataAPIClient) EXPECT() *MockmetadataAPIClientMockRecorder {
+	return m.recorder
+}
+
+// GetDefaultClassification mocks base method.
+func (m *MockmetadataAPIClient) GetDefaultClassification(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDefaultClassification", ctx, req)
+	ret0, _ := ret[0].(*cantabularmetadata.GetDefaultClassificationResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDefaultClassification indicates an expected call of GetDefaultClassification.
+func (mr *MockmetadataAPIClientMockRecorder) GetDefaultClassification(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultClassification", reflect.TypeOf((*MockmetadataAPIClient)(nil).GetDefaultClassification), ctx, req)
+}
+
 // MockdatasetAPIClient is a mock of datasetAPIClient interface.
 type MockdatasetAPIClient struct {
 	ctrl     *gomock.Controller
@@ -637,42 +677,71 @@ func (mr *MockdatasetAPIClientMockRecorder) GetVersion(ctx, userAuthToken, svcAu
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockdatasetAPIClient)(nil).GetVersion), ctx, userAuthToken, svcAuthToken, downloadSvcAuthToken, collectionID, datasetID, edition, version)
 }
 
-// MockmetadataAPIClient is a mock of metadataAPIClient interface.
-type MockmetadataAPIClient struct {
+// MockpopulationTypesAPIClient is a mock of populationTypesAPIClient interface.
+type MockpopulationTypesAPIClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockmetadataAPIClientMockRecorder
+	recorder *MockpopulationTypesAPIClientMockRecorder
 }
 
-// MockmetadataAPIClientMockRecorder is the mock recorder for MockmetadataAPIClient.
-type MockmetadataAPIClientMockRecorder struct {
-	mock *MockmetadataAPIClient
+// MockpopulationTypesAPIClientMockRecorder is the mock recorder for MockpopulationTypesAPIClient.
+type MockpopulationTypesAPIClientMockRecorder struct {
+	mock *MockpopulationTypesAPIClient
 }
 
-// NewMockmetadataAPIClient creates a new mock instance.
-func NewMockmetadataAPIClient(ctrl *gomock.Controller) *MockmetadataAPIClient {
-	mock := &MockmetadataAPIClient{ctrl: ctrl}
-	mock.recorder = &MockmetadataAPIClientMockRecorder{mock}
+// NewMockpopulationTypesAPIClient creates a new mock instance.
+func NewMockpopulationTypesAPIClient(ctrl *gomock.Controller) *MockpopulationTypesAPIClient {
+	mock := &MockpopulationTypesAPIClient{ctrl: ctrl}
+	mock.recorder = &MockpopulationTypesAPIClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockmetadataAPIClient) EXPECT() *MockmetadataAPIClientMockRecorder {
+func (m *MockpopulationTypesAPIClient) EXPECT() *MockpopulationTypesAPIClientMockRecorder {
 	return m.recorder
 }
 
-// GetDefaultClassification mocks base method.
-func (m *MockmetadataAPIClient) GetDefaultClassification(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
+// Checker mocks base method.
+func (m *MockpopulationTypesAPIClient) Checker(arg0 context.Context, arg1 *healthcheck.CheckState) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDefaultClassification", ctx, req)
-	ret0, _ := ret[0].(*cantabularmetadata.GetDefaultClassificationResponse)
+	ret := m.ctrl.Call(m, "Checker", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Checker indicates an expected call of Checker.
+func (mr *MockpopulationTypesAPIClientMockRecorder) Checker(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Checker", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).Checker), arg0, arg1)
+}
+
+// GetCategorisations mocks base method.
+func (m *MockpopulationTypesAPIClient) GetCategorisations(arg0 context.Context, arg1 population.GetCategorisationsInput) (population.GetCategorisationsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategorisations", arg0, arg1)
+	ret0, _ := ret[0].(population.GetCategorisationsResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDefaultClassification indicates an expected call of GetDefaultClassification.
-func (mr *MockmetadataAPIClientMockRecorder) GetDefaultClassification(ctx, req interface{}) *gomock.Call {
+// GetCategorisations indicates an expected call of GetCategorisations.
+func (mr *MockpopulationTypesAPIClientMockRecorder) GetCategorisations(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDefaultClassification", reflect.TypeOf((*MockmetadataAPIClient)(nil).GetDefaultClassification), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategorisations", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).GetCategorisations), arg0, arg1)
+}
+
+// GetPopulationTypeMetadata mocks base method.
+func (m *MockpopulationTypesAPIClient) GetPopulationTypeMetadata(arg0 context.Context, arg1 population.GetPopulationTypeMetadataInput) (population.GetPopulationTypeMetadataResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPopulationTypeMetadata", arg0, arg1)
+	ret0, _ := ret[0].(population.GetPopulationTypeMetadataResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPopulationTypeMetadata indicates an expected call of GetPopulationTypeMetadata.
+func (mr *MockpopulationTypesAPIClientMockRecorder) GetPopulationTypeMetadata(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPopulationTypeMetadata", reflect.TypeOf((*MockpopulationTypesAPIClient)(nil).GetPopulationTypeMetadata), arg0, arg1)
 }
 
 // Mockcoder is a mock of coder interface.

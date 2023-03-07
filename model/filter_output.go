@@ -12,6 +12,7 @@ type FilterOutput struct {
 	InstanceID        string              `bson:"instance_id"                  json:"instance_id"`
 	Dataset           Dataset             `bson:"dataset"                      json:"dataset"`
 	Published         bool                `bson:"published"                    json:"published"`
+	Custom            bool                `bson:"custom"                       json:"custom"`
 	State             string              `bson:"state,omitempty"              json:"state,omitempty"`
 	Downloads         Downloads           `bson:"downloads,omitempty"          json:"downloads,omitempty"`
 	Events            []Event             `bson:"events"                       json:"events"`
@@ -23,6 +24,12 @@ type FilterOutput struct {
 	UniqueTimestamp   primitive.Timestamp `bson:"unique_timestamp"             json:"-"`
 	LastUpdated       time.Time           `bson:"last_updated"                 json:"-"`
 	ETag              string              `bson:"etag"                         json:"-"`
+}
+
+type FilterOutputLinks struct {
+	Version         Link `bson:"version" json:"version"`
+	Self            Link `bson:"self"    json:"self"`
+	FilterBlueprint Link `json:"filter_blueprint"`
 }
 
 // Downloads holds download information for various file types. Items are in a specific order
