@@ -315,79 +315,74 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 }
 
 func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetObservationsResponse, error) {
+	var observations []GetObservationResponse
 
-	var getObservationResponse []GetObservationResponse
-
-	dimLength := make([]int, 0)
+	dimLengths := make([]int, 0)
 	dimIndices := make([]int, 0)
 
-	for k := 0; k < len(query.Dataset.Table.Dimensions); k++ {
-		dimLength = append(dimLength, len(query.Dataset.Table.Dimensions[k].Categories))
+	for _, d := range query.Dataset.Table.Dimensions {
+		dimLengths = append(dimLengths, len(d.Categories))
 		dimIndices = append(dimIndices, 0)
 	}
 
-	for v := 0; v < len(query.Dataset.Table.Values); v++ {
-
-		dimension := getDimensionRow(query, dimIndices, v)
-		getObservationResponse = append(getObservationResponse, GetObservationResponse{
-			Dimensions:  dimension,
-			Observation: query.Dataset.Table.Values[v],
+	for _, v := range query.Dataset.Table.Values {
+		dimensions := getDimensionRow(query, dimIndices)
+		observations = append(observations, GetObservationResponse{
+			Dimensions:  dimensions,
+			Observation: v,
 		})
 
-		i := len(dimIndices) - 1
-		for i >= 0 {
-			dimIndices[i] += 1
-			if dimIndices[i] < dimLength[i] {
+		l := len(dimIndices) - 1
+		for l >= 0 {
+			dimIndices[l] += 1
+			if dimIndices[l] < dimLengths[l] {
 				break
 			}
-			dimIndices[i] = 0
-			i -= 1
+			dimIndices[l] = 0
+			l -= 1
 		}
-
 	}
 
-	var getObservationsResponse GetObservationsResponse
-	getObservationsResponse.Observations = getObservationResponse
-	getObservationsResponse.TotalObservations = len(query.Dataset.Table.Values)
-
-	getObservationsResponse.Links = DatasetJSONLinks{
-		DatasetMetadata: model.Link{
-			HREF: params.metadataLink.URL,
-			ID:   params.metadataLink.ID,
-		},
-		Self: model.Link{
-			HREF: params.datasetLink.URL,
-			ID:   params.datasetLink.ID,
-		},
-		Version: model.Link{
-			HREF: params.versionLink.URL,
-			ID:   params.versionLink.ID,
+	resp := GetObservationsResponse{
+		Observations:      observations,
+		TotalObservations: len(query.Dataset.Table.Values),
+		Links: DatasetJSONLinks{
+			DatasetMetadata: model.Link{
+				HREF: params.metadataLink.URL,
+				ID:   params.metadataLink.ID,
+			},
+			Self: model.Link{
+				HREF: params.datasetLink.URL,
+				ID:   params.datasetLink.ID,
+			},
+			Version: model.Link{
+				HREF: params.versionLink.URL,
+				ID:   params.versionLink.ID,
+			},
 		},
 	}
 
-	return &getObservationsResponse, nil
+	return &resp, nil
 }
 
-func getDimensionRow(query *cantabular.StaticDatasetQuery, dimIndices []int, dimIndex int) (value []ObservationDimension) {
+func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []ObservationDimension {
+	var dims []ObservationDimension
 
-	var observationDimensions []ObservationDimension
+	for i, index := range catIndices {
+		dim := query.Dataset.Table.Dimensions[i]
 
-	for index, element := range dimIndices {
-		dimension := query.Dataset.Table.Dimensions[index]
-
-		observationDimensions = append(observationDimensions, ObservationDimension{
-			Dimension:   dimension.Variable.Label,
-			DimensionID: dimension.Variable.Name,
-			Option:      dimension.Categories[element].Label,
-			OptionID:    dimension.Categories[element].Code,
+		dims = append(dims, ObservationDimension{
+			Dimension:   dim.Variable.Label,
+			DimensionID: dim.Variable.Name,
+			Option:      dim.Categories[index].Label,
+			OptionID:    dim.Categories[index].Code,
 		})
 	}
 
-	return observationDimensions
+	return dims
 }
 
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
-
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
 		edition: chi.URLParam(r, "edition"),
