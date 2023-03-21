@@ -39,6 +39,7 @@ func (c *PopulationTypesAPIClient) GetCategorisations(ctx context.Context, req p
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	req.ServiceAuthToken = "testToken"
 	if resp, ok := c.GetCategorisationsResponses[req]; ok {
 		return resp, nil
 	}
