@@ -82,7 +82,7 @@ func (api *API) enablePublicEndpoints() {
 	api.Router.Put("/filter-outputs/{id}", api.putFilterOutput)
 
 	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
-	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/observations", api.getDatasetObservationHandler)
+	api.Router.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/census-observations", api.getDatasetObservationHandler)
 }
 
 func (api *API) enablePrivateEndpoints() {
@@ -116,7 +116,7 @@ func (api *API) enablePrivateEndpoints() {
 	r.Post("/filter-outputs/{id}/events", api.addFilterOutputEvent)
 
 	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/json", api.getDatasetJSONHandler)
-	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/observations", api.getDatasetObservationHandler)
+	r.Get("/datasets/{dataset_id}/editions/{edition}/versions/{version}/census-observations", api.getDatasetObservationHandler)
 
 	r.Post("/custom/filters", api.createCustomFilter)
 

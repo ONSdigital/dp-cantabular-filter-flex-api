@@ -585,7 +585,7 @@ paths:
               * observations not found for selected query paramaters
         500:
           $ref: '#/responses/InternalError'
-  /datasets/{dataset_id}/editions/{edition}/versions/{version}/observations:
+  /datasets/{dataset_id}/editions/{edition}/versions/{version}/census-observations:
     get:
       tags:
       - "Public"

@@ -588,6 +588,18 @@ Feature: Get Dataset Observations
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -642,7 +654,7 @@ Feature: Get Dataset Observations
     }
     """
 
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/observations"
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/census-observations"
 
     Then the HTTP status code should be "200"
 
@@ -1090,6 +1102,18 @@ Feature: Get Dataset Observations
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -1165,7 +1189,7 @@ Feature: Get Dataset Observations
     }
     """
 
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/observations?area-type=country"
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/census-observations?area-type=country"
 
     Then the HTTP status code should be "200"
 
@@ -1475,6 +1499,18 @@ Feature: Get Dataset Observations
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable {
@@ -1650,7 +1686,7 @@ Feature: Get Dataset Observations
     }
     """
 
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/observations?area-type=country,E"
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/census-observations?area-type=country,E"
 
     Then the HTTP status code should be "200"
 
@@ -1822,6 +1858,18 @@ Feature: Get Dataset Observations
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -1882,7 +1930,7 @@ Feature: Get Dataset Observations
     request:
     {
       "query": "query($dataset: String!, $variables: [String!]!) {
-        dataset(name: $dataset) {
+         dataset(name: $dataset) {
           variables(names: $variables, rule: false) {
             edges {
               node {
@@ -1893,6 +1941,12 @@ Feature: Get Dataset Observations
                       label
                       name
                     }
+                  }
+                }
+                description
+                meta {
+                  ONS_Variable {
+                    Quality_Statement_Text
                   }
                 }
                 label
@@ -1984,7 +2038,7 @@ Feature: Get Dataset Observations
     }
     """
 
-    When I GET "/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/observations?dimensions=age_23_a"
+    When I GET "/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/census-observations?dimensions=age_23_a"
 
     Then the HTTP status code should be "200"
 
@@ -2318,7 +2372,7 @@ Feature: Get Dataset Observations
 
   Scenario: Get the dataset observations asking for additional dimensions from incorrect dataset type
 
-    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/observations?dimensions=age_23_a"
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/census-observations?dimensions=age_23_a"
 
     Then I should receive the following JSON response:
     """
