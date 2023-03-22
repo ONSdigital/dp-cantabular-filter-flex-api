@@ -588,6 +588,18 @@ Feature: Get Dataset JSON
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -724,6 +736,18 @@ Feature: Get Dataset JSON
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -895,6 +919,18 @@ Feature: Get Dataset JSON
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable {
@@ -1152,6 +1188,18 @@ Feature: Get Dataset JSON
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
             dimensions {
               count
               variable { name label }
@@ -1263,6 +1311,91 @@ Feature: Get Dataset JSON
               }
             ],
             "totalCount": 2
+          }
+        }
+      }
+    }
+    """
+
+    And Cantabular returns this response for the given request:
+    """
+    request:
+    {
+      "query": "query($dataset: String!, $variables: [String!]!) {
+        dataset(name: $dataset) {
+          variables(names: $variables, rule: false) {
+            edges {
+              node {
+                name
+                mapFrom {
+                  edges {
+                    node {
+                      label
+                      name
+                    }
+                  }
+                }
+                description
+                meta {
+                  ONS_Variable {
+                    Quality_Statement_Text
+                  }
+                }
+                label
+                categories {
+                  totalCount
+                }
+              }
+            }
+          }
+        }
+      }",
+      "variables": {
+          "base": false,
+          "category": "",
+          "dataset": "Example",
+          "filters": null,
+          "limit": 20,
+          "offset": 0,
+          "rule": false,
+          "text": "",
+          "variables": ["age_23_a"]
+      }
+    }
+    response:
+    {
+      "data": {
+        "dataset": {
+          "variables": {
+            "edges": [
+              {
+                "node": {
+                  "categories": {
+                    "totalCount": 7
+                  },
+                  "description": "",
+                  "label": "age_23_a",
+                  "mapFrom": [
+                    {
+                      "edges": [
+                        {
+                          "node": {
+                            "label": "",
+                            "name": "age_23_a"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "meta": {
+                    "ONS_Variable": {
+                      "Quality_Statement_Text": ""
+                    }
+                  },
+                  "name": "age_23_a"
+                }
+              }
+            ]
           }
         }
       }

@@ -279,6 +279,9 @@ type GetDatasetJSONResponse struct {
 	Links             DatasetJSONLinks       `json:"links"`
 	Observations      []float32              `json:"observations"`
 	TotalObservations int                    `json:"total_observations"`
+	BlockedAreas      int                    `json:"blocked_areas"`
+	TotalAreas        int                    `json:"total_areas"`
+	AreasReturned     int                    `json:"areas_returned"`
 }
 
 type DatasetJSONDimension struct {

@@ -245,6 +245,9 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 		Links:             datasetLinks,
 		Observations:      query.Dataset.Table.Values,
 		TotalObservations: len(query.Dataset.Table.Values),
+		BlockedAreas:      query.Dataset.Table.Rules.Blocked.Count,
+		TotalAreas:        query.Dataset.Table.Rules.Total.Count,
+		AreasReturned:     query.Dataset.Table.Rules.Passed.Count,
 	}
 
 	return &getDatasetJsonResponse, nil
