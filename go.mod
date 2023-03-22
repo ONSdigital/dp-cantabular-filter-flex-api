@@ -9,11 +9,11 @@ replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 exclude github.com/gorilla/sessions v1.2.1
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.230.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.242.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.9.0
 	github.com/ONSdigital/dp-healthcheck v1.5.0
-	github.com/ONSdigital/dp-kafka/v3 v3.8.0
+	github.com/ONSdigital/dp-kafka/v3 v3.9.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.5.0
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.8.0
