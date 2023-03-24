@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dpresponder "github.com/ONSdigital/dp-net/v2/responder"
 
 	"github.com/go-chi/chi/v5"
@@ -253,6 +254,47 @@ func TestToGetJsonResponse(t *testing.T) {
 		So(result.Dimensions[0].DimensionName, ShouldEqual, versionResponse.Dimensions[0].ID)
 		So(len(result.Dimensions[0].Options), ShouldEqual, 1)
 		So(result.Dimensions[0].Options[0].ID, ShouldEqual, optionsResponse.Items[0].Links.Code.ID)
+		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse)
+		So(result.Links.Self.HREF, ShouldEqual, versionResponse.Links.Dataset.URL)
+		So(result.Links.Self.ID, ShouldEqual, versionResponse.Links.Dataset.ID)
+		So(result.Links.Version.HREF, ShouldEqual, versionResponse.Links.Self.URL)
+		So(result.Links.Version.ID, ShouldEqual, versionResponse.Links.Self.ID)
+	})
+}
+
+func TestToGetObservationsResponse(t *testing.T) {
+	Convey("When TestToGetObservationsResponse is called a valid response should be returned", t, func() {
+		api, ctrl, ctblrMock, datasetAPIMock := initMocks(t)
+		defer ctrl.Finish()
+		p := getTestParams()
+
+		versionResponse := getValidVersionResponse()
+		metadataResponse := getValidMetadataURLResponse()
+		optionsResponse := getValidOptionsResponse()
+
+		observationsResponse := getValidObservationsResponse(versionResponse.Dimensions[0].ID)
+
+		cantabularResponse := getValidCantabularResponse(versionResponse.Dimensions[0].ID, optionsResponse.Items[0].Label)
+
+		gomock.InOrder(
+			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetId, p.edition, p.version).Return(versionResponse, nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetId, p.edition, p.version).Return(metadataResponse).Times(1),
+			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetId, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(optionsResponse, nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
+		)
+
+		params, err := api.getDatasetParams(p.ctx, p.request)
+		So(err, ShouldBeNil)
+
+		result, err := api.toGetDatasetObservationsResponse(params, &cantabularResponse)
+
+		So(err, ShouldBeNil)
+		So(result, ShouldNotBeNil)
+		So(result.TotalObservations, ShouldEqual, len(cantabularResponse.Dataset.Table.Values))
+		So(len(result.Observations), ShouldEqual, 1)
+		So(result.Observations[0].Dimensions[0].DimensionID, ShouldEqual, observationsResponse.Observations[0].Dimensions[0].DimensionID)
+		So(len(result.Observations[0].Dimensions), ShouldEqual, 1)
+		So(result.Observations[0].Dimensions[0].OptionID, ShouldEqual, observationsResponse.Observations[0].Dimensions[0].OptionID)
 		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse)
 		So(result.Links.Self.HREF, ShouldEqual, versionResponse.Links.Dataset.URL)
 		So(result.Links.Self.ID, ShouldEqual, versionResponse.Links.Dataset.ID)
@@ -536,11 +578,43 @@ func getValidOptionsResponse() dataset.Options {
 				Links: dataset.Links{
 					Code: dataset.Link{
 						URL: "codeURL " + uuid.NewString(),
+						ID:  "1",
 					},
 				},
 			},
 		},
 	}
+}
+
+func getValidObservationsResponse(dimensionId string) GetObservationsResponse {
+
+	var obsDimension []ObservationDimension
+	obsDimension = append(obsDimension, ObservationDimension{
+		Dimension:   "test",
+		DimensionID: dimensionId,
+		Option:      "test",
+		OptionID:    "1",
+	})
+
+	var getObservationResponse []GetObservationResponse
+	getObservationResponse = append(getObservationResponse, GetObservationResponse{
+		Dimensions:  obsDimension,
+		Observation: 2,
+	})
+
+	return GetObservationsResponse{
+		Observations:      getObservationResponse,
+		TotalObservations: 1,
+		Links: DatasetJSONLinks{
+			Version: model.Link{
+				ID: "1",
+			},
+			DatasetMetadata: model.Link{
+				ID: "testing",
+			},
+		},
+	}
+
 }
 
 func getValidGeoResponse() *gql.Dataset {
@@ -568,6 +642,7 @@ func getValidCantabularResponse(name, label string) cantabular.StaticDatasetQuer
 						Categories: []cantabular.Category{
 							{
 								Label: label,
+								Code:  "1",
 							},
 						},
 						Variable: cantabular.VariableBase{

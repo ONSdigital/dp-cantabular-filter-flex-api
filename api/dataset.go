@@ -67,6 +67,42 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 
+func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	params, err := api.getDatasetParams(ctx, r)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			errors.Wrap(err, "failed to get dataset params"),
+		)
+		return
+	}
+
+	logData := log.Data{
+		"id":      params.id,
+		"edition": params.edition,
+		"version": params.version,
+	}
+
+	response, err := api.getDatasetObservations(ctx, r, params)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     err,
+				logData: logData,
+			},
+		)
+	} else {
+		api.respond.JSON(ctx, w, http.StatusOK, response)
+	}
+}
+
 func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*GetDatasetJSONResponse, error) {
 	dReq := cantabular.StaticDatasetQueryRequest{
 		Dataset:   params.basedOn,
@@ -88,6 +124,34 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	}
 
 	resp, err := api.toGetDatasetJsonResponse(params, qRes)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to generate response")
+	}
+
+	return resp, nil
+}
+
+func (api *API) getDatasetObservations(ctx context.Context, r *http.Request, params *datasetParams) (*GetObservationsResponse, error) {
+	dReq := cantabular.StaticDatasetQueryRequest{
+		Dataset:   params.basedOn,
+		Variables: params.sortedDimensions,
+	}
+
+	if r.URL.Query().Get("area-type") != "" {
+		variables, filters, err := api.validateGeography(ctx, r, params, dReq)
+		if err != nil {
+			return nil, errors.Wrap(err, "validateGeography failed")
+		}
+		dReq.Variables = variables
+		dReq.Filters = filters
+	}
+
+	qRes, err := api.ctblr.StaticDatasetQuery(ctx, dReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to run query")
+	}
+
+	resp, err := api.toGetDatasetObservationsResponse(params, qRes)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate response")
 	}
@@ -253,6 +317,74 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 	return &getDatasetJsonResponse, nil
 }
 
+func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetObservationsResponse, error) {
+	var observations []GetObservationResponse
+
+	dimLengths := make([]int, 0)
+	dimIndices := make([]int, 0)
+
+	for _, d := range query.Dataset.Table.Dimensions {
+		dimLengths = append(dimLengths, len(d.Categories))
+		dimIndices = append(dimIndices, 0)
+	}
+
+	for _, v := range query.Dataset.Table.Values {
+		dimensions := getDimensionRow(query, dimIndices)
+		observations = append(observations, GetObservationResponse{
+			Dimensions:  dimensions,
+			Observation: v,
+		})
+
+		l := len(dimIndices) - 1
+		for l >= 0 {
+			dimIndices[l] += 1
+			if dimIndices[l] < dimLengths[l] {
+				break
+			}
+			dimIndices[l] = 0
+			l -= 1
+		}
+	}
+
+	resp := GetObservationsResponse{
+		Observations:      observations,
+		TotalObservations: len(query.Dataset.Table.Values),
+		Links: DatasetJSONLinks{
+			DatasetMetadata: model.Link{
+				HREF: params.metadataLink.URL,
+				ID:   params.metadataLink.ID,
+			},
+			Self: model.Link{
+				HREF: params.datasetLink.URL,
+				ID:   params.datasetLink.ID,
+			},
+			Version: model.Link{
+				HREF: params.versionLink.URL,
+				ID:   params.versionLink.ID,
+			},
+		},
+	}
+
+	return &resp, nil
+}
+
+func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []ObservationDimension {
+	var dims []ObservationDimension
+
+	for i, index := range catIndices {
+		dim := query.Dataset.Table.Dimensions[i]
+
+		dims = append(dims, ObservationDimension{
+			Dimension:   dim.Variable.Label,
+			DimensionID: dim.Variable.Name,
+			Option:      dim.Categories[index].Label,
+			OptionID:    dim.Categories[index].Code,
+		})
+	}
+
+	return dims
+}
+
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
@@ -288,12 +420,6 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.versionLink = versionItem.Links.Self
 	params.basedOn = versionItem.IsBasedOn.ID
 
-	//metadata, err := api.datasets.GetVersionMetadata(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version)
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "failed to get metadata")
-	// }
-
-	//params.metadataLink = metadata.Version.Links.Self
 	params.metadataLink.URL = api.datasets.GetMetadataURL(params.id, params.edition, params.version)
 
 	if len(versionItem.Dimensions) == 0 {
