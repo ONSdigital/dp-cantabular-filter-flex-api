@@ -588,18 +588,6 @@ Feature: Get Dataset Observations
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }
@@ -1102,18 +1090,6 @@ Feature: Get Dataset Observations
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }
@@ -1499,18 +1475,6 @@ Feature: Get Dataset Observations
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable {
@@ -1858,18 +1822,6 @@ Feature: Get Dataset Observations
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }
@@ -1918,18 +1870,7 @@ Feature: Get Dataset Observations
               }
             ],
             "error": null,
-            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 131232],
-            "rules": {
-                "blocked": {
-                    "count": 0
-                },
-                "evaluated": {
-                    "count": 1
-                },
-                "passed": {
-                    "count": 1
-                }
-            }
+            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 131232]
           }
         }
       }
@@ -2377,10 +2318,7 @@ Feature: Get Dataset Observations
             "observation": 131232
         }
     ],
-    "total_observations": 18,
-    "blocked_areas": 0,
-    "areas_returned": 1,
-    "total_areas": 1
+    "total_observations": 18
    }
     """
 
