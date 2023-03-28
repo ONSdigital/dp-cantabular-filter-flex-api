@@ -588,18 +588,6 @@ Feature: Get Dataset JSON
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }
@@ -736,18 +724,6 @@ Feature: Get Dataset JSON
       "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }
@@ -919,18 +895,6 @@ Feature: Get Dataset JSON
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable {
@@ -1188,18 +1152,6 @@ Feature: Get Dataset JSON
       "query": "query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
         dataset(name: $dataset) {
           table(variables: $variables, filters: $filters) {
-            rules {
-              passed{
-                count
-              }
-              evaluated
-              {
-                count
-              }
-              blocked {
-                count
-              }
-            }
             dimensions {
               count
               variable { name label }

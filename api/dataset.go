@@ -363,6 +363,9 @@ func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *c
 				ID:   params.versionLink.ID,
 			},
 		},
+		BlockedAreas:  query.Dataset.Table.Rules.Blocked.Count,
+		AreasReturned: query.Dataset.Table.Rules.Passed.Count,
+		TotalAreas:    query.Dataset.Table.Rules.Total.Count,
 	}
 
 	return &resp, nil

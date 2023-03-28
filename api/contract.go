@@ -121,21 +121,24 @@ func (r *putFilterOutputRequest) Valid() error {
 }
 
 type GetObservationResponse struct {
-	Dimensions  []ObservationDimension `bson:"dimensions"           json:"dimensions"`
+	Dimensions  []ObservationDimension `bson:"dimensions"    json:"dimensions"`
 	Observation float32                `bson:"observation"   json:"observation"`
 }
 
 type GetObservationsResponse struct {
-	Observations      []GetObservationResponse `bson:"observations"           json:"observations"`
+	Observations      []GetObservationResponse `bson:"observations"         json:"observations"`
 	Links             DatasetJSONLinks         `json:"links"`
 	TotalObservations int                      `json:"total_observations"`
+	BlockedAreas      int                      `json:"blocked_areas"`
+	TotalAreas        int                      `json:"total_areas"`
+	AreasReturned     int                      `json:"areas_returned"`
 }
 
 type ObservationDimension struct {
-	Dimension   string `bson:"dimension"           json:"dimension"`
-	DimensionID string `bson:"dimension_id"           json:"dimension_id"`
-	Option      string `bson:"option"           json:"option"`
-	OptionID    string `bson:"option_id"           json:"option_id"`
+	Dimension   string `bson:"dimension"       json:"dimension"`
+	DimensionID string `bson:"dimension_id"    json:"dimension_id"`
+	Option      string `bson:"option"          json:"option"`
+	OptionID    string `bson:"option_id"       json:"option_id"`
 }
 
 type GetFilterDimensionOptionsItem struct {
