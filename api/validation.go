@@ -135,7 +135,7 @@ func (api *API) getCantabularDimensions(ctx context.Context, dimensions []model.
 		dim.FilterByParent = d.FilterByParent
 		dim.Options = d.Options
 		dim.QualityStatementText = d.QualityStatementText
-		// dim.QualitySummaryURL = d.QualitySummaryURL
+		dim.QualitySummaryURL = d.QualitySummaryURL
 		if dim.Options == nil {
 			dim.Options = []string{}
 		}
