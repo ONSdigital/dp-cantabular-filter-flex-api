@@ -60,6 +60,7 @@ type Dimension struct {
 	IsAreaType            *bool    `bson:"is_area_type"                     json:"is_area_type,omitempty"`
 	FilterByParent        string   `bson:"filter_by_parent,omitempty"       json:"filter_by_parent,omitempty"`
 	QualityStatementText  string   `bson:"quality_statement_text,omitempty" json:"quality_statement_text,omitempty"`
+	QualitySummaryURL     string   `bson:"quality_summary_url,omitempty"    json:"quality_summary_url,omitempty"`
 }
 
 type Dataset struct {

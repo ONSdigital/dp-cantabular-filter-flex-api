@@ -1339,6 +1339,7 @@ Feature: Get Dataset JSON
                 meta {
                   ONS_Variable {
                     Quality_Statement_Text
+                    Quality_Summary_URL
                   }
                 }
                 label
@@ -1387,11 +1388,6 @@ Feature: Get Dataset JSON
                       ]
                     }
                   ],
-                  "meta": {
-                    "ONS_Variable": {
-                      "Quality_Statement_Text": ""
-                    }
-                  },
                   "name": "age_23_a"
                 }
               }

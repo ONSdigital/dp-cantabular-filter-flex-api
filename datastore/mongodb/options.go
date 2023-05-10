@@ -26,27 +26,27 @@ func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimens
 	}
 
 	pipeline := mongo.Pipeline{
-		bson.D{{"$match", bson.D{{"filter_id", filterID}}}},
-		bson.D{{"$project", bson.D{
-			{"dimensionsCount", bson.D{{"$size", "$dimensions"}}},
-			{"dimension", bson.D{{"$filter", bson.D{
-				{"input", "$dimensions"},
-				{"as", "d"},
-				{"cond", bson.D{{"$eq", bson.A{"$$d.name", dimensionName}}}}}}}},
-			{"etag", 1},
+		bson.D{{Key: "$match", Value: bson.D{{Key: "filter_id", Value: filterID}}}},
+		bson.D{{Key: "$project", Value: bson.D{
+			{Key: "dimensionsCount", Value: bson.D{{Key: "$size", Value: "$dimensions"}}},
+			{Key: "dimension", Value: bson.D{{Key: "$filter", Value: bson.D{
+				{Key: "input", Value: "$dimensions"},
+				{Key: "as", Value: "d"},
+				{Key: "cond", Value: bson.D{{Key: "$eq", Value: bson.A{"$$d.name", dimensionName}}}}}}}},
+			{Key: "etag", Value: 1},
 		},
 		}},
-		bson.D{{"$unwind", bson.D{{"path", "$dimension"}, {"preserveNullAndEmptyArrays", true}}}},
-		bson.D{{"$project", bson.D{
-			{"etag", 1},
-			{"total_options", bson.D{{"$cond", bson.D{
-				{"if", bson.D{{"$gt", bson.A{"$dimension", nil}}}},
-				{"then", bson.D{{"$size", "$dimension.options"}}},
-				{"else", -1}}}}},
-			{"options", bson.D{{"$cond", bson.D{
-				{"if", bson.D{{"$gt", bson.A{"$dimension", nil}}}},
-				{"then", bson.D{{"$slice", bson.A{"$dimension.options", offset, limit}}}},
-				{"else", bson.A{}}}}}}},
+		bson.D{{Key: "$unwind", Value: bson.D{{Key: "path", Value: "$dimension"}, {Key: "preserveNullAndEmptyArrays", Value: true}}}},
+		bson.D{{Key: "$project", Value: bson.D{
+			{Key: "etag", Value: 1},
+			{Key: "total_options", Value: bson.D{{Key: "$cond", Value: bson.D{
+				{Key: "if", Value: bson.D{{Key: "$gt", Value: bson.A{"$dimension", nil}}}},
+				{Key: "then", Value: bson.D{{Key: "$size", Value: "$dimension.options"}}},
+				{Key: "else", Value: -1}}}}},
+			{Key: "options", Value: bson.D{{Key: "$cond", Value: bson.D{
+				{Key: "if", Value: bson.D{{Key: "$gt", Value: bson.A{"$dimension", nil}}}},
+				{Key: "then", Value: bson.D{{Key: "$slice", Value: bson.A{"$dimension.options", offset, limit}}}},
+				{Key: "else", Value: bson.A{}}}}}}},
 		}},
 	}
 
