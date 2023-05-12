@@ -105,8 +105,8 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 			Options:               dim.Options,
 			IsAreaType:            dim.IsAreaType,
 			FilterByParent:        dim.FilterByParent,
-			QualityStatementText:  dim.QualityStatementText,
-			QualitySummaryURL:     dim.QualitySummaryURL,
+			QualityStatementText:  node.QualityStatementText,
+			QualitySummaryURL:     node.QualitySummaryURL,
 		})
 	}
 	return hydratedDimensions, nil
