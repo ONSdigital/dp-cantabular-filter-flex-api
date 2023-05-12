@@ -105,6 +105,8 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 			Options:               dim.Options,
 			IsAreaType:            dim.IsAreaType,
 			FilterByParent:        dim.FilterByParent,
+			QualityStatementText:  node.QualityStatementText,
+			QualitySummaryURL:     node.QualitySummaryURL,
 		})
 	}
 	return hydratedDimensions, nil
@@ -132,6 +134,8 @@ func (api *API) getCantabularDimensions(ctx context.Context, dimensions []model.
 		dim.IsAreaType = d.IsAreaType
 		dim.FilterByParent = d.FilterByParent
 		dim.Options = d.Options
+		dim.QualityStatementText = d.QualityStatementText
+		dim.QualitySummaryURL = d.QualitySummaryURL
 		if dim.Options == nil {
 			dim.Options = []string{}
 		}
@@ -162,9 +166,11 @@ func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionNa
 
 	node := resp.Dataset.Variables.Edges[0].Node
 	dim := model.Dimension{
-		Label: node.Label,
-		ID:    dimensionName,
-		Name:  dimensionName,
+		Label:                node.Label,
+		ID:                   dimensionName,
+		Name:                 dimensionName,
+		QualityStatementText: node.Meta.ONSVariable.QualityStatementText,
+		QualitySummaryURL:    node.Meta.ONSVariable.QualitySummaryURL,
 	}
 
 	return &dim, nil

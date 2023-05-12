@@ -1958,6 +1958,7 @@ Feature: Get Dataset Observations
                 meta {
                   ONS_Variable {
                     Quality_Statement_Text
+                    Quality_Summary_URL
                   }
                 }
                 label

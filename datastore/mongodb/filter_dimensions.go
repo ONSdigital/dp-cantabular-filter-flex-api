@@ -21,8 +21,8 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 	col := c.collections.filters
 
 	projection := bson.D{
-		{"_id", 0},
-		{"totalCount", "$totalCount"},
+		{Key: "_id", Value: 0},
+		{Key: "totalCount", Value: "$totalCount"},
 	}
 
 	// We can't use `$slice` with a value of 0 , so if we know we're not returning results,
@@ -30,24 +30,24 @@ func (c *Client) GetFilterDimensions(ctx context.Context, fID string, limit, off
 	if limit > 0 {
 		projection = append(projection, bson.E{
 			Key:   "dimensions",
-			Value: bson.D{{"$slice", bson.A{"$dimensions", offset, limit}}},
+			Value: bson.D{{Key: "$slice", Value: bson.A{"$dimensions", offset, limit}}},
 		})
 	}
 
 	pipeline := mongo.Pipeline{
-		bson.D{{"$match", bson.D{{"filter_id", fID}}}},
-		bson.D{{"$unwind", "$dimensions"}},
-		bson.D{{"$replaceRoot", bson.D{{"newRoot", "$dimensions"}}}},
-		bson.D{{"$sort", bson.D{{"name", 1}}}},
+		bson.D{{Key: "$match", Value: bson.D{{Key: "filter_id", Value: fID}}}},
+		bson.D{{Key: "$unwind", Value: "$dimensions"}},
+		bson.D{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$dimensions"}}}},
+		bson.D{{Key: "$sort", Value: bson.D{{Key: "name", Value: 1}}}},
 		bson.D{{
-			"$group",
-			bson.D{
-				{"_id", 0},
-				{"dimensions", bson.D{{"$push", "$$ROOT"}}},
-				{"totalCount", bson.D{{"$sum", 1}}},
+			Key: "$group",
+			Value: bson.D{
+				{Key: "_id", Value: 0},
+				{Key: "dimensions", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}},
+				{Key: "totalCount", Value: bson.D{{Key: "$sum", Value: 1}}},
 			},
 		}},
-		bson.D{{"$project", projection}},
+		bson.D{{Key: "$project", Value: projection}},
 	}
 
 	var results []dimensionQueryResult
@@ -77,10 +77,10 @@ func (c *Client) GetFilterDimension(ctx context.Context, fID, dimName string) (m
 	col := c.collections.filters
 
 	pipeline := mongo.Pipeline{
-		bson.D{{"$match", bson.D{{"filter_id", fID}}}},
-		bson.D{{"$unwind", "$dimensions"}},
-		bson.D{{"$match", bson.D{{"dimensions.name", dimName}}}},
-		bson.D{{"$replaceRoot", bson.D{{"newRoot", "$dimensions"}}}},
+		bson.D{{Key: "$match", Value: bson.D{{Key: "filter_id", Value: fID}}}},
+		bson.D{{Key: "$unwind", Value: "$dimensions"}},
+		bson.D{{Key: "$match", Value: bson.D{{Key: "dimensions.name", Value: dimName}}}},
+		bson.D{{Key: "$replaceRoot", Value: bson.D{{Key: "newRoot", Value: "$dimensions"}}}},
 	}
 
 	var results []model.Dimension

@@ -220,6 +220,8 @@ type dimensionItem struct {
 	DefaultCategorisation string             `json:"default_categorisation"`
 	Links                 dimensionItemLinks `json:"links"`
 	IsAreaType            *bool              `json:"is_area_type,omitempty"`
+	QualityStatementText  string             `json:"quality_statement_text,omitempty"`
+	QualitySummaryURL     string             `json:"quality_summary_url,omitempty"`
 }
 
 func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
@@ -245,6 +247,8 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 		},
 	}
 	d.IsAreaType = dim.IsAreaType
+	d.QualityStatementText = dim.QualityStatementText
+	d.QualitySummaryURL = dim.QualitySummaryURL
 }
 
 type dimensionItems []dimensionItem

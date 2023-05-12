@@ -6,15 +6,15 @@ go 1.19
 exclude github.com/gorilla/sessions v1.2.1
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.251.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.254.0
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.9.1
-	github.com/ONSdigital/dp-healthcheck v1.5.0
+	github.com/ONSdigital/dp-healthcheck v1.6.1
 	github.com/ONSdigital/dp-kafka/v3 v3.9.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.5.0
 	github.com/ONSdigital/dp-net v1.5.0
-	github.com/ONSdigital/dp-net/v2 v2.8.1
-	github.com/ONSdigital/log.go/v2 v2.3.0
+	github.com/ONSdigital/dp-net/v2 v2.9.1
+	github.com/ONSdigital/log.go/v2 v2.4.1
 	github.com/cucumber/godog v0.12.6
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/golang/mock v1.6.0
