@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.19
+go 1.20
 
 // to avoid 'sonatype-2021-4899' non-CVE Vulnerability
 exclude github.com/gorilla/sessions v1.2.1
@@ -10,7 +10,7 @@ require (
 	github.com/ONSdigital/dp-authorisation v0.2.0
 	github.com/ONSdigital/dp-component-test v0.9.1
 	github.com/ONSdigital/dp-healthcheck v1.6.1
-	github.com/ONSdigital/dp-kafka/v3 v3.9.0
+	github.com/ONSdigital/dp-kafka/v3 v3.10.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.5.0
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.9.1
@@ -65,7 +65,7 @@ require (
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
-	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
+	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
