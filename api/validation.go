@@ -284,8 +284,9 @@ func hydrateDimensionsFromVersion(filterDims []model.Dimension, dims []dataset.V
 		lookup[d.Name] = record{id: d.ID, label: d.Label}
 	}
 
-	var hydrated []model.Dimension
-	for _, d := range filterDims {
+	hydrated := make([]model.Dimension, 0, len(filterDims))
+	for i := range filterDims {
+		d := filterDims[i]
 		// geography dimension gets hydrated from Cantabular
 		if d.IsAreaType != nil && *d.IsAreaType {
 			continue

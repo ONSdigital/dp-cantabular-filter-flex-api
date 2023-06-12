@@ -414,9 +414,9 @@ func (api *API) submitFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var dim []string
-	for _, d := range filter.Dimensions {
-		dim = append(dim, d.Name)
+	dim := make([]string, 0, len(filter.Dimensions))
+	for i := range filter.Dimensions {
+		dim = append(dim, filter.Dimensions[i].Name)
 	}
 	// schema mismatch between avro and model type.
 	// naively converting for now.

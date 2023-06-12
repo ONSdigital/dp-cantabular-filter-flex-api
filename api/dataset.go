@@ -227,7 +227,7 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 		return nil, errors.Errorf("unable to validate geography %s", geography)
 	}
 
-	var geographyCodes []string
+	geographyCodes := make([]string, 0, len(geographyOptions))
 	for _, o := range geographyOptions {
 		opt, ok := params.options[geography][o]
 		if !ok {
@@ -257,7 +257,7 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 		return nil, errors.Errorf("invalid options length or options is empty")
 	}
 
-	var dimensionCodes []string
+	dimensionCodes := make([]string, 0, len(options))
 	for _, o := range options {
 		opt, ok := params.options[dimension][o]
 		if !ok {
@@ -317,7 +317,7 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 }
 
 func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetObservationsResponse, error) {
-	var observations []GetObservationResponse
+	observations := make([]GetObservationResponse, 0, len(query.Dataset.Table.Values))
 
 	dimLengths := make([]int, 0)
 	dimIndices := make([]int, 0)
@@ -371,7 +371,7 @@ func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *c
 }
 
 func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []ObservationDimension {
-	var dims []ObservationDimension
+	dims := make([]ObservationDimension, 0, len(catIndices))
 
 	for i, index := range catIndices {
 		dim := query.Dataset.Table.Dimensions[i]
@@ -522,16 +522,16 @@ const (
 	numberWorkers = 10
 )
 
-func (api *API) getGeographyTypes(ctx context.Context, datasetId string) ([]string, error) {
-	var geoDimensions []string
-
-	res, err := api.ctblr.GetGeographyDimensionsInBatches(ctx, datasetId, batchSize, numberWorkers)
+func (api *API) getGeographyTypes(ctx context.Context, datasetID string) ([]string, error) {
+	res, err := api.ctblr.GetGeographyDimensionsInBatches(ctx, datasetID, batchSize, numberWorkers)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Geography Dimensions")
 	}
 
-	for _, d := range res.Variables.Edges {
-		geoDimensions = append(geoDimensions, d.Node.Name)
+	geoDimensions := make([]string, len(res.Variables.Edges))
+
+	for i := range res.Variables.Edges {
+		geoDimensions = append(geoDimensions, res.Variables.Edges[i].Node.Name)
 	}
 
 	return geoDimensions, nil
