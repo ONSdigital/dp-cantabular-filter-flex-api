@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
@@ -23,7 +22,7 @@ func (mf *MetadataFeature) Reset() {
 	mf.setMockedInterface()
 }
 
-func NewMetadataFeature(t *testing.T, mfg *config.Config) *MetadataFeature {
+func NewMetadataFeature() *MetadataFeature {
 	return &MetadataFeature{metadataClient: &mock.CantabularMetadataClient{
 		OptionsHappy:    true,
 		DimensionsHappy: true,
@@ -72,12 +71,12 @@ func (mf *MetadataFeature) MetadataReturnsAnError() error {
 	return nil
 }
 
-func (cf *MetadataFeature) setMockedInterface() {
+func (mf *MetadataFeature) setMockedInterface() {
 	service.GetMetadataClient = func(cfg *config.Config) service.MetadataClient {
-		return cf.metadataClient
+		return mf.metadataClient
 	}
 }
 
-func (cf *MetadataFeature) setInitialiserMock() {
-	cf.setMockedInterface()
+func (mf *MetadataFeature) setInitialiserMock() {
+	mf.setMockedInterface()
 }

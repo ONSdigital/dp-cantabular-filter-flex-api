@@ -3,7 +3,6 @@ package steps
 import (
 	"encoding/json"
 	"fmt"
-	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
@@ -20,7 +19,7 @@ func (f *PopulationFeature) Reset() {
 	f.client.Reset()
 }
 
-func NewPopulationFeature(t *testing.T, cfg *config.Config) *PopulationFeature {
+func NewPopulationFeature() *PopulationFeature {
 	return &PopulationFeature{
 		client: mock.NewPopulationTypesAPIClient(),
 	}

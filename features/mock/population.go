@@ -32,7 +32,7 @@ func (c *PopulationTypesAPIClient) Checker(_ context.Context, _ *healthcheck.Che
 	return nil
 }
 
-func (c *PopulationTypesAPIClient) GetCategorisations(ctx context.Context, req population.GetCategorisationsInput) (population.GetCategorisationsResponse, error) {
+func (c *PopulationTypesAPIClient) GetCategorisations(_ context.Context, req population.GetCategorisationsInput) (population.GetCategorisationsResponse, error) {
 	if !c.GetCategoristionsHappy {
 		return population.GetCategorisationsResponse{}, errors.New("failed to get categorisations")
 	}

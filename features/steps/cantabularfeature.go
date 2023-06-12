@@ -134,7 +134,7 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseCategories(datasetID, d
 }
 
 // cantabularReturnsMultipleDimensions sets up a stub response for the `GetDimensionsByName` method.
-func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(datasetID string, docs *godog.DocString) error {
+func (cf *CantabularFeature) cantabularReturnsMultipleDimensions(_ string, docs *godog.DocString) error {
 	cantabularResponses := struct {
 		Responses map[string]cantabular.GetDimensionsResponse `json:"responses"`
 	}{}
