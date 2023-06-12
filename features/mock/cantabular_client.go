@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"sync"
 	"testing"
@@ -120,7 +120,7 @@ func (cs *CantabularServer) Handle(request, response []byte) {
 
 func (cs *CantabularServer) PostResponder() httpfake.Responder {
 	return func(w http.ResponseWriter, r *http.Request, rh *httpfake.Request) {
-		buf, err := ioutil.ReadAll(r.Body)
+		buf, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"strings"
 	"time"
@@ -229,7 +229,7 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) error {
 	var got, expt api.GetDatasetJSONResponse
 
-	b, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	b, err := io.ReadAll(c.APIFeature.HttpResponse.Body)
 	if err != nil {
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult: error reading APIfeature response body: %w", err)
 	}
@@ -264,7 +264,7 @@ func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) err
 func (c *Component) theDatasetObservationResult(expected *godog.DocString) error {
 	var got, expt api.GetObservationsResponse
 
-	b, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	b, err := io.ReadAll(c.APIFeature.HttpResponse.Body)
 	if err != nil {
 		return fmt.Errorf("Component::theDatasetObservationResult: error reading APIfeature response body: %w", err)
 	}
