@@ -183,7 +183,7 @@ func (mf *MongoFeature) aDocumentInCollectionWithKeyValueShouldMatch(col, key, v
 	}
 
 	if diff := cmp.Diff(expected, result); diff != "" {
-		return fmt.Errorf("-expected +got)\n%s\n", diff)
+		return fmt.Errorf("-expected +got)\n%s", diff)
 	}
 
 	return nil
@@ -262,7 +262,7 @@ func (mf *MongoFeature) filterOutputIsInDatastore(expectedOutput *godog.DocStrin
 	}
 
 	if diff := cmp.Diff(actual, expected); diff != "" {
-		return fmt.Errorf("-got +expected)\n%s\n", diff)
+		return fmt.Errorf("-got +expected)\n%s", diff)
 	}
 	return nil
 }

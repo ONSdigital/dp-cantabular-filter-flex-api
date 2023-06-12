@@ -221,7 +221,7 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		log.Error(ctx, "error closing kafka consumer", err)
 	}
 	if diff := cmp.Diff(expected, got); diff != "" {
-		return fmt.Errorf("+got -expected)\n%s\n", diff)
+		return fmt.Errorf("+got -expected)\n%s", diff)
 	}
 	return nil
 }

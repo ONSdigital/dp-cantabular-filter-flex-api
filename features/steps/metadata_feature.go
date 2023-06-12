@@ -65,7 +65,7 @@ func (mf *MetadataFeature) MetadataReturnsAnError() error {
 	var cantabularResponse cantabularmetadata.GetDefaultClassificationResponse
 
 	mf.metadataClient.GetDefaultClassificationFunc = func(ctx context.Context, req cantabularmetadata.GetDefaultClassificationRequest) (*cantabularmetadata.GetDefaultClassificationResponse, error) {
-		return &cantabularResponse, errors.New("Not Found DefaultClassification")
+		return &cantabularResponse, errors.New("not found DefaultClassification")
 	}
 
 	return nil

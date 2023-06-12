@@ -44,7 +44,7 @@ func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datase
 	}
 
 	if len(names) == 0 {
-		return "", "", "", errors.New("no categorisations recieved for variable")
+		return "", "", "", errors.New("no categorisations received for variable")
 	}
 
 	defaultCat, err := api.metadata.GetDefaultClassification(ctx, cantabularmetadata.GetDefaultClassificationRequest{
@@ -56,7 +56,7 @@ func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datase
 	}
 
 	if len(defaultCat.Variables) > 1 {
-		return "", "", "", errors.New("More than 1 categorisation returned.")
+		return "", "", "", errors.New("more than 1 categorisation returned")
 	}
 
 	if len(defaultCat.Variables) == 0 {
