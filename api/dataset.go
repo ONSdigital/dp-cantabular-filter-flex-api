@@ -123,7 +123,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 		return nil, errors.Wrap(err, "failed to run query")
 	}
 
-	resp, err := api.toGetDatasetJsonResponse(params, qRes)
+	resp, err := api.toGetDatasetJSONResponse(params, qRes)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate response")
 	}
@@ -304,7 +304,7 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 		},
 	}
 
-	getDatasetJsonResponse := GetDatasetJSONResponse{
+	getDatasetJSONResponse := GetDatasetJSONResponse{
 		Dimensions:        dimensions,
 		Links:             datasetLinks,
 		Observations:      query.Dataset.Table.Values,
@@ -314,7 +314,7 @@ func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabula
 		AreasReturned:     query.Dataset.Table.Rules.Passed.Count,
 	}
 
-	return &getDatasetJsonResponse, nil
+	return &getDatasetJSONResponse, nil
 }
 
 func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetObservationsResponse, error) {

@@ -74,7 +74,7 @@ func (c *Component) Router() (http.Handler, error) {
 		return nil, fmt.Errorf("failed to initialise service: %s", err)
 	}
 
-	return c.svc.Api.Router, nil
+	return c.svc.API.Router, nil
 }
 
 // Reset re-initialises the service under test and the api dependencies

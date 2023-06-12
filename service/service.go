@@ -22,7 +22,7 @@ type Service struct {
 	Cfg              *config.Config
 	Server           HTTPServer
 	HealthCheck      HealthChecker
-	Api              *api.API
+	API              *api.API
 	responder        Responder
 	store            Datastore
 	Producer         kafka.IProducer
@@ -80,7 +80,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
 
 	// Setup the API
-	svc.Api = api.New(
+	svc.API = api.New(
 		ctx,
 		cfg,
 		r,
