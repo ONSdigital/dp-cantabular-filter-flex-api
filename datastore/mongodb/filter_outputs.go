@@ -88,20 +88,6 @@ func (c *Client) UpdateFilterOutput(ctx context.Context, f *model.FilterOutput) 
 
 	update := bson.M{"$set": fields}
 
-	/*
-	   The locking for now has been commented out to
-	   understand the 300 concurrent users test failures
-	   occurring as part of the platform team testing.
-	   It may be reinstated, so left in, along with all locking
-	   features in the mocks.
-	*/
-
-	// lockID, err := col.lock(ctx, f.ID)
-	// if err != nil {
-	//	return err
-	// }
-	// defer col.unlock(ctx, lockID)
-
 	rec, err := c.conn.Collection(col.name).Update(ctx, queryFilter, update)
 	if err != nil {
 		return errors.Wrap(err, "failed to update filter output")

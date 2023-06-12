@@ -13,7 +13,6 @@ import (
 type optionQueryResult struct {
 	Options    []string `bson:"options"`
 	TotalCount int      `bson:"total_options"`
-	eTag       string   `bson:"etag"`
 }
 
 // GetFilterDimensionOptions gets the options for a dimension that is part of a Filter

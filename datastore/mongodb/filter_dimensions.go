@@ -119,13 +119,6 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 		"dimension_name": dimensionName,
 	}
 
-	// lockID, err := col.lock(ctx, filterID)
-	// if err != nil {
-	//	return "", errors.Wrap(err, "error while locking filters collection")
-	// }
-
-	// defer col.unlock(ctx, lockID)
-
 	filter, err := c.GetFilter(ctx, filterID)
 	if err != nil {
 		return "", &er{
@@ -205,13 +198,6 @@ func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dime
 		"dimension": dimension,
 		"option":    option,
 	}
-
-	// lockID, err := col.lock(ctx, filterID)
-	// if err != nil {
-	//	return "", errors.Wrap(err, "error while locking filters collection")
-	// }
-
-	// defer col.unlock(ctx, lockID)
 
 	filter, err := c.GetFilter(ctx, filterID)
 	if err != nil {

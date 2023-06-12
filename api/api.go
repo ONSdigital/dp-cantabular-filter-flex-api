@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	// "net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	kafka "github.com/ONSdigital/dp-kafka/v3"

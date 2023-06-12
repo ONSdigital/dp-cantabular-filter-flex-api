@@ -6,9 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// anyETag represents the wildchar that corresponds to not check the ETag value for update requests
-const anyETag = "*"
-
 // CreateEtag creates a new etag for when an update request is made.
 func (c *Client) CreateEtag(current, update interface{}) (eTag string, err error) {
 	b, err := bson.Marshal(update)

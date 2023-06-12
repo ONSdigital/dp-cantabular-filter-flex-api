@@ -34,12 +34,6 @@ func (c *Client) CreateFilter(ctx context.Context, f *model.Filter) error {
 
 	col := c.collections.filters
 
-	// lockID, err := col.lock(ctx, f.ID)
-	// if err != nil {
-	//	return err
-	// }
-	// defer col.unlock(ctx, lockID)
-
 	if _, err = c.conn.Collection(col.name).UpsertById(ctx, f.ID, bson.M{"$set": f}); err != nil {
 		return errors.Wrap(err, "failed to upsert filter")
 	}

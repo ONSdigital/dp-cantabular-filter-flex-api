@@ -163,11 +163,6 @@ func (c *Component) privateEndpointsAreNotEnabled() error {
 	return nil
 }
 
-func (c *Component) permissionsCheckingIsNotEnabled() error {
-	c.svc.Cfg.EnablePermissionsAuth = false
-	return nil
-}
-
 func (c *Component) theMaximumLimitIsSetTo(val int) error {
 	c.svc.Cfg.DefaultMaximumLimit = val
 	return nil
