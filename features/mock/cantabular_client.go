@@ -148,7 +148,7 @@ func crc(request []byte) uint32 {
 			return r
 		}
 	}, request)
-	//Remove hard coded newlines and tabs as well
+	// Remove hard coded newlines and tabs as well
 	reduced = bytes.ReplaceAll(reduced, []byte("\\n"), []byte(``))
 	reduced = bytes.ReplaceAll(reduced, []byte("\\t"), []byte(``))
 

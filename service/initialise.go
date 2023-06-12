@@ -65,7 +65,7 @@ var GetDatasetAPIClient = func(cfg *config.Config) DatasetAPIClient {
 	return dataset.NewAPIClient(cfg.DatasetAPIURL)
 }
 
-// GetDatasetAPIClient gets and initialises the DatasetAPI Client
+// GetPopulationClient gets and initialises the PopultaionTypesAPI Client
 var GetPopulationClient = func(cfg *config.Config) (PopulationTypesAPIClient, error) {
 	return population.NewClient(cfg.PopulationTypesAPIURL)
 }

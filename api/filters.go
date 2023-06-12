@@ -216,7 +216,7 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 		"request": req,
 	}
 
-	//call the population-types-api to get the dataset ID
+	// call the population-types-api to get the dataset ID
 	input := population.GetPopulationTypeMetadataInput{
 		AuthTokens: population.AuthTokens{
 			ServiceAuthToken: api.cfg.ServiceAuthToken,
@@ -299,7 +299,7 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 		Title:   "custom",
 	}
 
-	//get the first available area type dimension from the default dataset
+	// get the first available area type dimension from the default dataset
 	var dimension model.Dimension
 	for _, d := range v.Dimensions {
 		if *d.IsAreaType {

@@ -87,7 +87,7 @@ func (api *API) putFilterOutput(w http.ResponseWriter, r *http.Request) {
 	api.respond.StatusCode(w, http.StatusOK)
 }
 
-//createFilterOutputEvent will add a new event to the list of existing events in the filter outputs
+// createFilterOutputEvent will add a new event to the list of existing events in the filter outputs
 func (api *API) addFilterOutputEvent(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")

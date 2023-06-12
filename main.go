@@ -24,9 +24,9 @@ var (
 
 	// TODO: remove below explainer before commiting
 	//NOTE: replace the above with the below to run code with for example vscode debugger.
-	//BuildTime string = "1601119818"
-	//GitCommit string = "6584b786caac36b6214ffe04bf62f058d4021538"
-	//Version   string = "v0.1.0"
+	// BuildTime string = "1601119818"
+	// GitCommit string = "6584b786caac36b6214ffe04bf62f058d4021538"
+	// Version   string = "v0.1.0"
 )
 
 func main() {
