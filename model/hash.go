@@ -1,6 +1,7 @@
 package model
 
 import (
+	//nolint:gosec // SHA-1 selected for performance as we are only interested in uniqueness
 	"crypto/sha1"
 	"fmt"
 
@@ -14,6 +15,7 @@ import (
 // An optional byte array can be provided to append to the hash.
 // This can be used, for example, to calculate a hash of this instance and an update applied to it.
 func (f *Filter) Hash(extraBytes []byte) (string, error) {
+	//nolint:gosec // SHA-1 selected for performance as we are only interested in uniqueness
 	h := sha1.New()
 
 	// copy by value to ignore ETag without affecting i
@@ -33,6 +35,7 @@ func (f *Filter) Hash(extraBytes []byte) (string, error) {
 }
 
 func (f *Filter) HashDimensions() (string, error) {
+	//nolint:gosec // SHA-1 selected for performance as we are only interested in uniqueness
 	h := sha1.New()
 
 	dims := struct {
