@@ -86,15 +86,15 @@ type BlockedOptions struct {
 func (fi *FileInfo) IsNotFullyPopulated() error {
 	cutset := " "
 
-	if len(strings.Trim(fi.HREF, cutset)) == 0 {
+	if strings.Trim(fi.HREF, cutset) == "" {
 		return errors.New(`"HREF" is empty in input`)
 	}
 
-	if len(strings.Trim(fi.Private, cutset)) == 0 && len(strings.Trim(fi.Public, cutset)) == 0 {
+	if strings.Trim(fi.Private, cutset) == "" && strings.Trim(fi.Public, cutset) == "" {
 		return errors.New(`"public" or "private" must be populated`)
 	}
 
-	if len(strings.Trim(fi.Size, cutset)) == 0 {
+	if strings.Trim(fi.Size, cutset) == "" {
 		return errors.New(`"size" is empty in input`)
 	}
 

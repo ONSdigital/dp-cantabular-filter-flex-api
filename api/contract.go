@@ -46,8 +46,7 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 1 value")
 	}
 
-	for i, d := range r.Dimensions {
-		if len(d.Name) == 0 {
+		if dimension.Name == "" {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
 
@@ -56,12 +55,12 @@ func (r *createFilterRequest) Valid() error {
 			return fmt.Errorf("missing field: [dimension[%d].is_area_type", i)
 		}*/
 
-		if len(d.ID) != 0 {
-			return fmt.Errorf("unexpected field id provided for: %s", d.Name)
+		if dimension.ID != "" {
+			return fmt.Errorf("unexpected field id provided for: %s", dimension.Name)
 		}
 
-		if len(d.Label) != 0 {
-			return fmt.Errorf("unexpected field label provided for: %s", d.Name)
+		if dimension.Label != "" {
+			return fmt.Errorf("unexpected field label provided for: %s", dimension.Name)
 		}
 	}
 
@@ -197,7 +196,7 @@ type updateFilterDimensionRequest struct {
 }
 
 func (r *updateFilterDimensionRequest) Valid() error {
-	if len(r.ID) == 0 {
+	if r.ID == "" {
 		return errors.New("missing field: [id]")
 	}
 	if r.IsAreaType == nil {

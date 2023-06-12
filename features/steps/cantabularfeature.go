@@ -117,7 +117,7 @@ func (cf *CantabularFeature) cantabularSearchReturnsTheseCategories(datasetID, d
 	}
 
 	cf.cantabularClient.GetCategorisationsFunc = func(_ context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error) {
-		if len(req.Dataset) == 0 {
+		if req.Dataset == "" {
 			return nil, errors.New("no dataset provided in request")
 		}
 		if req.Dataset == datasetID && req.Variable == dimension {

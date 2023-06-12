@@ -265,7 +265,7 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 }
 
 func getFilterVariable(d model.Dimension) string {
-	if len(d.FilterByParent) != 0 {
+	if d.FilterByParent != "" {
 		return d.FilterByParent
 	}
 	return d.Name
