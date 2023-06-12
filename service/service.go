@@ -144,7 +144,6 @@ func (svc *Service) Close(ctx context.Context) error {
 		if err := svc.Producer.Close(ctx); err != nil {
 			log.Info(ctx, "failed to shut down kafka producer")
 		}
-
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)

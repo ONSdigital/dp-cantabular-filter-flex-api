@@ -193,7 +193,6 @@ func (api *API) validateGeography(ctx context.Context, r *http.Request, params *
 			if err != nil {
 				return nil, nil, errors.New("unable to locate area")
 			}
-
 		}
 		foundGeography = true
 		datasetRequest.Filters = []cantabular.Filter{{Variable: geography, Codes: geographyOptions}}

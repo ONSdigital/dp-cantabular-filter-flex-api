@@ -294,7 +294,6 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 			http.StatusBadRequest,
 			errors.Wrap(err, "Bad Request"),
 		)
-
 	}
 
 	if pageLimit == 0 {

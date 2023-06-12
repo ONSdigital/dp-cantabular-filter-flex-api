@@ -71,7 +71,6 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the getGeographyDatasetJSON result should be:$`,
 		c.theGeographyDatasetJSONResult,
 	)
-
 }
 
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into

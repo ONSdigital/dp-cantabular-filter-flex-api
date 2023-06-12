@@ -356,7 +356,6 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 	api := API{}
 
 	Convey("WHEN getGeographyFilters is called with no dimension THEN an error is returned", t, func() {
-
 		region := uuid.NewString()
 		area := uuid.NewString()
 
@@ -613,7 +612,6 @@ func getValidObservationsResponse(dimensionID string) GetObservationsResponse {
 			},
 		},
 	}
-
 }
 
 func getValidGeoResponse() *gql.Dataset {

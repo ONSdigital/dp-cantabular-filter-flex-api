@@ -31,7 +31,6 @@ func NewMetadataFeature(t *testing.T, mfg *config.Config) *MetadataFeature {
 }
 
 func (mf *MetadataFeature) RegisterSteps(ctx *godog.ScenarioContext) {
-
 	ctx.Step(
 		`^Metadata api returns this response for the dataset "([^"]*)" and search term "([^"]*)":$`,
 		mf.MetadataReturnsTheseDefaults,
@@ -42,8 +41,7 @@ func (mf *MetadataFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 	)
 }
 
-func (mf *MetadataFeature) MetadataReturnsTheseDefaults(datasetID, search string, input *godog.DocString) error {
-
+func (mf *MetadataFeature) MetadataReturnsTheseDefaults(_, _ string, input *godog.DocString) error {
 	res := &struct {
 		Data   cantabularmetadata.Data       `json:"data"`
 		Errors []cantabularmetadata.GQLError `json:"errors,omitempty"`

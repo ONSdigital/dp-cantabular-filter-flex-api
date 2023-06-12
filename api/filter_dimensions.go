@@ -248,7 +248,6 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 		return
-
 	}
 
 	// The new dimension won't be present on the dataset (i.e. only `City` will be present, not `Country`),

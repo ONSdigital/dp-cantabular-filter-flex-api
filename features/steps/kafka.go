@@ -14,7 +14,6 @@ import (
 // GenerateKafkaConsumer produces a consumer for specific steps.
 // Currently only for PUT filters/{id}/submit
 func GenerateKafkaConsumer(ctx context.Context) (*kafka.ConsumerGroup, error) {
-
 	kafkaConfig := config.KafkaConfig{
 		Addr:                      []string{"kafka-1:9092"},
 		ConsumerMinBrokersHealthy: 1,
