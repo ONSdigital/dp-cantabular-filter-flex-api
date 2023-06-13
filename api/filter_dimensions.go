@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+//nolint:gocyclo // Break this down in future
 func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")

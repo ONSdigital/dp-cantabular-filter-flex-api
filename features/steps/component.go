@@ -102,6 +102,7 @@ func (c *Component) setInitialiserMock(g service.Generator) {
 	c.PopulationFeature.setInitialiserMock()
 
 	service.GetHTTPServer = func(bindAddr string, router http.Handler) service.HTTPServer {
+		//nolint:gosec // Test code only
 		return &http.Server{Addr: bindAddr, Handler: router}
 	}
 

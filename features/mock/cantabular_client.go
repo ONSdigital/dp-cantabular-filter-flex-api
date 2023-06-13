@@ -90,6 +90,7 @@ func (c *CantabularClient) CheckerAPIExt(_ context.Context, _ *healthcheck.Check
 	return nil
 }
 
+//nolint:gocritic // embedded mutex only used in mock client
 type CantabularServer struct {
 	*httpfake.HTTPFake
 
