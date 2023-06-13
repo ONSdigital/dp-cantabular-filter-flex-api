@@ -335,12 +335,12 @@ func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *c
 
 		l := len(dimIndices) - 1
 		for l >= 0 {
-			dimIndices[l] += 1
+			dimIndices[l]++
 			if dimIndices[l] < dimLengths[l] {
 				break
 			}
 			dimIndices[l] = 0
-			l -= 1
+			l--
 		}
 	}
 
