@@ -25,10 +25,6 @@ type ComponentTest struct {
 	component *steps.Component
 }
 
-func init() {
-	dplogs.Namespace = "dp-cantabular-filter-flex-api"
-}
-
 func (ct *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.After(func(ctx context.Context, scenario *godog.Scenario, err error) (context.Context, error) {
 		ct.component.Reset()

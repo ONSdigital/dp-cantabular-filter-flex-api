@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"hash/crc32"
 	"io"
 	"net/http"
@@ -111,7 +110,7 @@ func (cs *CantabularServer) Reset() {
 }
 
 func (cs *CantabularServer) Handle(request, response []byte) {
-	cs.NewHandler().Post(fmt.Sprintf("/graphql")).Handle(cs.PostResponder())
+	cs.NewHandler().Post("/graphql").Handle(cs.PostResponder())
 
 	cs.Lock()
 	defer cs.Unlock()

@@ -193,9 +193,9 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 					"duplicate_dimension": d.Name,
 				},
 			}
-		} else {
-			fDims[d.Name] = true
 		}
+
+			fDims[d.Name] = true
 	}
 
 	dimensions := make(map[string]string)
