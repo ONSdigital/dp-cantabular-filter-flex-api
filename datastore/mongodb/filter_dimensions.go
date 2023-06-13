@@ -277,7 +277,8 @@ func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dime
 // findDimension loops through a dimension, looking for a dimension by name, and
 // returns Dimension.
 func findDimension(filter *model.Filter, dimensionName string) (model.Dimension, error) {
-	for _, dim := range filter.Dimensions {
+	for i := range filter.Dimensions {
+		dim := filter.Dimensions[i]
 		if dim.Name == dimensionName {
 			return dim, nil
 		}
@@ -289,8 +290,8 @@ func findDimension(filter *model.Filter, dimensionName string) (model.Dimension,
 // findDimensionIndex loops through a dimension, looking for a dimension by name, and
 // returns the index of the item in the Dimensions slice.
 func findDimensionIndex(filter *model.Filter, dimensionName string) (int, error) {
-	for i, dim := range filter.Dimensions {
-		if dim.Name == dimensionName {
+	for i := range filter.Dimensions {
+		if filter.Dimensions[i].Name == dimensionName {
 			return i, nil
 		}
 	}

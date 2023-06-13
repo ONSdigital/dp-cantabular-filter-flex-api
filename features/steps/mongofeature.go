@@ -151,7 +151,8 @@ func (mf *MongoFeature) theFilterHasEmptyOptions(col, key, val, dimensionName st
 		return fmt.Errorf("failed to retrieve document: %w", err)
 	}
 
-	for _, dimension := range filter.Dimensions {
+	for i := range filter.Dimensions {
+		dimension := filter.Dimensions[i]
 		if dimension.Name == dimensionName {
 			if len(dimension.Options) == 0 {
 				return nil
@@ -236,7 +237,8 @@ func (mf *MongoFeature) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 	col := mf.cfg.FilterOutputsCollection
 
 	upsert := true
-	for _, f := range filterOutputs {
+	for i := range filterOutputs {
+		f := filterOutputs[i]
 		if _, err := mf.Client.Database(db).Collection(col).UpdateByID(context.Background(), f.ID, bson.M{"$set": f}, &options.UpdateOptions{Upsert: &upsert}); err != nil {
 			return fmt.Errorf("failed to upsert filter output: %w", err)
 		}
@@ -273,7 +275,8 @@ func (mf *MongoFeature) insertFilters(filters []model.Filter) error {
 	col := mf.cfg.FiltersCollection
 
 	upsert := true
-	for _, filter := range filters {
+	for i := range filters {
+		filter := filters[i]
 		if _, err := mf.Client.Database(db).Collection(col).UpdateByID(ctx, filter.ID, bson.M{"$set": filter}, &options.UpdateOptions{Upsert: &upsert}); err != nil {
 			return fmt.Errorf("failed to upsert filter: %w", err)
 		}

@@ -431,7 +431,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	// Used for improved performance doing checks against extra dimensions
 	dimMap := make(map[string]struct{})
 
-	for _, dimension := range versionItem.Dimensions {
+	for dimensionIndex := range versionItem.Dimensions {
+		dimension := versionItem.Dimensions[dimensionIndex]
 		dimMap[dimension.Name] = struct{}{}
 
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
@@ -441,7 +442,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 		params.options[dimension.ID] = make(map[string]dataset.Option)
 
-		for _, option := range options.Items {
+		for optionIndex := range options.Items {
+			option := options.Items[optionIndex]
 			params.options[dimension.ID][option.Label] = option
 		}
 
@@ -459,7 +461,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 		catMap := make(map[string]struct{})
 
-		for _, dim := range versionItem.Dimensions {
+		for dimIndex := range versionItem.Dimensions {
+			dim := versionItem.Dimensions[dimIndex]
 			if dim.IsAreaType != nil && *dim.IsAreaType {
 				continue
 			}

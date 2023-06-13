@@ -25,18 +25,25 @@ func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datase
 	}
 
 	names := make([]string, 0)
-	for _, edge := range cats.Dataset.Variables.Edges {
+
+	for edgeIndex := range cats.Dataset.Variables.Edges {
+		edge := cats.Dataset.Variables.Edges[edgeIndex]
+
 		if len(edge.Node.MapFrom) > 0 {
-			for _, mapFrom := range edge.Node.MapFrom {
-				for _, mappedSource := range mapFrom.Edges {
-					for _, mappedSourceEdge := range mappedSource.Node.IsSourceOf.Edges {
+			for mapFromIndex := range edge.Node.MapFrom {
+				mapFrom := edge.Node.MapFrom[mapFromIndex]
+				for mapFromEdgeIndex := range mapFrom.Edges {
+					mappedSource := mapFrom.Edges[mapFromEdgeIndex]
+					for mappedSourceEdgeIndex := range mappedSource.Node.IsSourceOf.Edges {
+						mappedSourceEdge := mappedSource.Node.IsSourceOf.Edges[mappedSourceEdgeIndex]
 						names = append(names, mappedSourceEdge.Node.Name)
 						labelMap[mappedSourceEdge.Node.Name] = mappedSourceEdge.Node.Label
 					}
 				}
 			}
 		} else if len(edge.Node.IsSourceOf.Edges) > 0 {
-			for _, sourceOf := range edge.Node.IsSourceOf.Edges {
+			for i := range edge.Node.IsSourceOf.Edges {
+				sourceOf := edge.Node.IsSourceOf.Edges[i]
 				names = append(names, sourceOf.Node.Name)
 				labelMap[sourceOf.Node.Name] = sourceOf.Node.Label
 			}

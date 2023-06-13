@@ -48,7 +48,8 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 	var dimension model.Dimension
 	var dimExists bool
 
-	for _, d := range filter.Dimensions {
+	for i := range filter.Dimensions {
+		d := filter.Dimensions[i]
 		dName := d.Name
 		if d.FilterByParent != "" {
 			dName = d.FilterByParent
@@ -215,7 +216,8 @@ func (api *API) deleteFilterDimensionOption(w http.ResponseWriter, r *http.Reque
 	var dimension model.Dimension
 	var dimExists bool
 
-	for _, d := range filter.Dimensions {
+	for i := range filter.Dimensions {
+		d := filter.Dimensions[i]
 		if d.Name == req.Dimension {
 			dimension = d
 			dimExists = true

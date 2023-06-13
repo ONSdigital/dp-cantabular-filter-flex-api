@@ -25,7 +25,8 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 	if v.IsBasedOn.Type == cantabularFlexibleTable {
 		var geodim model.Dimension
 		var areaCount int
-		for _, d := range dims {
+		for i := range dims {
+			d := dims[i]
 			if d.IsAreaType != nil && *d.IsAreaType {
 				areaCount++
 				geodims, err := api.getCantabularDimensions(ctx, []model.Dimension{d}, pType)
@@ -80,10 +81,10 @@ func (api *API) validateAndHydrateDimensions(v dataset.Version, dims []model.Dim
 func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
 	ctx := context.Background()
 	hydratedDimensions := make([]model.Dimension, 0)
-	var finalLabel string
-	var finalCategorisation string
-	for _, dim := range dimensions {
-		finalDimension := dim.Name
+
+	for i := range dimensions {
+		dim := dimensions[i]
+
 		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
 		if err != nil {
 			return nil, errors.Wrap(err, "error in cantabular response")
@@ -119,7 +120,8 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 func (api *API) getCantabularDimensions(ctx context.Context, dimensions []model.Dimension, pType string) ([]model.Dimension, error) {
 	hydratedDimensions := make([]model.Dimension, 0)
 
-	for _, d := range dimensions {
+	for i := range dimensions {
+		d := dimensions[i]
 		dim, err := api.getCantabularDimension(ctx, pType, d.Name)
 		if err != nil {
 			return nil, Error{
@@ -180,7 +182,8 @@ func (api *API) getCantabularDimension(ctx context.Context, popType, dimensionNa
 func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDims []dataset.VersionDimension) error {
 	fDims := make(map[string]bool)
 
-	for _, d := range dims {
+	for i := range dims {
+		d := dims[i]
 		if _, ok := fDims[d.Name]; ok {
 			return Error{
 				err:        errors.New("duplicate dimensions chosen"),
@@ -196,12 +199,14 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 	}
 
 	dimensions := make(map[string]string)
-	for _, vd := range versionDims {
+	for i := range versionDims {
+		vd := versionDims[i]
 		dimensions[vd.Name] = vd.ID
 	}
 
-	var incorrect []string
-	for _, d := range dims {
+	incorrect := make([]string, 0, len(dims))
+	for i := range dims {
+		d := dims[i]
 		// allow geography dimensions other than default
 		if d.IsAreaType != nil && *d.IsAreaType {
 			continue
@@ -212,7 +217,7 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 		}
 	}
 
-	if incorrect != nil {
+	if len(incorrect) > 0 {
 		return Error{
 			err:      errors.New("incorrect dimensions chosen"),
 			message:  fmt.Sprintf("incorrect dimension chosen: %s", incorrect),
@@ -232,7 +237,8 @@ func (api *API) validateDimensionOptions(ctx context.Context, filterDimensions [
 	dReq := cantabular.GetDimensionOptionsRequest{
 		Dataset: populationType,
 	}
-	for _, d := range filterDimensions {
+	for i := range filterDimensions {
+		d := filterDimensions[i]
 		if len(d.Options) > 0 {
 			dReq.DimensionNames = append(dReq.DimensionNames, d.Name)
 			dReq.Filters = append(dReq.Filters, cantabular.Filter{
@@ -276,7 +282,8 @@ func hydrateDimensionsFromVersion(filterDims []model.Dimension, dims []dataset.V
 	type record struct{ id, label string }
 
 	lookup := make(map[string]record)
-	for _, d := range dims {
+	for i := range dims {
+		d := dims[i]
 		// geography dimension gets hydrated from Cantabular
 		if d.IsAreaType != nil && *d.IsAreaType {
 			continue

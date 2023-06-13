@@ -46,6 +46,8 @@ func (r *createFilterRequest) Valid() error {
 		return errors.New("missing/invalid field: 'dimensions' must contain at least 1 value")
 	}
 
+	for i := range r.Dimensions {
+		dimension := r.Dimensions[i]
 		if dimension.Name == "" {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}
@@ -256,9 +258,9 @@ func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filter
 	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
-	for _, dim := range dims {
+	for i := range dims {
 		var item dimensionItem
-		item.fromDimension(dim, host, filterID)
+		item.fromDimension(dims[i], host, filterID)
 		*items = append(*items, item)
 	}
 }
