@@ -269,8 +269,8 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
 }
 
-func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
-	var dimensions []DatasetJSONDimension
+func (api *API) toGetDatasetJSONResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
+	dimensions := make([]DatasetJSONDimension, 0, len(query.Dataset.Table.Dimensions))
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
 		var options []model.Link
@@ -386,6 +386,7 @@ func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []O
 	return dims
 }
 
+//nolint:gocognit,gocyclo // should break this function down in future
 func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
@@ -394,16 +395,9 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		options: make(optionsMap),
 	}
 
-	if params.id == "" {
-		return nil, errors.New("invalid dataset id")
-	}
-
-	if params.edition == "" {
-		return nil, errors.New("invalid edition")
-	}
-
-	if params.version == "" {
-		return nil, errors.New("invalid version")
+	err := validateBaseParams(params)
+	if err != nil {
+		return nil, err
 	}
 
 	// The following GetVersion() call will only return a 'published' version for an unauthorised caller, i.e. public caller
@@ -517,6 +511,22 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.sortedDimensions = api.sortGeography(params.geoDimensions, params.datasetDimensions)
 
 	return params, nil
+}
+
+func validateBaseParams(params *datasetParams) error {
+	if params.id == "" {
+		return errors.New("invalid dataset id")
+	}
+
+	if params.edition == "" {
+		return errors.New("invalid edition")
+	}
+
+	if params.version == "" {
+		return errors.New("invalid version")
+	}
+
+	return nil
 }
 
 const (
