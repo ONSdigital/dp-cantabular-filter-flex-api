@@ -57,7 +57,7 @@ func NewClient(ctx context.Context, g generator, cfg Config) (*Client, error) {
 }
 
 // Conn returns the underlying mongodb connection.
-func (c *Client) Conn() *mongo.MongoConnection{
+func (c *Client) Conn() *mongo.MongoConnection {
 	return c.conn
 }
 

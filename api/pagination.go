@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultLimit = 20
+	DefaultLimit  = 20
 	DefaultOffset = 0
 )
 

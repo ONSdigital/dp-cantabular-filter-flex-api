@@ -267,7 +267,6 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 	}
 
 	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
-
 }
 
 func (api *API) toGetDatasetJsonResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
