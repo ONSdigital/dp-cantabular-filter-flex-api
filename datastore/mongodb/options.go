@@ -16,7 +16,7 @@ type optionQueryResult struct {
 }
 
 // GetFilterDimensionOptions gets the options for a dimension that is part of a Filter
-func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimensionName string, limit, offset int) ([]string, int, string, error) {
+func (c *Client) GetFilterDimensionOptions(ctx context.Context, filterID, dimensionName string, limit, offset int) (finalOptions []string, totalCount int, eTag string, err error) {
 	col := c.collections.filters
 
 	logData := log.Data{

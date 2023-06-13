@@ -112,7 +112,7 @@ func (c *Client) AddFilterDimension(ctx context.Context, fID string, dim model.D
 	return nil
 }
 
-func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
+func (c *Client) UpdateFilterDimension(ctx context.Context, filterID, dimensionName string, dimension model.Dimension, currentETag string) (string, error) {
 	col := c.collections.filters
 	logData := log.Data{
 		"filter_id":      filterID,
@@ -191,7 +191,7 @@ func (c *Client) UpdateFilterDimension(ctx context.Context, filterID string, dim
 	return filter.ETag, nil
 }
 
-func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dimension, option string, currentETag string) (string, error) {
+func (c *Client) RemoveFilterDimensionOption(ctx context.Context, filterID, dimension, option, currentETag string) (string, error) {
 	col := c.collections.filters
 	logData := log.Data{
 		"filter_id": filterID,

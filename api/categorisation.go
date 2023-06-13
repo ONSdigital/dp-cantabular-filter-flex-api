@@ -13,7 +13,7 @@ import (
 // if so, it returns the relevant information. If there are no default categorisations, it returns empty string
 // for default categorisation, and the original dimension name and label to persist instead.
 // returns (finalDimension, finalLabel, finalCategorisation, error)
-func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datasetName string) (string, string, string, error) {
+func (api *API) RetrieveDefaultCategorisation(dimension *model.Dimension, datasetName string) (finalDimension, finalLabel, finalCategorisation string, err error) {
 	ctx := context.Background()
 	labelMap := make(map[string]string)
 	cats, err := api.ctblr.GetCategorisations(ctx, cantabular.GetCategorisationsRequest{

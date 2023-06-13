@@ -409,7 +409,7 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
 
-func parseFilterDimensionOptions(options []string, filterID, dimensionName string, address string) []GetFilterDimensionOptionsItem {
+func parseFilterDimensionOptions(options []string, filterID, dimensionName, address string) []GetFilterDimensionOptionsItem {
 	responses := make([]GetFilterDimensionOptionsItem, 0)
 
 	for _, option := range options {

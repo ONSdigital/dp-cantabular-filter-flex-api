@@ -540,7 +540,7 @@ func (api *API) getGeographyTypes(ctx context.Context, datasetID string) ([]stri
 	return geoDimensions, nil
 }
 
-func (api *API) sortGeography(geoDimensions []string, dimensions []string) []string {
+func (api *API) sortGeography(geoDimensions, dimensions []string) []string {
 	foundGeography := false
 	var sortedDimensions []string
 	var nonGeoDimensions []string

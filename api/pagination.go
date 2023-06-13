@@ -13,8 +13,8 @@ const (
 )
 
 // getPaginationParams parses a URL and extracts limit/offset values.
-func getPaginationParams(url *url.URL, maximumLimit int) (int, int, error) {
-	query := url.Query()
+func getPaginationParams(urlToParse *url.URL, maximumLimit int) (pagintationLimit, pagintaionOffset int, err error) {
+	query := urlToParse.Query()
 
 	limit, err := getInt(query.Get("limit"), DefaultLimit)
 	if err != nil {
