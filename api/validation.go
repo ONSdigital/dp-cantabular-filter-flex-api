@@ -90,7 +90,7 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 			return nil, errors.Wrap(err, "error in cantabular response")
 		}
 
-		finalDimension, finalLabel, finalCategorisation, err = api.RetrieveDefaultCategorisation(node, pType)
+		finalDimension, finalLabel, finalCategorisation, err := api.RetrieveDefaultCategorisation(node, pType)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to hydrate multivariate dimensions")
 		}
@@ -195,7 +195,7 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 			}
 		}
 
-			fDims[d.Name] = true
+		fDims[d.Name] = true
 	}
 
 	dimensions := make(map[string]string)
