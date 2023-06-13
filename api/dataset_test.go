@@ -417,13 +417,13 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 		optionValid := uuid.NewString()
 		optionInvalid := uuid.NewString()
 
-		optionsMap := make(optionsMap)
-		optionsMap[region] = map[string]dataset.Option{area: {}}
-		optionsMap[dimension] = map[string]dataset.Option{optionValid: {}}
+		testOptionsMap := make(optionsMap)
+		testOptionsMap[region] = map[string]dataset.Option{area: {}}
+		testOptionsMap[dimension] = map[string]dataset.Option{optionValid: {}}
 
 		params := &datasetParams{
 			geoDimensions:     []string{region},
-			options:           optionsMap,
+			options:           testOptionsMap,
 			datasetDimensions: []string{dimension},
 		}
 		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
