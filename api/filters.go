@@ -302,7 +302,7 @@ func (api *API) createCustomFilter(w http.ResponseWriter, r *http.Request) {
 	// get the first available area type dimension from the default dataset
 	var dimension model.Dimension
 	for i := range v.Dimensions {
-		d := v.Dimensions[i]
+		d := &v.Dimensions[i]
 		if *d.IsAreaType {
 			dimension = model.Dimension{
 				Name:       d.Name,

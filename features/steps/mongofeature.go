@@ -152,7 +152,7 @@ func (mf *MongoFeature) theFilterHasEmptyOptions(col, key, val, dimensionName st
 	}
 
 	for i := range filter.Dimensions {
-		dimension := filter.Dimensions[i]
+		dimension := &filter.Dimensions[i]
 		if dimension.Name == dimensionName {
 			if len(dimension.Options) == 0 {
 				return nil
@@ -238,7 +238,7 @@ func (mf *MongoFeature) iHaveTheseFilterOutputs(docs *godog.DocString) error {
 
 	upsert := true
 	for i := range filterOutputs {
-		f := filterOutputs[i]
+		f := &filterOutputs[i]
 		if _, err := mf.Client.Database(db).Collection(col).UpdateByID(context.Background(), f.ID, bson.M{"$set": f}, &options.UpdateOptions{Upsert: &upsert}); err != nil {
 			return fmt.Errorf("failed to upsert filter output: %w", err)
 		}
@@ -276,7 +276,7 @@ func (mf *MongoFeature) insertFilters(filters []model.Filter) error {
 
 	upsert := true
 	for i := range filters {
-		filter := filters[i]
+		filter := &filters[i]
 		if _, err := mf.Client.Database(db).Collection(col).UpdateByID(ctx, filter.ID, bson.M{"$set": filter}, &options.UpdateOptions{Upsert: &upsert}); err != nil {
 			return fmt.Errorf("failed to upsert filter: %w", err)
 		}

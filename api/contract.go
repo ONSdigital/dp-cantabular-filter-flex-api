@@ -47,7 +47,7 @@ func (r *createFilterRequest) Valid() error {
 	}
 
 	for i := range r.Dimensions {
-		dimension := r.Dimensions[i]
+		dimension := &r.Dimensions[i]
 		if dimension.Name == "" {
 			return fmt.Errorf("missing field: [dimension[%d].name]", i)
 		}

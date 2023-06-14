@@ -83,7 +83,7 @@ func (api *API) HydrateMultivariateDimensionsPOST(dimensions []model.Dimension, 
 	hydratedDimensions := make([]model.Dimension, 0)
 
 	for i := range dimensions {
-		dim := dimensions[i]
+		dim := &dimensions[i]
 
 		node, err := api.getCantabularDimension(ctx, pType, dim.Name)
 		if err != nil {
@@ -121,7 +121,7 @@ func (api *API) getCantabularDimensions(ctx context.Context, dimensions []model.
 	hydratedDimensions := make([]model.Dimension, 0)
 
 	for i := range dimensions {
-		d := dimensions[i]
+		d := &dimensions[i]
 		dim, err := api.getCantabularDimension(ctx, pType, d.Name)
 		if err != nil {
 			return nil, Error{
@@ -183,7 +183,7 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 	fDims := make(map[string]bool)
 
 	for i := range dims {
-		d := dims[i]
+		d := &dims[i]
 		if _, ok := fDims[d.Name]; ok {
 			return Error{
 				err:        errors.New("duplicate dimensions chosen"),
@@ -200,13 +200,13 @@ func (api *API) validateDimensionsFromVersion(dims []model.Dimension, versionDim
 
 	dimensions := make(map[string]string)
 	for i := range versionDims {
-		vd := versionDims[i]
+		vd := &versionDims[i]
 		dimensions[vd.Name] = vd.ID
 	}
 
 	incorrect := make([]string, 0, len(dims))
 	for i := range dims {
-		d := dims[i]
+		d := &dims[i]
 		// allow geography dimensions other than default
 		if d.IsAreaType != nil && *d.IsAreaType {
 			continue
@@ -283,7 +283,7 @@ func hydrateDimensionsFromVersion(filterDims []model.Dimension, dims []dataset.V
 
 	lookup := make(map[string]record)
 	for i := range dims {
-		d := dims[i]
+		d := &dims[i]
 		// geography dimension gets hydrated from Cantabular
 		if d.IsAreaType != nil && *d.IsAreaType {
 			continue

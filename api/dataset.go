@@ -373,7 +373,7 @@ func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []O
 	dims := make([]ObservationDimension, 0, len(catIndices))
 
 	for i, index := range catIndices {
-		dim := query.Dataset.Table.Dimensions[i]
+		dim := &query.Dataset.Table.Dimensions[i]
 
 		dims = append(dims, ObservationDimension{
 			Dimension:   dim.Variable.Label,
@@ -425,7 +425,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	dimMap := make(map[string]struct{})
 
 	for dimensionIndex := range versionItem.Dimensions {
-		dimension := versionItem.Dimensions[dimensionIndex]
+		dimension := &versionItem.Dimensions[dimensionIndex]
 		dimMap[dimension.Name] = struct{}{}
 
 		options, err := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
@@ -455,7 +455,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		catMap := make(map[string]struct{})
 
 		for dimIndex := range versionItem.Dimensions {
-			dim := versionItem.Dimensions[dimIndex]
+			dim := &versionItem.Dimensions[dimIndex]
 			if dim.IsAreaType != nil && *dim.IsAreaType {
 				continue
 			}
