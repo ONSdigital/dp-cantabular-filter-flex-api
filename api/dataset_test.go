@@ -45,7 +45,7 @@ func TestMissingURLParams(t *testing.T) {
 		ctx.URLParams.Add("version", "1")
 		ctx.URLParams.Add("edition", "1")
 
-		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", nil)
+		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
 		ret, err := api.getDatasetParams(request.Context(), request)
@@ -61,7 +61,7 @@ func TestMissingURLParams(t *testing.T) {
 		ctx.URLParams.Add("version", "")
 		ctx.URLParams.Add("edition", "1")
 
-		request := httptest.NewRequest("GET", "/dataset/1/version//edition/1", nil)
+		request := httptest.NewRequest("GET", "/dataset/1/version//edition/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
 		ret, err := api.getDatasetParams(request.Context(), request)
@@ -77,7 +77,7 @@ func TestMissingURLParams(t *testing.T) {
 		ctx.URLParams.Add("version", "1")
 		ctx.URLParams.Add("edition", "")
 
-		request := httptest.NewRequest("GET", "/dataset/1/version/1/edition/", nil)
+		request := httptest.NewRequest("GET", "/dataset/1/version/1/edition/", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
 		ret, err := api.getDatasetParams(request.Context(), request)
@@ -307,7 +307,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 	api := API{}
 
 	Convey("WHEN getGeography is called with blank geography THEN an error is returned", t, func() {
-		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", nil)
+		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", http.NoBody)
 		result, err := api.getGeographyFilters(request, nil)
 
 		So(result, ShouldBeNil)
@@ -316,7 +316,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 	})
 
 	Convey("WHEN getGeographyFilters is called with an invalid geo query string THEN an error is returned", t, func() {
-		request := httptest.NewRequest("GET", "/dataset?area-type=ABC", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC", http.NoBody)
 		result, err := api.getGeographyFilters(request, nil)
 
 		So(result, ShouldBeNil)
@@ -328,7 +328,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 		params := &datasetParams{
 			geoDimensions: []string{},
 		}
-		request := httptest.NewRequest("GET", "/dataset?area-type=ABC,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=ABC,DEF", http.NoBody)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -342,7 +342,7 @@ func TestGetGeographyFiltersGeoInputs(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: nil},
 		}
-		request := httptest.NewRequest("GET", "/dataset?area-type=REGION,DEF", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=REGION,DEF", http.NoBody)
 
 		result, err := api.getGeographyFilters(request, params)
 
@@ -363,7 +363,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s", region, area), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s", region, area), http.NoBody)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -380,7 +380,7 @@ func TestGetGeographyFiltersDimensionInput(t *testing.T) {
 			geoDimensions: []string{region},
 			options:       optionsMap{region: map[string]dataset.Option{area: {}}},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), http.NoBody)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -402,7 +402,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           optionsMap{region: map[string]dataset.Option{area: {}}},
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s", region, area, dimension), http.NoBody)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -426,7 +426,7 @@ func TestGetGeographyFiltersOptions(t *testing.T) {
 			options:           testOptionsMap,
 			datasetDimensions: []string{dimension},
 		}
-		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/dataset?area-type=%s,%s&dimension=%s&options=%s,%s", region, area, dimension, optionValid, optionInvalid), http.NoBody)
 		result, err := api.getGeographyFilters(request, params)
 
 		So(result, ShouldBeNil)
@@ -441,7 +441,7 @@ func TestHandlerErrors(t *testing.T) {
 		defer ctrl.Finish()
 
 		response := httptest.NewRecorder()
-		api.getDatasetJSONHandler(response, httptest.NewRequest("GET", "/dataset", nil))
+		api.getDatasetJSONHandler(response, httptest.NewRequest("GET", "/dataset", http.NoBody))
 
 		So(response.Result().StatusCode, ShouldEqual, http.StatusInternalServerError)
 	})
@@ -460,7 +460,7 @@ func TestHandlerErrors(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		request := httptest.NewRequest("GET", "/dataset?area-type=test", nil)
+		request := httptest.NewRequest("GET", "/dataset?area-type=test", http.NoBody)
 		request = request.WithContext(p.request.Context())
 
 		api.getDatasetJSONHandler(p.response, request)
@@ -524,7 +524,7 @@ func getTestParams() *testParams {
 	ctx.URLParams.Add("version", version)
 	ctx.URLParams.Add("edition", edition)
 
-	request := httptest.NewRequest("GET", "/dataset", nil)
+	request := httptest.NewRequest("GET", "/dataset", http.NoBody)
 	request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
 	return &testParams{
