@@ -17,3 +17,4 @@ echo "please ignore error codes 0, like so: ERRO[xxxx] 0, as error code 0 means 
 
 # exit with the same code returned by docker compose
 exit $e
+ 
