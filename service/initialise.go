@@ -16,11 +16,14 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-net/v2/responder"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 // GetHTTPServer creates an http server and sets the Server
 var GetHTTPServer = func(bindAddr string, router http.Handler) HTTPServer {
-	s := dphttp.NewServer(bindAddr, router)
+	otelHandler := otelhttp.NewHandler(router, "/")
+	s := dphttp.NewServer(bindAddr, otelHandler)
 	s.HandleOSSignals = false
 	return s
 }
