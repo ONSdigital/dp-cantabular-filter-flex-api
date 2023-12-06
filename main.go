@@ -53,7 +53,7 @@ func run(ctx context.Context) (err error) {
 	}
 	log.Info(ctx, "config on startup", log.Data{"config": cfg, "build_time": BuildTime, "git-commit": GitCommit})
 
-	//Set up OpenTelemetry
+	// Set up OpenTelemetry
 	otelConfig := dpotelgo.Config{
 		OtelServiceName:          cfg.OTServiceName,
 		OtelExporterOtlpEndpoint: cfg.OTExporterOTLPEndpoint,
