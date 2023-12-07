@@ -10,7 +10,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-	"github.com/ONSdigital/dp-otel-go"
+	dpotelgo "github.com/ONSdigital/dp-otel-go"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -62,8 +62,7 @@ func run(ctx context.Context) (err error) {
 	otelShutdown, err := dpotelgo.SetupOTelSDK(ctx, otelConfig)
 
 	if err != nil {
-		log.Error(ctx, "error setting up OpenTelemetry - hint: ensure OTEL_EXPORTER_OTLP_ENDPOINT is set", err)
-		return
+		return log.Error(ctx, "error setting up OpenTelemetry - hint: ensure OTEL_EXPORTER_OTLP_ENDPOINT is set", err)
 	}
 	// Handle shutdown properly so nothing leaks.
 	defer func() {
