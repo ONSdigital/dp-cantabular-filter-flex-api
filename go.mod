@@ -21,7 +21,7 @@ require (
 	github.com/ONSdigital/dp-component-test v0.9.2
 	github.com/ONSdigital/dp-healthcheck v1.6.1
 	github.com/ONSdigital/dp-kafka/v3 v3.10.0
-	github.com/ONSdigital/dp-mongodb/v3 v3.6.0
+	github.com/ONSdigital/dp-mongodb/v3 v3.7.0
 	github.com/ONSdigital/dp-net/v2 v2.10.0
 	github.com/ONSdigital/dp-otel-go v0.0.6
 	github.com/ONSdigital/log.go/v2 v2.4.1
@@ -41,7 +41,7 @@ require (
 )
 
 require (
-	github.com/ONSdigital/dp-mongodb-in-memory v1.6.0 // indirect
+	github.com/ONSdigital/dp-mongodb-in-memory v1.7.0 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/Shopify/sarama v1.38.1 // indirect
@@ -115,11 +115,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/grpc v1.59.0 // indirect
