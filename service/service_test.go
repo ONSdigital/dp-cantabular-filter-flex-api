@@ -12,7 +12,7 @@ import (
 	service "github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service/mock"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	"github.com/ONSdigital/dp-kafka/v3/kafkatest"
+	"github.com/ONSdigital/dp-kafka/v4/kafkatest"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

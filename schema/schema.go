@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/ONSdigital/dp-kafka/v3/avro"
+	"github.com/ONSdigital/dp-kafka/v4/avro"
 )
 
 var exportStart = `{
