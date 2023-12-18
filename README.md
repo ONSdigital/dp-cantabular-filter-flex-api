@@ -20,6 +20,7 @@ dp-cantabular-filter-flex-api
 | HEALTHCHECK_CRITICAL_TIMEOUT | 90s                           | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format)
 | OTEL_EXPORTER_OTLP_ENDPOINT  | localhost:4317                | Endpoint for OpenTelemetry service
 | OTEL_SERVICE_NAME            | dp-cantabular-filter-flex-api | Label of service for OpenTelemetry service
+| OTEL_BATCH_TIMEOUT           | 5s                            | Timeout for OpenTelemetry
 
 ### Contributing
 

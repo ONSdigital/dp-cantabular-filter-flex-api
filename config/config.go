@@ -36,6 +36,7 @@ type Config struct {
 	DatasetOptionsBatchSize      int           `envconfig:"DATASET_OPTIONS_BATCH_SIZE"`
 	OTExporterOTLPEndpoint       string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 	OTServiceName                string        `envconfig:"OTEL_SERVICE_NAME"`
+	OTBatchTimeout 				 time.Duration `envconfig:"OTEL_BATCH_TIMEOUT"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
 }
@@ -92,6 +93,7 @@ func Get() (*Config, error) {
 		DatasetOptionsBatchSize:      20,
 		OTExporterOTLPEndpoint:       "localhost:4317",
 		OTServiceName:                "dp-cantabular-filter-flex-api",
+		OTBatchTimeout: 			  5 * time.Second,
 		Mongo: mongo.MongoDriverConfig{
 			ClusterEndpoint: "localhost:27017",
 			Username:        "",
