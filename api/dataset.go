@@ -41,7 +41,7 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	// This entire section is skipped when not enabled so should not impact prod if accidentally deployed
 	// Can be removed if in doubt along with global var `debugHeaders`
 	if debugHeaders {
-		//Only output headers for requests supplying the valid debugging key
+		// Only output headers for requests supplying the valid debugging key
 		q := r.URL.Query()
 		clientKey, ok := q["debug_key"]
 		if ok && clientKey[0] == os.Getenv("ROUTER_DEBUG_KEY") {
