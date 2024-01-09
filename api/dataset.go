@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -31,8 +32,37 @@ type datasetParams struct {
 	options           optionsMap // dimension -> option -> option item
 }
 
+var debugHeaders = os.Getenv("ROUTER_DEBUG_KEY") != "" // Temporary var to be removed when unused (default: false)
+
 func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
+	// Temporary debug code to dump out http headers for router refactoring work
+	// This entire section is skipped when not enabled so should not impact prod if accidentally deployed
+	// Can be removed if in doubt along with global var `debugHeaders`
+	if debugHeaders {
+		//Only output headers for requests supplying the valid debugging key
+		q := r.URL.Query()
+		clientKey, ok := q["debug_key"]
+		if ok && clientKey[0] == os.Getenv("ROUTER_DEBUG_KEY") {
+			// We don't want to log all headers in case they have sensitive data (eg. auth tokens)
+			okHeadersMap := map[string]bool{}
+			if okHeadersList := os.Getenv("ROUTER_DEBUG_HEADERS"); okHeadersList != "" {
+				for _, h := range strings.Split(okHeadersList, ",") {
+					okHeadersMap[h] = true
+				}
+			}
+			headerDump := map[string][]string{}
+			for k, v := range r.Header {
+				if okHeadersMap[k] {
+					headerDump[k] = v
+				} else {
+					headerDump[k] = []string{"**redacted**"}
+				}
+			}
+			log.Info(r.Context(), "debugging http headers", log.Data{"headers": headerDump})
+		}
+	}
 
 	params, err := api.getDatasetParams(ctx, r)
 	if err != nil {
