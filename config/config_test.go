@@ -43,6 +43,9 @@ func TestConfig(t *testing.T) {
 				So(cfg.KafkaConfig.SecSkipVerify, ShouldBeFalse)
 				So(cfg.KafkaConfig.ExportStartGroup, ShouldEqual, "cantabular-export-start-group")
 				So(cfg.KafkaConfig.ExportStartTopic, ShouldEqual, "cantabular-export-start")
+				So(cfg.OTExporterOTLPEndpoint, ShouldEqual, "localhost:4317")
+				So(cfg.OTServiceName, ShouldEqual, "dp-cantabular-filter-flex-api")
+				So(cfg.OTBatchTimeout, ShouldEqual, 5*time.Second)
 			})
 
 			Convey("Then a second call to config should return the same config", func() {
