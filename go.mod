@@ -12,6 +12,9 @@ replace github.com/spf13/cobra => github.com/spf13/cobra v1.7.0
 // [CVE-2021-3121]
 replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 
+// [CVE-2021-3121] CWE-129: Improper Validation of Array Index
+replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
+
 // to fix: [CVE-2023-32731] CWE-Other
 replace google.golang.org/grpc => google.golang.org/grpc v1.55.0
 
