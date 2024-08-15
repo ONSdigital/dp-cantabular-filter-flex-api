@@ -76,7 +76,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 // iShouldReceiveAnErrorsArray checks that the response body can be deserialized into
 // an error response, and contains at least one error.
 func (c *Component) iShouldReceiveAnErrorsArray() error {
-	responseBody := c.APIFeature.HttpResponse.Body
+	responseBody := c.APIFeature.HTTPResponse.Body
 
 	var errorResponse struct {
 		Errors []string `json:"errors"`
@@ -107,7 +107,7 @@ func arrayParser(raw string) (interface{}, error) {
 }
 
 func (c *Component) anETagIsReturned() error {
-	eTag := c.APIFeature.HttpResponse.Header.Get("ETag")
+	eTag := c.APIFeature.HTTPResponse.Header.Get("ETag")
 	if eTag == "" {
 		return fmt.Errorf("no 'ETag' header returned")
 	}
@@ -117,7 +117,7 @@ func (c *Component) anETagIsReturned() error {
 // theETagIsAHashOfTheFilter checks that the returned ETag header (and stored ETag field)
 // are a hash of a filter. Used to validate that the ETag was updated after a mutation.
 func (c *Component) theETagIsAHashOfTheFilter(filterID string) error {
-	eTag := c.APIFeature.HttpResponse.Header.Get("ETag")
+	eTag := c.APIFeature.HTTPResponse.Header.Get("ETag")
 	if eTag == "" {
 		return errors.New("expected ETag")
 	}
@@ -229,7 +229,7 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) error {
 	var got, expt api.GetDatasetJSONResponse
 
-	b, err := io.ReadAll(c.APIFeature.HttpResponse.Body)
+	b, err := io.ReadAll(c.APIFeature.HTTPResponse.Body)
 	if err != nil {
 		return fmt.Errorf("Component::theGeographyDatasetJSONResult: error reading APIfeature response body: %w", err)
 	}
@@ -264,7 +264,7 @@ func (c *Component) theGeographyDatasetJSONResult(expected *godog.DocString) err
 func (c *Component) theDatasetObservationResult(expected *godog.DocString) error {
 	var got, expt api.GetObservationsResponse
 
-	b, err := io.ReadAll(c.APIFeature.HttpResponse.Body)
+	b, err := io.ReadAll(c.APIFeature.HTTPResponse.Body)
 	if err != nil {
 		return fmt.Errorf("Component::theDatasetObservationResult: error reading APIfeature response body: %w", err)
 	}
