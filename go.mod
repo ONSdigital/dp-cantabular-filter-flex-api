@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.22.0
+go 1.22
 
 // to avoid the following vulnerabilities:
 //     - CVE-2022-29153 # pkg:golang/github.com/hashicorp/consul/api@v1.1.0 and pkg:golang/github.com/hashicorp/consul/sdk@v0.1.1
