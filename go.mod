@@ -18,7 +18,7 @@ replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
 
 // to fix: [CVE-2023-32731] CWE-Other
-replace google.golang.org/grpc => google.golang.org/grpc v1.55.0
+replace google.golang.org/grpc => google.golang.org/grpc v1.64.0
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.260.1
@@ -68,7 +68,6 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.2.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -98,7 +97,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466 // indirect
 	github.com/smarty/assertions v1.16.0 // indirect
-	github.com/spf13/afero v1.9.5 // indirect
+	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/square/mongo-lock v0.0.0-20230501160337-eb07183bebe1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
