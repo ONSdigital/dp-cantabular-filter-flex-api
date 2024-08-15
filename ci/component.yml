@@ -6,7 +6,7 @@ image_resource:
   type: docker-image
   source:
     repository: taylorsilva/dcind
-    tag: latest
+    tag: 1.22.3-bullseye
 
 inputs:
   - name: dp-cantabular-filter-flex-api
