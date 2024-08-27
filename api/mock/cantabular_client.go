@@ -15,6 +15,7 @@ type CantabularClient struct {
 	ErrStatus               int
 	OptionsHappy            bool
 	ExpectedFilterDimension string
+	GetObservationsResponse *cantabular.GetObservationsResponse
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
@@ -79,5 +80,5 @@ func (c *CantabularClient) CheckQueryCount(_ context.Context, _ cantabular.Stati
 }
 
 func (c *CantabularClient) StaticDatasetQueryStreamJSON(_ context.Context, _ cantabular.StaticDatasetQueryRequest, _ stream.Consumer) (cantabular.GetObservationsResponse, error) {
-	return cantabular.GetObservationsResponse{}, nil
+	return *c.GetObservationsResponse, nil
 }

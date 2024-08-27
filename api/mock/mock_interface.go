@@ -559,7 +559,7 @@ func (mr *MockcantabularClientMockRecorder) StaticDatasetQuery(arg0, arg1 interf
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StaticDatasetQuery", reflect.TypeOf((*MockcantabularClient)(nil).StaticDatasetQuery), arg0, arg1)
 }
 
-// StaticDatasetQueryStreamJson mocks base method.
+// StaticDatasetQueryStreamJSON mocks base method.
 func (m *MockcantabularClient) StaticDatasetQueryStreamJSON(arg0 context.Context, arg1 cantabular.StaticDatasetQueryRequest, arg2 stream.Consumer) (cantabular.GetObservationsResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StaticDatasetQueryStreamJSON", arg0, arg1, arg2)
@@ -568,7 +568,7 @@ func (m *MockcantabularClient) StaticDatasetQueryStreamJSON(arg0 context.Context
 	return ret0, ret1
 }
 
-// StaticDatasetQueryStreamJson indicates an expected call of StaticDatasetQueryStreamJson.
+// StaticDatasetQueryStreamJSON indicates an expected call of StaticDatasetQueryStreamJSON.
 func (mr *MockcantabularClientMockRecorder) StaticDatasetQueryStreamJSON(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StaticDatasetQueryStreamJSON", reflect.TypeOf((*MockcantabularClient)(nil).StaticDatasetQueryStreamJSON), arg0, arg1, arg2)

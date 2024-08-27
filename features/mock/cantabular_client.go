@@ -22,6 +22,8 @@ type CantabularClient struct {
 	ErrStatus                           int
 	OptionsHappy                        bool
 	DimensionsHappy                     bool
+	ResponseTooLarge                    bool
+	GetObservationsResponse             *cantabular.GetObservationsResponse
 	GetDimensionsByNameFunc             func(context.Context, cantabular.GetDimensionsByNameRequest) (*cantabular.GetDimensionsResponse, error)
 	SearchDimensionsFunc                func(ctx context.Context, req cantabular.SearchDimensionsRequest) (*cantabular.GetDimensionsResponse, error)
 	GetGeographyDimensionsInBatchesFunc func(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error)
@@ -68,12 +70,15 @@ func (c *CantabularClient) StaticDatasetQueryStreamJSON(ctx context.Context, req
 	if c.OptionsHappy {
 		return c.StaticDatasetQueryStreamJSONFunc(ctx, req, str)
 	}
-	return cantabular.GetObservationsResponse{}, errors.New("error while executing dataset query")
+	return *c.GetObservationsResponse, errors.New("error while executing dataset query")
 }
 
 func (c *CantabularClient) CheckQueryCount(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (int, error) {
 	if c.OptionsHappy {
 		return c.CheckQueryCountFunc(ctx, req)
+	}
+	if c.ResponseTooLarge {
+		return 500000, nil
 	}
 	return 0, errors.New("error while executing dataset query")
 }
