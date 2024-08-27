@@ -12,6 +12,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
+	"github.com/ONSdigital/dp-api-clients-go/v2/stream"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/maxcnunes/httpfake"
@@ -27,6 +28,8 @@ type CantabularClient struct {
 	GetAreaFunc                         func(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StaticDatasetQueryFunc              func(context.Context, cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error)
 	GetCategorisationsFunc              func(ctx context.Context, req cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+	StaticDatasetQueryStreamJSONFunc    func(context.Context, cantabular.StaticDatasetQueryRequest, stream.Consumer) (cantabular.GetObservationsResponse, error)
+	CheckQueryCountFunc                 func(context.Context, cantabular.StaticDatasetQueryRequest) (int, error)
 }
 
 func (c *CantabularClient) Reset() {
@@ -59,6 +62,20 @@ func (c *CantabularClient) StaticDatasetQuery(ctx context.Context, req cantabula
 		return c.StaticDatasetQueryFunc(ctx, req)
 	}
 	return nil, errors.New("error while executing dataset query")
+}
+
+func (c *CantabularClient) StaticDatasetQueryStreamJSON(ctx context.Context, req cantabular.StaticDatasetQueryRequest, str stream.Consumer) (cantabular.GetObservationsResponse, error) {
+	if c.OptionsHappy {
+		return c.StaticDatasetQueryStreamJSONFunc(ctx, req, str)
+	}
+	return cantabular.GetObservationsResponse{}, errors.New("error while executing dataset query")
+}
+
+func (c *CantabularClient) CheckQueryCount(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (int, error) {
+	if c.OptionsHappy {
+		return c.CheckQueryCountFunc(ctx, req)
+	}
+	return 0, errors.New("error while executing dataset query")
 }
 
 func (c *CantabularClient) GetGeographyDimensionsInBatches(ctx context.Context, datasetID string, batchSize, maxWorkers int) (*gql.Dataset, error) {

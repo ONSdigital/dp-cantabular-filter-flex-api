@@ -2,8 +2,11 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -70,6 +73,9 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	cancelContext, cancel := context.WithTimeout(ctx, time.Second*300)
+	defer cancel()
+
 	params, err := api.getDatasetParams(ctx, r)
 	if err != nil {
 		api.respond.Error(
@@ -81,13 +87,33 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	cReq := cantabular.StaticDatasetQueryRequest{
+		Dataset:   params.basedOn,
+		Variables: params.datasetDimensions,
+	}
+
+	if r.URL.Query().Get("area-type") != "" {
+		variables, filters, err := api.validateGeography(ctx, r, params, cReq)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				errors.Wrap(err, "validateGeography failed"),
+			)
+			return
+		}
+		cReq.Variables = variables
+		cReq.Filters = filters
+	}
+
 	logData := log.Data{
 		"id":      params.id,
 		"edition": params.edition,
 		"version": params.version,
 	}
 
-	response, err := api.getDatasetObservations(ctx, r, params)
+	countcheck, err := api.ctblr.CheckQueryCount(ctx, cReq)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -98,9 +124,93 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 				logData: logData,
 			},
 		)
-	} else {
-		api.respond.JSON(ctx, w, http.StatusOK, response)
+		return
 	}
+
+	if countcheck > api.cfg.MaxRowsReturned {
+		api.respond.Error(
+			ctx,
+			w,
+			403,
+			Error{
+				message: "Too many rows returned",
+			},
+		)
+		return
+	}
+
+	var consume = func(ctx context.Context, file io.Reader) error {
+		if file == nil {
+			return errors.New("no file content has been provided")
+		}
+
+		response, err := api.processObservationsResponse(cancelContext, file, w)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				http.StatusUnprocessableEntity,
+				Error{
+					message: err.Error(),
+				},
+			)
+		}
+		if response == "" {
+			api.respond.Error(
+				ctx,
+				w,
+				http.StatusNotFound,
+				Error{
+					message: "No results found",
+				},
+			)
+		}
+		return nil
+	}
+
+	qRes, err := api.ctblr.StaticDatasetQueryStreamJSON(cancelContext, cReq, consume)
+	if err != nil {
+		api.respond.Error(
+			ctx,
+			w,
+			statusCode(err),
+			Error{
+				err:     err,
+				logData: logData,
+			},
+		)
+		return
+	}
+
+	qRes.TotalObservations = countcheck
+
+	qRes.Links.Self.HREF = r.URL.String()
+	api.respond.JSON(ctx, w, http.StatusOK, qRes)
+}
+
+func (api *API) processObservationsResponse(ctx context.Context, r io.Reader, w http.ResponseWriter) (string, error) {
+	buf := new(strings.Builder)
+
+	writ, err := io.Copy(buf, r)
+	if err != nil {
+		logData := log.Data{
+			"method":  http.MethodGet,
+			"message": err,
+		}
+
+		api.respond.Error(
+			ctx,
+			w,
+			http.StatusUnprocessableEntity,
+			Error{
+				err:     fmt.Errorf("%s", fmt.Sprintf("An error occurred while processing the response, bytes written %d", writ)),
+				logData: logData,
+			},
+		)
+		return "", err
+	}
+
+	return buf.String(), nil
 }
 
 func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *datasetParams) (*GetDatasetJSONResponse, error) {
@@ -124,34 +234,6 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 	}
 
 	resp, err := api.toGetDatasetJSONResponse(params, qRes)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate response")
-	}
-
-	return resp, nil
-}
-
-func (api *API) getDatasetObservations(ctx context.Context, r *http.Request, params *datasetParams) (*GetObservationsResponse, error) {
-	dReq := cantabular.StaticDatasetQueryRequest{
-		Dataset:   params.basedOn,
-		Variables: params.sortedDimensions,
-	}
-
-	if r.URL.Query().Get("area-type") != "" {
-		variables, filters, err := api.validateGeography(ctx, r, params, dReq)
-		if err != nil {
-			return nil, errors.Wrap(err, "validateGeography failed")
-		}
-		dReq.Variables = variables
-		dReq.Filters = filters
-	}
-
-	qRes, err := api.ctblr.StaticDatasetQuery(ctx, dReq)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to run query")
-	}
-
-	resp, err := api.toGetDatasetObservationsResponse(params, qRes)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate response")
 	}
@@ -510,6 +592,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	params.sortedDimensions = api.sortGeography(params.geoDimensions, params.datasetDimensions)
 
+	fmt.Println("the params are")
+	fmt.Println(params.geoDimensions)
 	return params, nil
 }
 

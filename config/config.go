@@ -37,6 +37,7 @@ type Config struct {
 	OTExporterOTLPEndpoint       string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 	OTServiceName                string        `envconfig:"OTEL_SERVICE_NAME"`
 	OTBatchTimeout               time.Duration `envconfig:"OTEL_BATCH_TIMEOUT"`
+	MaxRowsReturned              int           `envconfig:"MAX_ROWS_RETURNED"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
 }
@@ -94,6 +95,7 @@ func Get() (*Config, error) {
 		OTExporterOTLPEndpoint:       "localhost:4317",
 		OTServiceName:                "dp-cantabular-filter-flex-api",
 		OTBatchTimeout:               5 * time.Second,
+		MaxRowsReturned:              100000,
 		Mongo: mongo.MongoDriverConfig{
 			ClusterEndpoint: "localhost:27017",
 			Username:        "",

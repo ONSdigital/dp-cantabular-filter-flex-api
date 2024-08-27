@@ -15,6 +15,7 @@ import (
 	cantabularmetadata "github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	dataset "github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	population "github.com/ONSdigital/dp-api-clients-go/v2/population"
+	stream "github.com/ONSdigital/dp-api-clients-go/v2/stream"
 	model "github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	healthcheck "github.com/ONSdigital/dp-healthcheck/healthcheck"
 	gomock "github.com/golang/mock/gomock"
@@ -453,6 +454,21 @@ func (m *MockcantabularClient) EXPECT() *MockcantabularClientMockRecorder {
 	return m.recorder
 }
 
+// CheckQueryCount mocks base method.
+func (m *MockcantabularClient) CheckQueryCount(arg0 context.Context, arg1 cantabular.StaticDatasetQueryRequest) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckQueryCount", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckQueryCount indicates an expected call of CheckQueryCount.
+func (mr *MockcantabularClientMockRecorder) CheckQueryCount(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckQueryCount", reflect.TypeOf((*MockcantabularClient)(nil).CheckQueryCount), arg0, arg1)
+}
+
 // GetArea mocks base method.
 func (m *MockcantabularClient) GetArea(arg0 context.Context, arg1 cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error) {
 	m.ctrl.T.Helper()
@@ -541,6 +557,21 @@ func (m *MockcantabularClient) StaticDatasetQuery(arg0 context.Context, arg1 can
 func (mr *MockcantabularClientMockRecorder) StaticDatasetQuery(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StaticDatasetQuery", reflect.TypeOf((*MockcantabularClient)(nil).StaticDatasetQuery), arg0, arg1)
+}
+
+// StaticDatasetQueryStreamJson mocks base method.
+func (m *MockcantabularClient) StaticDatasetQueryStreamJSON(arg0 context.Context, arg1 cantabular.StaticDatasetQueryRequest, arg2 stream.Consumer) (cantabular.GetObservationsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StaticDatasetQueryStreamJSON", arg0, arg1, arg2)
+	ret0, _ := ret[0].(cantabular.GetObservationsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// StaticDatasetQueryStreamJson indicates an expected call of StaticDatasetQueryStreamJson.
+func (mr *MockcantabularClientMockRecorder) StaticDatasetQueryStreamJSON(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StaticDatasetQueryStreamJSON", reflect.TypeOf((*MockcantabularClient)(nil).StaticDatasetQueryStreamJSON), arg0, arg1, arg2)
 }
 
 // StatusCode mocks base method.

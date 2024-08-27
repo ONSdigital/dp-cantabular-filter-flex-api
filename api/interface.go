@@ -13,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-api-clients-go/v2/stream"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -63,6 +64,8 @@ type cantabularClient interface {
 	GetArea(context.Context, cantabular.GetAreaRequest) (*cantabular.GetAreaResponse, error)
 	StatusCode(error) int
 	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+	CheckQueryCount(context.Context, cantabular.StaticDatasetQueryRequest) (int, error)
+	StaticDatasetQueryStreamJSON(context.Context, cantabular.StaticDatasetQueryRequest, stream.Consumer) (cantabular.GetObservationsResponse, error)
 }
 
 type metadataAPIClient interface {

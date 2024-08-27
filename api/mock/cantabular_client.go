@@ -7,6 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular/gql"
+	stream "github.com/ONSdigital/dp-api-clients-go/v2/stream"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
@@ -71,4 +72,12 @@ func (c *CantabularClient) GetCategorisations(context.Context, cantabular.GetCat
 		return nil, nil
 	}
 	return nil, errors.New("invalid Categorisation request")
+}
+
+func (c *CantabularClient) CheckQueryCount(_ context.Context, _ cantabular.StaticDatasetQueryRequest) (int, error) {
+	return 0, nil
+}
+
+func (c *CantabularClient) StaticDatasetQueryStreamJSON(_ context.Context, _ cantabular.StaticDatasetQueryRequest, _ stream.Consumer) (cantabular.GetObservationsResponse, error) {
+	return cantabular.GetObservationsResponse{}, nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabularmetadata"
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
+	"github.com/ONSdigital/dp-api-clients-go/v2/stream"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	mongo "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 
@@ -88,6 +89,8 @@ type CantabularClient interface {
 	Checker(context.Context, *healthcheck.CheckState) error
 	CheckerAPIExt(context.Context, *healthcheck.CheckState) error
 	GetCategorisations(context.Context, cantabular.GetCategorisationsRequest) (*cantabular.GetCategorisationsResponse, error)
+	CheckQueryCount(context.Context, cantabular.StaticDatasetQueryRequest) (int, error)
+	StaticDatasetQueryStreamJSON(context.Context, cantabular.StaticDatasetQueryRequest, stream.Consumer) (cantabular.GetObservationsResponse, error)
 }
 
 type DatasetAPIClient interface {

@@ -19,7 +19,7 @@ replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
 replace google.golang.org/grpc => google.golang.org/grpc v1.64.0
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.260.1
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.260.2
 	github.com/ONSdigital/dp-authorisation v0.3.0
 	github.com/ONSdigital/dp-component-test v0.12.0
 	github.com/ONSdigital/dp-healthcheck v1.6.3
