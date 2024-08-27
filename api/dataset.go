@@ -592,8 +592,6 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 
 	params.sortedDimensions = api.sortGeography(params.geoDimensions, params.datasetDimensions)
 
-	fmt.Println("the params are")
-	fmt.Println(params.geoDimensions)
 	return params, nil
 }
 
