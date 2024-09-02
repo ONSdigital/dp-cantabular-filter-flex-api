@@ -1313,10 +1313,8 @@ git.sr.ht/~sbinet/gg v0.3.1/go.mod h1:KGYtlADtqsqANL9ueOFkWymvzUvLMQllU5Ixo+8v3p
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/JohnCGriffin/overflow v0.0.0-20211019200055-46fa312c352c/go.mod h1:X0CRv0ky0k6m906ixxpzmDRLvX58TFUKS2eePweuyxk=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.260.1 h1:gVRu8rKdlV50HPtBISyGjMtBrZ+meaIebHpoKykMC18=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.260.1/go.mod h1:+4jW6BFCJwldSIwNVcclrTVrFVlx0D3e3C3CzUMvsuA=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.260.2 h1:tfy09r+RhzpbvD3kR32xf1jpoMp/pTou+yPCiAKY4yE=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.260.2/go.mod h1:+4jW6BFCJwldSIwNVcclrTVrFVlx0D3e3C3CzUMvsuA=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.260.3 h1:HKSvAKeWJ65VC978wu/cGN/08OpHgB/cgl2Olm8vcdg=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.260.3/go.mod h1:+4jW6BFCJwldSIwNVcclrTVrFVlx0D3e3C3CzUMvsuA=
 github.com/ONSdigital/dp-authorisation v0.3.0 h1:eLYMGqXAes5P2qRyhC9F/mlHOoSdKW2d0VQpmDLexMc=
 github.com/ONSdigital/dp-authorisation v0.3.0/go.mod h1:oORDA6jk0kpp2goWvybBTpV8OvLea+LaeJc2pY408jE=
 github.com/ONSdigital/dp-component-test v0.12.0 h1:q4Xq56scWZjLAPoNXojMrr/1UP5+U0f5w7yMCxErQiQ=
