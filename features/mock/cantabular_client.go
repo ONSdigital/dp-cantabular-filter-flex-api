@@ -61,7 +61,6 @@ func (c *CantabularClient) GetCategorisations(ctx context.Context, req cantabula
 }
 
 func (c *CantabularClient) StaticDatasetQuery(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {
-
 	if c.OptionsHappy {
 		return c.StaticDatasetQueryFunc(ctx, req)
 	}
