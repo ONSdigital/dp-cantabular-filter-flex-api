@@ -44,8 +44,9 @@ type CantabularFeature struct {
 func NewCantabularFeature(t *testing.T, cfg *config.Config) *CantabularFeature {
 	return &CantabularFeature{
 		cantabularClient: &mock.CantabularClient{
-			OptionsHappy:    true,
-			DimensionsHappy: true,
+			OptionsHappy:     true,
+			DimensionsHappy:  true,
+			ResponseTooLarge: false,
 		},
 		cantabularServer: mock.NewCantabularServer(t),
 		cfg:              cfg,
@@ -107,6 +108,15 @@ func (cf *CantabularFeature) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(
 		`^Cantabular returns this response for the given request:$`,
 		cf.cantabularReturnsThisResponseForTheGivenRequest,
+	)
+
+	ctx.Step(`^the count check returns that the count is too large$`,
+		cf.countIsTooLarge,
+	)
+
+	ctx.Step(
+		`^the query sent to cantabular for the check count is:$`,
+		cf.theQuerySentToCantabularForTheCheckCountIs,
 	)
 }
 
@@ -227,6 +237,19 @@ func (cf *CantabularFeature) cantabularReturnsThisStaticDatasetForTheGivenReques
 	return nil
 }
 
+func (cf *CantabularFeature) theQuerySentToCantabularForTheCheckCountIs(docs *godog.DocString) error {
+	request, response, found := strings.Cut(docs.Content, "response:")
+	if !found {
+		return errors.New("CantabularFeature::theQuerySentToCantabularForTheCheckCountIs - request and response were not found")
+	}
+	request = strings.TrimPrefix(request, "request:")
+
+	cf.cantabularServer.Handle([]byte(request), []byte(response))
+	cf.cantabularClient.ResponseTooLarge = true
+
+	return nil
+}
+
 func (cf *CantabularFeature) cantabularReturnsThisResponseForTheGivenRequest(docs *godog.DocString) error {
 	request, response, found := strings.Cut(docs.Content, "response:")
 	if !found {
@@ -271,4 +294,13 @@ func (cf *CantabularFeature) setMockedInterface() {
 
 func (cf *CantabularFeature) setInitialiserMock() {
 	cf.setMockedInterface()
+}
+
+func (cf *CantabularFeature) countIsTooLarge() error {
+	cf.cantabularClient.ResponseTooLarge = true
+	cf.cantabularClient.CheckQueryCountFunc = func(_ context.Context, req cantabular.StaticDatasetQueryRequest) (int, error) {
+		return 180000, nil
+	}
+
+	return nil
 }

@@ -38,6 +38,7 @@ func (c *CantabularClient) Reset() {
 	c.ErrStatus = 500
 	c.OptionsHappy = true
 	c.DimensionsHappy = true
+	c.ResponseTooLarge = false
 }
 
 func (c *CantabularClient) StatusCode(_ error) int {
@@ -60,6 +61,7 @@ func (c *CantabularClient) GetCategorisations(ctx context.Context, req cantabula
 }
 
 func (c *CantabularClient) StaticDatasetQuery(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (*cantabular.StaticDatasetQuery, error) {
+
 	if c.OptionsHappy {
 		return c.StaticDatasetQueryFunc(ctx, req)
 	}
@@ -73,10 +75,7 @@ func (c *CantabularClient) StaticDatasetQueryStreamJSON(ctx context.Context, req
 	return *c.GetObservationsResponse, errors.New("error while executing dataset query")
 }
 
-func (c *CantabularClient) CheckQueryCount(ctx context.Context, req cantabular.StaticDatasetQueryRequest) (int, error) {
-	if c.OptionsHappy {
-		return c.CheckQueryCountFunc(ctx, req)
-	}
+func (c *CantabularClient) CheckQueryCount(_ context.Context, _ cantabular.StaticDatasetQueryRequest) (int, error) {
 	if c.ResponseTooLarge {
 		return 500000, nil
 	}

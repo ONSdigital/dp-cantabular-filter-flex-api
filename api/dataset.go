@@ -133,7 +133,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 			w,
 			403,
 			Error{
-				message: "Too many rows returned",
+				message: "Too many rows returned, please refine your query by requesting specific areas or reducing the number of categories returned.  For further information please visit https://developer.ons.gov.uk/createyourowndataset/",
 			},
 		)
 		return
@@ -184,7 +184,27 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 
 	qRes.TotalObservations = countcheck
 
-	qRes.Links.Self.HREF = r.URL.String()
+	datasetLink := &cantabular.Link{
+		HREF: params.metadataLink.URL,
+		ID:   params.metadataLink.ID,
+	}
+
+	qRes.Links.DatasetMetadata = datasetLink
+
+	selfLink := &cantabular.Link{
+		HREF: params.datasetLink.URL,
+		ID:   params.datasetLink.ID,
+	}
+
+	qRes.Links.Self = *selfLink
+
+	versionLink := &cantabular.Link{
+		HREF: params.versionLink.URL,
+		ID:   params.versionLink.ID,
+	}
+
+	qRes.Links.Version = versionLink
+
 	api.respond.JSON(ctx, w, http.StatusOK, qRes)
 }
 
@@ -591,7 +611,6 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	}
 
 	params.sortedDimensions = api.sortGeography(params.geoDimensions, params.datasetDimensions)
-
 	return params, nil
 }
 

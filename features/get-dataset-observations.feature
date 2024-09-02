@@ -1904,32 +1904,31 @@ Feature: Get Dataset Observations
             "dimensions": [
               {
                 "categories": [
-                  {"code": "0", "label": "London"}
+                  {"code": "0", "label": "London"},
+                  {"code": "1", "label": "Belfast"},
+                  {"code": "2", "label": "Liverpool"}
                 ],
                 "count": 3,
                 "variable": {"label": "City","name": "city"}
               },
               {
                 "categories": [
-                  {"code": "0","label": "Male"}
+                  {"code": "0","label": "Male"},
+                   {"code": "1","label": "Female"}
                 ],
                 "count": 2,
                 "variable": {"label": "Sex","name": "sex"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "23"}
+                ],
+                "count": 1,
+                "variable": {"label": "age_23_a","name": "Age 23"}
               }
             ],
             "error": null,
-            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 131232],
-            "rules": {
-                "blocked": {
-                    "count": 0
-                },
-                "evaluated": {
-                    "count": 1
-                },
-                "passed": {
-                    "count": 1
-                }
-            }
+            "values": [1, 0, 0, 0, 0, 1]
           }
         }
       }
@@ -1990,15 +1989,27 @@ Feature: Get Dataset Observations
             "edges": [
               {
                 "node": {
-                  "categories": {"totalCount": 3},
-                  "description":"",
-                  "label": "age 23",
-                  "mapFrom": [],
+                  "categories": {
+                    "totalCount": 7
+                  },
+                  "description": "",
+                  "label": "age_23_a",
+                  "mapFrom": [
+                    {
+                      "edges": [
+                        {
+                          "node": {
+                            "label": "",
+                            "name": "age_23_a"
+                          }
+                        }
+                      ]
+                    }
+                  ],
                   "name": "age_23_a"
                 }
               }
-            ],
-            "totalCount": 2
+            ]
           }
         }
       }
@@ -2025,21 +2036,6 @@ Feature: Get Dataset Observations
     {
       "request": {
         "dimension":       "sex",
-        "populationType":  "Example",  
-        "limit":           99999,
-        "serviceAuthToken": "testToken"
-      },
-      "response": {
-        "dimensions": []
-      }
-    }
-    """
-
-    And Population Types API returns this GetCategorisations response for the given request:
-    """
-    {
-      "request": {
-        "dimension":       "siblings_3",
         "populationType":  "Example",  
         "limit":           99999,
         "serviceAuthToken": "testToken"
@@ -2084,90 +2080,11 @@ Feature: Get Dataset Observations
                     "dimension_id": "sex",
                     "option": "Male",
                     "option_id": "0"
-                }
-            ],
-            "observation": 1
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
                 },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
+                 {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
                     "option_id": "0"
                 }
             ],
@@ -2184,7 +2101,13 @@ Feature: Get Dataset Observations
                 {
                     "dimension": "Sex",
                     "dimension_id": "sex",
-                    "option": "Male",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                 {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
                     "option_id": "0"
                 }
             ],
@@ -2195,13 +2118,19 @@ Feature: Get Dataset Observations
                 {
                     "dimension": "City",
                     "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
+                    "option": "Belfast",
+                    "option_id": "1"
                 },
                 {
                     "dimension": "Sex",
                     "dimension_id": "sex",
                     "option": "Male",
+                    "option_id": "0"
+                },
+                {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
                     "option_id": "0"
                 }
             ],
@@ -2212,176 +2141,73 @@ Feature: Get Dataset Observations
                 {
                     "dimension": "City",
                     "dimension_id": "city",
-                    "option": "London",
+                    "option": "Belfast",
+                    "option_id": "1"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                 {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
                     "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+        {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "2"
                 },
                 {
                     "dimension": "Sex",
                     "dimension_id": "sex",
                     "option": "Male",
+                    "option_id": "0"
+                },
+                 {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
+                    "option_id": "0"
+                }
+            ],
+            "observation": 0
+        },
+         {
+            "dimensions": [
+                {
+                    "dimension": "City",
+                    "dimension_id": "city",
+                    "option": "Liverpool",
+                    "option_id": "2"
+                },
+                {
+                    "dimension": "Sex",
+                    "dimension_id": "sex",
+                    "option": "Female",
+                    "option_id": "1"
+                },
+                 {
+                    "dimension": "age_23_a",
+                    "dimension_id": "Age 23",
+                    "option": "23",
                     "option_id": "0"
                 }
             ],
             "observation": 1
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 1
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 0
-        },
-        {
-            "dimensions": [
-                {
-                    "dimension": "City",
-                    "dimension_id": "city",
-                    "option": "London",
-                    "option_id": "0"
-                },
-                {
-                    "dimension": "Sex",
-                    "dimension_id": "sex",
-                    "option": "Male",
-                    "option_id": "0"
-                }
-            ],
-            "observation": 131232
         }
+        
     ],
-    "total_observations": 18,
-    "blocked_areas": 0,
-    "areas_returned": 1,
-    "total_areas": 1
+    "total_observations": 6
    }
     """
 
@@ -2397,3 +2223,89 @@ Feature: Get Dataset Observations
     """
 
     And the HTTP status code should be "400"
+
+  Scenario: Too many observations returned
+    Given Cantabular returns this static dataset for the given request:
+    """
+    request:
+    {
+      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
+        dataset(name: $dataset) {
+          table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
+            dimensions {
+              count
+              variable { name label }
+              categories { code label }
+            }
+            values
+            error
+          }
+        }
+      }",
+      "variables": {"base":false,"category":"","dataset":"Example","filters":null,"limit":20,"offset":0,"rule":false,"text":"","variables":["city", "sex", "siblings_3"]}
+    }
+    response:
+    {
+      "data": {
+        "dataset": {
+          "table": {
+            "dimensions": [
+              {
+                "categories": [
+                  {"code": "0", "label": "London"},
+                  {"code": "1","label": "Liverpool"},
+                  {"code": "2","label": "Belfast" }
+                ],
+                "count": 3,
+                "variable": {"label": "City","name": "city"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "Male"},
+                  {"code": "1","label": "Female"}
+                ],
+                "count": 2,
+                "variable": {"label": "Sex","name": "sex"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "No siblings"},
+                  {"code": "1-2","label": "1 or 2 siblings"},
+                  {"code": "3+","label": "3 or more siblings"
+                  }
+                ],
+                "count": 3,
+                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
+              }
+            ],
+            "error": null,
+            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2]
+          }
+        }
+      }
+    }
+    """
+    And the maximum rows allowed to be returned is 3
+   
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/census-observations"
+    Then the HTTP status code should be "403"
+    Then I should receive the following JSON response:
+    """
+    {
+    "errors": [
+        "Too many rows returned, please refine your query by requesting specific areas or reducing the number of categories returned.  For further information please visit https://developer.ons.gov.uk/createyourowndataset/"
+    ]
+    }
+    """

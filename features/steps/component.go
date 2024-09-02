@@ -37,6 +37,7 @@ type Component struct {
 	MetadataFeature   *MetadataFeature
 	PopulationFeature *PopulationFeature
 	svc               *service.Service
+	ResponseTooLarge  bool
 }
 
 func NewComponent(t *testing.T) *Component {
@@ -62,6 +63,7 @@ func NewComponent(t *testing.T) *Component {
 	component.setInitialiserMock(g)
 	component.svc = service.New()
 	component.svc.Cfg = cfg
+	component.ResponseTooLarge = false
 
 	return component
 }

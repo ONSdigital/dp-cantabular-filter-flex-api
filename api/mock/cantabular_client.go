@@ -75,7 +75,7 @@ func (c *CantabularClient) GetCategorisations(context.Context, cantabular.GetCat
 	return nil, errors.New("invalid Categorisation request")
 }
 
-func (c *CantabularClient) CheckQueryCount(_ context.Context, _ cantabular.StaticDatasetQueryRequest) (int, error) {
+func (c *CantabularClient) CheckQueryCount(context.Context, cantabular.StaticDatasetQueryRequest) (int, error) {
 	return 0, nil
 }
 
