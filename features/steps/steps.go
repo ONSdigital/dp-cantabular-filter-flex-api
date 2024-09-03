@@ -71,9 +71,6 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the getGeographyDatasetJSON result should be:$`,
 		c.theGeographyDatasetJSONResult,
 	)
-	ctx.Step(`^the following JSON response is available to stream:$`,
-		c.theFollowingJSONResponseIsAvailableToStream,
-	)
 	ctx.Step(
 		`^the maximum rows allowed to be returned is (\d+)$`,
 		c.theMaximumRowsAllowedToBeReturnedIs,
@@ -231,21 +228,6 @@ func (c *Component) theFollowingExportStartEventsAreProduced(events *godog.Table
 		return fmt.Errorf("+got -expected)\n%s", diff)
 	}
 	return nil
-}
-
-func (c *Component) theFollowingJSONResponseIsAvailableToStream(body *godog.DocString) error {
-	var got, expt api.GetObservationsResponse
-	if err := json.Unmarshal([]byte(body.Content), &got); err != nil {
-		return fmt.Errorf("failed to unmarshal body: %w", err)
-	}
-
-	if err := json.Unmarshal([]byte(body.Content), &expt); err != nil {
-		return fmt.Errorf("failed to unmarshal body: %w", err)
-	}
-
-	assert.Empty(c, cmp.Diff(got, expt))
-
-	return c.StepError()
 }
 
 func (c *Component) theMaximumRowsAllowedToBeReturnedIs(val int) error {
