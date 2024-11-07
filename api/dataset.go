@@ -55,6 +55,19 @@ func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp, err := api.getDatasetJSON(ctx, r, params)
+
+	if resp.TotalObservations > api.cfg.MaxRowsReturned {
+		api.respond.Error(
+			ctx,
+			w,
+			403,
+			Error{
+				message: "Too many rows returned, please refine your query by requesting specific areas or reducing the number of categories returned.  For further information please visit https://developer.ons.gov.uk/createyourowndataset/",
+			},
+		)
+		return
+	}
+
 	if err != nil {
 		api.respond.Error(
 			ctx,

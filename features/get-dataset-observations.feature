@@ -580,6 +580,8 @@ Feature: Get Dataset Observations
     }
     """
 
+    And the maximum rows allowed to be returned is 100
+
   Scenario: Get the dataset observations
     Given Cantabular returns this static dataset for the given request:
     """

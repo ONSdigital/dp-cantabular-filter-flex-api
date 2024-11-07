@@ -580,6 +580,8 @@ Feature: Get Dataset JSON
     }
     """
 
+     And the maximum rows allowed to be returned is 100
+
   Scenario: Get the dataset as JSON without asking for specific dimensions
     Given Cantabular returns this static dataset for the given request:
     """
@@ -727,7 +729,7 @@ Feature: Get Dataset JSON
       "total_observations":18
     }
     """
-
+  
   Scenario: Get the dataset as JSON asking for specific area-type
     Given Cantabular returns this static dataset for the given request:
     """
@@ -1500,3 +1502,89 @@ Feature: Get Dataset JSON
     """
 
     And the HTTP status code should be "400"
+
+  Scenario: Get the dataset as JSON without asking for specific dimensions but response is too large
+    Given Cantabular returns this static dataset for the given request:
+    """
+    request:
+    {
+      "query":"query($dataset: String!, $variables: [String!]!, $filters: [Filter!]) {
+        dataset(name: $dataset) {
+          table(variables: $variables, filters: $filters) {
+            rules {
+              passed{
+                count
+              }
+              evaluated
+              {
+                count
+              }
+              blocked {
+                count
+              }
+            }
+            dimensions {
+              count
+              variable { name label }
+              categories { code label }
+            }
+            values
+            error
+          }
+        }
+      }",
+      "variables": {"base":false,"category":"","dataset":"Example","filters":null,"limit":20,"offset":0,"rule":false,"text":"","variables":["city", "sex", "siblings_3"]}
+    }
+    response:
+    {
+      "data": {
+        "dataset": {
+          "table": {
+            "dimensions": [
+              {
+                "categories": [
+                  {"code": "0", "label": "London"},
+                  {"code": "1","label": "Liverpool"},
+                  {"code": "2","label": "Belfast" }
+                ],
+                "count": 3,
+                "variable": {"label": "City","name": "city"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "Male"},
+                  {"code": "1","label": "Female"}
+                ],
+                "count": 2,
+                "variable": {"label": "Sex","name": "sex"}
+              },
+              {
+                "categories": [
+                  {"code": "0","label": "No siblings"},
+                  {"code": "1-2","label": "1 or 2 siblings"},
+                  {"code": "3+","label": "3 or more siblings"
+                  }
+                ],
+                "count": 3,
+                "variable": {"label": "Number of siblings (3 mappings)", "name": "siblings_3"}
+              }
+            ],
+            "error": null,
+            "values": [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2]
+          }
+        }
+      }
+    }
+    """
+    And the maximum rows allowed to be returned is 3
+
+    When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json"
+
+    Then the HTTP status code should be "403"
+
+    Then I should receive the following JSON response:
+    """
+    {
+    "errors": ["Too many rows returned, please refine your query by requesting specific areas or reducing the number of categories returned.  For further information please visit https://developer.ons.gov.uk/createyourowndataset/"]
+    }
+    """
