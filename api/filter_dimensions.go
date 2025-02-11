@@ -9,6 +9,7 @@ import (
 
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
@@ -319,6 +320,8 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 		"dimension": dim,
 	}
 
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+
 	// We decode the dimension name since currently dimensions are stored using their pretty name, e.g.
 	// `Number of Siblings`, and passed in the URL as encoded (e.g. `Number+of+Siblings`). Until this is
 	// changed we need to unescape the dimension before querying.
@@ -375,6 +378,52 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var resp dimensionItem
 	resp.fromDimension(filterDim, api.cfg.FilterAPIURL, fID)
+
+	if api.cfg.EnableURLRewriting {
+		resp.Links.Filter.HREF, err = filterFlexLinksBuilder.BuildLink(resp.Links.Filter.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build filter link"),
+					message: "failed to build filter link",
+					logData: logData,
+				},
+			)
+			return
+		}
+		resp.Links.Options.HREF, err = filterFlexLinksBuilder.BuildLink(resp.Links.Options.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build options link"),
+					message: "failed to build options link",
+					logData: logData,
+				},
+			)
+			return
+		}
+		resp.Links.Self.HREF, err = filterFlexLinksBuilder.BuildLink(resp.Links.Self.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build self link"),
+					message: "failed to build self link",
+					logData: logData,
+				},
+			)
+			return
+		}
+
+	}
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
 

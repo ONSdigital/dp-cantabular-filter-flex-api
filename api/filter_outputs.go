@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
@@ -14,6 +15,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	fID := chi.URLParam(r, "id")
 
 	var filterOutput *model.FilterOutput
+
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
@@ -30,6 +33,58 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 		return
+	}
+
+	if api.cfg.EnableURLRewriting {
+		filterOutput.Links.Version.HREF, err = filterFlexLinksBuilder.BuildLink(filterOutput.Links.Version.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build version link"),
+					message: "failed to build version link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
+
+		filterOutput.Links.Self.HREF, err = filterFlexLinksBuilder.BuildLink(filterOutput.Links.Self.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build self link"),
+					message: "failed to build self link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
+		filterOutput.Links.FilterBlueprint.HREF, err = filterFlexLinksBuilder.BuildLink(filterOutput.Links.FilterBlueprint.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build filter blueprint link"),
+					message: "failed to build filter blueprint link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
 	}
 
 	resp := getFilterOutputResponse{

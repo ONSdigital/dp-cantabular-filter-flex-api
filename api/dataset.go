@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/go-chi/chi/v5"
@@ -37,7 +38,9 @@ type datasetParams struct {
 func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	params, err := api.getDatasetParams(ctx, r)
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+
+	params, err := api.getDatasetParams(ctx, r, filterFlexLinksBuilder)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -91,7 +94,9 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 	cancelContext, cancel := context.WithTimeout(ctx, time.Second*300)
 	defer cancel()
 
-	params, err := api.getDatasetParams(ctx, r)
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+
+	params, err := api.getDatasetParams(ctx, r, filterFlexLinksBuilder)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -504,7 +509,7 @@ func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []O
 }
 
 //nolint:gocognit,gocyclo // should break this function down in future
-func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
+func (api *API) getDatasetParams(ctx context.Context, r *http.Request, filterFlexLinksBuilder *links.Builder) (*datasetParams, error) {
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
 		edition: chi.URLParam(r, "edition"),
@@ -533,6 +538,21 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 	params.basedOn = versionItem.IsBasedOn.ID
 
 	params.metadataLink.URL = api.datasets.GetMetadataURL(params.id, params.edition, params.version)
+
+	if api.cfg.EnableURLRewriting {
+		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(versionItem.Links.Dataset.URL)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to build dataset link")
+		}
+		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(versionItem.Links.Self.URL)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to build version link")
+		}
+		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to build metadata link")
+		}
+	}
 
 	if len(versionItem.Dimensions) == 0 {
 		return nil, errors.New("invalid dimensions length of zero")

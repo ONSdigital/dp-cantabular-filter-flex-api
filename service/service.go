@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
@@ -76,6 +77,11 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 
+	cantabularFilterFlexAPIURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
+	if err != nil {
+		return fmt.Errorf("error parsing cantabular filter flex api url: %w", err)
+	}
+
 	r := chi.NewRouter()
 	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
 
@@ -93,6 +99,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		svc.cantabularClient,
 		svc.metadataClient,
 		svc.Producer,
+		cfg.EnableURLRewriting,
+		cantabularFilterFlexAPIURL,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 

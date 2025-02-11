@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 	dpresponder "github.com/ONSdigital/dp-net/v2/responder"
 
 	"github.com/go-chi/chi/v5"
@@ -48,7 +49,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request)
+		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid dataset id")
@@ -64,7 +65,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/1/version//edition/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request)
+		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid version")
@@ -80,7 +81,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/1/version/1/edition/", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request)
+		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid edition")
@@ -104,7 +105,7 @@ func TestInvalidGeography(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(nil, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request)
+		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 		So(ret, ShouldBeNil)
 		So(err.Error(), ShouldEqual, "failed to get geography types: failed to get Geography Dimensions: "+expectedError.Error())
 	})
@@ -122,7 +123,7 @@ func TestGetVersion(t *testing.T) {
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetID, p.edition, p.version).Return(dataset.Version{}, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request)
+		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "failed to get version: "+expectedError.Error())
@@ -145,7 +146,7 @@ func TestGetOptions(t *testing.T) {
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetID, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(dataset.Options{}, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request)
+		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "failed to get options: "+expectedError.Error())
@@ -176,7 +177,7 @@ func TestStaticDatasetQuery(t *testing.T) {
 			ctblrMock.EXPECT().StaticDatasetQuery(p.ctx, datasetRequest).Return(nil, expectedError).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request)
+		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 		So(err, ShouldBeNil)
 		So(params, ShouldNotBeNil)
 
@@ -241,7 +242,7 @@ func TestToGetJsonResponse(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request)
+		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 		So(err, ShouldBeNil)
 
 		result, err := api.toGetDatasetJSONResponse(params, &cantabularResponse)
@@ -283,7 +284,7 @@ func TestToGetObservationsResponse(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request)
+		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
 		So(err, ShouldBeNil)
 
 		result, err := api.toGetDatasetObservationsResponse(params, &cantabularResponse)

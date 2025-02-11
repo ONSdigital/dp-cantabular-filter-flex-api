@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	kafka "github.com/ONSdigital/dp-kafka/v4"
@@ -27,10 +28,12 @@ type API struct {
 	population     populationTypesAPIClient
 	ctblr          cantabularClient
 	cfg            *config.Config
+	enableURLRewriting bool
+	cantabularFilterFlexAPIURL *url.URL
 }
 
 // New creates and initialises a new API
-func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer, enableUrlRewriting bool, cantabularFilterFlexAPIURL *url.URL) *API {
 	api := &API{
 		Router:         r,
 		respond:        rsp,
@@ -43,6 +46,8 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 		ctblr:          c,
 		producer:       p,
 		metadata:       m,
+		enableURLRewriting: enableUrlRewriting,
+		cantabularFilterFlexAPIURL: cantabularFilterFlexAPIURL,
 	}
 
 	if cfg.EnablePrivateEndpoints {

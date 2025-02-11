@@ -7,6 +7,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 	dprequest "github.com/ONSdigital/dp-net/v2/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
@@ -466,6 +467,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 		"filter_id": fID,
 	}
 
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+
 	f, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
 		api.respond.Error(
@@ -517,6 +520,57 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 
 	// don't return dimensions in response
 	f.Dimensions = nil
+
+	if api.cfg.EnableURLRewriting {
+		f.Links.Dimensions.HREF, err = filterFlexLinksBuilder.BuildLink(f.Links.Dimensions.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build dimensions link"),
+					message: "failed to build dimensions link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
+		f.Links.Version.HREF, err = filterFlexLinksBuilder.BuildLink(f.Links.Version.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build version link"),
+					message: "failed to build version link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
+		f.Links.Self.HREF, err = filterFlexLinksBuilder.BuildLink(f.Links.Self.HREF)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				Error{
+					err:     errors.Wrap(err, "failed to build self link"),
+					message: "failed to build self link",
+					logData: log.Data{
+						"id": fID,
+					},
+				},
+			)
+			return
+		}
+	}
 
 	resp := getFilterResponse{*f}
 
