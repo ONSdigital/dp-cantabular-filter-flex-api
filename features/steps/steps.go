@@ -45,6 +45,10 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 		c.privateEndpointsAreNotEnabled,
 	)
 	ctx.Step(
+		`^URL rewriting is enabled`,
+		c.URLRewritingisEnabled,
+	)
+	ctx.Step(
 		`^the maximum pagination limit is set to (\d+)$`,
 		c.theMaximumLimitIsSetTo,
 	)
@@ -164,6 +168,11 @@ func (c *Component) privateEndpointsAreEnabledWithPermissions() error {
 func (c *Component) privateEndpointsAreNotEnabled() error {
 	c.svc.Cfg.EnablePrivateEndpoints = false
 	c.svc.Cfg.EnablePermissionsAuth = false
+	return nil
+}
+
+func (c *Component) URLRewritingisEnabled() error {
+	c.svc.Cfg.EnableURLRewriting = true
 	return nil
 }
 

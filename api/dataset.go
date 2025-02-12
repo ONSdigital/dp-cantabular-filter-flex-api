@@ -38,9 +38,7 @@ type datasetParams struct {
 func (api *API) getDatasetJSONHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
-
-	params, err := api.getDatasetParams(ctx, r, filterFlexLinksBuilder)
+	params, err := api.getDatasetParams(ctx, r)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -96,7 +94,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
 
-	params, err := api.getDatasetParams(ctx, r, filterFlexLinksBuilder)
+	params, err := api.getDatasetParams(ctx, r)
 	if err != nil {
 		api.respond.Error(
 			ctx,
@@ -204,6 +202,40 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 
 	qRes.TotalObservations = countcheck
 
+	if api.cfg.EnableURLRewriting {
+		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				errors.Wrap(err, "failed to get build metadata link"),
+			)
+			return
+		}
+		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(params.datasetLink.URL)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				errors.Wrap(err, "failed to get build dataset link"),
+			)
+			return
+		}
+		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(params.versionLink.URL)
+		if err != nil {
+			api.respond.Error(
+				ctx,
+				w,
+				statusCode(err),
+				errors.Wrap(err, "failed to get build version link"),
+			)
+			return
+		}
+
+	}
+
 	datasetLink := &cantabular.Link{
 		HREF: params.metadataLink.URL,
 		ID:   params.metadataLink.ID,
@@ -273,7 +305,7 @@ func (api *API) getDatasetJSON(ctx context.Context, r *http.Request, params *dat
 		return nil, errors.Wrap(err, "failed to run query")
 	}
 
-	resp, err := api.toGetDatasetJSONResponse(params, qRes)
+	resp, err := api.toGetDatasetJSONResponse(r, params, qRes)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate response")
 	}
@@ -391,8 +423,11 @@ func (api *API) getGeographyFilters(r *http.Request, params *datasetParams) ([]c
 	return []cantabular.Filter{{Variable: geography, Codes: geographyCodes}, {Variable: dimension, Codes: dimensionCodes}}, nil
 }
 
-func (api *API) toGetDatasetJSONResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
+func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetDatasetJSONResponse, error) {
 	dimensions := make([]DatasetJSONDimension, 0, len(query.Dataset.Table.Dimensions))
+	var err error
+
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
 		var options []model.Link
@@ -407,6 +442,22 @@ func (api *API) toGetDatasetJSONResponse(params *datasetParams, query *cantabula
 			DimensionName: dimension.Variable.Name,
 			Options:       options,
 		})
+	}
+
+	if api.cfg.EnableURLRewriting {
+		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
+		if err != nil {
+			return nil, errors.New("failed to build metadata link")
+		}
+		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(params.datasetLink.URL)
+		if err != nil {
+			return nil, errors.New("failed to build dataset link")
+		}
+		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(params.versionLink.URL)
+		if err != nil {
+			return nil, errors.New("failed to build version link")
+		}
+
 	}
 
 	datasetLinks := DatasetJSONLinks{
@@ -509,7 +560,7 @@ func getDimensionRow(query *cantabular.StaticDatasetQuery, catIndices []int) []O
 }
 
 //nolint:gocognit,gocyclo // should break this function down in future
-func (api *API) getDatasetParams(ctx context.Context, r *http.Request, filterFlexLinksBuilder *links.Builder) (*datasetParams, error) {
+func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*datasetParams, error) {
 	params := &datasetParams{
 		id:      chi.URLParam(r, "dataset_id"),
 		edition: chi.URLParam(r, "edition"),
@@ -538,21 +589,6 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request, filterFle
 	params.basedOn = versionItem.IsBasedOn.ID
 
 	params.metadataLink.URL = api.datasets.GetMetadataURL(params.id, params.edition, params.version)
-
-	if api.cfg.EnableURLRewriting {
-		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(versionItem.Links.Dataset.URL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to build dataset link")
-		}
-		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(versionItem.Links.Self.URL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to build version link")
-		}
-		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to build metadata link")
-		}
-	}
 
 	if len(versionItem.Dimensions) == 0 {
 		return nil, errors.New("invalid dimensions length of zero")

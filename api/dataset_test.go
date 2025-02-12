@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -14,7 +15,6 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-net/v2/links"
 	dpresponder "github.com/ONSdigital/dp-net/v2/responder"
 
 	"github.com/go-chi/chi/v5"
@@ -49,7 +49,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/edition/1/version/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
+		ret, err := api.getDatasetParams(request.Context(), request)
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid dataset id")
@@ -65,7 +65,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/1/version//edition/1", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
+		ret, err := api.getDatasetParams(request.Context(), request)
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid version")
@@ -81,7 +81,7 @@ func TestMissingURLParams(t *testing.T) {
 		request := httptest.NewRequest("GET", "/dataset/1/version/1/edition/", http.NoBody)
 		request = request.WithContext(context.WithValue(request.Context(), chi.RouteCtxKey, ctx))
 
-		ret, err := api.getDatasetParams(request.Context(), request, &links.Builder{})
+		ret, err := api.getDatasetParams(request.Context(), request)
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "invalid edition")
@@ -105,7 +105,7 @@ func TestInvalidGeography(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(nil, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		ret, err := api.getDatasetParams(p.ctx, p.request)
 		So(ret, ShouldBeNil)
 		So(err.Error(), ShouldEqual, "failed to get geography types: failed to get Geography Dimensions: "+expectedError.Error())
 	})
@@ -123,7 +123,7 @@ func TestGetVersion(t *testing.T) {
 			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetID, p.edition, p.version).Return(dataset.Version{}, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "failed to get version: "+expectedError.Error())
@@ -146,7 +146,7 @@ func TestGetOptions(t *testing.T) {
 			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetID, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(dataset.Options{}, expectedError).Times(1),
 		)
 
-		ret, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		ret, err := api.getDatasetParams(p.ctx, p.request)
 
 		So(err, ShouldNotBeNil)
 		So(err.Error(), ShouldEqual, "failed to get options: "+expectedError.Error())
@@ -177,7 +177,7 @@ func TestStaticDatasetQuery(t *testing.T) {
 			ctblrMock.EXPECT().StaticDatasetQuery(p.ctx, datasetRequest).Return(nil, expectedError).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		params, err := api.getDatasetParams(p.ctx, p.request)
 		So(err, ShouldBeNil)
 		So(params, ShouldNotBeNil)
 
@@ -242,10 +242,52 @@ func TestToGetJsonResponse(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		params, err := api.getDatasetParams(p.ctx, p.request)
 		So(err, ShouldBeNil)
 
-		result, err := api.toGetDatasetJSONResponse(params, &cantabularResponse)
+		result, err := api.toGetDatasetJSONResponse(p.request, params, &cantabularResponse)
+
+		So(err, ShouldBeNil)
+		So(result, ShouldNotBeNil)
+		So(result.Observations, ShouldResemble, cantabularResponse.Dataset.Table.Values)
+		So(result.TotalObservations, ShouldEqual, len(cantabularResponse.Dataset.Table.Values))
+		So(len(result.Dimensions), ShouldEqual, 1)
+		So(result.Dimensions[0].DimensionName, ShouldEqual, versionResponse.Dimensions[0].ID)
+		So(len(result.Dimensions[0].Options), ShouldEqual, 1)
+		So(result.Dimensions[0].Options[0].ID, ShouldEqual, optionsResponse.Items[0].Links.Code.ID)
+		So(result.Links.DatasetMetadata.HREF, ShouldEqual, metadataResponse)
+		So(result.Links.Self.HREF, ShouldEqual, versionResponse.Links.Dataset.URL)
+		So(result.Links.Self.ID, ShouldEqual, versionResponse.Links.Dataset.ID)
+		So(result.Links.Version.HREF, ShouldEqual, versionResponse.Links.Self.URL)
+		So(result.Links.Version.ID, ShouldEqual, versionResponse.Links.Self.ID)
+	})
+}
+
+func TestToGetJsonResponseWithURLRewriting(t *testing.T) {
+	Convey("When TestToGetJsonResponse is called a valid response should be returned", t, func() {
+		api, ctrl, ctblrMock, datasetAPIMock := initMocksURLRewriting(t)
+		defer ctrl.Finish()
+		p := getTestParams()
+		p.request.Header.Add("X-Forwarded-Host", "api.example")
+		p.request.Header.Add("X-Forwarded-Path-Prefix", "v1")
+
+		versionResponse := getValidURLRewrittenVersionResponse()
+		metadataResponse := "https://api.example/v1/metadataURL%2070b53334-eea5-42ac-a456-93136f477865"
+		optionsResponse := getValidOptionsResponse()
+
+		cantabularResponse := getValidCantabularResponse(versionResponse.Dimensions[0].ID, optionsResponse.Items[0].Label)
+
+		gomock.InOrder(
+			datasetAPIMock.EXPECT().GetVersion(p.ctx, "", "", "", "", p.datasetID, p.edition, p.version).Return(versionResponse, nil).Times(1),
+			datasetAPIMock.EXPECT().GetMetadataURL(p.datasetID, p.edition, p.version).Return(metadataResponse).Times(1),
+			datasetAPIMock.EXPECT().GetOptionsInBatches(p.ctx, "", "", "", p.datasetID, p.edition, p.version, versionResponse.Dimensions[0].Name, optionsBatch, optionsWorker).Return(optionsResponse, nil).Times(1),
+			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
+		)
+
+		params, err := api.getDatasetParams(p.ctx, p.request)
+		So(err, ShouldBeNil)
+
+		result, err := api.toGetDatasetJSONResponse(p.request, params, &cantabularResponse)
 
 		So(err, ShouldBeNil)
 		So(result, ShouldNotBeNil)
@@ -284,7 +326,7 @@ func TestToGetObservationsResponse(t *testing.T) {
 			ctblrMock.EXPECT().GetGeographyDimensionsInBatches(p.ctx, versionResponse.IsBasedOn.ID, batchSize, numberWorkers).Return(getValidGeoResponse(), nil).Times(1),
 		)
 
-		params, err := api.getDatasetParams(p.ctx, p.request, &links.Builder{})
+		params, err := api.getDatasetParams(p.ctx, p.request)
 		So(err, ShouldBeNil)
 
 		result, err := api.toGetDatasetObservationsResponse(params, &cantabularResponse)
@@ -507,9 +549,30 @@ func initMocks(t *testing.T) (API, *gomock.Controller, *mock.MockcantabularClien
 	datasetAPIMock := mock.NewMockdatasetAPIClient(ctrl)
 	api.datasets = datasetAPIMock
 	api.respond = dpresponder.New()
+	api.cantabularFilterFlexAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
 	api.cfg = &config.Config{
 		DatasetOptionsBatchSize: optionsBatch,
 		DatasetOptionsWorkers:   optionsWorker,
+	}
+
+	return api, ctrl, ctblrMock, datasetAPIMock
+}
+
+func initMocksURLRewriting(t *testing.T) (API, *gomock.Controller, *mock.MockcantabularClient, *mock.MockdatasetAPIClient) {
+	var api API
+
+	ctrl := gomock.NewController(t)
+
+	ctblrMock := mock.NewMockcantabularClient(ctrl)
+	api.ctblr = ctblrMock
+	datasetAPIMock := mock.NewMockdatasetAPIClient(ctrl)
+	api.datasets = datasetAPIMock
+	api.respond = dpresponder.New()
+	api.cantabularFilterFlexAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
+	api.cfg = &config.Config{
+		DatasetOptionsBatchSize: optionsBatch,
+		DatasetOptionsWorkers:   optionsWorker,
+		EnableURLRewriting:      true,
 	}
 
 	return api, ctrl, ctblrMock, datasetAPIMock
@@ -560,6 +623,34 @@ func getValidVersionResponse() dataset.Version {
 			},
 			Self: dataset.Link{
 				URL: "versionURL " + uuid.NewString(),
+				ID:  "versionId " + uuid.NewString(),
+			},
+		},
+	}
+}
+
+func getValidURLRewrittenVersionResponse() dataset.Version {
+	isBasedOn := &dataset.IsBasedOn{
+		ID:   "basedOn" + uuid.NewString(),
+		Type: "cantabular_flexible_table",
+	}
+
+	return dataset.Version{
+		IsBasedOn: isBasedOn,
+		Dimensions: []dataset.VersionDimension{
+			{
+				ID:   "dimensionId " + uuid.NewString(),
+				Name: "dimensionName " + uuid.NewString(),
+				URL:  "codelistURL " + uuid.NewString(),
+			},
+		},
+		Links: dataset.Links{
+			Dataset: dataset.Link{
+				URL: "https://api.example/v1/" + uuid.NewString(),
+				ID:  "datasetID " + uuid.NewString(),
+			},
+			Self: dataset.Link{
+				URL: "https://api.example/v1/" + uuid.NewString(),
 				ID:  "versionId " + uuid.NewString(),
 			},
 		},
