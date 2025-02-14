@@ -1,4 +1,4 @@
-Feature: Get Dataset JSON
+Feature: Get Dataset JSON with URL rewriting enabled
 
   Background:
     Given private endpoints are not enabled
@@ -656,6 +656,10 @@ Feature: Get Dataset JSON
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json"
 
     Then the HTTP status code should be "200"
@@ -714,14 +718,14 @@ Feature: Get Dataset JSON
       ],
       "links":{
         "dataset_metadata": {
-          "href":"http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+          "href":"https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test",
+          "href":"https://api.example.com/v1/datasets/cantabular-flexible-table-component-test",
           "id":"cantabular-flexible-table-component-test"
         },
         "version":{
-          "href":"http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+          "href":"https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
           "id":"1"
         }
       },
@@ -826,6 +830,10 @@ Feature: Get Dataset JSON
     """
 
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country"
 
     Then the HTTP status code should be "200"
@@ -884,14 +892,14 @@ Feature: Get Dataset JSON
     ],
     "links": {
         "dataset_metadata": {
-            "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+            "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
+            "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test",
             "id": "cantabular-flexible-table-component-test"
         },
         "version": {
-            "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+            "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
             "id": "1"
         }
     },
@@ -1108,6 +1116,10 @@ Feature: Get Dataset JSON
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/json?area-type=country,E"
 
     Then the HTTP status code should be "200"
@@ -1159,14 +1171,14 @@ Feature: Get Dataset JSON
       ],
       "links": {
         "dataset_metadata": {
-          "href": "http://localhost:9999/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
+          "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1/metadata"
         },
         "self": {
-          "href": "http://hostname/datasets/cantabular-flexible-table-component-test",
+          "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test",
           "id": "cantabular-flexible-table-component-test"
         },
         "version": {
-          "href": "http://hostname/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
+          "href": "https://api.example.com/v1/datasets/cantabular-flexible-table-component-test/editions/latest/versions/1",
           "id": "1"
         }
       },
@@ -1445,6 +1457,10 @@ Feature: Get Dataset JSON
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/json?dimensions=age_23_a"
 
     Then the HTTP status code should be "200"
@@ -1474,14 +1490,14 @@ Feature: Get Dataset JSON
       ],
       "links":{
         "dataset_metadata": {
-          "href":"http://localhost:9999/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/metadata"
+          "href":"https://api.example.com/v1/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1/metadata"
         },
         "self":{
-          "href":"http://hostname/datasets/cantabular-multivariate-table-component-test",
+          "href":"https://api.example.com/v1/datasets/cantabular-multivariate-table-component-test",
           "id":"cantabular-flexible-table-component-test"
         },
         "version":{
-          "href":"http://hostname/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1",
+          "href":"https://api.example.com/v1/datasets/cantabular-multivariate-table-component-test/editions/latest/versions/1",
           "id":"1"
         }
       },

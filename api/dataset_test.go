@@ -264,7 +264,7 @@ func TestToGetJsonResponse(t *testing.T) {
 }
 
 func TestToGetJsonResponseWithURLRewriting(t *testing.T) {
-	Convey("When TestToGetJsonResponse is called a valid response should be returned", t, func() {
+	Convey("When TestToGetJsonResponse is called and URL rewriting is enabled, a valid response should be returned", t, func() {
 		api, ctrl, ctblrMock, datasetAPIMock := initMocksURLRewriting(t)
 		defer ctrl.Finish()
 		p := getTestParams()

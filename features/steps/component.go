@@ -88,6 +88,7 @@ func (c *Component) Reset() {
 	c.CantabularFeature.Reset()
 	c.MongoFeature.Reset()
 	c.PopulationFeature.Reset()
+	c.svc.Cfg.EnableURLRewriting = false
 }
 
 func (c *Component) Close() {

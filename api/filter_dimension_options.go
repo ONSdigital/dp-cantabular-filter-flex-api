@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -331,7 +334,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 	}
 
 	resp := GetFilterDimensionOptionsResponse{
-		Items: parseFilterDimensionOptions(options, filterID, dimensionName, api.cfg.FilterAPIURL),
+		Items: parseFilterDimensionOptions(r, options, filterID, dimensionName, api.cfg.FilterAPIURL),
 		paginationResponse: paginationResponse{
 			Limit:      pageLimit,
 			Offset:     offset,
@@ -409,22 +412,57 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
 
-func parseFilterDimensionOptions(options []string, filterID, dimensionName, address string) []GetFilterDimensionOptionsItem {
+func parseFilterDimensionOptions(r *http.Request, options []string, filterID, dimensionName, address string) []GetFilterDimensionOptionsItem {
+	var err error
+	cfg, err := config.Get()
+	if err != nil {
+		fmt.Println("Error getting config", err)
+		return nil
+	}
+	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
+	if err != nil {
+		fmt.Println("Error parsing URL:", err)
+		return nil
+	}
 	responses := make([]GetFilterDimensionOptionsItem, 0)
 
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, parsedURL)
+
 	for _, option := range options {
+		selfURL := fmt.Sprintf("%s/filters/%s/dimensions/%s/options", address, filterID, dimensionName)
+		filterURL := fmt.Sprintf("%s/filters/%s", address, filterID)
+		dimensionURL := fmt.Sprintf("%s/filters/%s/dimensions/%s", address, filterID, dimensionName)
+
+		if cfg.EnableURLRewriting {
+			selfURL, err = filterFlexLinksBuilder.BuildLink(selfURL)
+			if err != nil {
+				fmt.Println("failed to build self link", err)
+				return nil
+			}
+			filterURL, err = filterFlexLinksBuilder.BuildLink(filterURL)
+			if err != nil {
+				fmt.Println("failed to build filter link", err)
+				return nil
+			}
+			dimensionURL, err = filterFlexLinksBuilder.BuildLink(dimensionURL)
+			if err != nil {
+				fmt.Println("failed to build dimension link", err)
+				return nil
+			}
+		}
+
 		addOptionResponse := GetFilterDimensionOptionsItem{
 			Option: option,
 			Self: model.Link{
-				HREF: address + "/filters/" + filterID + "/dimensions/" + dimensionName + "/options",
+				HREF: selfURL,
 				ID:   option,
 			},
 			Filter: model.Link{
-				HREF: address + "/filters/" + filterID,
+				HREF: filterURL,
 				ID:   filterID,
 			},
 			Dimension: model.Link{
-				HREF: address + "/filters/" + filterID + "/dimensions/" + dimensionName,
+				HREF: dimensionURL,
 				ID:   dimensionName,
 			},
 		}

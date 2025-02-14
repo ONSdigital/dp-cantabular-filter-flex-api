@@ -2,8 +2,13 @@ package api
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"net/url"
 
+	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v2/links"
 
 	"github.com/pkg/errors"
 )
@@ -225,15 +230,42 @@ type dimensionItem struct {
 	QualitySummaryURL     string             `json:"quality_summary_url,omitempty"`
 }
 
-func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string) {
+func (d *dimensionItem) fromDimension(r *http.Request, dim model.Dimension, host, filterID string) {
+	var err error
+	cfg, err := config.Get()
+	if err != nil {
+		log.Println("Error getting config", err)
+		return
+	}
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
+
+	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
+	if err != nil {
+		log.Println("Error parsing URL:", err)
+		return
+	}
+
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, parsedURL)
 
 	d.ID = dim.ID
 	d.Name = dim.Name
 	d.Label = dim.Label
 	d.FilterByParent = dim.FilterByParent
 	d.DefaultCategorisation = dim.DefaultCategorisation
+	if cfg.EnableURLRewriting {
+		dimURL, err = filterFlexLinksBuilder.BuildLink(dimURL)
+		if err != nil {
+			log.Println("failed to build dimensions link", err)
+			return
+		}
+		filterURL, err = filterFlexLinksBuilder.BuildLink(filterURL)
+		if err != nil {
+			log.Println("failed to build filter link", err)
+			return
+		}
+	}
+
 	d.Links = dimensionItemLinks{
 		Self: model.Link{
 			HREF: dimURL,
@@ -254,13 +286,13 @@ func (d *dimensionItem) fromDimension(dim model.Dimension, host, filterID string
 
 type dimensionItems []dimensionItem
 
-func (items *dimensionItems) fromDimensions(dims []model.Dimension, host, filterID string) {
+func (items *dimensionItems) fromDimensions(r *http.Request, dims []model.Dimension, host, filterID string) {
 	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
 	for i := range dims {
 		var item dimensionItem
-		item.fromDimension(dims[i], host, filterID)
+		item.fromDimension(r, dims[i], host, filterID)
 		*items = append(*items, item)
 	}
 }
