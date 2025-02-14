@@ -1195,6 +1195,10 @@ Feature: Get Dataset Observations with URL rewriting
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-test/editions/latest/versions/1/census-observations?area-type=country"
 
     Then the HTTP status code should be "200"
@@ -1692,6 +1696,10 @@ Feature: Get Dataset Observations with URL rewriting
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-test/editions/latest/versions/1/census-observations?area-type=country,E"
 
     Then the HTTP status code should be "200"
@@ -2052,6 +2060,10 @@ Feature: Get Dataset Observations with URL rewriting
     }
     """
 
+    And I set the "X-Forwarded-Proto" header to "https"
+    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
     When I GET "/datasets/cantabular-multivariate-table-test/editions/latest/versions/1/census-observations?dimensions=age_23_a"
 
     Then the HTTP status code should be "200"

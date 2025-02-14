@@ -1,4 +1,4 @@
-Feature: Get Filter Dimension Options Private Endpoints
+Feature: Get Filter Dimension Options Private Endpoints with URL rewriting enabled
   Background:
     Given private endpoints are not enabled
     And I have these filters:
@@ -110,45 +110,45 @@ Feature: Get Filter Dimension Options Private Endpoints
         {
           "option": "Cardiff",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Cardiff"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "London",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "London"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "Swansea",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Swansea"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         }
@@ -162,6 +162,10 @@ Feature: Get Filter Dimension Options Private Endpoints
     Scenario: Filter Dimension Zero Page Limit
       In the case of zero page limit, a reasonable page limit is introduced.
 
+      And I set the "X-Forwarded-Proto" header to "https"
+      And I set the "X-Forwarded-Host" header to "api.example.com"
+      And I set the "X-Forwarded-Path-Prefix" header to "v1"
+      And URL rewriting is enabled
       When I GET "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options?limit=0&offset=0"
       Then the HTTP status code should be "200"
       And I should receive the following JSON response:
@@ -171,45 +175,45 @@ Feature: Get Filter Dimension Options Private Endpoints
         {
           "option": "Cardiff",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Cardiff"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "London",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "London"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         },
         {
           "option": "Swansea",
           "self": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options",
             "id": "Swansea"
           },
           "filter": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2",
             "id": "83210d8d-72d6-492a-bc30-27584627abc2"
           },
           "Dimension": {
-            "href": "http://localhost:22100/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
+            "href": "https://api.example.com/v1/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City",
             "id": "City"
           }
         }

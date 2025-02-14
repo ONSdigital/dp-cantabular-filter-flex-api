@@ -97,10 +97,6 @@ Feature: Get Filter Dimension Options Private Endpoints
     ]
     """
     Scenario: Filter Dimension Option Found
-      And I set the "X-Forwarded-Proto" header to "https"
-      And I set the "X-Forwarded-Host" header to "api.example.com"
-      And I set the "X-Forwarded-Path-Prefix" header to "v1"
-      And URL rewriting is enabled
       When I GET "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options?limit=10&offset=0"
       Then the HTTP status code should be "200"
       Then I should receive the following JSON response:
