@@ -17,6 +17,9 @@ replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 // [CVE-2021-3121] CWE-129: Improper Validation of Array Index
 replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
 
+// [CVE-2024-45339] CWE-377: Insecure Temporary File   
+replace github.com/golang/glog => github.com/golang/glog v1.2.4
+
 // to fix: [CVE-2023-32731] CWE-Other
 replace google.golang.org/grpc => google.golang.org/grpc v1.64.0
 
@@ -68,6 +71,7 @@ require (
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.4.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
