@@ -233,7 +233,6 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 			)
 			return
 		}
-
 	}
 
 	datasetLink := &cantabular.Link{
@@ -457,7 +456,6 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 		if err != nil {
 			return nil, errors.New("failed to build version link")
 		}
-
 	}
 
 	datasetLinks := DatasetJSONLinks{

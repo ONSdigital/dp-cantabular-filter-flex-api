@@ -25,7 +25,7 @@ type Config struct {
 	PopulationTypesAPIURL        string        `envconfig:"POPULATION_TYPES_API_URL"`
 	MetadataAPIURL               string        `envconfig:"CANTABULAR_METADATA_API_URL"`
 	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"`
-	CantabularFilterFlexAPIURL 	 string  	   `envconfig:"CANTABULAR_FILTER_FLEX_API_URL"`
+	CantabularFilterFlexAPIURL   string        `envconfig:"CANTABULAR_FILTER_FLEX_API_URL"`
 	FiltersCollection            string        `envconfig:"FILTERS_COLLECTION"`
 	FilterOutputsCollection      string        `envconfig:"FILTER_OUTPUTS_COLLECTION"`
 	EnablePrivateEndpoints       bool          `envconfig:"ENABLE_PRIVATE_ENDPOINTS"`
@@ -41,7 +41,7 @@ type Config struct {
 	MaxRowsReturned              int           `envconfig:"MAX_ROWS_RETURNED"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
-	EnableURLRewriting 			 bool
+	EnableURLRewriting           bool
 }
 
 type KafkaConfig struct {
@@ -90,7 +90,7 @@ func Get() (*Config, error) {
 		FilterOutputsCollection:      "filterOutputs",
 		EnablePrivateEndpoints:       false,
 		EnablePermissionsAuth:        true,
-		EnableURLRewriting: 		  false,
+		EnableURLRewriting:           false,
 		CantabularHealthcheckEnabled: false,
 		ServiceAuthToken:             "",
 		ZebedeeURL:                   "http://localhost:8082",

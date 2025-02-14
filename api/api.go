@@ -17,36 +17,36 @@ import (
 
 // API provides a struct to wrap the api around
 type API struct {
-	Router         chi.Router
-	store          datastore
-	respond        responder
-	generate       generator
-	producer       kafka.IProducer
-	identityClient *identity.Client
-	metadata       metadataAPIClient
-	datasets       datasetAPIClient
-	population     populationTypesAPIClient
-	ctblr          cantabularClient
-	cfg            *config.Config
-	enableURLRewriting bool
+	Router                     chi.Router
+	store                      datastore
+	respond                    responder
+	generate                   generator
+	producer                   kafka.IProducer
+	identityClient             *identity.Client
+	metadata                   metadataAPIClient
+	datasets                   datasetAPIClient
+	population                 populationTypesAPIClient
+	ctblr                      cantabularClient
+	cfg                        *config.Config
+	enableURLRewriting         bool
 	cantabularFilterFlexAPIURL *url.URL
 }
 
 // New creates and initialises a new API
-func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer, enableUrlRewriting bool, cantabularFilterFlexAPIURL *url.URL) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer, enableURLRewriting bool, cantabularFilterFlexAPIURL *url.URL) *API {
 	api := &API{
-		Router:         r,
-		respond:        rsp,
-		generate:       g,
-		store:          d,
-		cfg:            cfg,
-		identityClient: idc,
-		datasets:       ds,
-		population:     pt,
-		ctblr:          c,
-		producer:       p,
-		metadata:       m,
-		enableURLRewriting: enableUrlRewriting,
+		Router:                     r,
+		respond:                    rsp,
+		generate:                   g,
+		store:                      d,
+		cfg:                        cfg,
+		identityClient:             idc,
+		datasets:                   ds,
+		population:                 pt,
+		ctblr:                      c,
+		producer:                   p,
+		metadata:                   m,
+		enableURLRewriting:         enableURLRewriting,
 		cantabularFilterFlexAPIURL: cantabularFilterFlexAPIURL,
 	}
 
