@@ -1,4 +1,4 @@
-Feature: Filter Dimensions Private Endpoints Not Enabled
+Feature: Filter Dimensions Private Endpoints Not Enabled wth URL rewriting enabled
 
   Background:
     Given private endpoints are not enabled

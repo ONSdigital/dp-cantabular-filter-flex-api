@@ -1,4 +1,4 @@
-Feature: Get Filter Private Endpoints Not Enabled
+Feature: Get Filter Private Endpoints Not Enabled with URL rewriting enabled
 
   Background:
     Given private endpoints are not enabled

@@ -1,4 +1,4 @@
-Feature: Get Dataset Observations with URL rewriting
+Feature: Get Dataset Observations with URL rewriting enabled
 
   Background:
     Given private endpoints are not enabled
