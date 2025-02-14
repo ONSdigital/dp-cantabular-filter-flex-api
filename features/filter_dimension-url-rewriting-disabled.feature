@@ -163,6 +163,35 @@ Feature: Filter Dimensions Private Endpoints Not Enabled
     """
     And the HTTP status code should be "200"
 
+  Scenario: Get a specific filter dimension successfully
+    When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
+    Then I should receive the following JSON response:
+    """
+    {
+      "name": "geography",
+      "id": "city",
+      "label": "City",
+      "is_area_type": true,
+      "filter_by_parent":"country",
+      "default_categorisation": "",
+      "links": {
+        "filter": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+        },
+        "self": {
+          "href": "http://localhost:22100/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+          "id": "city"
+        }
+      },
+      "is_area_type":true
+    }
+    """
+    And the HTTP status code should be "200"
+
   Scenario: Get a specific filter dimension when the filter is not present
     When I GET "/filters/00000000-0000-0000-0000-000000000000/dimensions/geography"
     Then the HTTP status code should be "400"
