@@ -1,8 +1,10 @@
 package generator
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -41,7 +43,8 @@ func (g *Generator) UUID() (uuid.UUID, error) {
 func (g *Generator) UniqueTimestamp() primitive.Timestamp {
 	now := time.Now().Unix()
 	if now < 0 || now > math.MaxUint32 {
-		panic(fmt.Sprintf("timestamp %d out of uint32 range", now))
+		log.Fatal(context.Background(), fmt.Sprintf("timestamp %d out of uint32 range", now))
+		return primitive.Timestamp{T: 0, I: 0}
 	}
 
 	return primitive.Timestamp{

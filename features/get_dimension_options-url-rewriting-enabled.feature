@@ -97,7 +97,6 @@ Feature: Get Filter Dimension Options Private Endpoints with URL rewriting enabl
     ]
     """
     Scenario: Filter Dimension Option Found
-      And I set the "X-Forwarded-Proto" header to "https"
       And I set the "X-Forwarded-Host" header to "api.example.com"
       And I set the "X-Forwarded-Path-Prefix" header to "v1"
       And URL rewriting is enabled
@@ -162,7 +161,6 @@ Feature: Get Filter Dimension Options Private Endpoints with URL rewriting enabl
     Scenario: Filter Dimension Zero Page Limit
       In the case of zero page limit, a reasonable page limit is introduced.
 
-      And I set the "X-Forwarded-Proto" header to "https"
       And I set the "X-Forwarded-Host" header to "api.example.com"
       And I set the "X-Forwarded-Path-Prefix" header to "v1"
       And URL rewriting is enabled

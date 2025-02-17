@@ -532,7 +532,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 					err:     errors.Wrap(err, "failed to build dimensions link"),
 					message: "failed to build dimensions link",
 					logData: log.Data{
-						"id": fID,
+						"id":   fID,
+						"href": f.Links.Dimensions.HREF,
 					},
 				},
 			)
@@ -548,7 +549,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 					err:     errors.Wrap(err, "failed to build version link"),
 					message: "failed to build version link",
 					logData: log.Data{
-						"id": fID,
+						"id":   fID,
+						"href": f.Links.Version.HREF,
 					},
 				},
 			)
@@ -564,7 +566,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 					err:     errors.Wrap(err, "failed to build self link"),
 					message: "failed to build self link",
 					logData: log.Data{
-						"id": fID,
+						"id":   fID,
+						"href": f.Links.Self.HREF,
 					},
 				},
 			)

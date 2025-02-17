@@ -1,27 +1,16 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.23.0
+go 1.23
 
 toolchain go1.23.4
 
-// to avoid the following vulnerabilities:
-//     - CVE-2022-29153 # pkg:golang/github.com/hashicorp/consul/api@v1.1.0 and pkg:golang/github.com/hashicorp/consul/sdk@v0.1.1
-//     - sonatype-2021-1401 # pkg:golang/github.com/miekg/dns@v1.0.14
-//     - sonatype-2019-0890 # pkg:golang/github.com/pkg/sftp@v1.10.1
-replace github.com/spf13/cobra => github.com/spf13/cobra v1.7.0
+exclude github.com/hashicorp/consul/api v1.1.0
 
-// to avoid the following vulnerabilities:
-// [CVE-2021-3121]
-replace github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+exclude github.com/gogo/protobuf v1.2.1
 
-// [CVE-2021-3121] CWE-129: Improper Validation of Array Index
-replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
+exclude github.com/gogo/protobuf v1.1.1
 
-// [CVE-2024-45339] CWE-377: Insecure Temporary File
-replace github.com/golang/glog => github.com/golang/glog v1.2.4
-
-// to fix: [CVE-2023-32731] CWE-Other
-replace google.golang.org/grpc => google.golang.org/grpc v1.64.0
+exclude github.com/prometheus/client_golang v0.9.3
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
@@ -30,11 +19,12 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.3
 	github.com/ONSdigital/dp-kafka/v4 v4.1.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.8.0
-	github.com/ONSdigital/dp-net/v2 v2.20.0
+	github.com/ONSdigital/dp-net/v2 v2.21.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
 	github.com/ONSdigital/log.go/v2 v2.4.3
 	github.com/cucumber/godog v0.15.0
 	github.com/go-chi/chi/v5 v5.2.1
+	github.com/golang/glog v1.2.4
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
@@ -43,9 +33,11 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rdumont/assistdog v0.0.0-20240711132531-b5b791dd7452
 	github.com/smartystreets/goconvey v1.8.1
+	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.10.0
 	go.mongodb.org/mongo-driver v1.17.2
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.59.0
+	google.golang.org/protobuf v1.36.5
 )
 
 require (
@@ -74,7 +66,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-memdb v1.3.4 // indirect
@@ -82,6 +74,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
 	github.com/jcmturner/dnsutils/v2 v2.0.0 // indirect
 	github.com/jcmturner/gofork v1.7.6 // indirect
@@ -118,7 +111,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.27.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.27.0 // indirect
 	go.opentelemetry.io/otel/metric v1.34.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.29.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
@@ -127,9 +120,8 @@ require (
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241223144023-3abc09e42ca8 // indirect
-	google.golang.org/grpc v1.67.3 // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250204164813-702378808489 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250204164813-702378808489 // indirect
+	google.golang.org/grpc v1.70.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

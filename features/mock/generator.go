@@ -1,7 +1,9 @@
 package mock
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -40,12 +42,12 @@ func (g *Generator) Timestamp() time.Time {
 func (g *Generator) UniqueTimestamp() primitive.Timestamp {
 	t, err := time.Parse(time.RFC3339, TestTimestamp)
 	if err != nil {
-		panic(fmt.Sprintf("invalid timestamp format: %v", err))
+		log.Fatal(context.Background(), "invalid timestamp format", err)
 	}
 
 	seconds := t.Unix()
 	if seconds < 0 || seconds > math.MaxUint32 {
-		panic(fmt.Sprintf("timestamp %d out of uint32 range", seconds))
+		log.Fatal(context.Background(), fmt.Sprintf("timestamp %d out of uint32 range", seconds))
 	}
 
 	return primitive.Timestamp{

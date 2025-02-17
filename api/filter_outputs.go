@@ -28,7 +28,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 				err:     errors.Wrap(err, "failed to get filter output"),
 				message: "failed to get filter output",
 				logData: log.Data{
-					"id": fID,
+					"id":   fID,
+					"href": filterOutput.Links.Version.HREF,
 				},
 			},
 		)
@@ -46,7 +47,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 					err:     errors.Wrap(err, "failed to build version link"),
 					message: "failed to build version link",
 					logData: log.Data{
-						"id": fID,
+						"id":   fID,
+						"href": filterOutput.Links.Self.HREF,
 					},
 				},
 			)

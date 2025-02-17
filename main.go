@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "github.com/golang/glog"
+
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
 	dpotelgo "github.com/ONSdigital/dp-otel-go"

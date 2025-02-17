@@ -416,12 +416,12 @@ func parseFilterDimensionOptions(r *http.Request, options []string, filterID, di
 	var err error
 	cfg, err := config.Get()
 	if err != nil {
-		fmt.Println("Error getting config", err)
+		log.Error(r.Context(), "Error getting config", err)
 		return nil
 	}
 	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
 	if err != nil {
-		fmt.Println("Error parsing URL:", err)
+		log.Error(r.Context(), "Error parsing URL", err)
 		return nil
 	}
 	responses := make([]GetFilterDimensionOptionsItem, 0)
@@ -436,17 +436,17 @@ func parseFilterDimensionOptions(r *http.Request, options []string, filterID, di
 		if cfg.EnableURLRewriting {
 			selfURL, err = filterFlexLinksBuilder.BuildLink(selfURL)
 			if err != nil {
-				fmt.Println("failed to build self link", err)
+				log.Error(r.Context(), "failed to build self link", err, log.Data{"href": selfURL})
 				return nil
 			}
 			filterURL, err = filterFlexLinksBuilder.BuildLink(filterURL)
 			if err != nil {
-				fmt.Println("failed to build filter link", err)
+				log.Error(r.Context(), "failed to build filter link", err, log.Data{"href": filterURL})
 				return nil
 			}
 			dimensionURL, err = filterFlexLinksBuilder.BuildLink(dimensionURL)
 			if err != nil {
-				fmt.Println("failed to build dimension link", err)
+				log.Error(r.Context(), "failed to build dimension link", err, log.Data{"href": dimensionURL})
 				return nil
 			}
 		}

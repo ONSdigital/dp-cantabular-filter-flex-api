@@ -446,15 +446,15 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 	if api.cfg.EnableURLRewriting {
 		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
 		if err != nil {
-			return nil, errors.New("failed to build metadata link")
+			return nil, fmt.Errorf("failed to build metadata link: %w", err)
 		}
 		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(params.datasetLink.URL)
 		if err != nil {
-			return nil, errors.New("failed to build dataset link")
+			return nil, fmt.Errorf("failed to build dataset link: %w", err)
 		}
 		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(params.versionLink.URL)
 		if err != nil {
-			return nil, errors.New("failed to build version link")
+			return nil, fmt.Errorf("failed to build version link: %w", err)
 		}
 	}
 

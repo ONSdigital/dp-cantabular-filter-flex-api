@@ -194,6 +194,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var resp addFilterDimensionResponse
 	resp.dimensionItem.fromDimension(
+		ctx,
 		r,
 		finalDim,
 		api.cfg.FilterAPIURL,
@@ -303,7 +304,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := updateFilterDimensionResponse{}
-	resp.fromDimension(r, req.Dimension, api.cfg.FilterAPIURL, filterID)
+	resp.fromDimension(ctx, r, req.Dimension, api.cfg.FilterAPIURL, filterID)
 
 	w.Header().Set(eTagHeader, newETag)
 
@@ -375,7 +376,7 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp dimensionItem
-	resp.fromDimension(r, filterDim, api.cfg.FilterAPIURL, fID)
+	resp.fromDimension(ctx, r, filterDim, api.cfg.FilterAPIURL, fID)
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
@@ -414,7 +415,7 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var items dimensionItems
-	items.fromDimensions(r, dims, api.cfg.FilterAPIURL, fID)
+	items.fromDimensions(ctx, r, dims, api.cfg.FilterAPIURL, fID)
 
 	resp := getFilterDimensionsResponse{
 		Items: items,

@@ -1,14 +1,15 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-net/v2/links"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/pkg/errors"
 )
@@ -230,11 +231,11 @@ type dimensionItem struct {
 	QualitySummaryURL     string             `json:"quality_summary_url,omitempty"`
 }
 
-func (d *dimensionItem) fromDimension(r *http.Request, dim model.Dimension, host, filterID string) {
+func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim model.Dimension, host, filterID string) {
 	var err error
 	cfg, err := config.Get()
 	if err != nil {
-		log.Println("Error getting config", err)
+		log.Error(ctx, "Error getting config", err)
 		return
 	}
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
@@ -242,7 +243,7 @@ func (d *dimensionItem) fromDimension(r *http.Request, dim model.Dimension, host
 
 	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
 	if err != nil {
-		log.Println("Error parsing URL:", err)
+		log.Error(ctx, "Error parsing URL:", err)
 		return
 	}
 
@@ -256,12 +257,12 @@ func (d *dimensionItem) fromDimension(r *http.Request, dim model.Dimension, host
 	if cfg.EnableURLRewriting {
 		dimURL, err = filterFlexLinksBuilder.BuildLink(dimURL)
 		if err != nil {
-			log.Println("failed to build dimensions link", err)
+			log.Error(ctx, "failed to build dimensions link", err, log.Data{"href": dimURL})
 			return
 		}
 		filterURL, err = filterFlexLinksBuilder.BuildLink(filterURL)
 		if err != nil {
-			log.Println("failed to build filter link", err)
+			log.Error(ctx, "failed to build filter link", err, log.Data{"href": filterURL})
 			return
 		}
 	}
@@ -286,13 +287,13 @@ func (d *dimensionItem) fromDimension(r *http.Request, dim model.Dimension, host
 
 type dimensionItems []dimensionItem
 
-func (items *dimensionItems) fromDimensions(r *http.Request, dims []model.Dimension, host, filterID string) {
+func (items *dimensionItems) fromDimensions(ctx context.Context, r *http.Request, dims []model.Dimension, host, filterID string) {
 	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
 	for i := range dims {
 		var item dimensionItem
-		item.fromDimension(r, dims[i], host, filterID)
+		item.fromDimension(ctx, r, dims[i], host, filterID)
 		*items = append(*items, item)
 	}
 }
