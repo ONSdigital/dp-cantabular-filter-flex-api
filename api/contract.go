@@ -231,7 +231,7 @@ type dimensionItem struct {
 	QualitySummaryURL     string             `json:"quality_summary_url,omitempty"`
 }
 
-func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim model.Dimension, host, filterID string) {
+func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim model.Dimension, host, filterID string, parsedURL *url.URL) {
 	var err error
 	cfg, err := config.Get()
 	if err != nil {
@@ -240,12 +240,6 @@ func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim 
 	}
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
-
-	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
-	if err != nil {
-		log.Error(ctx, "Error parsing URL:", err)
-		return
-	}
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, parsedURL)
 
@@ -287,13 +281,13 @@ func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim 
 
 type dimensionItems []dimensionItem
 
-func (items *dimensionItems) fromDimensions(ctx context.Context, r *http.Request, dims []model.Dimension, host, filterID string) {
+func (items *dimensionItems) fromDimensions(ctx context.Context, r *http.Request, dims []model.Dimension, host, filterID string, parsedURL *url.URL) {
 	if len(dims) == 0 {
 		*items = dimensionItems{}
 	}
 	for i := range dims {
 		var item dimensionItem
-		item.fromDimension(ctx, r, dims[i], host, filterID)
+		item.fromDimension(ctx, r, dims[i], host, filterID, parsedURL)
 		*items = append(*items, item)
 	}
 }

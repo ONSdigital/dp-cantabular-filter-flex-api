@@ -199,6 +199,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		finalDim,
 		api.cfg.FilterAPIURL,
 		fID,
+		api.cantabularFilterFlexAPIURL,
 	)
 	w.Header().Set(eTagHeader, b)
 	api.respond.JSON(ctx, w, http.StatusCreated, resp)
@@ -304,7 +305,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := updateFilterDimensionResponse{}
-	resp.fromDimension(ctx, r, req.Dimension, api.cfg.FilterAPIURL, filterID)
+	resp.fromDimension(ctx, r, req.Dimension, api.cfg.FilterAPIURL, filterID, api.cantabularFilterFlexAPIURL)
 
 	w.Header().Set(eTagHeader, newETag)
 
@@ -376,7 +377,12 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp dimensionItem
-	resp.fromDimension(ctx, r, filterDim, api.cfg.FilterAPIURL, fID)
+	parsedURL, err := url.Parse(api.cfg.CantabularFilterFlexAPIURL)
+	if err != nil {
+		log.Error(ctx, "Error parsing CantabularFilterFlexAPIURL", err)
+		return
+	}
+	resp.fromDimension(ctx, r, filterDim, api.cfg.FilterAPIURL, fID, parsedURL)
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
@@ -415,7 +421,7 @@ func (api *API) getFilterDimensions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var items dimensionItems
-	items.fromDimensions(ctx, r, dims, api.cfg.FilterAPIURL, fID)
+	items.fromDimensions(ctx, r, dims, api.cfg.FilterAPIURL, fID, api.cantabularFilterFlexAPIURL)
 
 	resp := getFilterDimensionsResponse{
 		Items: items,
