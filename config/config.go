@@ -39,9 +39,9 @@ type Config struct {
 	OTServiceName                string        `envconfig:"OTEL_SERVICE_NAME"`
 	OTBatchTimeout               time.Duration `envconfig:"OTEL_BATCH_TIMEOUT"`
 	MaxRowsReturned              int           `envconfig:"MAX_ROWS_RETURNED"`
+	EnableURLRewriting           bool          `envconfig:"ENABLE_URL_REWRITING"`
 	Mongo                        mongo.MongoDriverConfig
 	KafkaConfig                  KafkaConfig
-	EnableURLRewriting           bool
 }
 
 type KafkaConfig struct {
