@@ -1,10 +1,7 @@
 package mock
 
 import (
-	"context"
 	"fmt"
-	"log"
-	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,18 +37,10 @@ func (g *Generator) Timestamp() time.Time {
 
 // UniqueTimestamp generates a constant timestamp
 func (g *Generator) UniqueTimestamp() primitive.Timestamp {
-	t, err := time.Parse(time.RFC3339, TestTimestamp)
-	if err != nil {
-		log.Fatal(context.Background(), "invalid timestamp format", err)
-	}
-
-	seconds := t.Unix()
-	if seconds < 0 || seconds > math.MaxUint32 {
-		log.Fatal(context.Background(), fmt.Sprintf("timestamp %d out of uint32 range", seconds))
-	}
-
+	t, _ := time.Parse(time.RFC3339, TestTimestamp)
 	return primitive.Timestamp{
-		T: uint32(seconds),
+		//nolint:gosec // G115: integer overflow conversion int64 -> uint32 // acceptable until February 7, 2106
+		T: uint32(t.Unix()),
 		I: 1,
 	}
 }

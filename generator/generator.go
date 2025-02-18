@@ -1,11 +1,8 @@
 package generator
 
 import (
-	"context"
 	"crypto/rand"
 	"fmt"
-	"log"
-	"math"
 	"time"
 
 	"github.com/google/uuid"
@@ -41,14 +38,9 @@ func (g *Generator) UUID() (uuid.UUID, error) {
 // UniqueTimestamp generates a timestamp of the current time in the
 // special format required by mongoDB
 func (g *Generator) UniqueTimestamp() primitive.Timestamp {
-	now := time.Now().Unix()
-	if now < 0 || now > math.MaxUint32 {
-		log.Fatal(context.Background(), fmt.Sprintf("timestamp %d out of uint32 range", now))
-		return primitive.Timestamp{T: 0, I: 0}
-	}
-
 	return primitive.Timestamp{
-		T: uint32(now),
+		//nolint:gosec // G115: integer overflow conversion int64 -> uint32 // acceptable until February 7, 2106
+		T: uint32(time.Now().Unix()),
 		I: 1,
 	}
 }

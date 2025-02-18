@@ -231,7 +231,7 @@ type dimensionItem struct {
 	QualitySummaryURL     string             `json:"quality_summary_url,omitempty"`
 }
 
-func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim model.Dimension, host, filterID string, parsedURL *url.URL) {
+func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim model.Dimension, host, filterID string, cantabularFilterFlexAPIURL *url.URL) {
 	var err error
 	cfg, err := config.Get()
 	if err != nil {
@@ -241,7 +241,7 @@ func (d *dimensionItem) fromDimension(ctx context.Context, r *http.Request, dim 
 	filterURL := fmt.Sprintf("%s/filters/%s", host, filterID)
 	dimURL := fmt.Sprintf("%s/dimensions/%s", filterURL, dim.Name)
 
-	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, parsedURL)
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, cantabularFilterFlexAPIURL)
 
 	d.ID = dim.ID
 	d.Name = dim.Name
