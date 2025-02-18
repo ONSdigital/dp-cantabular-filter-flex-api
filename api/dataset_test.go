@@ -549,7 +549,7 @@ func initMocks(t *testing.T) (API, *gomock.Controller, *mock.MockcantabularClien
 	datasetAPIMock := mock.NewMockdatasetAPIClient(ctrl)
 	api.datasets = datasetAPIMock
 	api.respond = dpresponder.New()
-	api.cantabularFilterFlexAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
+	api.datasetAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
 	api.cfg = &config.Config{
 		DatasetOptionsBatchSize: optionsBatch,
 		DatasetOptionsWorkers:   optionsWorker,
@@ -568,7 +568,7 @@ func initMocksURLRewriting(t *testing.T) (API, *gomock.Controller, *mock.Mockcan
 	datasetAPIMock := mock.NewMockdatasetAPIClient(ctrl)
 	api.datasets = datasetAPIMock
 	api.respond = dpresponder.New()
-	api.cantabularFilterFlexAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
+	api.datasetAPIURL = &url.URL{Scheme: "http", Host: "localhost:27100"}
 	api.cfg = &config.Config{
 		DatasetOptionsBatchSize: optionsBatch,
 		DatasetOptionsWorkers:   optionsWorker,

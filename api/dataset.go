@@ -92,7 +92,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 	cancelContext, cancel := context.WithTimeout(ctx, time.Second*300)
 	defer cancel()
 
-	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
 
 	params, err := api.getDatasetParams(ctx, r)
 	if err != nil {
@@ -203,7 +203,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 	qRes.TotalObservations = countcheck
 
 	if api.cfg.EnableURLRewriting {
-		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
+		params.metadataLink.URL, err = datasetLinksBuilder.BuildLink(params.metadataLink.URL)
 		if err != nil {
 			api.respond.Error(
 				ctx,
@@ -213,7 +213,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 			)
 			return
 		}
-		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(params.datasetLink.URL)
+		params.datasetLink.URL, err = datasetLinksBuilder.BuildLink(params.datasetLink.URL)
 		if err != nil {
 			api.respond.Error(
 				ctx,
@@ -223,7 +223,7 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 			)
 			return
 		}
-		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(params.versionLink.URL)
+		params.versionLink.URL, err = datasetLinksBuilder.BuildLink(params.versionLink.URL)
 		if err != nil {
 			api.respond.Error(
 				ctx,
@@ -426,7 +426,7 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 	dimensions := make([]DatasetJSONDimension, 0, len(query.Dataset.Table.Dimensions))
 	var err error
 
-	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
 		var options []model.Link
@@ -444,15 +444,15 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 	}
 
 	if api.cfg.EnableURLRewriting {
-		params.metadataLink.URL, err = filterFlexLinksBuilder.BuildLink(params.metadataLink.URL)
+		params.metadataLink.URL, err = datasetLinksBuilder.BuildLink(params.metadataLink.URL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to build metadata link: %w", err)
 		}
-		params.datasetLink.URL, err = filterFlexLinksBuilder.BuildLink(params.datasetLink.URL)
+		params.datasetLink.URL, err = datasetLinksBuilder.BuildLink(params.datasetLink.URL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to build dataset link: %w", err)
 		}
-		params.versionLink.URL, err = filterFlexLinksBuilder.BuildLink(params.versionLink.URL)
+		params.versionLink.URL, err = datasetLinksBuilder.BuildLink(params.versionLink.URL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to build version link: %w", err)
 		}
