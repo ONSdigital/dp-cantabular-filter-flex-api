@@ -81,7 +81,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 					err:     errors.Wrap(err, "failed to build filter blueprint link"),
 					message: "failed to build filter blueprint link",
 					logData: log.Data{
-						"id": fID,
+						"id":   fID,
+						"href": filterOutput.Links.FilterBlueprint.HREF,
 					},
 				},
 			)
