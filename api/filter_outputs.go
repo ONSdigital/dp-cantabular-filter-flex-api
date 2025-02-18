@@ -17,6 +17,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	var filterOutput *model.FilterOutput
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
@@ -36,7 +37,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if api.cfg.EnableURLRewriting {
-		filterOutput.Links.Version.HREF, err = filterFlexLinksBuilder.BuildLink(filterOutput.Links.Version.HREF)
+		filterOutput.Links.Version.HREF, err = datasetLinksBuilder.BuildLink(filterOutput.Links.Version.HREF)
 		if err != nil {
 			api.respond.Error(
 				ctx,

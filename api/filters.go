@@ -468,6 +468,7 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
+	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
 
 	f, err := api.store.GetFilter(ctx, fID)
 	if err != nil {
@@ -539,7 +540,7 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
-		f.Links.Version.HREF, err = filterFlexLinksBuilder.BuildLink(f.Links.Version.HREF)
+		f.Links.Version.HREF, err = datasetLinksBuilder.BuildLink(f.Links.Version.HREF)
 		if err != nil {
 			api.respond.Error(
 				ctx,
