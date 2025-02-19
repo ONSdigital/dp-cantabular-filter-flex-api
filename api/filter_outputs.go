@@ -18,6 +18,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
 	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
+	downloadLinksBuilder := links.FromHeadersOrDefaultDownload(&r.Header, api.downloadServiceURL, api.externalDownloadServiceURL)
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
@@ -88,6 +89,106 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 				},
 			)
 			return
+		}
+
+		if filterOutput.Downloads.TXT != nil {
+			filterOutput.Downloads.TXT.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.TXT.HREF)
+			if err != nil {
+				api.respond.Error(
+					ctx,
+					w,
+					statusCode(err),
+					Error{
+						err:     errors.Wrap(err, "failed to build txt download link"),
+						message: "failed to build txt download link",
+						logData: log.Data{
+							"id":   fID,
+							"href": filterOutput.Downloads.TXT.HREF,
+						},
+					},
+				)
+				return
+			}
+		}
+
+		if filterOutput.Downloads.CSV != nil {
+			filterOutput.Downloads.CSV.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.CSV.HREF)
+			if err != nil {
+				api.respond.Error(
+					ctx,
+					w,
+					statusCode(err),
+					Error{
+						err:     errors.Wrap(err, "failed to build csv download link"),
+						message: "failed to build csv download link",
+						logData: log.Data{
+							"id":   fID,
+							"href": filterOutput.Downloads.CSV.HREF,
+						},
+					},
+				)
+				return
+			}
+		}
+
+		if filterOutput.Downloads.CSVW != nil {
+			filterOutput.Downloads.CSVW.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.CSVW.HREF)
+			if err != nil {
+				api.respond.Error(
+					ctx,
+					w,
+					statusCode(err),
+					Error{
+						err:     errors.Wrap(err, "failed to build csvw download link"),
+						message: "failed to build csvw download link",
+						logData: log.Data{
+							"id":   fID,
+							"href": filterOutput.Downloads.CSVW.HREF,
+						},
+					},
+				)
+				return
+			}
+		}
+
+		if filterOutput.Downloads.XLS != nil {
+			filterOutput.Downloads.XLS.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.XLS.HREF)
+			if err != nil {
+				api.respond.Error(
+					ctx,
+					w,
+					statusCode(err),
+					Error{
+						err:     errors.Wrap(err, "failed to build xls download link"),
+						message: "failed to build xls download link",
+						logData: log.Data{
+							"id":   fID,
+							"href": filterOutput.Downloads.XLS.HREF,
+						},
+					},
+				)
+				return
+			}
+		}
+
+		if filterOutput.Downloads.XLSX != nil {
+			filterOutput.Downloads.XLSX.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.XLSX.HREF)
+			if err != nil {
+				api.respond.Error(
+					ctx,
+					w,
+					statusCode(err),
+					Error{
+						err:     errors.Wrap(err, "failed to build xlsx download link"),
+						message: "failed to build xlsx download link",
+						logData: log.Data{
+							"id":   fID,
+							"href": filterOutput.Downloads.XLSX.HREF,
+						},
+					},
+				)
+				return
+			}
 		}
 	}
 
