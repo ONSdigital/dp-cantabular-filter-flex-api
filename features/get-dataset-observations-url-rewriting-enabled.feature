@@ -656,7 +656,7 @@ Feature: Get Dataset Observations with URL rewriting enabled
     }
     """
 
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "Test-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-test/editions/latest/versions/1/census-observations"
@@ -1194,7 +1194,7 @@ Feature: Get Dataset Observations with URL rewriting enabled
     }
     """
 
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "Test-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-test/editions/latest/versions/1/census-observations?area-type=country"
@@ -1694,7 +1694,7 @@ Feature: Get Dataset Observations with URL rewriting enabled
     }
     """
 
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "Test-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/datasets/cantabular-flexible-table-test/editions/latest/versions/1/census-observations?area-type=country,E"
@@ -2057,7 +2057,7 @@ Feature: Get Dataset Observations with URL rewriting enabled
     }
     """
 
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "Test-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/datasets/cantabular-multivariate-table-test/editions/latest/versions/1/census-observations?dimensions=age_23_a"

@@ -108,7 +108,7 @@ Feature: Filter Dimensions Private Endpoints Not Enabled wth URL rewriting enabl
     """
 
   Scenario: Get filter dimensions successfully
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "Test-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions"
