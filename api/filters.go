@@ -463,11 +463,8 @@ func (api *API) getFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
-	log.Info(ctx, "checking X-Forwarded-Host and path prefix in getFilter()", log.Data{"X-Forwarded-Host": r.Header.Get("X-Forwarded-Host"),
-		"X-Forwarded-Path-Prefix": r.Header.Get("X-Forwarded-Path-Prefix"),
-		"Test-Host":               r.Header.Get("Test-Host")})
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("X-Forwarded-API-Host"))
 
-	r.Header.Set("X-Forwarded-Host", r.Header.Get("Test-Host"))
 	logData := log.Data{
 		"filter_id": fID,
 	}

@@ -14,6 +14,8 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	fID := chi.URLParam(r, "id")
 
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("X-Forwarded-API-Host"))
+
 	var filterOutput *model.FilterOutput
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)

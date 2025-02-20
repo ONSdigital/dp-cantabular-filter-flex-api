@@ -288,6 +288,8 @@ func (api *API) deleteFilterDimensionOption(w http.ResponseWriter, r *http.Reque
 func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("X-Forwarded-API-Host"))
+
 	filterID := chi.URLParam(r, "id")
 	dimensionName := chi.URLParam(r, "dimension")
 
