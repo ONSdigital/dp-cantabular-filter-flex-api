@@ -828,7 +828,6 @@ Feature: Get Dataset JSON with URL rewriting enabled
     }
     """
 
-
     And I set the "X-Forwarded-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
