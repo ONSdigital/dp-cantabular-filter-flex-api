@@ -87,6 +87,16 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("error parsing cantabular filter flex api url: %w", err)
 	}
 
+	downloadServiceURL, err := url.Parse(cfg.DownloadServiceURL)
+	if err != nil {
+		return fmt.Errorf("error parsing download service url: %w", err)
+	}
+
+	externalDownloadServiceURL, err := url.Parse(cfg.ExternalDownloadServiceURL)
+	if err != nil {
+		return fmt.Errorf("error parsing external download service url: %w", err)
+	}
+
 	r := chi.NewRouter()
 	r.Handle("/health", http.HandlerFunc(svc.HealthCheck.Handler))
 
@@ -107,6 +117,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		cfg.EnableURLRewriting,
 		cantabularFilterFlexAPIURL,
 		datasetAPIURL,
+		downloadServiceURL,
+		externalDownloadServiceURL,
 	)
 	svc.Server = GetHTTPServer(cfg.BindAddr, r)
 

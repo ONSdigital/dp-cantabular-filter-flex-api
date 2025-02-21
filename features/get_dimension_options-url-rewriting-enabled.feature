@@ -97,7 +97,7 @@ Feature: Get Filter Dimension Options Private Endpoints with URL rewriting enabl
     ]
     """
     Scenario: Filter Dimension Option Found
-      And I set the "X-Forwarded-Host" header to "api.example.com"
+      And I set the "X-Forwarded-API-Host" header to "api.example.com"
       And I set the "X-Forwarded-Path-Prefix" header to "v1"
       And URL rewriting is enabled
       When I GET "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options?limit=10&offset=0"
@@ -161,7 +161,7 @@ Feature: Get Filter Dimension Options Private Endpoints with URL rewriting enabl
     Scenario: Filter Dimension Zero Page Limit
       In the case of zero page limit, a reasonable page limit is introduced.
 
-      And I set the "X-Forwarded-Host" header to "api.example.com"
+      And I set the "X-Forwarded-API-Host" header to "api.example.com"
       And I set the "X-Forwarded-Path-Prefix" header to "v1"
       And URL rewriting is enabled
       When I GET "/filters/83210d8d-72d6-492a-bc30-27584627abc2/dimensions/City/options?limit=0&offset=0"

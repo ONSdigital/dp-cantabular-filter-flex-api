@@ -103,7 +103,7 @@ Feature: Get Filter Private Endpoints Not Enabled with URL rewriting enabled
     """
 
   Scenario: Get filter successfully
-    And I set the "X-Forwarded-Host" header to "api.example.com"
+    And I set the "X-Forwarded-API-Host" header to "api.example.com"
     And I set the "X-Forwarded-Path-Prefix" header to "v1"
     And URL rewriting is enabled
     When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1"
