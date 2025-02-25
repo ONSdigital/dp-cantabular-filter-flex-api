@@ -191,6 +191,38 @@ Feature: Filter Outputs Private Endpoints Enabled
     """
     And the HTTP status code should be "200"
 
+  Scenario: Get a specific filter dimension successfully with url rewriting
+    Given I am identified as "user@ons.gov.uk"
+    And I am authorised
+    And I set the "X-Forwarded-API-Host" header to "api.example.com"
+    And I set the "X-Forwarded-Path-Prefix" header to "v1"
+    And URL rewriting is enabled
+    When I GET "/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography"
+    Then I should receive the following JSON response:
+    """
+    {
+      "name": "geography",
+      "id": "city",
+      "label": "City",
+      "is_area_type": true,
+      "default_categorisation": "",
+      "links": {
+        "filter": {
+          "href": "https://api.example.com/v1/filters/94310d8d-72d6-492a-bc30-27584627edb1",
+          "id": "94310d8d-72d6-492a-bc30-27584627edb1"
+        },
+        "options": {
+          "href": "https://api.example.com/v1/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography/options"
+        },
+        "self": {
+          "href": "https://api.example.com/v1/filters/94310d8d-72d6-492a-bc30-27584627edb1/dimensions/geography",
+          "id": "city"
+        }
+      }
+    }
+    """
+    And the HTTP status code should be "200"
+
   Scenario: Get a specific filter dimension when the filter is not present
     Given I am identified as "user@ons.gov.uk"
     And I am authorised
