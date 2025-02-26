@@ -29,7 +29,6 @@ func TestConfig(t *testing.T) {
 				So(cfg.CantabularExtURL, ShouldEqual, "http://localhost:8492")
 				So(cfg.DatasetAPIURL, ShouldEqual, "http://localhost:22000")
 				So(cfg.DownloadServiceURL, ShouldEqual, "http://localhost:23600")
-				So(cfg.ExternalDownloadServiceURL, ShouldEqual, "http://localhost:23600")
 				So(cfg.CantabularFilterFlexAPIURL, ShouldEqual, "http://localhost:27100")
 				So(cfg.CantabularHealthcheckEnabled, ShouldBeFalse)
 				So(cfg.KafkaConfig.Addr, ShouldResemble, []string{"localhost:9092", "localhost:9093", "localhost:9094"})
