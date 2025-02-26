@@ -44,16 +44,16 @@ Feature: Get Filter Private Endpoints Not Enabled with URL rewriting enabled
        },
        "links": {
          "filter_blueprint": {
-           "href": "test-href",
-           "id": "test-id"
+           "href": "/filters/filter-id",
+           "id": "id"
          },
          "self": {
-           "href": "test-self-href",
-           "id": "test-self-id"
+           "href": "/filter-outputs/output-id",
+           "id": "output-id"
          },
          "version": {
-           "href": "test",
-           "id": "test"
+           "href": "/datasets/dataset-id/editions/edition-id/versions/version-id",
+           "id": "version-id"
          }
        }
      },
@@ -156,16 +156,16 @@ Feature: Get Filter Private Endpoints Not Enabled with URL rewriting enabled
           },
           "links": {
             "filter_blueprint": {
-              "href": "https://api.example.com/v1/test-href",
-              "id": "test-id"
+              "href": "https://api.example.com/v1/filters/filter-id",
+              "id": "id"
             },
             "self": {
-              "href": "https://api.example.com/v1/test-self-href",
-              "id": "test-self-id"
+              "href": "https://api.example.com/v1/filter-outputs/output-id",
+              "id": "output-id"
             },
             "version": {
-              "href": "https://api.example.com/v1/test",
-              "id": "test"
+              "href": "https://api.example.com/v1/datasets/dataset-id/editions/edition-id/versions/version-id",
+              "id": "version-id"
             }
           }
         }
