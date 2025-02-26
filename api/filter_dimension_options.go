@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	"github.com/ONSdigital/dp-net/v2/links"
@@ -336,7 +335,7 @@ func (api *API) getFilterDimensionOptions(w http.ResponseWriter, r *http.Request
 	}
 
 	resp := GetFilterDimensionOptionsResponse{
-		Items: parseFilterDimensionOptions(r, options, filterID, dimensionName, api.cfg.FilterAPIURL),
+		Items: parseFilterDimensionOptions(r, options, filterID, dimensionName, api.cfg.FilterAPIURL, api.cantabularFilterFlexAPIURL, api.cfg.EnableURLRewriting),
 		paginationResponse: paginationResponse{
 			Limit:      pageLimit,
 			Offset:     offset,
@@ -414,28 +413,18 @@ func (api *API) deleteFilterDimensionOptions(w http.ResponseWriter, r *http.Requ
 	api.respond.JSON(ctx, w, http.StatusNoContent, nil)
 }
 
-func parseFilterDimensionOptions(r *http.Request, options []string, filterID, dimensionName, address string) []GetFilterDimensionOptionsItem {
+func parseFilterDimensionOptions(r *http.Request, options []string, filterID, dimensionName, address string, filterFlexAPIURL *url.URL, enableURLRewriting bool) []GetFilterDimensionOptionsItem {
 	var err error
-	cfg, err := config.Get()
-	if err != nil {
-		log.Error(r.Context(), "Error getting config", err)
-		return nil
-	}
-	parsedURL, err := url.Parse(cfg.CantabularFilterFlexAPIURL)
-	if err != nil {
-		log.Error(r.Context(), "Error parsing URL", err)
-		return nil
-	}
 	responses := make([]GetFilterDimensionOptionsItem, 0)
 
-	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, parsedURL)
+	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, filterFlexAPIURL)
 
 	for _, option := range options {
 		selfURL := fmt.Sprintf("%s/filters/%s/dimensions/%s/options", address, filterID, dimensionName)
 		filterURL := fmt.Sprintf("%s/filters/%s", address, filterID)
 		dimensionURL := fmt.Sprintf("%s/filters/%s/dimensions/%s", address, filterID, dimensionName)
 
-		if cfg.EnableURLRewriting {
+		if enableURLRewriting {
 			selfURL, err = filterFlexLinksBuilder.BuildLink(selfURL)
 			if err != nil {
 				log.Error(r.Context(), "failed to build self link", err, log.Data{"href": selfURL})
