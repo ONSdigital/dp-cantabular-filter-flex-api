@@ -22,6 +22,7 @@ dp-cantabular-filter-flex-api
 | OTEL_SERVICE_NAME                     | dp-cantabular-filter-flex-api | Label of service for OpenTelemetry service
 | OTEL_BATCH_TIMEOUT                    | 5s                            | Timeout for OpenTelemetry
 | ENABLE_URL_REWRITING                  | false                         | Feature flag to enable URL rewriting
+| DOWNLOAD_SERVICE_URL                  | http://localhost:23600        | The URL for the download service
 | CANTABULAR_FILTER_FLEX_API_URL        | http://localhost:27100        | Local URL dp-cantabular-filter-flex-api
 
 ### Contributing
