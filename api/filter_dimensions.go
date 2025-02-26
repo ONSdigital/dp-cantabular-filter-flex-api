@@ -317,6 +317,8 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 	fID := chi.URLParam(r, "id")
 	dim := chi.URLParam(r, "dimension")
 
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("X-Forwarded-API-Host"))
+
 	logData := log.Data{
 		"id":        fID,
 		"dimension": dim,
