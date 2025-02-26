@@ -20,7 +20,6 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 
 	filterFlexLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.cantabularFilterFlexAPIURL)
 	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
-	downloadLinksBuilder := links.FromHeadersOrDefaultDownload(&r.Header, api.downloadServiceURL, api.externalDownloadServiceURL)
 
 	filterOutput, err := api.store.GetFilterOutput(ctx, fID)
 	if err != nil {
@@ -94,7 +93,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if filterOutput.Downloads.TXT != nil {
-			filterOutput.Downloads.TXT.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.TXT.HREF)
+			filterOutput.Downloads.TXT.HREF, err = links.BuildDownloadLink(filterOutput.Downloads.TXT.HREF, api.downloadServiceURL)
 			if err != nil {
 				api.respond.Error(
 					ctx,
@@ -114,7 +113,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if filterOutput.Downloads.CSV != nil {
-			filterOutput.Downloads.CSV.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.CSV.HREF)
+			filterOutput.Downloads.CSV.HREF, err = links.BuildDownloadLink(filterOutput.Downloads.CSV.HREF, api.downloadServiceURL)
 			if err != nil {
 				api.respond.Error(
 					ctx,
@@ -134,7 +133,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if filterOutput.Downloads.CSVW != nil {
-			filterOutput.Downloads.CSVW.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.CSVW.HREF)
+			filterOutput.Downloads.CSVW.HREF, err = links.BuildDownloadLink(filterOutput.Downloads.CSVW.HREF, api.downloadServiceURL)
 			if err != nil {
 				api.respond.Error(
 					ctx,
@@ -154,7 +153,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if filterOutput.Downloads.XLS != nil {
-			filterOutput.Downloads.XLS.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.XLS.HREF)
+			filterOutput.Downloads.XLS.HREF, err = links.BuildDownloadLink(filterOutput.Downloads.XLS.HREF, api.downloadServiceURL)
 			if err != nil {
 				api.respond.Error(
 					ctx,
@@ -174,7 +173,7 @@ func (api *API) getFilterOutput(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if filterOutput.Downloads.XLSX != nil {
-			filterOutput.Downloads.XLSX.HREF, err = downloadLinksBuilder.BuildDownloadLink(filterOutput.Downloads.XLSX.HREF)
+			filterOutput.Downloads.XLSX.HREF, err = links.BuildDownloadLink(filterOutput.Downloads.XLSX.HREF, api.downloadServiceURL)
 			if err != nil {
 				api.respond.Error(
 					ctx,
