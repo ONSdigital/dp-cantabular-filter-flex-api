@@ -377,12 +377,7 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp dimensionItem
-	parsedURL, err := url.Parse(api.cfg.CantabularFilterFlexAPIURL)
-	if err != nil {
-		log.Error(ctx, "Error parsing CantabularFilterFlexAPIURL", err)
-		return
-	}
-	resp.fromDimension(ctx, r, filterDim, api.cfg.FilterAPIURL, fID, parsedURL)
+	resp.fromDimension(ctx, r, filterDim, api.cfg.FilterAPIURL, fID, api.cantabularFilterFlexAPIURL)
 
 	api.respond.JSON(ctx, w, http.StatusOK, resp)
 }
