@@ -1,8 +1,6 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.23.0
-
-toolchain go1.23.4
+go 1.23.4
 
 exclude github.com/hashicorp/consul/api v1.1.0
 
