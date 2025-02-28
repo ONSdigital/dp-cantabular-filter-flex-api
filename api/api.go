@@ -32,11 +32,10 @@ type API struct {
 	cantabularFilterFlexAPIURL *url.URL
 	datasetAPIURL              *url.URL
 	downloadServiceURL         *url.URL
-	externalDownloadServiceURL *url.URL
 }
 
 // New creates and initialises a new API
-func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer, enableURLRewriting bool, cantabularFilterFlexAPIURL, datasetAPIURL, downloadServiceURL, externalDownloadServiceURL *url.URL) *API {
+func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Client, rsp responder, g generator, d datastore, ds datasetAPIClient, pt populationTypesAPIClient, c cantabularClient, m metadataAPIClient, p kafka.IProducer, enableURLRewriting bool, cantabularFilterFlexAPIURL, datasetAPIURL, downloadServiceURL *url.URL) *API {
 	api := &API{
 		Router:                     r,
 		respond:                    rsp,
@@ -53,7 +52,6 @@ func New(_ context.Context, cfg *config.Config, r chi.Router, idc *identity.Clie
 		cantabularFilterFlexAPIURL: cantabularFilterFlexAPIURL,
 		datasetAPIURL:              datasetAPIURL,
 		downloadServiceURL:         downloadServiceURL,
-		externalDownloadServiceURL: externalDownloadServiceURL,
 	}
 
 	if cfg.EnablePrivateEndpoints {

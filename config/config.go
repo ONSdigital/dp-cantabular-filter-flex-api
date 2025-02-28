@@ -23,7 +23,6 @@ type Config struct {
 	CantabularExtURL             string        `envconfig:"CANTABULAR_API_EXT_URL"`
 	DatasetAPIURL                string        `envconfig:"DATASET_API_URL"`
 	DownloadServiceURL           string        `envconfig:"DOWNLOAD_SERVICE_URL"`
-	ExternalDownloadServiceURL   string        `envconfig:"EXTERNAL_DOWNLOAD_SERVICE_URL"`
 	PopulationTypesAPIURL        string        `envconfig:"POPULATION_TYPES_API_URL"`
 	MetadataAPIURL               string        `envconfig:"CANTABULAR_METADATA_API_URL"`
 	FilterAPIURL                 string        `envconfig:"FILTER_API_URL"`
@@ -83,7 +82,6 @@ func Get() (*Config, error) {
 		ComponentTestUseLogFile:      false,
 		DatasetAPIURL:                "http://localhost:22000",
 		DownloadServiceURL:           "http://localhost:23600",
-		ExternalDownloadServiceURL:   "http://localhost:23600",
 		PopulationTypesAPIURL:        "http://localhost:27300",
 		CantabularURL:                "http://localhost:8491",
 		CantabularExtURL:             "http://localhost:8492",
