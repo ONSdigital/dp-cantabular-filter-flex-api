@@ -7,5 +7,6 @@ package main
 import (
 	_ "github.com/golang/glog"
 	_ "github.com/spf13/cobra"
+	_ "golang.org/x/image"
 	_ "google.golang.org/protobuf"
 )
