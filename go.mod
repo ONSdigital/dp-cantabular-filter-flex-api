@@ -1,14 +1,6 @@
 module github.com/ONSdigital/dp-cantabular-filter-flex-api
 
-go 1.23.4
-
-exclude github.com/hashicorp/consul/api v1.1.0
-
-exclude github.com/gogo/protobuf v1.2.1
-
-exclude github.com/gogo/protobuf v1.1.1
-
-exclude github.com/prometheus/client_golang v0.9.3
+go 1.24.0
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
@@ -113,11 +105,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250204164813-702378808489 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250204164813-702378808489 // indirect
 	google.golang.org/grpc v1.70.0 // indirect
