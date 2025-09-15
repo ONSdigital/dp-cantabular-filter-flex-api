@@ -13,7 +13,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/features/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/service"
-	dphttp "github.com/ONSdigital/dp-net/v2/http"
+	dphttp "github.com/ONSdigital/dp-net/v3/http"
 
 	"github.com/cucumber/godog"
 )

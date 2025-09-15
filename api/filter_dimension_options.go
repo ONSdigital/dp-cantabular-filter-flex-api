@@ -8,7 +8,7 @@ import (
 
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-net/v2/links"
+	"github.com/ONSdigital/dp-net/v3/links"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
 	"github.com/ONSdigital/log.go/v2/log"

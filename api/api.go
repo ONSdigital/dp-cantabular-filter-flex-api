@@ -10,7 +10,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/identity"
 	"github.com/ONSdigital/dp-authorisation/auth"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/middleware"
-	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	dphandlers "github.com/ONSdigital/dp-net/v3/handlers"
 
 	"github.com/go-chi/chi/v5"
 )

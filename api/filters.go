@@ -7,8 +7,8 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/population"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/event"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-net/v2/links"
-	dprequest "github.com/ONSdigital/dp-net/v2/request"
+	"github.com/ONSdigital/dp-net/v3/links"
+	dprequest "github.com/ONSdigital/dp-net/v3/request"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/go-chi/chi/v5"

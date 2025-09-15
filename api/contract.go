@@ -8,7 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-net/v2/links"
+	"github.com/ONSdigital/dp-net/v3/links"
 	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/pkg/errors"

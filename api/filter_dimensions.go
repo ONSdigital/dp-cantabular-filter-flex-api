@@ -9,7 +9,7 @@ import (
 
 	dperrors "github.com/ONSdigital/dp-cantabular-filter-flex-api/errors"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	dprequest "github.com/ONSdigital/dp-net/v2/request"
+	dprequest "github.com/ONSdigital/dp-net/v3/request"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"

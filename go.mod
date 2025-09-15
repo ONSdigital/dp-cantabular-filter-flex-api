@@ -3,20 +3,20 @@ module github.com/ONSdigital/dp-cantabular-filter-flex-api
 go 1.24.0
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.263.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.266.0
 	github.com/ONSdigital/dp-authorisation v0.3.0
 	github.com/ONSdigital/dp-component-test v0.18.0
-	github.com/ONSdigital/dp-healthcheck v1.6.3
+	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-kafka/v4 v4.1.0
 	github.com/ONSdigital/dp-mongodb/v3 v3.8.0
-	github.com/ONSdigital/dp-net/v2 v2.22.0
+	github.com/ONSdigital/dp-net/v3 v3.5.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/log.go/v2 v2.4.3
+	github.com/ONSdigital/log.go/v2 v2.4.5
 	github.com/cucumber/godog v0.15.0
-	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/golang/glog v1.2.4
 	github.com/golang/mock v1.6.0
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/maxcnunes/httpfake v1.2.4
@@ -32,6 +32,7 @@ require (
 
 require (
 	github.com/ONSdigital/dp-mongodb-in-memory v1.8.0 // indirect
+	github.com/ONSdigital/dp-net/v2 v2.22.0 // indirect
 	github.com/Shopify/sarama v1.38.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/chromedp/cdproto v0.0.0-20241022234722-4d5d5faf59fb // indirect
@@ -97,12 +98,12 @@ require (
 	go.opentelemetry.io/contrib/propagators/b3 v1.27.0 // indirect
 	go.opentelemetry.io/contrib/propagators/jaeger v1.27.0 // indirect
 	go.opentelemetry.io/contrib/propagators/ot v1.27.0 // indirect
-	go.opentelemetry.io/otel v1.34.0 // indirect
+	go.opentelemetry.io/otel v1.35.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.27.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.27.0 // indirect
-	go.opentelemetry.io/otel/metric v1.34.0 // indirect
+	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.32.0 // indirect
-	go.opentelemetry.io/otel/trace v1.34.0 // indirect
+	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.42.0 // indirect

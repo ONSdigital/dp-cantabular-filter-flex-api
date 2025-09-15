@@ -15,7 +15,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	dpresponder "github.com/ONSdigital/dp-net/v2/responder"
+	dpresponder "github.com/ONSdigital/dp-net/v3/responder"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
