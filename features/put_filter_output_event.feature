@@ -140,7 +140,7 @@ Feature: Post Filter Output event Private Endpoints Enabled
     """
     {
       "errors": [
-        "badly formed request body: json: cannot unmarshal number into Go struct field addFilterOutputEventRequest.timestamp of type string"
+        "badly formed request body: json: cannot unmarshal number into Go struct field addFilterOutputEventRequest.Event.timestamp of type string"
       ]
     }
     """
