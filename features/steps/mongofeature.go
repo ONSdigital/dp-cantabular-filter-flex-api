@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/datastore/mongodb"
@@ -41,7 +42,17 @@ func NewMongoFeature(ef componenttest.ErrorFeature, g service.Generator, cfg *co
 		g:   g,
 		cfg: cfg}
 
-	mf.cfg.Mongo.ClusterEndpoint = mf.MongoFeature.Server.URI()
+	endpoint, err := mf.GetConnectionString()
+	if err != nil {
+		mf.Fatalf("failed to get mongo connection string: %v", err)
+	}
+
+	mongoURL, err := url.Parse(endpoint)
+	if err != nil {
+		mf.Fatalf("failed to parse mongo connection string %q: %v", endpoint, err)
+	}
+
+	mf.cfg.Mongo.ClusterEndpoint = mongoURL.Host
 
 	return mf
 }

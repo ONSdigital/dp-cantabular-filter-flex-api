@@ -13,6 +13,7 @@ services:
             - -component
         volumes:
             - ../../:/dp-cantabular-filter-flex-api
+            - /var/run/docker.sock:/var/run/docker.sock
         ports:
             - 27100:27100
         depends_on:
