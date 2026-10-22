@@ -48,10 +48,6 @@ func GenerateKafkaConsumer(ctx context.Context) (*kafka.ConsumerGroup, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	consumer.LogErrors(ctx)
 	return consumer, nil
 }

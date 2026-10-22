@@ -214,7 +214,7 @@ func TestClose(t *testing.T) {
 			Producer:    producerMock,
 		}
 		Convey("Closing the service results in all the dependencies being closed in the expected order", func() {
-			err := svc.Close(context.Background())
+			err = svc.Close(context.Background())
 			So(err, ShouldBeNil)
 			So(hcMock.StopCalls(), ShouldHaveLength, 1)
 			So(serverMock.ShutdownCalls(), ShouldHaveLength, 1)

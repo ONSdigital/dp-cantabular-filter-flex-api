@@ -114,7 +114,7 @@ func (api *API) addFilterDimensionOption(w http.ResponseWriter, r *http.Request)
 		},
 	}
 
-	if _, err := api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
+	if _, err = api.ctblr.GetDimensionOptions(ctx, dReq); err != nil {
 		logData["request"] = dReq
 		if api.ctblr.StatusCode(err) >= http.StatusInternalServerError {
 			err = Error{

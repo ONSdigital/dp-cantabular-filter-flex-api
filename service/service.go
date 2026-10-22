@@ -73,7 +73,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, buildTime, git
 		return fmt.Errorf("failed to initialise mongodb store: %w", err)
 	}
 
-	if err := svc.registerCheckers(); err != nil {
+	if err = svc.registerCheckers(); err != nil {
 		return fmt.Errorf("error initialising checkers: %w", err)
 	}
 

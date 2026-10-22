@@ -389,7 +389,7 @@ func (c *Client) DeleteFilterDimension(ctx context.Context, filterID, dimensionN
 		},
 	}
 
-	if _, err := c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
+	if _, err = c.conn.Collection(col.name).Update(ctx, selectFilter, updateFilter); err != nil {
 		return "", &er{
 			err:     errors.Wrap(err, "failed to update filter dimension"),
 			logData: logData,

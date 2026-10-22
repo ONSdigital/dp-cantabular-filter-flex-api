@@ -92,24 +92,25 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	var dimensions []model.Dimension
 
-	if v.IsBasedOn.Type == cantabularFlexibleTable {
+	switch v.IsBasedOn.Type {
+	case cantabularFlexibleTable:
 		dimensions, err = api.validateAndHydrateDimensions(v, []model.Dimension{req.Dimension}, filter.PopulationType)
 		if err != nil {
 			api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
 			return
 		}
-	} else if v.IsBasedOn.Type == cantabularMultivariateTable {
+	case cantabularMultivariateTable:
 		dimensions, err = api.HydrateMultivariateDimensionsPOST([]model.Dimension{req.Dimension}, filter.PopulationType)
 		if err != nil {
 			api.respond.Error(ctx, w, statusCode(err), errors.Wrap(err, "failed to validate dimensions"))
 			return
 		}
-	} else {
+	default:
 		api.respond.Error(ctx, w, http.StatusInternalServerError, errors.New("unsupported filter type"))
 		return
 	}
 
-	if err := api.validateDimensionOptions(ctx, dimensions, filter.PopulationType); err != nil {
+	if err = api.validateDimensionOptions(ctx, dimensions, filter.PopulationType); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -148,7 +149,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.store.AddFilterDimension(ctx, fID, finalDim); err != nil {
+	if err = api.store.AddFilterDimension(ctx, fID, finalDim); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -193,7 +194,7 @@ func (api *API) addFilterDimension(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp addFilterDimensionResponse
-	resp.dimensionItem.fromDimension(
+	resp.fromDimension(
 		ctx,
 		r,
 		finalDim,
@@ -271,7 +272,7 @@ func (api *API) updateFilterDimension(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.validateDimensionOptions(ctx, []model.Dimension{req.Dimension}, filter.PopulationType); err != nil {
+	if err = api.validateDimensionOptions(ctx, []model.Dimension{req.Dimension}, filter.PopulationType); err != nil {
 		api.respond.Error(
 			ctx,
 			w,
@@ -344,7 +345,7 @@ func (api *API) getFilterDimension(w http.ResponseWriter, r *http.Request) {
 
 	// Check the filter exists, so we can return a different status code
 	// from if the dimension doesn't exist.
-	if _, err := api.store.GetFilter(ctx, fID); err != nil {
+	if _, err = api.store.GetFilter(ctx, fID); err != nil {
 		status := statusCode(err)
 		if dperrors.NotFound(err) {
 			status = http.StatusBadRequest

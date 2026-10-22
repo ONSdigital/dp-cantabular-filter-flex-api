@@ -125,7 +125,7 @@ func (api *API) createFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.validateDimensionOptions(ctx, finalDims, req.PopulationType); err != nil {
+	if err = api.validateDimensionOptions(ctx, finalDims, req.PopulationType); err != nil {
 		api.respond.Error(
 			ctx,
 			w,

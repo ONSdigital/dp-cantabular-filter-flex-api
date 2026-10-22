@@ -678,7 +678,7 @@ func getValidOptionsResponse() dataset.Options {
 }
 
 func getValidObservationsResponse(dimensionID string) GetObservationsResponse {
-	var obsDimension []ObservationDimension
+	obsDimension := make([]ObservationDimension, 0, 1)
 	obsDimension = append(obsDimension, ObservationDimension{
 		Dimension:   "test",
 		DimensionID: dimensionID,
@@ -686,7 +686,7 @@ func getValidObservationsResponse(dimensionID string) GetObservationsResponse {
 		OptionID:    "1",
 	})
 
-	var getObservationResponse []GetObservationResponse
+	getObservationResponse := make([]GetObservationResponse, 0, 1)
 	getObservationResponse = append(getObservationResponse, GetObservationResponse{
 		Dimensions:  obsDimension,
 		Observation: 2,

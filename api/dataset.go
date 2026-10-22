@@ -111,13 +111,13 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if r.URL.Query().Get("area-type") != "" {
-		variables, filters, err := api.validateGeography(ctx, r, params, cReq)
-		if err != nil {
+		variables, filters, geographyErr := api.validateGeography(ctx, r, params, cReq)
+		if geographyErr != nil {
 			api.respond.Error(
 				ctx,
 				w,
-				statusCode(err),
-				errors.Wrap(err, "validateGeography failed"),
+				statusCode(geographyErr),
+				errors.Wrap(geographyErr, "validateGeography failed"),
 			)
 			return
 		}
@@ -162,14 +162,14 @@ func (api *API) getDatasetObservationHandler(w http.ResponseWriter, r *http.Requ
 			return errors.New("no file content has been provided")
 		}
 
-		response, err := api.processObservationsResponse(cancelContext, file, w)
-		if err != nil {
+		response, processErr := api.processObservationsResponse(cancelContext, file, w)
+		if processErr != nil {
 			api.respond.Error(
 				ctx,
 				w,
 				http.StatusUnprocessableEntity,
 				Error{
-					message: err.Error(),
+					message: processErr.Error(),
 				},
 			)
 		}
@@ -429,7 +429,7 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 	datasetLinksBuilder := links.FromHeadersOrDefault(&r.Header, api.datasetAPIURL)
 
 	for _, dimension := range query.Dataset.Table.Dimensions {
-		var options []model.Link
+		options := make([]model.Link, 0, len(dimension.Categories))
 
 		for _, option := range dimension.Categories {
 			options = append(options, model.Link{
@@ -489,8 +489,8 @@ func (api *API) toGetDatasetJSONResponse(r *http.Request, params *datasetParams,
 func (api *API) toGetDatasetObservationsResponse(params *datasetParams, query *cantabular.StaticDatasetQuery) (*GetObservationsResponse, error) {
 	observations := make([]GetObservationResponse, 0, len(query.Dataset.Table.Values))
 
-	dimLengths := make([]int, 0)
-	dimIndices := make([]int, 0)
+	dimLengths := make([]int, 0, len(query.Dataset.Table.Dimensions))
+	dimIndices := make([]int, 0, len(query.Dataset.Table.Dimensions))
 
 	for _, d := range query.Dataset.Table.Dimensions {
 		dimLengths = append(dimLengths, len(d.Categories))
@@ -599,9 +599,9 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 		dimension := &versionItem.Dimensions[dimensionIndex]
 		dimMap[dimension.Name] = struct{}{}
 
-		options, err := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get options")
+		options, optionsErr := api.datasets.GetOptionsInBatches(ctx, "", api.cfg.ServiceAuthToken, "", params.id, params.edition, params.version, dimension.Name, api.cfg.DatasetOptionsBatchSize, api.cfg.DatasetOptionsWorkers)
+		if optionsErr != nil {
+			return nil, errors.Wrap(optionsErr, "failed to get options")
 		}
 
 		params.options[dimension.ID] = make(map[string]dataset.Option)
@@ -631,7 +631,7 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 				continue
 			}
 
-			res, err := api.population.GetCategorisations(ctx, population.GetCategorisationsInput{
+			res, categorisationsErr := api.population.GetCategorisations(ctx, population.GetCategorisationsInput{
 				PopulationType: params.basedOn,
 				Dimension:      dim.ID,
 				PaginationParams: population.PaginationParams{
@@ -641,8 +641,8 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 					ServiceAuthToken: api.cfg.ServiceAuthToken,
 				},
 			})
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to get categorisations")
+			if categorisationsErr != nil {
+				return nil, errors.Wrap(categorisationsErr, "failed to get categorisations")
 			}
 			for _, dim := range res.Items {
 				catMap[dim.ID] = struct{}{}
@@ -658,13 +658,13 @@ func (api *API) getDatasetParams(ctx context.Context, r *http.Request) (*dataset
 			}
 		}
 
-		res, err := api.ctblr.GetDimensionsByName(ctx, cantabular.GetDimensionsByNameRequest{
+		res, dimensionErr := api.ctblr.GetDimensionsByName(ctx, cantabular.GetDimensionsByNameRequest{
 			Dataset:          params.basedOn,
 			DimensionNames:   extraDims,
 			ExcludeGeography: true,
 		})
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get dimensions")
+		if dimensionErr != nil {
+			return nil, errors.Wrap(dimensionErr, "failed to get dimensions")
 		}
 
 		if len(res.Dataset.Variables.Edges) < len(extraDims) {
