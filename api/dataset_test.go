@@ -16,7 +16,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
-	"github.com/ONSdigital/dp-net/v3/request"
+	dprequest "github.com/ONSdigital/dp-net/v3/request"
 	dpresponder "github.com/ONSdigital/dp-net/v3/responder"
 
 	"github.com/go-chi/chi/v5"
@@ -24,7 +24,7 @@ import (
 	"github.com/google/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 var (
@@ -58,7 +58,7 @@ func TestDatasetVersionLookupBackendRequest(t *testing.T) {
 	New(context.Background(), cfg, router, nil, dpresponder.New(), nil, nil,
 		dataset.NewAPIClient(backend.URL), nil, nil, nil, nil, false,
 		backendURL, backendURL, backendURL)
-	handler := request.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(trace.NewNoopTracerProvider())))
+	handler := dprequest.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(noop.NewTracerProvider())))
 
 	const requestID = "caller-request-12345678"
 	incoming := httptest.NewRequest(http.MethodGet,

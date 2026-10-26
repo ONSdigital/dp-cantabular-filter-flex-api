@@ -17,7 +17,7 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
 	dphttp "github.com/ONSdigital/dp-net/v3/http"
-	"github.com/ONSdigital/dp-net/v3/request"
+	dprequest "github.com/ONSdigital/dp-net/v3/request"
 	dpresponder "github.com/ONSdigital/dp-net/v3/responder"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/dataset"
@@ -26,7 +26,7 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 func TestCreateCustomFilterPopulationBackendRequest(t *testing.T) {
@@ -49,7 +49,7 @@ func TestCreateCustomFilterPopulationBackendRequest(t *testing.T) {
 	router := chi.NewRouter()
 	New(context.Background(), cfg, router, nil, dpresponder.New(), nil, nil, nil, populationClient,
 		nil, nil, nil, false, backendURL, backendURL, backendURL)
-	handler := request.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(trace.NewNoopTracerProvider())))
+	handler := dprequest.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(noop.NewTracerProvider())))
 
 	const requestID = "caller-request-12345678"
 	incoming := httptest.NewRequest(http.MethodPost, "/custom/filters?tag=one&tag=two",
@@ -128,7 +128,7 @@ func TestCreateFilterCantabularBackendRequest(t *testing.T) {
 	New(context.Background(), cfg, router, nil, dpresponder.New(), nil, nil, datasets, nil,
 		cantabular.NewClient(cantabular.Config{ExtApiHost: backend.URL}, dphttp.NewClient(), nil), nil, nil, false,
 		backendURL, backendURL, backendURL)
-	handler := request.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(trace.NewNoopTracerProvider())))
+	handler := dprequest.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(noop.NewTracerProvider())))
 
 	const requestID = "caller-request-12345678"
 	incoming := httptest.NewRequest(http.MethodPost, "/filters?tag=one&tag=two", strings.NewReader(
