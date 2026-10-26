@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/cantabular"
@@ -15,12 +16,15 @@ import (
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/api/mock"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/config"
 	"github.com/ONSdigital/dp-cantabular-filter-flex-api/model"
+	"github.com/ONSdigital/dp-net/v3/request"
 	dpresponder "github.com/ONSdigital/dp-net/v3/responder"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	. "github.com/smartystreets/goconvey/convey"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -35,6 +39,84 @@ type testParams struct {
 	datasetID string
 	edition   string
 	version   string
+}
+
+func TestDatasetVersionLookupBackendRequest(t *testing.T) {
+	received := make(chan *http.Request, 1)
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		received <- r.Clone(context.Background())
+		http.NotFound(w, r)
+	}))
+	t.Cleanup(backend.Close)
+
+	backendURL, err := url.Parse(backend.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := &config.Config{ServiceAuthToken: "test-service-token"}
+	router := chi.NewRouter()
+	New(context.Background(), cfg, router, nil, dpresponder.New(), nil, nil,
+		dataset.NewAPIClient(backend.URL), nil, nil, nil, nil, false,
+		backendURL, backendURL, backendURL)
+	handler := request.HandlerRequestID(16)(otelhttp.NewHandler(router, "/", otelhttp.WithTracerProvider(trace.NewNoopTracerProvider())))
+
+	const requestID = "caller-request-12345678"
+	incoming := httptest.NewRequest(http.MethodGet,
+		"/datasets/test-dataset/editions/2021/versions/1/json?area-type=REGION&area-type=COUNTY", http.NoBody)
+	incoming.Header.Set("X-Request-Id", requestID)
+	incoming.Header.Set("traceparent", "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01")
+	incoming.Header.Set("Authorization", "Bearer caller-token")
+	incoming.Header.Set("Cookie", "session=caller-session")
+	incoming.Header.Set("Content-Type", "application/json")
+	incoming.Header.Set("X-Forwarded-Host", "api.example")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, incoming)
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("response status: got %d, want %d", response.Code, http.StatusNotFound)
+	}
+
+	var got *http.Request
+	select {
+	case got = <-received:
+	default:
+		t.Fatal("dataset backend received no request")
+	}
+	if got.Method != http.MethodGet || got.URL.Path != "/datasets/test-dataset/editions/2021/versions/1" || got.URL.RawQuery != "" {
+		t.Errorf("backend method and URL: got %s %s, want GET /datasets/test-dataset/editions/2021/versions/1", got.Method, got.URL.RequestURI())
+	}
+	if got.Header.Get("Authorization") != "Bearer test-service-token" {
+		t.Errorf("backend authorization: got %q, want service token", got.Header.Get("Authorization"))
+	}
+	if id := got.Header.Get("X-Request-Id"); !strings.HasPrefix(id, requestID+",") || len(strings.TrimPrefix(id, requestID+",")) != len(requestID)/2 {
+		t.Errorf("backend request ID: got %q, want %q followed by an appended ID", id, requestID+",")
+	}
+	for _, name := range []string{"traceparent", "Cookie", "Content-Type", "X-Forwarded-Host"} {
+		if value := got.Header.Get(name); value != "" {
+			t.Errorf("backend %s: got %q, want no copied header", name, value)
+		}
+	}
+	if got.ContentLength != 0 {
+		t.Errorf("backend body length: got %d, want 0", got.ContentLength)
+	}
+
+	withoutID := httptest.NewRequest(http.MethodGet, "/datasets/test-dataset/editions/2021/versions/1/json", http.NoBody)
+	response = httptest.NewRecorder()
+	handler.ServeHTTP(response, withoutID)
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("response without request ID: got %d, want %d", response.Code, http.StatusNotFound)
+	}
+	generated := withoutID.Header.Get("X-Request-Id")
+	if len(generated) != 16 {
+		t.Fatalf("generated request ID length: got %d, want 16", len(generated))
+	}
+	select {
+	case got = <-received:
+	default:
+		t.Fatal("dataset backend received no request without an incoming ID")
+	}
+	if id := got.Header.Get("X-Request-Id"); !strings.HasPrefix(id, generated+",") || len(strings.TrimPrefix(id, generated+",")) != len(generated)/2 {
+		t.Errorf("backend generated request ID: got %q, want %q followed by an appended ID", id, generated+",")
+	}
 }
 
 func TestMissingURLParams(t *testing.T) {
